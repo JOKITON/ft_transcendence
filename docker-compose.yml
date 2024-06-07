@@ -1,4 +1,3 @@
-version: '3.8'
 name: ft_transcendence
 
 services:
@@ -10,7 +9,7 @@ services:
     networks:
       - frontend
     env_file:
-      - .env_proxy
+      - docker/proxy/.env_proxy
     restart: always
     depends_on:
       - app
@@ -26,20 +25,20 @@ services:
       - frontend
       - backend
     env_file:
-      - .env_app
+      - docker/app/.env_app
     restart: always
     depends_on:
       - db
-    ports:
-      - "8000:8000"
 
   db:
     container_name: db
-    image: postgres:latest
+    build:
+      context: ./docker/db/
+      dockerfile: Dockerfile
     networks:
       - backend
     env_file:
-      - .env
+      - docker/db/.env_db
     restart: always
     # Volume ensures data persists
     volumes:
