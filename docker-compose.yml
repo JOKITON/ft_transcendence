@@ -14,7 +14,7 @@ services:
     depends_on:
       - app
     ports:
-      - "80:80"
+      - "81:81"
 
   app:
     container_name: app

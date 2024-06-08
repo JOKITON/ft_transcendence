@@ -29,6 +29,14 @@ down:
 clean:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down -v
 
+info:
+	@sudo docker ps
+	@sudo docker images
+	@sudo docker volume ls
+	@sudo docker network ls
+	@sudo $(DOCKER_COMPOSE_CMD) ps
+	@sudo $(DOCKER_COMPOSE_CMD) images
+
 # Help target
 help:
 	@echo "Usage: make [TARGET]"
@@ -38,4 +46,5 @@ help:
 	@echo "  up		   : Build and start the Docker containers"
 	@echo "  down      : Stop and remove the Docker containers"
 	@echo "  clean     : Clean up the Docker volumes"
+	@echo "  info      : List information about containers"
 	@echo "  help      : Show this help message"
