@@ -1,6 +1,19 @@
 NAME = ft_transcendence
 
-DOCKER_COMPOSE = docker-compose
+# Variables
+DOCKER_COMPOSE_LINUX = docker compose
+DOCKER_COMPOSE_MAC = docker-compose
+
+# Check if docker-compose exists
+DOCKER_COMPOSE_EXISTS := $(shell command -v docker-compose 2>/dev/null)
+
+# Conditional command assignment
+ifeq ($(DOCKER_COMPOSE_EXISTS),)
+    DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_LINUX)
+else
+    DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_MAC)
+endif
+
 COMPOSE_YML = docker-compose.yml
 
 .PHONY: all build down clean
@@ -8,13 +21,13 @@ COMPOSE_YML = docker-compose.yml
 all : up
 
 up :
-	$(DOCKER_COMPOSE) -f $(COMPOSE_YML) up --build
+	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) up --build
 
 down:
-	$(DOCKER_COMPOSE) -f $(COMPOSE_YML) down
+	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down
 
 clean:
-	$(DOCKER_COMPOSE) -f $(COMPOSE_YML) down -v
+	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down -v
 
 # Help target
 help:
