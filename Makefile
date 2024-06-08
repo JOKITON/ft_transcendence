@@ -25,6 +25,7 @@ up :
 
 down:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down
+	sudo docker rmi ft_transcendence-proxy ft_transcendence-app ft_transcendence-db
 
 clean:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down -v

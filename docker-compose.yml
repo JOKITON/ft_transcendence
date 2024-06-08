@@ -14,7 +14,7 @@ services:
     depends_on:
       - app
     ports:
-      - "81:81"
+      - "8080:8080"
 
   app:
     container_name: app
@@ -26,6 +26,8 @@ services:
       - backend
     env_file:
       - docker/app/.env_app
+    expose:
+      - "8000"
     restart: always
     depends_on:
       - db
@@ -39,7 +41,11 @@ services:
       - backend
     env_file:
       - docker/db/.env_db
+    expose:
+      - "8000"
     restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
     # Volume ensures data persists
     volumes:
       - db-data:/var/lib/postgresql/data
