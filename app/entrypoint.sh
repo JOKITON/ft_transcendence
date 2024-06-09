@@ -14,4 +14,4 @@ fi
 python manage.py flush --no-input
 python manage.py migrate
 
-gunicorn --bind 0.0.0.0:8000 backend.wsgi:application
+gunicorn --bind 0.0.0.0:8000 config.wsgi:application
