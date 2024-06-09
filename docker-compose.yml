@@ -4,28 +4,28 @@ services:
   proxy:
     container_name: proxy
     build:
-      context: ./docker/proxy/
+      context: ./proxy/
       dockerfile: Dockerfile
     networks:
       - frontend
     env_file:
-      - docker/proxy/.env_proxy
+      - proxy/.env_proxy
     restart: always
     depends_on:
       - app
     ports:
-      - "8080:8080"
+      - "80:80"
 
   app:
     container_name: app
     build:
-      context: ./docker/app/
+      context: ./app/
       dockerfile: Dockerfile
     networks:
       - frontend
       - backend
     env_file:
-      - docker/app/.env_app
+      - app/.env_app
     expose:
       - "8000"
     restart: always
@@ -35,14 +35,12 @@ services:
   db:
     container_name: db
     build:
-      context: ./docker/db/
+      context: ./db/
       dockerfile: Dockerfile
     networks:
       - backend
     env_file:
-      - docker/db/.env_db
-    expose:
-      - "8000"
+      - db/.env_db
     restart: always
     # set shared memory limit when using docker-compose
     shm_size: 128mb
