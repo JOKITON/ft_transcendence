@@ -8,9 +8,6 @@ RUN apt-get update && apt-get install -y postgresql-client
 # Set the working directory in the container
 WORKDIR /usr/src/app/
 
-# Copy webpage to app
-COPY html /usr/share/nginx/html
-
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
