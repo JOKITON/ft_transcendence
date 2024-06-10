@@ -7,6 +7,8 @@ WORKDIR /usr/src/app/
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+EXPOSE 8000
+
 # Install required packages
 RUN apt-get update && apt-get install -y netcat
 
@@ -23,7 +25,12 @@ COPY ./entrypoint.sh .
 RUN sed -i 's/\r$//g' /usr/src/app/entrypoint.sh
 RUN chmod +x /usr/src/app/entrypoint.sh
 
-EXPOSE 8000
+
+# Copy static files into container
+COPY static /home/app/web/static
+
+# Change permissions to allow reading/writing
+RUN chmod -R 755 /home/app/web/static
 
 # Run the application
 CMD ["/usr/src/app/entrypoint.sh"]
