@@ -1,9 +1,8 @@
-from django.contrib import admin
-from django.urls import include, path
-
-from home.views import index
+from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
+from . import views
 
 urlpatterns = [
-    path('admin/', index),
-    path('', include('home.urls')),
-]
+    path('', views.index),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
