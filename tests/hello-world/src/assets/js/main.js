@@ -1,12 +1,5 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import "./assets/css/bootstrap.min.css"
-import "./assets/css/styles.css"
-
-createApp(App).mount('#app')
-
 // Waits for the HTML document to be fully loaded and parsed
-/* document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
     const navigateTo = (url) => {
         if (!url) {
             url = "home"; // Default to "home" if the URL is empty
@@ -54,4 +47,3 @@ createApp(App).mount('#app')
     loadContent(location.pathname.slice(1) || "home");
     attachLinkHandlers();
 });
- */
