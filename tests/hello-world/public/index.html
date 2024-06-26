@@ -11,7 +11,44 @@
     <noscript>
       <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
+    <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a
+          class="navbar-brand"
+          href="home"
+          data-link="home"
+        >SPA Example</a>
+        <div
+          id="navbarNav"
+          class="collapse navbar-collapse"
+        >
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                href="home"
+                data-link="home"
+              >Home</a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                href="login"
+                data-link="login"
+              >Login</a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                href="register"
+                data-link="register"
+              >Register</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </div>
     <div id="app"></div>
-    <!-- built files will be auto injected -->
+    <script src="main.js"></script>
   </body>
 </html>
