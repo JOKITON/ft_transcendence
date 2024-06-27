@@ -1,9 +1,12 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';
 import "./assets/css/bootstrap.min.css"
 import "./assets/css/styles.css"
 
-createApp(App).mount('#app')
+const app = createApp(App);
+app.use(router);
+app.mount('#app');
 
 // Waits for the HTML document to be fully loaded and parsed
 /* document.addEventListener("DOMContentLoaded", () => {
