@@ -9,7 +9,7 @@
 
 # Back-End:
 - Learn some Django
-- leran rest_framework
+- Learn Rest_framework
 
 # Database:
 - Learn some PostgreSQL
