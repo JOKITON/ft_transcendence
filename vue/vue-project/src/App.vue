@@ -1,7 +1,7 @@
 <template>
 <div class="container">
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-	<a class="navbar-brand" href="/" data-link="home">SPA Example</a>
+	<router-link class="nav-link" to="/">SPA Example</router-link>
 	<div class="collapse navbar-collapse" id="navbarNav">
 		<ul class="navbar-nav">
 		<li class="nav-item">
