@@ -52,6 +52,20 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
 
+  vue:
+    container_name: vue
+    build:
+      context: ./vue/
+      dockerfile: Dockerfile
+    networks:
+      - frontend
+    restart: always
+    volumes:
+      - static_volume:/home/app/web/static
+      - media_volume:/home/app/web/media
+    expose:
+      - "8080"
+
 networks:
   frontend:
     driver: bridge
