@@ -50,13 +50,7 @@ export default {
 	methods: {
 		async registerUser() {
 			try {
-				if (this.form.password !== this.form.password_confirm) {
-					this.passwordsDoNotMatch = true;
-					throw new Error("Passwords do not match");
-				} else {
-					this.passwordsDoNotMatch = false;
-				}
-
+				this.validateForm();
 				const response = await fetch('/api/register', {
 					method: 'POST',
 					headers: {
@@ -85,6 +79,24 @@ export default {
 				alert('Registration failed. ' + error.message);
 			}
 		},
+		validateForm() {
+			if (this.form.password.length < 8) {
+				throw new Error("Password must be at least 8 characters long");
+			}
+
+			if (!this.validateEmail(this.form.email)) {
+				throw new Error("Invalid email format");
+			}
+
+			if (this.form.password !== this.form.password_confirm) {
+				throw new Error("Passwords do not match.");
+			}
+		},
+
+		validateEmail(email) {
+			const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			return re.test(email);
+		}
 	},
 };
 </script>
