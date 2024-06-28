@@ -1,24 +1,29 @@
-from django.shortcuts import render, redirect
-from django.core.files.storage import FileSystemStorage
+from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from django.contrib.auth import login
-from .forms import RegisterForm
-from django.views.decorators.csrf import requires_csrf_token
+from django.views.decorators.csrf import csrf_exempt
+import json
 
-def index(request):
-    return render(request, 'index.html')
-
+@csrf_exempt
 def register_view(request):
     if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({'message': 'Registration successful'}, status=200)
-        else:
-            errors = form.errors.as_json()
-            return JsonResponse({'errors': errors}, status=400)
-    return render(request, 'index.html')
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+
+        if not username or not password:
+            return JsonResponse({'error': 'Username and password are required'}, status=400)
+
+        # Check if user already exists
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({'error': 'Username already exists'}, status=400)
+
+        # Create user
+        user = User.objects.create_user(username=username, password=password)
+
+        return JsonResponse({'message': 'Registration successful', 'user_id': user.id}, status=200)
+
+    return JsonResponse({'error': 'POST method required'}, status=405)
 
 def login_view(request):
-    return render(request, 'index.html')
+    return JsonResponse({'message': 'Login endpoint, but not implemented yet'}, status=501)

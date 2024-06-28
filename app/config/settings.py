@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
 	
     'home',
 ]
@@ -55,10 +54,6 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-			    os.path.join(BASE_DIR, 'static'),
-				os.path.join(BASE_DIR, 'static', 'pages'),
-				],
         'APP_DIRS': False,
         'OPTIONS': {
             'context_processors': [
@@ -121,22 +116,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = ''
-STATIC_ROOT = BASE_DIR / "static"
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'home', 'static'),
-]
-
-#print("STATIC_URL:", STATIC_URL)
-#print("STATIC_ROOT:", STATIC_ROOT)
-
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = '/home/app/web/media'
 
@@ -144,3 +123,23 @@ MEDIA_ROOT = '/home/app/web/media'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Ensure CORS headers are configured if you are serving API requests from a different domain
+CORS_ALLOWED_ORIGINS = [
+    "http://your_frontend_domain.com",
+    "https://your_frontend_domain.com",
+    # Add other allowed origins as needed
+]
+
+# Configure Django Rest Framework settings if you're using it
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+        # Adjust permissions as per your API needs
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        # Add other authentication classes as needed
+    ],
+}
