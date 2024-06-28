@@ -50,33 +50,39 @@ export default {
 	methods: {
 		async registerUser() {
 			try {
+				if (this.form.password !== this.form.password_confirm) {
+					this.passwordsDoNotMatch = true;
+					throw new Error("Passwords do not match");
+				} else {
+					this.passwordsDoNotMatch = false;
+				}
+
 				const response = await fetch('/api/register', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						// Include CSRF token if required by backend
-						// 'X-CSRFToken': this.getCsrfToken()
 					},
 					body: JSON.stringify({
 						username: this.form.username,
 						email: this.form.email,
 						password: this.form.password,
-						// Add additional fields as needed
+						password_confirm: this.form.password_confirm  // Add the confirmation password here
 					})
 				});
 
+				const data = await response.json();
+
 				if (!response.ok) {
-					throw new Error('Registration failed');
+					throw new Error(data.message);  // Throw error with server message
 				}
 
-				const data = await response.json();
 				console.log('Registration successful:', data);
+				// Handle successful registration (e.g., show success message, redirect)
 
-				// Redirect or handle success accordingly
 			} catch (error) {
-				console.error('Registration error:', error);
+				console.error('Registration error:', error.message);
 				// Handle registration error (e.g., show error message to user)
-				alert('Registration failed. Please try again.');
+				alert('Registration failed. ' + error.message);
 			}
 		},
 	},

@@ -12,18 +12,41 @@ def register_view(request):
         password = data.get('password')
 
         if not username or not password:
-            return JsonResponse({'error': 'Username and password are required'}, status=400)
+            return JsonResponse(
+                {
+                 'message': 'Username and password are required',
+                 'status': 'error'
+                },
+                status=400)
 
         # Check if user already exists
         if User.objects.filter(username=username).exists():
-            return JsonResponse({'error': 'Username already exists'}, status=400)
+            return JsonResponse(
+                {
+                 'message': 'Username already exists',
+                 'status': 'error'
+                },
+                status=400)
 
         # Create user
         user = User.objects.create_user(username=username, password=password)
 
-        return JsonResponse({'message': 'Registration successful', 'user_id': user.id}, status=200)
+        return JsonResponse(
+            {
+                 'message': 'Registration successful',
+                 'user_id': user.id
+            },
+            status=200)
 
-    return JsonResponse({'error': 'POST method required'}, status=405)
+    return JsonResponse(
+        {
+            'error': 'POST method required',
+            'status': 'error'
+        }, status=405)
 
 def login_view(request):
-    return JsonResponse({'message': 'Login endpoint, but not implemented yet'}, status=501)
+    return JsonResponse(
+        {
+            'message': 'Login endpoint, but not implemented yet',
+            'status': 'error'
+        }, status=501)
