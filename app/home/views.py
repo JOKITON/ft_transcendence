@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-@csrf_exempt
 def register_view(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -54,8 +53,13 @@ def register_view(request):
         }, status=405)
 
 def login_view(request):
+    data = json.loads(request.body)
+    username = data.get('username')
+    password = data.get('password')
+    print(username);
+    print(password);
     return JsonResponse(
         {
-            'message': 'Login endpoint, but not implemented yet',
+            'message': 'Login endpoint',
             'status': 'error'
         }, status=501)

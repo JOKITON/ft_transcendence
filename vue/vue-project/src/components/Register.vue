@@ -34,6 +34,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+import Cookies from 'js-cookie';
+
 export default {
 	name: 'compRegister',
 	data() {
@@ -46,37 +49,29 @@ export default {
 			}
 		};
 	},
-	// Example API call in Register.vue component
 	methods: {
 		async registerUser() {
 			try {
 				this.validateForm();
-				const response = await fetch('/api/register', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						username: this.form.username,
-						email: this.form.email,
-						password: this.form.password,
-						password_confirm: this.form.password_confirm  // Add the confirmation password here
-					})
+
+				const csrftoken = Cookies.get('csrftoken');
+				axios.defaults.headers.common['X-CSRFToken'] = csrftoken;
+				console.log(csrftoken);
+				console.log('All cookies:', document.cookie);
+
+				const response = await axios.post('/api/register', {
+					username: this.form.username,
+					email: this.form.email,
+					password: this.form.password,
+					password_confirm: this.form.password_confirm,
 				});
 
-				const data = await response.json();
-
-				if (!response.ok) {
-					throw new Error(data.message);  // Throw error with server message
-				}
-
-				console.log('Registration successful:', data);
+				console.log('Registration successful:', response.data);
 				// Handle successful registration (e.g., show success message, redirect)
-
 			} catch (error) {
-				console.error('Registration error:', error.message);
+				console.error('Registration error:', error.response ? error.response.data : error.message);
 				// Handle registration error (e.g., show error message to user)
-				alert('Registration failed. ' + error.message);
+				alert('Registration failed. ' + (error.response ? error.response.data.message : error.message));
 			}
 		},
 		validateForm() {
@@ -92,7 +87,6 @@ export default {
 				throw new Error("Passwords do not match.");
 			}
 		},
-
 		validateEmail(email) {
 			const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 			return re.test(email);

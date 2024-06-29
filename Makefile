@@ -34,6 +34,8 @@ down:
 clean:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down -v
 
+re: down clean up
+
 info:
 	@sudo docker ps
 	@sudo docker images
@@ -53,3 +55,4 @@ help:
 	@echo "  clean     : Clean up the Docker volumes"
 	@echo "  info      : List information about containers"
 	@echo "  help      : Show this help message"
+	@echo "  re        : Redoes the whole project"
