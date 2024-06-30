@@ -3,6 +3,18 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 import json
+# CSRF
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def my_view(request):
+    # Your view logic here
+    return render(request, 'my_template.html')
+
+def csrf_token_view(request):
+    return JsonResponse({'csrfToken': get_token(request)})
 
 def register_view(request):
     if request.method == 'POST':

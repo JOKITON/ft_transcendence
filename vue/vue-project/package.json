@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "eslint src --fix"
   },
   "dependencies": {
     "axios": "^1.7.2",
@@ -17,16 +17,20 @@
   "devDependencies": {
     "@babel/core": "^7.24.7",
     "@babel/eslint-parser": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.6.0",
     "@types/js-cookie": "^3.0.6",
     "@vue/cli-plugin-babel": "~5.0.0",
-    "@vue/cli-plugin-eslint": "~5.0.0",
-    "@vue/cli-service": "~5.0.0",
-    "eslint": "^7.32.0",
-    "eslint-plugin-vue": "^8.7.1",
+    "@vue/cli-plugin-eslint": "^5.0.8",
+    "@vue/cli-service": "^5.0.8",
+    "@vue/compiler-sfc": "^3.4.31",
+    "@vue/eslint-config-prettier": "^9.0.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-vue": "^9.26.0",
+    "globals": "^15.7.0",
+    "html-webpack-plugin": "^5.6.0",
     "vue-loader": "^17.4.2",
-    "vue-template-compiler": "^2.7.16",
-    "webpack": "^5.92.1",
-    "webpack-dev-server": "^5.0.4",
     "ws": "^8.17.1"
   },
   "eslintConfig": {
