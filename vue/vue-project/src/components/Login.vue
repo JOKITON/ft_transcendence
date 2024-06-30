@@ -57,29 +57,25 @@ export default {
         const csrfToken = await this.fetchCsrfToken();
         axios.defaults.headers.common['X-CSRFToken'] = csrfToken;
 
-        const response = await axios.post("/api/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+        const response = await axios.post(
+          "/api/login",
+          {
             username: this.form.username,
             password: this.form.password,
-          }),
-        });
+          },
+      );
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message); // Throw error with server message
-        }
-
-        console.log("Login successful:", data);
-        // Handle successful registration (e.g., show success message, redirect)
+        console.log("Login successful:", response.data);
       } catch (error) {
-        console.error("Login error:", error.message);
-        // Handle registration error (e.g., show error message to user)
-        alert("Login failed. " + error.message);
+        console.error(
+          "Login error:",
+          error.response ? error.response.data : error.message,
+        );
+        // Handle login error (e.g., show error message to user)
+        alert(
+          "Login failed. " +
+          (error.response ? error.response.data.message : error.message),
+        );
       }
     },
     validateForm() {
