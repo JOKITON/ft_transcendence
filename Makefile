@@ -4,6 +4,10 @@ NAME = ft_transcendence
 DOCKER_COMPOSE_LINUX = docker compose
 DOCKER_COMPOSE_MAC = docker-compose
 
+DOCKER_IMAGES = $(addprefix ft_transcendence-,$(IMAGES))
+# Add here the container names
+IMAGES = proxy app db vue
+
 # Check if docker-compose exists
 DOCKER_COMPOSE_EXISTS := $(shell command -v docker-compose 2>/dev/null)
 
@@ -25,10 +29,12 @@ up :
 
 down:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down
-	sudo docker rmi ft_transcendence-proxy ft_transcendence-app ft_transcendence-db
+	sudo docker rmi $(DOCKER_IMAGES)
 
 clean:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down -v
+
+re: down clean up
 
 info:
 	@sudo docker ps
@@ -49,3 +55,4 @@ help:
 	@echo "  clean     : Clean up the Docker volumes"
 	@echo "  info      : List information about containers"
 	@echo "  help      : Show this help message"
+	@echo "  re        : Redoes the whole project"

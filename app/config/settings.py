@@ -35,11 +35,13 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+	'corsheaders',
 	
     'home',
 ]
 
 MIDDLEWARE = [
+	'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -66,6 +68,24 @@ TEMPLATES = [
         },
     },
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:80',
+    'https://localhost:443',
+	'https://animated-space-doodle-4pwxvjqvgrqh5q45-8000.app.github.dev',
+]
+
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_NAME = 'csrftoken'
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:80',
+    'https://localhost:443',
+	'https://animated-space-doodle-4pwxvjqvgrqh5q45-8000.app.github.dev',
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
