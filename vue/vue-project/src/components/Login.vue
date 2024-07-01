@@ -27,7 +27,7 @@
 
 <script>
 import axios from "axios";
-//import fetchCsrfToken from "../utils/csrf";
+import { fetchCsrfToken, validateForm } from "../utils/csrf";
 
 export default {
   name: "CompLogin",
@@ -39,22 +39,11 @@ export default {
       },
     };
   },
-  // Example API call in Register.vue component
   methods: {
-    async fetchCsrfToken() {
-      try {
-        const response = await axios.get('/api/csrf-token');
-        return response.data.csrfToken;
-      } catch (error) {
-        console.error('Error fetching CSRF token:', error);
-        throw error;
-      }
-    },
     async loginUser() {
       try {
-        this.validateForm();
-        // Assuming you have the token in a global variable or fetched from an endpoint
-        const csrfToken = await this.fetchCsrfToken();
+        validateForm(0, this.form);
+        const csrfToken = await fetchCsrfToken();
         axios.defaults.headers.common['X-CSRFToken'] = csrfToken;
 
         const response = await axios.post(
@@ -66,6 +55,8 @@ export default {
       );
 
         console.log("Login successful:", response.data);
+        localStorage.setItem('user', JSON.stringify(response.data));
+        this.$router.push('/home');
       } catch (error) {
         console.error(
           "Login error:",
@@ -77,12 +68,7 @@ export default {
           (error.response ? error.response.data.message : error.message),
         );
       }
-    },
-    validateForm() {
-      if (this.form.password.length < 8) {
-        throw new Error("Password must be at least 8 characters long");
-      }
-    },
+    }
   },
 };
 </script>

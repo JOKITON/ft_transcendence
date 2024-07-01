@@ -10,6 +10,11 @@ then
     echo "PostgreSQL is up and running"
 fi
 
+python --version
+
+# echo "Creating superuser Joe..."
+# python manage.py createsuperuser --username=joe --email=joe@example.com
+
 echo "Applying database migrations..."
 python manage.py migrate --noinput
 

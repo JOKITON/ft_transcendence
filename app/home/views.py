@@ -1,13 +1,13 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 import json
+
 # CSRF
 from django.middleware.csrf import get_token
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
+# from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def my_view(request):
@@ -50,7 +50,7 @@ def register_view(request):
                 status=400)
 
         # Create user
-        user = User.objects.create_user(username=username, password=password)
+        user = User.objects.create_user(username=username, email=email, password=password)
 
         return JsonResponse(
             {
@@ -89,6 +89,14 @@ def login_view(request):
     if user is not None:
         # Login the user
         login(request, user)
-        return JsonResponse({'message': 'Login successful', 'status': 'success'}, status=200)
+        response = JsonResponse({'message': 'Login successful', 'status': 'success'}, status=200)
+        response.set_cookie('auth_token', 'user_token_here', httponly=True, secure=True)
+        return response
     else:
         return JsonResponse({'error': 'Invalid username or password', 'status': 'error'}, status=401)
+    
+def logout_view(request):
+    logout(request)
+    response = JsonResponse({'message': 'Logout successful'})
+    response.delete_cookie('auth_token')
+    return response
