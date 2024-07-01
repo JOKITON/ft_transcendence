@@ -37,7 +37,7 @@
 
 <script>
 import axios from "axios";
-//import fetchCsrfToken from "../utils/csrf";
+import { fetchCsrfToken, validateForm } from "../utils/csrf";
 
 export default {
   name: "CompRegister",
@@ -52,20 +52,10 @@ export default {
     };
   },
   methods: {
-    async fetchCsrfToken() {
-      try {
-        const response = await axios.get('/api/csrf-token');
-        return response.data.csrfToken;
-      } catch (error) {
-        console.error('Error fetching CSRF token:', error);
-        throw error;
-      }
-    },
     async registerUser() {
       try {
-        this.validateForm();
-        // Assuming you have the token in a global variable or fetched from an endpoint
-        const csrfToken = await this.fetchCsrfToken();
+        validateForm(1, this.form);
+        const csrfToken = await fetchCsrfToken();
         axios.defaults.headers.common['X-CSRFToken'] = csrfToken;
 
         const response = await axios.post(
@@ -79,6 +69,7 @@ export default {
         );
 
         console.log("Registration successful:", response.data);
+        this.$router.push('/login');
         // Handle successful registration (e.g., show success message, redirect)
       } catch (error) {
         console.error(
@@ -91,23 +82,6 @@ export default {
           (error.response ? error.response.data.message : error.message),
         );
       }
-    },
-    validateForm() {
-      if (this.form.password.length < 8) {
-        throw new Error("Password must be at least 8 characters long");
-      }
-
-      if (!this.validateEmail(this.form.email)) {
-        throw new Error("Invalid email format");
-      }
-
-      if (this.form.password !== this.form.password_confirm) {
-        throw new Error("Passwords do not match.");
-      }
-    },
-    validateEmail(email) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return re.test(email);
     },
   },
 };

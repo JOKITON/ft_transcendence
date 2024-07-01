@@ -27,7 +27,7 @@
 
 <script>
 import axios from "axios";
-//import fetchCsrfToken from "../utils/csrf";
+import { fetchCsrfToken, validateForm } from "../utils/csrf";
 
 export default {
   name: "CompLogin",
@@ -39,54 +39,36 @@ export default {
       },
     };
   },
-  // Example API call in Register.vue component
   methods: {
-    async fetchCsrfToken() {
-      try {
-        const response = await axios.get('/api/csrf-token');
-        return response.data.csrfToken;
-      } catch (error) {
-        console.error('Error fetching CSRF token:', error);
-        throw error;
-      }
-    },
     async loginUser() {
       try {
-        this.validateForm();
-        // Assuming you have the token in a global variable or fetched from an endpoint
-        const csrfToken = await this.fetchCsrfToken();
+        validateForm(0, this.form);
+        const csrfToken = await fetchCsrfToken();
         axios.defaults.headers.common['X-CSRFToken'] = csrfToken;
 
-        const response = await axios.post("/api/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+        const response = await axios.post(
+          "/api/login",
+          {
             username: this.form.username,
             password: this.form.password,
-          }),
-        });
+          },
+      );
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message); // Throw error with server message
-        }
-
-        console.log("Login successful:", data);
-        // Handle successful registration (e.g., show success message, redirect)
+        console.log("Login successful:", response.data);
+        localStorage.setItem('user', JSON.stringify(response.data));
+        this.$router.push('/home');
       } catch (error) {
-        console.error("Login error:", error.message);
-        // Handle registration error (e.g., show error message to user)
-        alert("Login failed. " + error.message);
+        console.error(
+          "Login error:",
+          error.response ? error.response.data : error.message,
+        );
+        // Handle login error (e.g., show error message to user)
+        alert(
+          "Login failed. " +
+          (error.response ? error.response.data.message : error.message),
+        );
       }
-    },
-    validateForm() {
-      if (this.form.password.length < 8) {
-        throw new Error("Password must be at least 8 characters long");
-      }
-    },
+    }
   },
 };
 </script>

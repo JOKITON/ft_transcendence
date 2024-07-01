@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 import json
+
 # CSRF
 from django.middleware.csrf import get_token
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
+# from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def my_view(request):
@@ -49,7 +50,7 @@ def register_view(request):
                 status=400)
 
         # Create user
-        user = User.objects.create_user(username=username, password=password)
+        user = User.objects.create_user(username=username, email=email, password=password)
 
         return JsonResponse(
             {
@@ -65,13 +66,37 @@ def register_view(request):
         }, status=405)
 
 def login_view(request):
-    data = json.loads(request.body)
+    # Ensure the request method is POST
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST requests are allowed'}, status=400)
+
+    # Parse the JSON request body
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    # Get username and password from the parsed data
     username = data.get('username')
     password = data.get('password')
-    print(username);
-    print(password);
-    return JsonResponse(
-        {
-            'message': 'Login endpoint',
-            'status': 'error'
-        }, status=501)
+    # Check if username and password are provided
+    if not username or not password:
+        return JsonResponse({'error': 'Username and password are required'}, status=400)
+
+    # Authenticate the user
+    user = authenticate(request, username=username, password=password)
+    
+    if user is not None:
+        # Login the user
+        login(request, user)
+        response = JsonResponse({'message': 'Login successful', 'status': 'success'}, status=200)
+        response.set_cookie('auth_token', 'user_token_here', httponly=True, secure=True)
+        return response
+    else:
+        return JsonResponse({'error': 'Invalid username or password', 'status': 'error'}, status=401)
+    
+def logout_view(request):
+    logout(request)
+    response = JsonResponse({'message': 'Logout successful'})
+    response.delete_cookie('auth_token')
+    return response
