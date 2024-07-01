@@ -18,12 +18,12 @@ const router = createRouter({
 
 // Navigation guard to check for authentication
 router.beforeEach((to, from, next) => {
-  const loggedIn = !!localStorage.getItem('user'); // Assume you store the user info in localStorage
+  const loggedIn = !!localStorage.getItem('auth_token'); // Check if auth_token is in localStorage
 
   if (to.matched.some(record => record.meta.requiresAuth) && !loggedIn) {
     next('/login');
-  } else {
-    next();
+  } else if () {
+    next(); // Proceed to the route
   }
 });
 

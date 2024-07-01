@@ -1,14 +1,22 @@
 // utils/csrf.js
 import axios from 'axios';
 
-export async function fetchCsrfToken() {
-  try {
-    const response = await axios.get('/api/csrf-token');
-    return response.data.csrfToken;
-  } catch (error) {
-    console.error('Error fetching CSRF token:', error);
-    throw error;
-  }
+// Fetch CSRF token from Django and set it in Axios
+export default async function fetchAndSetCsrfToken() {
+    try {
+        const response = await axios.get('/api/csrf-token'); // Make an initial request to get CSRF token
+        const csrfToken = response.data.csrfToken;
+
+        // Set Axios default headers
+        axios.defaults.headers.common['X-CSRFToken'] = csrfToken;
+
+        // Optionally, you can store it in localStorage or cookies
+        // localStorage.setItem('csrfToken', csrfToken);
+
+    } catch (error) {
+        console.error('Error fetching CSRF token:', error);
+        throw error;
+    }
 }
 
 export function validateForm(reg, form) {

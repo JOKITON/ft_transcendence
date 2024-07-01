@@ -37,7 +37,7 @@
 
 <script>
 import axios from "axios";
-import { fetchCsrfToken, validateForm } from "../utils/csrf";
+import { validateForm } from "../utils/csrf";
 
 export default {
   name: "CompRegister",
@@ -55,8 +55,6 @@ export default {
     async registerUser() {
       try {
         validateForm(1, this.form);
-        const csrfToken = await fetchCsrfToken();
-        axios.defaults.headers.common['X-CSRFToken'] = csrfToken;
 
         const response = await axios.post(
           "/api/register",

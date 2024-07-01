@@ -16,7 +16,6 @@
 
 <script>
 import axios from "axios";
-import { fetchCsrfToken } from "../utils/csrf";
 
 export default {
   name: "loginHome",
@@ -27,17 +26,18 @@ export default {
   methods: {
     async logoutUser() {
       try {
-        const csrfToken = await fetchCsrfToken();
-        axios.defaults.headers.common['X-CSRFToken'] = csrfToken;
-
         const response = await axios.post(
           "/api/logout",
           {
           },
         );
 
+        // Delete old CSRF token and store new
+        axios.defaults.headers.common['X-CSRFToken'] = response.data.csrf_token;
+
         console.log("Logout successful:", response.data);
-        localStorage.removeItem('user');
+        if (localStorage.getItem('auth_token') != null)
+          localStorage.removeItem('auth_token');
         this.$router.push('/login');
       } catch (error) {
         console.error(
