@@ -4,6 +4,8 @@ import Login from "./components/Login.vue";
 import Register from "./components/Register.vue";
 import Home from "./components/Home.vue";
 
+import validateAuthToken from "./utils/auth";
+
 const routes = [
   { path: "/", component: Index },
   { path: "/login", component: Login },
@@ -17,13 +19,16 @@ const router = createRouter({
 });
 
 // Navigation guard to check for authentication
-router.beforeEach((to, from, next) => {
-  const loggedIn = !!localStorage.getItem('auth_token'); // Check if auth_token is in localStorage
-
-  if (to.matched.some(record => record.meta.requiresAuth) && !loggedIn) {
-    next('/login');
-  } else if () {
-    next(); // Proceed to the route
+router.beforeEach(async (to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    const isValid = await validateAuthToken();
+    if (!isValid) {
+      next('/login');
+    } else {
+      next();
+    }
+  } else {
+    next();
   }
 });
 

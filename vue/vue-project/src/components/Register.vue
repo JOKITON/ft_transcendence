@@ -37,7 +37,7 @@
 
 <script>
 import axios from "axios";
-import { validateForm } from "../utils/csrf";
+import { validateForm } from "../utils/form";
 
 export default {
   name: "CompRegister",
@@ -64,7 +64,11 @@ export default {
             password: this.form.password,
             password_confirm: this.form.password_confirm,
           },
-        );
+          {
+            headers: {
+              'X-CSRFToken': axios.defaults.headers.common['X-CSRFToken']
+            }
+          });
 
         console.log("Registration successful:", response.data);
         this.$router.push('/login');

@@ -4,8 +4,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 import json
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.middleware.csrf import get_token
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.middleware.csrf import get_token
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect, csrf_exempt
+from .csrf import check_csrf_token, csrf_token_view
+from .auth import validate_token_view
 
 def some_protected_view(request):
     # JWT Authentication middleware will handle token validation
@@ -17,12 +20,7 @@ def some_protected_view(request):
     else:
         return JsonResponse({'error': 'Unauthorized'}, status=401)
 
-def csrf_token_view(request):
-    csrf_token = get_token(request)
-    response = JsonResponse({'csrfToken': csrf_token})
-    response.set_cookie('csrftoken', csrf_token, httponly=False, secure=True)  # Adjust settings as needed
-    return response
-
+@csrf_protect
 def register_view(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -47,6 +45,7 @@ def register_view(request):
 
     return JsonResponse({'error': 'POST method required', 'status': 'error'}, status=405)
 
+@csrf_protect
 def login_view(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=400)
@@ -67,15 +66,16 @@ def login_view(request):
         
         response = JsonResponse({'message': 'Login successful', 'status': 'success'})
 
-        response.set_cookie('auth_token', str(refresh.access_token), httponly=True, secure=True)
+        response.set_cookie('auth-token', str(refresh.access_token), httponly=True, secure=True)
         response.set_cookie('csrf_token', csrf_token, secure=True)
         return response
     else:
         return JsonResponse({'error': 'Invalid username or password', 'status': 'error'}, status=401)
 
+@csrf_protect
 def logout_view(request):
     logout(request)
     response = JsonResponse({'message': 'Logout successful'})
-    response.delete_cookie('auth_token')
+    response.delete_cookie('auth-token')
     response.delete_cookie('csrf_token')
     return response

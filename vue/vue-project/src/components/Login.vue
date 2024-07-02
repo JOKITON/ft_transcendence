@@ -27,7 +27,7 @@
 
 <script>
 import axios from "axios";
-import { validateForm } from "../utils/csrf";
+import { validateForm } from "../utils/form";
 
 export default {
   name: "CompLogin",
@@ -50,17 +50,21 @@ export default {
             username: this.form.username,
             password: this.form.password,
           },
-      );
+          {
+            headers: {
+              'X-CSRFToken': axios.defaults.headers.common['X-CSRFToken']
+            }
+        });
 
         console.log("Login successful:", response.data);
-        
+
         // Delete old CSRF token and store new
         axios.defaults.headers.common['X-CSRFToken'] = response.data.csrf_token;
-        
+
         // Save auth token securely
-        if (localStorage.getItem('auth_token') != null)
-          localStorage.removeItem('auth_token');
-        localStorage.setItem('auth_token', response.data.auth_token);
+        if (localStorage.getItem('auth-token') != null)
+          localStorage.removeItem('auth-token');
+        localStorage.setItem('auth-token', response.data.auth_token);
         this.$router.push('/home');
       } catch (error) {
         console.error(

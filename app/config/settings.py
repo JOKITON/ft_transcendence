@@ -36,8 +36,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-	'corsheaders',
-	
+
+    'corsheaders',
+	'rest_framework',
     'home',
 ]
 
@@ -77,7 +78,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_COOKIE_NAME = 'csrf_token'
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:80',

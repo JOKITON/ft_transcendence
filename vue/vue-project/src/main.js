@@ -13,7 +13,7 @@ axios.defaults.withCredentials = true;
 fetchAndSetCsrfToken();
 
 // Set up axios to include auth token if present
-const authToken = localStorage.getItem('auth_token');
+const authToken = localStorage.getItem('auth-token');
 if (authToken) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
 }
