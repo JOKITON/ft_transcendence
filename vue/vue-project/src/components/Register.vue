@@ -56,6 +56,7 @@ export default {
       try {
         validateForm(1, this.form);
 
+        console.log(axios.defaults.headers.common['X-CSRFToken']);
         const response = await axios.post(
           "/api/register",
           {
@@ -63,11 +64,6 @@ export default {
             email: this.form.email,
             password: this.form.password,
             password_confirm: this.form.password_confirm,
-          },
-          {
-            headers: {
-              'X-CSRFToken': axios.defaults.headers.common['X-CSRFToken']
-            }
           });
 
         console.log("Registration successful:", response.data);

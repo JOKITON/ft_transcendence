@@ -20,7 +20,6 @@ def some_protected_view(request):
     else:
         return JsonResponse({'error': 'Unauthorized'}, status=401)
 
-@csrf_protect
 def register_view(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -67,7 +66,7 @@ def login_view(request):
         response = JsonResponse({'message': 'Login successful', 'status': 'success'})
 
         response.set_cookie('auth-token', str(refresh.access_token), httponly=True, secure=True)
-        response.set_cookie('csrf_token', csrf_token, secure=True)
+        response.set_cookie('csrftoken', csrf_token, secure=True)
         return response
     else:
         return JsonResponse({'error': 'Invalid username or password', 'status': 'error'}, status=401)
@@ -77,5 +76,5 @@ def logout_view(request):
     logout(request)
     response = JsonResponse({'message': 'Logout successful'})
     response.delete_cookie('auth-token')
-    response.delete_cookie('csrf_token')
+    response.delete_cookie('csrftoken')
     return response
