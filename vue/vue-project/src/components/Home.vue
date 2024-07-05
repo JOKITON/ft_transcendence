@@ -1,43 +1,45 @@
 <template>
-  <div>
-    <div class="alert alert-success" role="alert">
-      <h4 class="alert-heading">Welcome to Pong!</h4>
-      <p>
-        Congrats! You logged on! This is the Homepage.
-      </p>
-      Do not hesitate to
-      <form id="logoutUser" @submit.prevent="logoutUser">
-        <button type="submit" class="btn btn-primary btn-block"> log out</button>
-      </form>
-      <hr />
-    </div>
+  <div class="home-container">
+    <nav class="navbar">
+      <h1>Welcome to Pong!</h1>
+      <button @click="logoutUser" class="logout-button">Log out</button>
+    </nav>
+    
+    <main>
+      <section class="welcome-section">
+        <div class="alert alert-success" role="alert">
+          <h4 class="alert-heading">Hello, {{ username }}!</h4>
+          <p>
+            Congrats! You logged in successfully. This is the Homepage.
+          </p>
+          <p>
+            Do not hesitate to explore and enjoy your time here.
+          </p>
+        </div>
+      </section>
+    </main>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import { fetchCsrfToken } from "../utils/csrf";
 
 export default {
   name: "loginHome",
-  data() {
-    return {
-    };
-  },
   methods: {
     async logoutUser() {
       try {
-        const csrfToken = await fetchCsrfToken();
-        axios.defaults.headers.common['X-CSRFToken'] = csrfToken;
+        const response = await axios.post("/api/logout/");
 
-        const response = await axios.post(
-          "/api/logout",
-          {
-          },
-        );
+        // Update the CSRF token
+        axios.defaults.headers.common['X-CSRFToken'] = response.data.csrf_token;
+
+        // Remove auth token from localStorage
+        localStorage.removeItem('auth-token');
 
         console.log("Logout successful:", response.data);
-        localStorage.removeItem('user');
+
+        // Redirect to login page
         this.$router.push('/login');
       } catch (error) {
         console.error(
@@ -51,7 +53,7 @@ export default {
         );
       }
     }
-  },
+  }
 };
 </script>
 

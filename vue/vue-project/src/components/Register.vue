@@ -36,8 +36,8 @@
 </template>
 
 <script>
-import axios from "axios";
-import { fetchCsrfToken, validateForm } from "../utils/csrf";
+import { validateForm } from "../utils/form";
+import { api } from "../main";
 
 export default {
   name: "CompRegister",
@@ -55,17 +55,16 @@ export default {
     async registerUser() {
       try {
         validateForm(1, this.form);
-        const csrfToken = await fetchCsrfToken();
-        axios.defaults.headers.common['X-CSRFToken'] = csrfToken;
 
-        const response = await axios.post(
-          "/api/register",
+        console.log(api.defaults.headers.common['X-CSRFToken']);
+        const response = await api.post(
+          "/api/register/",
           {
             username: this.form.username,
             email: this.form.email,
             password: this.form.password,
             password_confirm: this.form.password_confirm,
-          },
+          }
         );
 
         console.log("Registration successful:", response.data);
