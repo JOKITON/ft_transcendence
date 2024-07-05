@@ -1,18 +1,24 @@
 from django.http import JsonResponse
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework.decorators import api_view
+from django.views.decorators.csrf import csrf_protect
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.response import Response
+from rest_framework import status
 
-def validate_token_view(request):
-    auth_header = request.headers.get('Authorization')
-    if not auth_header:
-        return JsonResponse({'error': 'No token provided'}, status=400)
+@api_view(['POST'])
+@csrf_protect
+def refresh_token_view(request):
+    refresh_token = request.COOKIES.get('refresh_token')
+    if refresh_token is None:
+        return Response({'detail': 'Refresh token not found'}, status=status.HTTP_400_BAD_REQUEST)
     
-    token = auth_header.split()[1]
-    jwt_auth = JWTAuthentication()
-
     try:
-        validated_token = jwt_auth.get_validated_token(token)
-        user = jwt_auth.get_user(validated_token)
-        return JsonResponse({'is_valid': True, 'username': user.username})
-    except (InvalidToken, TokenError):
-        return JsonResponse({'is_valid': False}, status=401)
+        refresh = RefreshToken(refresh_token)
+        access_token = str(refresh.access_token)
+
+        response = Response({'detail': 'Token refreshed successfully'}, status=status.HTTP_200_OK)
+        response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Lax')
+        
+        return response
+    except Exception as e:
+        return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)

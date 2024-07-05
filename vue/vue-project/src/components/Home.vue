@@ -29,7 +29,7 @@ export default {
   methods: {
     async logoutUser() {
       try {
-        const response = await axios.post("/api/logout");
+        const response = await axios.post("/api/logout/");
 
         // Update the CSRF token
         axios.defaults.headers.common['X-CSRFToken'] = response.data.csrf_token;

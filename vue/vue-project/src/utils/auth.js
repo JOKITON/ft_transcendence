@@ -1,21 +1,22 @@
 // utils/auth.js
-import axios from "axios";
+import { api } from "../main";
+// import Cookies from 'js-cookie';
 
-export default async function validateAuthToken() {
-  const authToken = localStorage.getItem("auth-token");
-  if (!authToken) return false;
-
+export async function refreshAuthToken() {
   try {
-    const response = await axios.get("/api/validate-token", {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-    return response.data.is_valid;
-  } catch (error) {
+    const response = await api.post("/api/token/refresh/");
+    console.log(response);
+    return true;
+  }
+  catch (error) {
     console.error(
-      "Token validation error:",
+      "Login error:",
       error.response ? error.response.data : error.message
+    );
+    // Handle login error (e.g., show error message to user)
+    alert(
+      "Login failed. " +
+        (error.response ? error.response.data.detail : error.message)
     );
     return false;
   }

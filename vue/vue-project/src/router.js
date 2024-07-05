@@ -4,7 +4,7 @@ import Login from "./components/Login.vue";
 import Register from "./components/Register.vue";
 import Home from "./components/Home.vue";
 
-import validateAuthToken from "./utils/auth";
+import { refreshAuthToken } from "./utils/auth";
 
 const routes = [
   { path: "/", component: Index },
@@ -21,13 +21,14 @@ const router = createRouter({
 // Navigation guard to check for authentication
 router.beforeEach(async (to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    const isValid = await validateAuthToken();
-    if (!isValid) {
-      next('/login');
-    } else {
-      next();
-    }
-  } else {
+    const isRefreshed = await refreshAuthToken();
+      if (!isRefreshed) {
+        next("/login");
+      } else {
+        next();
+      }
+  }
+  else {
     next();
   }
 });

@@ -14,8 +14,9 @@ def check_csrf_token(request):
     else:
         return JsonResponse({'status': 'off'})
 
-def csrf_token_view(request):
-    csrf_token = get_token(request)  # Fetch the CSRF token
-    response = JsonResponse({'csrf_token': csrf_token})
-    response.set_cookie('csrftoken', csrf_token, httponly=True, secure=True)
+@csrf_exempt
+@ensure_csrf_cookie
+def get_csrf(request):
+    response = JsonResponse({'detail': 'CSRF cookie set'})
+    response['X-CSRFToken'] = get_token(request)
     return response

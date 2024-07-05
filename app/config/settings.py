@@ -43,11 +43,11 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.csrf.CsrfViewMiddleware',
 	'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -72,17 +72,22 @@ TEMPLATES = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:80',
-    'https://localhost:443',
+    'http://localhost',
+    'https://localhost',
 ]
 
 CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
 CSRF_COOKIE_NAME = 'csrftoken'
 
+
+SESSION_COOKIE_SECURE = True  # Ensure session cookies are sent over HTTPS
+SESSION_COOKIE_HTTPONLY = True
+
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:80',
-    'https://localhost:443',
+    'http://localhost',
+    'https://localhost',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
