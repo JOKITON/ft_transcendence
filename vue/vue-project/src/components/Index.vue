@@ -1,4 +1,5 @@
 <template>
+  <NavIndex></NavIndex>
   <div>
     <div class="alert alert-success" role="alert">
       <h4 class="alert-heading">Welcome to Pong!</h4>
@@ -20,7 +21,12 @@
 </template>
 
 <script>
+import NavIndex from "./NavIndex.vue";
+
 export default {
   name: "compIndex",
+  components: {
+    'NavIndex': NavIndex
+  },
 };
 </script>
