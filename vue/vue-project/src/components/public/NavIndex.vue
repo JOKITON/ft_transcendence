@@ -22,3 +22,7 @@ export default {
   name: "NavIndex",
 };
 </script>
+
+<style>
+
+</style>

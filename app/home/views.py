@@ -90,7 +90,8 @@ def login_view(request):
     
     return response
 
-
+@require_POST
+@csrf_protect
 def logout_view(request):
     if not request.user.is_authenticated:
         return JsonResponse({'detail': 'You\'re not logged in.'}, status=400)

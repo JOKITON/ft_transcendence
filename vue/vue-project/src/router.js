@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Index from "./components/Index.vue";
-import Login from "./components/Login.vue";
-import Register from "./components/Register.vue";
-import Home from "./components/Home.vue";
+import Index from "./components/public/Index.vue";
+import Login from "./components/public/Login.vue";
+import Register from "./components/public/Register.vue";
+import Home from "./components/private/Home.vue";
 
 import { refreshAuthToken } from "./utils/auth";
 

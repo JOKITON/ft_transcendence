@@ -38,8 +38,8 @@
 
 <script>
 import NavIndex from "./NavIndex.vue";
-import { validateForm } from "../utils/form";
-import { api } from "../main";
+import { validateForm } from "../../utils/form";
+import { api } from "../../main";
 
 export default {
   name: "CompRegister",

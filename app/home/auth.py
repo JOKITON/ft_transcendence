@@ -8,6 +8,8 @@ from rest_framework import status
 @api_view(['POST'])
 @csrf_protect
 def refresh_token_view(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'detail': 'You\'re not logged in.'}, status=400)
     refresh_token = request.COOKIES.get('refresh_token')
     if refresh_token is None:
         return Response({'detail': 'Refresh token not found'}, status=status.HTTP_400_BAD_REQUEST)

@@ -42,8 +42,8 @@
 </template>
 
 <script>
-import { api } from "../main";
-import { validateForm } from "../utils/form";
+import { api } from "../../main";
+import { validateForm } from "../../utils/form";
 import NavIndex from "./NavIndex.vue";
 
 export default {

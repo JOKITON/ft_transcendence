@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { api } from "../main";
+import { api } from "../../main";
 
 export default {
   name: "loginHome",
