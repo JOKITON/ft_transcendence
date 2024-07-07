@@ -1,25 +1,15 @@
-body {
-	background-color: #f8f9fa;
-	background-image: url('../images/background.jpeg');
-	font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
-
-nav {
-	background-color: aliceblue;
-}
-
-.card {
-	padding: 20px;
-}
-
-.login-form {
-	width: 360px;
-	margin: 50px auto;
-}
-
-.oswald-header {
-	font-family:Verdana, Geneva, Tahoma, sans-serif;
-	font-optical-sizing: auto;
-	font-weight: 500;
-	font-style: normal;
-}
+.form-control-dark {
+	border-color: var(--bs-gray);
+  }
+  .form-control-dark:focus {
+	border-color: #fff;
+	box-shadow: 0 0 0 .25rem rgba(255, 255, 255, .25);
+  }
+  
+  .text-small {
+	font-size: 85%;
+  }
+  
+  .dropdown-toggle:not(:focus) {
+	outline: 0;
+  }

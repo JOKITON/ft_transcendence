@@ -4,7 +4,8 @@ import axios from "axios";
 import router from "./router";
 import fetchAndSetCsrfToken from "./utils/csrf";
 import Cookies from 'js-cookie';
-import "./assets/css/bootstrap.min.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "./assets/css/styles.css";
 
 const app = createApp(App);

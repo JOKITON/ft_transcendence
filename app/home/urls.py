@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
 
 urlpatterns = [
-    path('api/register/', views.register_view, name='register'),
+    path('api/register/', views.register_view, name='api-register'),
     path('api/login/', views.login_view, name='api-login'),
 	path('api/csrf/', views.get_csrf, name='api-csrf'),
     path('api/logout/', views.logout_view, name='api-logout'),
