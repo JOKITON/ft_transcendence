@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from datetime import timedelta
+from .utils import load_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -74,6 +75,8 @@ TEMPLATES = [
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:80',
     'https://localhost:443',
+    "http://localhost",
+    "https://localhost",
 ]
 
 CSRF_COOKIE_SECURE = True
@@ -86,6 +89,8 @@ SESSION_COOKIE_SECURE = True  # Ensure session cookies are sent over HTTPS
 SESSION_COOKIE_HTTPONLY = True
 
 CORS_ALLOWED_ORIGINS = [
+    'http://localhost:80',
+    'https://localhost:443',
     'http://localhost',
     'https://localhost',
 ]
@@ -100,12 +105,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.environ.get("POSTGRES_DB", BASE_DIR / "db.sqlite3"),
-        "USER": os.environ.get("POSTGRES_USER", "user"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "password"),
-        "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
-        "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("POSTGRES_DB"),
+        "USER": os.environ.get("POSTGRES_USER"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+        "HOST": os.environ.get("POSTGRES_HOST"),
+        "PORT": os.environ.get("POSTGRES_PORT"),
     }
 }
 
@@ -149,12 +154,6 @@ MEDIA_ROOT = '/home/app/web/media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Ensure CORS headers are configured if you are serving API requests from a different domain
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:80",
-    "https://localhost:443",
-    # Add other allowed origins as needed
-]
 
 # Configure Django Rest Framework settings if you're using it
 REST_FRAMEWORK = {
@@ -170,21 +169,28 @@ REST_FRAMEWORK = {
     ],
 }
 
+PRIVATE_KEY_PATH = os.path.join(BASE_DIR, 'private.pem')
+PUBLIC_KEY_PATH = os.path.join(BASE_DIR, 'public.pem')
 SIMPLE_JWT = {
+    'ALGORITHM': 'RS256',
+    'SIGNING_KEY': load_key(PRIVATE_KEY_PATH),
+    'VERIFYING_KEY': load_key(PUBLIC_KEY_PATH),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,
-
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-    'AUDIENCE': None,
-    'ISSUER': None,
-
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
 }
+
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.ScryptPasswordHasher", # Strongest
+    # Optionally include PBKDF2SHA1 if needed for compatibility with old passwords
+    # "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+]

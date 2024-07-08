@@ -4,13 +4,17 @@ set -e  # Exit immediately if a command exits with a non-zero status
 if [ "$DATABASE" = "postgres" ]
 then
     echo "Waiting for PostgreSQL to start..."
-    while ! nc -z $SQL_HOST $SQL_PORT; do
+    while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
         sleep 0.1
     done
     echo "PostgreSQL is up and running"
 fi
 
 python --version
+
+# Generate keys for RSA
+openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048
+openssl rsa -pubout -in private.pem -out public.pem
 
 # echo "Creating superuser Joe..."
 # python manage.py createsuperuser --username=joe --email=joe@example.com

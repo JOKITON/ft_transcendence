@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.hashers import make_password
 import json
 # Rest
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
@@ -54,7 +55,8 @@ def register_view(request):
         if User.objects.filter(email=email).exists():
             return JsonResponse({'message': 'Email already exists', 'status': 'error'}, status=400)
 
-        """ Todo: Hash the password """
+        
+        """ The password is hashed by default """
         user = User.objects.create_user(username=username, email=email, password=password)
         return JsonResponse({'message': 'Registration successful', 'user_id': user.id}, status=200)
 
