@@ -72,8 +72,8 @@ TEMPLATES = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost',
-    'https://localhost',
+    'http://localhost:80',
+    'https://localhost:443',
 ]
 
 CSRF_COOKIE_SECURE = True

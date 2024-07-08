@@ -54,6 +54,7 @@ def register_view(request):
         if User.objects.filter(email=email).exists():
             return JsonResponse({'message': 'Email already exists', 'status': 'error'}, status=400)
 
+        """ Todo: Hash the password """
         user = User.objects.create_user(username=username, email=email, password=password)
         return JsonResponse({'message': 'Registration successful', 'user_id': user.id}, status=200)
 
