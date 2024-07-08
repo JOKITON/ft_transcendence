@@ -1,4 +1,5 @@
 <template>
+  <NavIndex></NavIndex>
   <div class="container">
     <div class="login-form">
       <div class="card">
@@ -36,11 +37,15 @@
 </template>
 
 <script>
-import { validateForm } from "../utils/form";
-import { api } from "../main";
+import NavIndex from "./NavIndex.vue";
+import { validateForm } from "../../utils/form";
+import { api } from "../../main";
 
 export default {
   name: "CompRegister",
+  components: {
+    'NavIndex': NavIndex
+  },
   data() {
     return {
       form: {

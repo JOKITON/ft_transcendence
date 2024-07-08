@@ -11,7 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 # CSRF
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect, csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from .csrf import check_csrf_token, get_csrf
 from .auth import refresh_token_view
 
@@ -29,6 +29,8 @@ class WhoAmIView(APIView):
     permission_classes = [IsAuthenticated]
 
     @staticmethod
+    @csrf_protect
+    @require_GET
     def get(request, format=None):
         return JsonResponse({'username': request.user.username})
 
@@ -52,6 +54,7 @@ def register_view(request):
         if User.objects.filter(email=email).exists():
             return JsonResponse({'message': 'Email already exists', 'status': 'error'}, status=400)
 
+        """ Todo: Hash the password """
         user = User.objects.create_user(username=username, email=email, password=password)
         return JsonResponse({'message': 'Registration successful', 'user_id': user.id}, status=200)
 
@@ -90,7 +93,8 @@ def login_view(request):
     
     return response
 
-
+@require_POST
+@csrf_protect
 def logout_view(request):
     if not request.user.is_authenticated:
         return JsonResponse({'detail': 'You\'re not logged in.'}, status=400)

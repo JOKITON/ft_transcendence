@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Index from "./components/Index.vue";
-import Login from "./components/Login.vue";
-import Register from "./components/Register.vue";
-import Home from "./components/Home.vue";
+import Index from "./components/public/Index.vue";
+import Login from "./components/public/Login.vue";
+import Register from "./components/public/Register.vue";
+import Home from "./components/private/Home.vue";
 
 import { refreshAuthToken } from "./utils/auth";
 
@@ -11,6 +11,9 @@ const routes = [
   { path: "/login", component: Login },
   { path: "/register", component: Register },
   { path: "/home", component: Home, meta: { requiresAuth: true } },
+  // { path: '/game', name: 'Game', component: Game, meta: { requiresAuth: true } },
+  // { path: '/friend-list', name: 'FriendList', component: FriendList, meta: { requiresAuth: true } },
+  // { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({

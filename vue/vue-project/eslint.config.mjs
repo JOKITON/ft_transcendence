@@ -35,8 +35,9 @@ export default [
       }
     },
     rules: {
-      "vue/no-v-html": "off",
-      "no-console": "off",
+      'no-undef': 'off',
+      'no-prototype-builtins': 'off',
+      'no-cond-assign': 'off',
     },
   },
 ];

@@ -1,6 +1,7 @@
 <template>
+  <NavIndex></NavIndex>
   <div>
-    <div class="alert alert-success" role="alert">
+    <div class="block alert alert-success" role="alert">
       <h4 class="alert-heading">Welcome to Pong!</h4>
       <p>
         You need to either
@@ -20,7 +21,27 @@
 </template>
 
 <script>
+import NavIndex from "./NavIndex.vue";
+
 export default {
   name: "compIndex",
+  components: {
+    'NavIndex': NavIndex
+  },
 };
 </script>
+
+<style>
+
+.block {
+  padding: auto;
+  margin: auto;
+  width: 40%;
+  text-align: center
+}
+
+html, body {
+  background-image: url('../../assets/images/background.jpeg');
+}
+
+</style>
