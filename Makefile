@@ -1,8 +1,8 @@
 NAME = ft_transcendence
 
 # Variables
-DOCKER_COMPOSE_LINUX = docker compose
-DOCKER_COMPOSE_MAC = docker-compose
+DOCKER_COMPOSE_LINUX = sudo docker compose
+DOCKER_COMPOSE_MAC = sudo docker-compose
 
 DOCKER_IMAGES = $(addprefix ft_transcendence-,$(IMAGES))
 # Add here the container names
@@ -18,15 +18,14 @@ else
     DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_MAC)
 endif
 
-COMPOSE_YML = docker-compose.yml
+COMPOSE_YML = src/compose/docker-compose.yml
 
 .PHONY: all build down clean
 
 all : up
 
 up :
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) up --build
-
+	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) up --build -d
 down:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down
 	sudo docker rmi $(DOCKER_IMAGES)

@@ -2,14 +2,12 @@ name: ft_transcendence
 
 services:
   proxy:
-    container_name: proxy
-    build:
-      context: ./proxy/
-      dockerfile: Dockerfile
+    container_name: reverse_proxy
+    build: ../proxy/
     networks:
       - frontend
     env_file:
-      - proxy/.env_proxy
+      - ../proxy/.env_proxy
     restart: always
     volumes:
       - static_volume:/home/app/web/static
@@ -22,14 +20,12 @@ services:
 
   app:
     container_name: app
-    build:
-      context: ./app/
-      dockerfile: Dockerfile
+    build: ../backend/app/
     networks:
       - frontend
       - backend
     env_file:
-      - app/.env_app
+      - ../backend/app/.env_app
     restart: always
     volumes:
       - static_volume:/home/app/web/static
@@ -39,13 +35,11 @@ services:
 
   db:
     container_name: db
-    build:
-      context: ./db/
-      dockerfile: Dockerfile
+    build: ../db/
     networks:
       - backend
     env_file:
-      - db/.env_db
+      - ../db/.env_db
     restart: always
     shm_size: 128mb
     volumes:
@@ -53,11 +47,9 @@ services:
 
   vue:
     container_name: vue
-    build:
-      context: ./vue/
-      dockerfile: Dockerfile
+    build: ../frontend/vue/
     networks:
-      - frontend
+    - frontend
     restart: always
     volumes:
       - static_volume:/home/app/web/static
