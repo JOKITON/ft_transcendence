@@ -25,5 +25,9 @@ python manage.py migrate --noinput
 echo "Flushing database..."
 python manage.py flush --no-input
 
+# Checks for dependencies & vulnerabilities, regularly use
+# pip install --no-cache-dir -r bandit
+# bandit -r ./
+
 echo "Starting Django development server..."
 python manage.py runserver 0.0.0.0:8000

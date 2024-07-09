@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-DEBUG = bool(os.environ.get("DEBUG", default=0))
+DEBUG = os.environ.get("DEBUG")
 
 ALLOWED_HOSTS = ['*']
 
@@ -41,17 +41,19 @@ INSTALLED_APPS = [
     'corsheaders',
 	'rest_framework',
     'home',
+    'csp',
 ]
 
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
 	'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -72,6 +74,10 @@ TEMPLATES = [
     },
 ]
 
+SESSION_COOKIE_SECURE = True  # Ensure session cookies are sent over HTTPS
+SESSION_COOKIE_HTTPONLY = True
+
+# CSRF
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:80',
     'https://localhost:443',
@@ -84,10 +90,7 @@ CSRF_COOKIE_HTTPONLY = False
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_NAME = 'csrftoken'
 
-
-SESSION_COOKIE_SECURE = True  # Ensure session cookies are sent over HTTPS
-SESSION_COOKIE_HTTPONLY = True
-
+# CORS
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:80',
     'https://localhost:443',
@@ -194,3 +197,11 @@ PASSWORD_HASHERS = [
     # Optionally include PBKDF2SHA1 if needed for compatibility with old passwords
     # "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
 ]
+
+# General security practices
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# CSP
+CSP_DEFAULT_SRC = ("'self'",)

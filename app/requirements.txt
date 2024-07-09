@@ -6,3 +6,4 @@ djangorestframework-simplejwt
 # Security
 django[argon2]
 cryptography
+django-csp
