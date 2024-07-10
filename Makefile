@@ -18,14 +18,16 @@ else
     DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_MAC)
 endif
 
-COMPOSE_YML = src/compose/docker-compose.yml
+COMPOSE_BACK = src/compose/docker-compose-backend.yml
+COMPOSE_UTILS = src/compose/docker-compose-utils.yml
+COMPOSE = src/compose/docker-compose.yml
 
 .PHONY: all build down clean
 
 all : up
 
 up :
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) up --build -d
+	$(DOCKER_COMPOSE_CMD) --env-file ./src/database/.env.dev  -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK)  up --build -d  --remove-orphans
 down:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down
 	sudo docker rmi $(DOCKER_IMAGES)

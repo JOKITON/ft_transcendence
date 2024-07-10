@@ -6,11 +6,11 @@
 #    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/26 17:07:18 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/06/29 09:55:58 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/07/10 17:51:09 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20 as Builder
+FROM alpine:3.20 AS Builder
 
 RUN apk update && apk upgrade --no-cache  \
   && apk add zsh openssl traefik ca-certificates --no-cache

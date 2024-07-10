@@ -5,20 +5,23 @@
 #                                                     +:+ +:+         +:+      #
 #    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/01/26 18:57:05 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/07/10 17:51:18 by Dugonzal         ###   ########.fr        #
+#    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
+#    Updated: 2024/07/10 18:11:26 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20 AS Builder
+FROM alpine:3.20 AS builder
 
 LABEL traefik.enable=true
-LABEL traefik.http.routers.grafana.rule=Host(`grafana.localhost`)
-LABEL traefik.http.services.grafana.loadbalancer.server.port=3000
+LABEL traefik.http.routers.login.rule=Host(`localhost`)
+LABEL traefik.http.services.login.loadbalancer.server.port=3002
 
-RUN apk update --update && apk upgrade --no-cache && apk add grafana --no-cache
+RUN apk update && apk add --no-cache nodejs npm
 
-#COPY  provisioning /usr/share/grafana/conf/provisioning
+WORKDIR /login
 
-#COPY provisioning/dashboards/ /usr/share/grafana/conf/provisioning/
-CMD grafana-server --homepath=/usr/share/grafana
+COPY login/ .
+
+RUN npm install
+
+CMD npm run serve -- --port 3002

@@ -1,0 +1,54 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    docker-compose-utils.yml                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/06/27 21:09:14 by Dugonzal          #+#    #+#              #
+#    Updated: 2024/07/10 17:55:39 by Dugonzal         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+services:
+  reverse-proxy:
+    build: ../Reverse-Proxy/
+    image: reverse-proxy-${Tag}
+    restart: always
+    ports:
+    - 8080:8080
+    volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+    - ft_trancendence
+  database:
+    image: postgres:alpine3.20
+    networks:
+    - ft_trancendence
+    ports:
+    - 5432
+    env_file: ../database/.env.dev
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: always
+    volumes:
+    - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../database/dataBaseVol/
+
+secrets:
+  passwords:
+    file: secrets
