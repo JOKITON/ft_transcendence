@@ -1,105 +1,108 @@
-from django.shortcuts import render
-from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.hashers import make_password
-import json
-# Rest
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from django.conf import settings
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-# CSRF
 from django.middleware.csrf import get_token
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect, csrf_exempt
-from django.views.decorators.http import require_POST, require_GET
-from .csrf import check_csrf_token, get_csrf
-from .auth import refresh_token_view
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from .auth import CustomTokenRefreshView
+from .csrf import get_csrf, check_csrf_token
 
 class SessionView(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     @staticmethod
     def get(request, format=None):
-        return JsonResponse({'isAuthenticated': True})
-
+        return Response({'isAuthenticated': True})
 
 class WhoAmIView(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     @staticmethod
     @csrf_protect
-    @require_GET
     def get(request, format=None):
-        return JsonResponse({'username': request.user.username})
+        return Response({'username': request.user.username})
 
-@csrf_protect
-def register_view(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
+class RegisterView(APIView):
+    @method_decorator(csrf_protect)
+    def post(self, request):
+        data = request.data
         username = data.get('username')
         password = data.get('password')
         email = data.get('email')
 
         if not username or not password or not email:
-            return JsonResponse(
+            return Response(
                 {'message': 'Username, password, and email are required', 'status': 'error'},
-                status=400
+                status=status.HTTP_400_BAD_REQUEST
             )
 
         if User.objects.filter(username=username).exists():
-            return JsonResponse({'message': 'Username already exists', 'status': 'error'}, status=400)
+            return Response({'message': 'Username already exists', 'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
 
         if User.objects.filter(email=email).exists():
-            return JsonResponse({'message': 'Email already exists', 'status': 'error'}, status=400)
+            return Response({'message': 'Email already exists', 'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
 
-        
-        """ The password is hashed by default """
         user = User.objects.create_user(username=username, email=email, password=password)
-        return JsonResponse({'message': 'Registration successful', 'user_id': user.id}, status=200)
+        return Response({'message': 'Registration successful', 'user_id': user.id}, status=status.HTTP_200_OK)
 
-    return JsonResponse({'error': 'POST method required', 'status': 'error'}, status=405)
+class LoginView(APIView):
+    @method_decorator(csrf_protect)
+    def post(self, request):
+        data = request.data
+        username = data.get('username')
+        password = data.get('password')
 
-@require_POST
-@csrf_protect
-def login_view(request):
-    data = json.loads(request.body)
-    username = data.get('username')
-    password = data.get('password')
+        if username is None or password is None:
+            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
-    if username is None or password is None:
-        return JsonResponse({'detail': 'Please provide username and password.'}, status=400)
+        user = authenticate(username=username, password=password)
 
-    user = authenticate(username=username, password=password)
+        if user is None:
+            return Response({'detail': 'Invalid credentials.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    if user is None:
-        return JsonResponse({'detail': 'Invalid credentials.'}, status=400)
+        login(request, user)
 
-    login(request, user)
-    
-    # Generate JWT tokens
-    refresh = RefreshToken.for_user(user)
-    access_token = refresh.access_token
-    
-    response = JsonResponse({'detail': 'Login successful'})
-    
-    # Set JWT tokens as HttpOnly cookies
-    response.set_cookie('access_token', str(access_token), httponly=True, secure=True, samesite='Lax')
-    response.set_cookie('refresh_token', str(refresh), httponly=True, secure=True, samesite='Lax')
-    
-    # Set the CSRF token cookie
-    csrf_token = get_token(request)
-    response.set_cookie('csrftoken', csrf_token, httponly=False, secure=True, samesite='Lax')
-    
-    return response
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        response = Response({
+            'access': access_token,
+            'refresh': str(refresh)
+        }, status=status.HTTP_200_OK)
 
-@require_POST
-@csrf_protect
-def logout_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'detail': 'You\'re not logged in.'}, status=400)
+        response.set_cookie(
+            key=settings.SIMPLE_JWT['AUTH_COOKIE'],
+            value=access_token,
+            secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+            httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+            samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+        )
+        response.set_cookie(
+            key=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'],
+            value=str(refresh),
+            secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+            httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+            samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+        )
+        
+        csrf_token = get_token(request)
+        response.set_cookie('csrftoken', csrf_token, httponly=True, secure=True, samesite='Lax')
+        response['X-CSRFToken'] = csrf_token
+        
+        return response
 
-    logout(request)
-    return JsonResponse({'detail': 'Successfully logged out.'})
+class LogoutView(APIView):
+    @method_decorator(csrf_protect)
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return Response({'detail': 'You\'re not logged in.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        logout(request)
+        return Response({'detail': 'Successfully logged out.'})

@@ -5,22 +5,20 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework import status
 
-@api_view(['POST'])
-@csrf_protect
-def refresh_token_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'detail': 'You\'re not logged in.'}, status=400)
-    refresh_token = request.COOKIES.get('refresh_token')
-    if refresh_token is None:
-        return Response({'detail': 'Refresh token not found'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    try:
-        refresh = RefreshToken(refresh_token)
-        access_token = str(refresh.access_token)
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from django.conf import settings
 
-        response = Response({'detail': 'Token refreshed successfully'}, status=status.HTTP_200_OK)
-        response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Lax')
-        
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200 and 'access' in response.data:
+            access_token = response.data['access']
+            response.set_cookie(
+                key=settings.SIMPLE_JWT['AUTH_COOKIE'],
+                value=access_token,
+                secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+            )
         return response
-    except Exception as e:
-        return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)

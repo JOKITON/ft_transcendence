@@ -40,8 +40,11 @@ INSTALLED_APPS = [
 
     'corsheaders',
 	'rest_framework',
-    'home',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'csp',
+    
+    'home',
 ]
 
 MIDDLEWARE = [
@@ -86,7 +89,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_HTTPONLY = True
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_NAME = 'csrftoken'
 
@@ -165,15 +168,16 @@ REST_FRAMEWORK = {
         # Adjust permissions as per your API needs
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
+		'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-		'rest_framework_simplejwt.authentication.JWTAuthentication',
         # Add other authentication classes as needed
     ],
 }
 
 PRIVATE_KEY_PATH = os.path.join(BASE_DIR, 'private.pem')
 PUBLIC_KEY_PATH = os.path.join(BASE_DIR, 'public.pem')
+
 SIMPLE_JWT = {
     'ALGORITHM': 'RS256',
     'SIGNING_KEY': load_key(PRIVATE_KEY_PATH),
@@ -184,9 +188,15 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'user_id',
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': False,
+    'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,
+    'AUTH_COOKIE': 'access_token',
+    'AUTH_COOKIE_REFRESH': 'refresh_token',
+    'AUTH_COOKIE_SECURE': True,
+    'AUTH_COOKIE_HTTP_ONLY': True,
+    'AUTH_COOKIE_PATH': '/',
+    'AUTH_COOKIE_SAMESITE': 'Lax',
 }
 
 PASSWORD_HASHERS = [
