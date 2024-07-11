@@ -46,7 +46,8 @@
 </template>
 
 <script>
-import { api } from "../../main";
+import api from "../../utils/api";
+import Cookies from 'js-cookie';
 
 export default {
   name: "loginHome",
@@ -64,7 +65,7 @@ export default {
   methods: {
     async logoutUser() {
       try {
-        const response = await api.post("/api/logout/");
+        const response = await api.post("logout/");
         console.log("Logout successful:", response.data);
         this.$router.push('/login');
       } catch (error) {
@@ -74,7 +75,8 @@ export default {
     },
     async fetchUsername() {
       try {
-        const response = await api.get("/api/whoami/"); // Example endpoint
+        const refreshToken = Cookies.get('refresh_token');
+        const response = await api.get("whoami/", { refresh: refreshToken });
         this.username = response.data.username; // Replace with your actual response structure
       } catch (error) {
         console.error("Error fetching username:", error.response ? error.response.data : error.message);

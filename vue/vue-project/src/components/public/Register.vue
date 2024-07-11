@@ -39,7 +39,7 @@
 <script>
 import NavIndex from "./NavIndex.vue";
 import { validateForm } from "../../utils/form";
-import { api } from "../../main";
+import api from "../../utils/api";
 
 export default {
   name: "CompRegister",
@@ -63,7 +63,7 @@ export default {
 
         console.log(api.defaults.headers.common['X-CSRFToken']);
         const response = await api.post(
-          "/api/register/",
+          "register/",
           {
             username: this.form.username,
             email: this.form.email,
@@ -73,7 +73,7 @@ export default {
         );
 
         console.log("Registration successful:", response.data);
-        this.$router.push('/login');
+        this.$router.push("/login");
         // Handle successful registration (e.g., show success message, redirect)
       } catch (error) {
         console.error(
