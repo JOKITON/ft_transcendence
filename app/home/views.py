@@ -17,17 +17,16 @@ class SessionView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @staticmethod
-    def get(request, format=None):
+    @method_decorator(csrf_protect)
+    def get(self, request, format=None):
         return Response({'isAuthenticated': True})
 
 class WhoAmIView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @staticmethod
-    @csrf_protect
-    def get(request, format=None):
+    @method_decorator(csrf_protect)
+    def get(self, request, format=None):
         return Response({'username': request.user.username})
 
 class RegisterView(APIView):

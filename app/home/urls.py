@@ -11,6 +11,7 @@ urlpatterns = [
     path('api/register/', views.RegisterView.as_view(), name='api-register'),
     path('api/login/', views.LoginView.as_view(), name='api-login'),
 	path('api/csrf/', views.get_csrf, name='api-csrf'),
+    path('api/csrf/check/', views.check_csrf_token, name='api-csrf-check'),
     path('api/logout/', views.LogoutView.as_view(), name='api-logout'),
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

@@ -5,8 +5,8 @@ import api from "./api";
 export function setAuthHeader(accessToken, refreshToken) {
   if (accessToken && refreshToken) {
     api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
-    Cookies.set('refresh_token', refreshToken, { expires: 7, secure: true, sameSite: 'Lax' });
-    Cookies.set('access_token', accessToken, { expires: 7, secure: true, sameSite: 'Lax' });
+    Cookies.set('refresh_token', refreshToken, { secure: true, sameSite: 'Lax' });
+    Cookies.set('access_token', accessToken, { secure: true, sameSite: 'Lax' });
   }
 }
 
