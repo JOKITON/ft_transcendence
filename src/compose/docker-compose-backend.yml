@@ -1,4 +1,4 @@
-name: ft_transcendence  
+name: ft_transcendence
 
 services:
   autentication:
@@ -6,19 +6,19 @@ services:
     build: ../backend/autentication/
     image: autentication:0.0.1
     networks:
-    - ft_trancendence 
+      - ft_trancendence
     env_file:
-    - ../backend/autentication/.env.autentication
+      - ../backend/autentication/.env.autentication
     restart: always
     # volumes:
-# - autentication:/authentication
+    # - autentication:/authentication
     #    depends_on:
     ## - database
   login:
     container_name: login
     build: ../frontend/login/
     networks:
-    - ft_trancendence
+      - ft_trancendence
     restart: always
     #volumes:
     #  - static_volume:/home/app/web/static

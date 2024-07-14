@@ -3,7 +3,7 @@ const { defineConfig } = require("@vue/cli-service");
 module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
-    proxy: "http://autentication:3001",
+    proxy: "http://localhost:80/api/",
   },
   configureWebpack: {
     resolve: {

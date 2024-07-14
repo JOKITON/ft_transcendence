@@ -29,11 +29,10 @@ all : up
 up :
 	$(DOCKER_COMPOSE_CMD) --env-file ./src/database/.env.dev  -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK)  up --build -d  --remove-orphans
 down:
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down
-	sudo docker rmi $(DOCKER_IMAGES)
-
+	$(DOCKER_COMPOSE_CMD) --env-file ./src/database/.env.dev  -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK)  down --volumes
 clean:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down -v
+	sudo docker rmi $(DOCKER_IMAGES)
 
 re: down clean up
 

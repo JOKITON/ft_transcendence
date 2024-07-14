@@ -6,19 +6,18 @@
 #    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/27 21:09:14 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/07/11 16:06:55 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/07/14 18:35:20 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 services:
   reverse-proxy:
     build: ../Reverse-Proxy/
-    image: reverse-proxy-${Tag}
+    image: reverse-proxy:0.0.1
     restart: always
     ports:
       - 8080:8080
       - 80:80
-      - 443:443
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
@@ -49,8 +48,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ../database/dataBaseVol/
-
+      device: ../database/DataBaseVol
 secrets:
   passwords:
     file: secrets

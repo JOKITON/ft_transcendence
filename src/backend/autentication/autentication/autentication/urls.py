@@ -8,14 +8,12 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
 
 urlpatterns = [
-    path('api/register/', views.register_view, name='api-register'),
-    path('api/login/', views.login_view, name='api-login'),
-	path('api/csrf/', views.get_csrf, name='api-csrf'),
-    path('api/logout/', views.logout_view, name='api-logout'),
-
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', views.refresh_token_view, name='token_refresh_from_cookie'),
-
-    path('api/session/', views.SessionView.as_view(), name='api-session'),  # new
-    path('api/whoami/', views.WhoAmIView.as_view(), name='api-whoami'),  # new
+    path("register/", views.register_view, name="api-register"),
+    path("login/", views.login_view, name="api-login"),
+    path("csrf/", views.get_csrf, name="api-csrf"),
+    path("logout/", views.logout_view, name="api-logout"),
+    path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("token/refresh/", views.refresh_token_view, name="token_refresh_from_cookie"),
+    path("session/", views.SessionView.as_view(), name="api-session"),  # new
+    path("whoami/", views.WhoAmIView.as_view(), name="api-whoami"),  # new
 ]
