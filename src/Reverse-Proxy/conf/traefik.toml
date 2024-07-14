@@ -6,7 +6,7 @@
 #    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/11 13:40:30 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/06/29 10:04:16 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/07/14 17:31:59 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,7 @@ address = ":80"
 [entryPoints.web.http.redirections]
 [entryPoints.web.http.redirections.entryPoint]
 to = "websecure"
-scheme = "https"
+scheme = "http"
 
 [entryPoints.websecure]
 address = ":443"
@@ -29,7 +29,6 @@ address = ":443"
 #address = ":3306"
 #  [entryPoints.udp]
 #address = ":8081/udp"
-
 
 [api]
 dashboard = true
@@ -40,7 +39,6 @@ insecure = true
 users = [
   "ciclo:ciclo", # Reemplaza con tu usuario y contraseña generados
 ]
-
 
 [Log]
 level = "DEBUG"
@@ -61,8 +59,8 @@ buckets = [0.1, 0.3, 1.2, 5.0]
 endpoint = "unix:///var/run/docker.sock"
 exposedByDefault = false
 
-[http.routers.api]
-rule = "Host(`localhost`)"
-entryPoints = ["web"]
-middlewares = ["auth"]
-service = "api@internal"
+#[http.routers.api]
+#rule = "Host(`localhost`)"
+#entryPoints = ["web"]
+#middlewares = ["auth"]
+#service = "api@internal"

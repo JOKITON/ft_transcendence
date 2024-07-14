@@ -1,4 +1,4 @@
-name: ft_transcendence  
+name: ft_transcendence
 
 services:
   autentication:
@@ -6,23 +6,31 @@ services:
     build: ../backend/autentication/
     image: autentication:0.0.1
     networks:
-    - ft_trancendence 
+      - ft_trancendence
     env_file:
-    - ../backend/autentication/.env.autentication
+      - ../backend/autentication/.env.autentication
     restart: always
     # volumes:
-# - autentication:/authentication
+    # - autentication:/authentication
     #    depends_on:
     ## - database
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.autentication.rule=Host(`localhost`) && PathPrefix(`/api`)"
+      - traefik.http.services.autentication.loadbalancer.server.port=80
   login:
     container_name: login
     build: ../frontend/login/
     networks:
-    - ft_trancendence
+      - ft_trancendence
     restart: always
     #volumes:
     #  - static_volume:/home/app/web/static
     #  - media_volume:/home/app/web/media
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.login.rule=Host(`localhost`) && PathPrefix(`/`)"
+      - traefik.http.services.login.loadbalancer.server.port=80
 
 networks:
   ft_trancendence:

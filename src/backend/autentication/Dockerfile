@@ -6,18 +6,16 @@
 #    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/07/10 18:23:58 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/07/14 17:04:53 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM alpine:3.20 AS builder
 
-LABEL traefik.enable=true
-LABEL traefik.http.routers.autentication.rule=Host(`localhost`)
-LABEL traefik.http.services.autentication.loadbalancer.server.port=3001
 
 RUN apk add --no-cache && apk update --no-cache \
-  && apk add python3 py3-pip curl tzdata shadow sudo --no-cache netcat-openbsd zsh
+  && apk add python3 py3-pip curl tzdata shadow sudo \ 
+  --no-cache netcat-openbsd zsh
 
 RUN cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 
