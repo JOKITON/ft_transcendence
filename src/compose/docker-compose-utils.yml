@@ -12,11 +12,8 @@
 
 services:
   reverse-proxy:
-    image: traefik
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker"
-      - "--entrypoints.web.address=:80"
+    build: ../Reverse-Proxy/
+    image: reverse-proxy:0.0.1
     restart: always
     ports:
       - 8080:8080
@@ -51,8 +48,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ../database/
-
+      device: ../database/DataBaseVol
 secrets:
   passwords:
     file: secrets

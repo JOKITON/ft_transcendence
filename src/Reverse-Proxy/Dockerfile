@@ -10,10 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20 AS Builder
-
-RUN apk update && apk upgrade --no-cache  \
-  && apk add zsh openssl traefik ca-certificates --no-cache
+FROM traefik:v3.0 AS Builder
 
 #RUN mkdir -p /certs
 
