@@ -49,6 +49,12 @@ volumes:
       type: none
       o: bind
       device: ../database/DataBaseVol
+
+networks:
+  ft_trancendence:
+    name: ft_trancendence
+    driver: bridge
+
 secrets:
   passwords:
     file: secrets
