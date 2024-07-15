@@ -10,6 +10,8 @@
 #                                                                              #
 # **************************************************************************** #
 
+name: ft_transcendence
+
 services:
   prometheus:
     build: ../Monitoring/prometheus
