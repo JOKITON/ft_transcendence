@@ -5,10 +5,10 @@
 - Create Pong game in JavaScript
 
 # Back-End:
-- Hash the password
+- Hash the password [Done]
 
 # Database:
-- Protect against SQL injections/XSS
+- Protect against SQL injections/XSS [Done]
 
 # To test inside 42:
 - Check docker-compose packages
@@ -17,13 +17,13 @@
 
 IV.1 Overview
 - Web
-	- Major module: Use a Framework as backend.
-	- Minor module: Use a front-end framework or toolkit.
-	- Minor module: Use a database for the backend.
+	- Major module: Use a Framework as backend. [Done]
+	- Minor module: Use a front-end framework or toolkit. [Done]
+	- Minor module: Use a database for the backend. [Done]
 	(Optional) - Major module: Store the score of a tournament in the Blockchain.
 - User Management
 	- Major module: Standard user management, authentication, users across
-	tournaments.
+	tournaments. [2/3 Done]
 	- Major module: Implementing a remote authentication.
 - Gameplay and user experience
 	- Major module: Remote players
