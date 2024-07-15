@@ -1,0 +1,38 @@
+name: ft_transcendence
+
+services:
+  autentication:
+    container_name: autentication
+    build: ../backend/autentication/
+    image: autentication:0.0.1
+    networks:
+      - ft_trancendence
+    env_file:
+      - ../backend/autentication/.env.autentication
+    restart: always
+    # volumes:
+    # - autentication:/authentication
+    #    depends_on:
+    ## - database
+  login:
+    container_name: login
+    build: ../frontend/login/
+    networks:
+      - ft_trancendence
+    restart: always
+    #volumes:
+    #  - static_volume:/home/app/web/static
+    #  - media_volume:/home/app/web/media
+
+networks:
+  ft_trancendence:
+    name: ft_trancendence
+    driver: bridge
+
+volumes:
+  autentication:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/autentication/

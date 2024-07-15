@@ -1,12 +1,12 @@
 NAME = ft_transcendence
 
 # Variables
-DOCKER_COMPOSE_LINUX = docker compose
-DOCKER_COMPOSE_MAC = docker-compose
+DOCKER_COMPOSE_LINUX = sudo docker compose
+DOCKER_COMPOSE_MAC = sudo docker-compose
 
 DOCKER_IMAGES = $(addprefix ft_transcendence-,$(IMAGES))
 # Add here the container names
-IMAGES = proxy app db vue
+IMAGES = ft_transcendence-database-1 login ft_transcendence-reverse-proxy-1 autentication
 
 # Check if docker-compose exists
 DOCKER_COMPOSE_EXISTS := $(shell command -v docker-compose 2>/dev/null)
@@ -18,21 +18,21 @@ else
     DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_MAC)
 endif
 
-COMPOSE_YML = docker-compose.yml
+COMPOSE_BACK = src/compose/docker-compose-backend.yml
+COMPOSE_UTILS = src/compose/docker-compose-utils.yml
+COMPOSE = src/compose/docker-compose.yml
 
 .PHONY: all build down clean
 
 all : up
 
 up :
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) up --build
-
+	$(DOCKER_COMPOSE_CMD) --env-file ./src/database/.env.dev  -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK)  up --build -d  --remove-orphans
 down:
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down
-	sudo docker rmi $(DOCKER_IMAGES)
-
+	$(DOCKER_COMPOSE_CMD) -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK)  down --volumes
 clean:
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down -v
+	sudo docker rmi -f $(sudo docker images -aq)
+	sudo docker rm -vf $(sudo docker ps -aq)
 
 re: down clean up
 
