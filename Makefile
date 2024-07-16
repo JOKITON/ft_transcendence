@@ -46,6 +46,11 @@ info:
 	@sudo $(DOCKER_COMPOSE_CMD) ps
 	@sudo $(DOCKER_COMPOSE_CMD) images
 
+curl: 
+	curl -X POST \
+		http://localhost/api/pong/rounds/ \
+	 -H 'Content-Type: application/json' \
+  -d '{ "player1": "1", "player2": "2", "score1": 10, "score2": 8 }'
 # Help target
 help:
 	@echo "Usage: make [TARGET]"

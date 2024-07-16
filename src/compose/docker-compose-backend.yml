@@ -6,7 +6,7 @@
 #    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/14 22:28:06 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/07/14 22:28:06 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/07/16 21:23:23 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,20 @@ services:
     networks:
       - ft_trancendence
     env_file:
-      - ../backend/autentication/.env.autentication
+      - ../backend/.env.backend
+    restart: always
+    # volumes:
+    # - autentication:/authentication
+    #    depends_on:
+    ## - database
+  pong:
+    container_name: pong
+    build: ../backend/pong/
+    image: pong:0.0.1
+    networks:
+      - ft_trancendence
+    env_file:
+      - ../backend/.env.backend
     restart: always
     # volumes:
     # - autentication:/authentication
@@ -34,3 +47,9 @@ volumes:
       type: none
       o: bind
       device: ../backend/autentication/
+  pong:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/pong/
