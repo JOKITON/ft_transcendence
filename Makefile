@@ -36,7 +36,7 @@ clean:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down -v
 	sudo docker rmi $(DOCKER_IMAGES)
 
-re: down clean up
+re: down  up
 
 info:
 	@sudo docker ps
