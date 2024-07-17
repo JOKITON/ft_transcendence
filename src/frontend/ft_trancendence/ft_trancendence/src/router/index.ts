@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Index from '../components/public/Index.vue'
-import Login from '../components/public/Login.vue'
-import Register from '../components/public/Register.vue'
-import Home from '../components/private/Home.vue'
+import Index from '../views/public/Index.vue'
+import Login from '../views/public/Login.vue'
+import Register from '../views/public/Register.vue'
+import Home from '../views/private/Home.vue'
 
 import { refreshAuthToken } from '../utils/auth'
 const router = createRouter({
@@ -23,7 +23,7 @@ const router = createRouter({
 
 // Navigation guard to check for authentication
 router.beforeEach(async (to, from, next) => {
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
+  if (to.matched.some((record): unknown => record.meta.requiresAuth)) {
     const isRefreshed = await refreshAuthToken()
     if (!isRefreshed) {
       next('/login')
