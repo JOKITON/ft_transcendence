@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Dockerfile                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
+#    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/07/14 21:55:03 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/07/15 15:37:48 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ LABEL traefik.http.routers.autentication.rule="Host(`localhost`) && PathPrefix(`
 LABEL traefik.http.services.autentication.loadbalancer.server.port=80
 
 RUN apk add --no-cache && apk update --no-cache \
-  && apk add python3 py3-pip curl tzdata shadow sudo \ 
+  && apk add python3 py3-pip curl tzdata shadow sudo openssl \ 
   --no-cache netcat-openbsd zsh
 
 RUN cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime

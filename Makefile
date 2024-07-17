@@ -6,7 +6,7 @@ DOCKER_COMPOSE_MAC = sudo docker-compose
 
 DOCKER_IMAGES = $(addprefix ft_transcendence-,$(IMAGES))
 # Add here the container names
-IMAGES = proxy app db vue
+IMAGES = ft_transcendence-database-1 login ft_transcendence-reverse-proxy-1 autentication
 
 # Check if docker-compose exists
 DOCKER_COMPOSE_EXISTS := $(shell command -v docker-compose 2>/dev/null)
@@ -33,8 +33,8 @@ up :
 down:
 	$(DOCKER_COMPOSE_CMD) --env-file ./src/database/.env.dev  -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK) -f $(COMPOSE_FRONT) -f $(COMPOSE_MONI) down --volumes 
 clean:
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_YML) down -v
-	sudo docker rmi $(DOCKER_IMAGES)
+	sudo docker rmi -f $(sudo docker images -aq)
+	sudo docker rm -vf $(sudo docker ps -aq)
 
 re: down  up
 

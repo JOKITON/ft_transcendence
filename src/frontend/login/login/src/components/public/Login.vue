@@ -42,7 +42,8 @@
 </template>
 
 <script>
-import { api } from "../../main";
+import { setAuthHeader } from "../../utils/auth";
+import api from "../../utils/api";
 import { validateForm } from "../../utils/form";
 import NavIndex from "./NavIndex.vue";
 
@@ -64,10 +65,12 @@ export default {
       try {
         validateForm(0, this.form);
 
-        await api.post("/api/login/", {
+        const response = await api.post("token/", {
           username: this.form.username,
           password: this.form.password,
         });
+        
+        setAuthHeader(response.data.access, response.data.refresh);
 
         this.$router.push("/home");
       } catch (error) {
