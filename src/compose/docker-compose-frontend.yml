@@ -1,0 +1,31 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    docker-compose-frontend.yml                        :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/07/14 22:28:10 by Dugonzal          #+#    #+#              #
+#    Updated: 2024/07/17 18:14:39 by Dugonzal         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+name: ft_transcendence
+
+services:
+  frontend:
+    container_name: frontend
+    build: ../frontend/ft_trancendence/
+    networks:
+      - ft_trancendence
+    restart: always
+    volumes:
+      - frontend:/ft_transcendence
+
+volumes:
+  frontend:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../frontend/ft_trancendence/ft_trancendence/

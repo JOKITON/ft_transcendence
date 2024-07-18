@@ -19,6 +19,8 @@ else
 endif
 
 COMPOSE_BACK = src/compose/docker-compose-backend.yml
+COMPOSE_FRONT = src/compose/docker-compose-frontend.yml
+COMPOSE_MONI = src/compose/docker-compose-monitoring.yml
 COMPOSE_UTILS = src/compose/docker-compose-utils.yml
 COMPOSE = src/compose/docker-compose.yml
 
@@ -27,14 +29,14 @@ COMPOSE = src/compose/docker-compose.yml
 all : up
 
 up :
-	$(DOCKER_COMPOSE_CMD) --env-file ./src/database/.env.dev  -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK)  up --build -d  --remove-orphans
+	$(DOCKER_COMPOSE_CMD) --env-file ./src/database/.env.dev  -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK) -f $(COMPOSE_FRONT) -f $(COMPOSE_MONI) up --build -d  --remove-orphans
 down:
-	$(DOCKER_COMPOSE_CMD) -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK)  down --volumes
+	$(DOCKER_COMPOSE_CMD) --env-file ./src/database/.env.dev  -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK) -f $(COMPOSE_FRONT) -f $(COMPOSE_MONI) down --volumes 
 clean:
 	sudo docker rmi -f $(sudo docker images -aq)
 	sudo docker rm -vf $(sudo docker ps -aq)
 
-re: down clean up
+re: down  up
 
 info:
 	@sudo docker ps
@@ -44,6 +46,11 @@ info:
 	@sudo $(DOCKER_COMPOSE_CMD) ps
 	@sudo $(DOCKER_COMPOSE_CMD) images
 
+curl: 
+	curl -X POST \
+		http://localhost/api/pong/rounds/ \
+	 -H 'Content-Type: application/json' \
+  -d '{ "player1": "1", "player2": "2", "score1": 10, "score2": 8 }'
 # Help target
 help:
 	@echo "Usage: make [TARGET]"
