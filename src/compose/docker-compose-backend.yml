@@ -1,0 +1,55 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    docker-compose-backend.yml                         :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/07/14 22:28:06 by Dugonzal          #+#    #+#              #
+#    Updated: 2024/07/16 21:23:23 by Dugonzal         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+name: ft_transcendence
+
+services:
+  autentication:
+    container_name: autentication
+    build: ../backend/autentication/
+    image: autentication:0.0.1
+    networks:
+      - ft_trancendence
+    env_file:
+      - ../backend/.env.backend
+    restart: always
+    # volumes:
+    # - autentication:/authentication
+    #    depends_on:
+    ## - database
+  pong:
+    container_name: pong
+    build: ../backend/pong/
+    image: pong:0.0.1
+    networks:
+      - ft_trancendence
+    env_file:
+      - ../backend/.env.backend
+    restart: always
+    # volumes:
+    # - autentication:/authentication
+    #    depends_on:
+    ## - database
+
+volumes:
+  autentication:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/autentication/
+  pong:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/pong/
