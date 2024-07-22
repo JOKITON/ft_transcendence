@@ -1,55 +1,96 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    docker-compose-backend.yml                         :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/07/14 22:28:06 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/07/16 21:23:23 by Dugonzal         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
+# docker-compose-backend.yml
 
-name: ft_transcendence
+name: ft_transcendence_backend
 
 services:
-  autentication:
-    container_name: autentication
-    build: ../backend/autentication/
-    image: autentication:0.0.1
-    networks:
-      - ft_trancendence
-    env_file:
-      - ../backend/.env.backend
+  keys:
+    container_name: keys
+    build:
+      context: ../backend/keys
+      dockerfile: Dockerfile
+    env_file: ../backend/.env-django
+    environment:
+      - PRIVATE_KEY_PATH=/usr/src/app/secrets/jwt_auth_private.pem
+      - PUBLIC_KEY_PATH=/usr/src/app/secrets/jwt_auth_public.pem
     restart: always
-    # volumes:
-    # - autentication:/authentication
-    #    depends_on:
-    ## - database
+    volumes:
+      - jwt_auth_keys:/usr/src/app/secrets
+    networks:
+      - backend
+
+  auth:
+    container_name: auth
+    build:
+      context: ../backend/auth
+      dockerfile: Dockerfile
+    env_file: ../backend/.env-django
+    restart: always
+    networks:
+      - backend
+    depends_on:
+      - keys
+
+  csrf:
+    container_name: csrf
+    build:
+      context: ../backend/csrf
+      dockerfile: Dockerfile
+    env_file: ../backend/.env-django
+    restart: always
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - keys
+      - auth
+
   pong:
     container_name: pong
-    build: ../backend/pong/
-    image: pong:0.0.1
-    networks:
-      - ft_trancendence
-    env_file:
-      - ../backend/.env.backend
+    build:
+      context: ../backend/pong
+      dockerfile: Dockerfile
+    env_file: ../backend/.env-django
     restart: always
-    # volumes:
-    # - autentication:/authentication
-    #    depends_on:
-    ## - database
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - keys
+      - auth
+      - csrf
+
+  database:
+    container_name: db
+    build:
+      context: ../database/
+      dockerfile: Dockerfile
+    networks:
+      - backend
+      - metrics
+    env_file: ../database/.env-postgres
+    restart: always
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    shm_size: 128mb
+
+networks:
+  frontend:
+    external: true
+  backend:
+    driver: bridge
+  metrics:
+    external: true
 
 volumes:
-  autentication:
+  db-data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../backend/autentication/
-  pong:
+      device: ../../volumes/backend/db
+  jwt_auth_keys:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../backend/pong/
+      device: ../../volumes/backend/jwt_auth_keys

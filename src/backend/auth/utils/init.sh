@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -e  # Exit immediately if a command exits with a non-zero status
 
 if [ "$DATABASE" = "postgres" ]; then
   echo "Waiting for PostgreSQL to start..."
@@ -8,36 +8,20 @@ if [ "$DATABASE" = "postgres" ]; then
   done
 fi
 
-# Generate RSA keys if they don't exist
-KEY_DIR="/usr/src/app/secrets"
-mkdir -p "$KEY_DIR"
-
 # Fetch public key from JWT Key Management Service
 if [ ! -f /usr/src/app/secrets/jwt_auth_public.pem ]; then
   mkdir -p /usr/src/app/secrets
   curl -o /usr/src/app/secrets/jwt_auth_public.pem http://keys:8000/api/key/public-key/
 fi
 
-# Apply database migrations first time
 echo "Applying database migrations..."
-if ! python manage.py makemigrations --noinput; then
-  echo "Migrations failed"
-  exit 1
-fi
+python manage.py migrate --noinput
 
-# Apply database migrations
-echo "Applying database migrations..."
-if ! python manage.py migrate --noinput; then
-  echo "Migrations failed"
-  exit 1
-fi
+# echo "Flushing database..."
+# python manage.py flush --no-input
 
-# Collect static files
-echo "Collecting static files..."
-if ! python manage.py collectstatic --no-input; then
-  echo "Collectstatic failed"
-  exit 1
-fi
+# echo "Creating superuser Joe..."
+# python manage.py createsuperuser --username=joe --email=joe@example.com
 
 # Start the Django development server
 echo "Starting Django development server..."

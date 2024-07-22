@@ -1,12 +1,18 @@
 NAME = ft_transcendence
 
+DOCKER = sudo docker
+
 # Variables
-DOCKER_COMPOSE_LINUX = sudo docker compose
-DOCKER_COMPOSE_MAC = sudo docker-compose
+DOCKER_COMPOSE_LINUX = $(DOCKER) compose
+DOCKER_COMPOSE_MAC = $(DOCKER)-compose
 
 DOCKER_IMAGES = $(addprefix ft_transcendence-,$(IMAGES))
+DOCKER_IMAGES_BACKEND = $(addprefix ft_transcendence_backend-,$(IMAGES_BACKEND))
+DOCKER_IMAGES_METRICS = $(addprefix ft_transcendence_metrics-,$(IMAGES_METRICS))
 # Add here the container names
-IMAGES = ft_transcendence-database-1 login ft_transcendence-reverse-proxy-1 autentication
+IMAGES = vue reverse-proxy
+IMAGES_BACKEND = jwt-keys jwt-auth csrf pong database
+IMAGES_METRICS = grafana prometheus
 
 # Check if docker-compose exists
 DOCKER_COMPOSE_EXISTS := $(shell command -v docker-compose 2>/dev/null)
@@ -18,39 +24,66 @@ else
     DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_MAC)
 endif
 
-COMPOSE_BACK = src/compose/docker-compose-backend.yml
-COMPOSE_FRONT = src/compose/docker-compose-frontend.yml
-COMPOSE_MONI = src/compose/docker-compose-monitoring.yml
-COMPOSE_UTILS = src/compose/docker-compose-utils.yml
 COMPOSE = src/compose/docker-compose.yml
+
+COMPOSE_METRICS = src/compose/docker-compose-metrics.yml
+
+COMPOSE_BACKEND = src/compose/docker-compose-backend.yml
+
+VOLUMES = volumes/backend/db volumes/frontend/static volumes/frontend/media volumes/metrics/prometheus volumes/metrics/grafana volumes/backend/jwt_auth_keys
 
 .PHONY: all build down clean
 
 all : up
 
-up :
-	$(DOCKER_COMPOSE_CMD) --env-file ./src/database/.env.dev  -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK) -f $(COMPOSE_FRONT) -f $(COMPOSE_MONI) up --build -d  --remove-orphans
+$(VOLUMES) :
+	@mkdir -p $(VOLUMES)
+
+up : $(VOLUMES)
+	@$(DOCKER) network create metrics
+	@$(DOCKER) network create frontend
+	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) up --build -d  --remove-orphans
+	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
+	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
+logs:
+	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) logs
+logs-backend:
+	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) logs
+logs-metrics:
+	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) logs
 down:
-	$(DOCKER_COMPOSE_CMD) --env-file ./src/database/.env.dev  -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK) -f $(COMPOSE_FRONT) -f $(COMPOSE_MONI) down --volumes 
+	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) down --volumes
+	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) down --volumes
+	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) down --volumes
+	@$(DOCKER) network rm metrics frontend
 clean:
-	sudo docker rmi -f $(sudo docker images -aq)
-	sudo docker rm -vf $(sudo docker ps -aq)
+	@$(DOCKER) rmi -f $(DOCKER_IMAGES)
+	@$(DOCKER) rmi -f $(DOCKER_IMAGES_BACKEND)
+	@$(DOCKER) rmi -f $(DOCKER_IMAGES_METRICS)
+	@$(DOCKER) network prune --force
+	@$(DOCKER) image prune --force
+	@sudo rm -rf $(VOLUMES)
 
-re: down  up
-
-info:
-	@sudo docker ps
-	@sudo docker images
-	@sudo docker volume ls
-	@sudo docker network ls
-	@sudo $(DOCKER_COMPOSE_CMD) ps
-	@sudo $(DOCKER_COMPOSE_CMD) images
+re: down clean up
 
 curl: 
 	curl -X POST \
 		http://localhost/api/pong/rounds/ \
 	 -H 'Content-Type: application/json' \
   -d '{ "player1": "1", "player2": "2", "score1": 10, "score2": 8 }'
+
+info:
+	@sudo docker ps
+	@sudo docker images
+	@sudo docker volume ls
+	@sudo docker network ls
+	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE) ps
+	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) ps
+	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) ps
+	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE) images
+	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) images
+	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) images
+
 # Help target
 help:
 	@echo "Usage: make [TARGET]"

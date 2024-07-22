@@ -6,18 +6,16 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/07/21 15:44:30 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/07/21 13:32:06 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-# Use a more specific base image with Python pre-installed
-FROM python:3.12-alpine as builder
+FROM alpine:3.20 AS builder
 
 LABEL traefik.enable=true
-LABEL traefik.http.routers.authentication.rule="Host(`localhost`) && PathPrefix(`/api/pong/`)"
-LABEL traefik.http.services.authentication.loadbalancer.server.port=8000
+LABEL traefik.http.routers.autentication.rule="Host(`localhost`) && PathPrefix(`/api/token/`)"
+LABEL traefik.http.services.autentication.loadbalancer.server.port=8000
 
-# Install system dependencies
 RUN apk add --no-cache \
     curl \
     tzdata \
@@ -25,15 +23,13 @@ RUN apk add --no-cache \
     sudo \
     openssl \
     netcat-openbsd \
-    zsh
-
-# Set timezone
-RUN cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
+    python3 \
+    zsh && \
+    cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 
 # Set the working directory in the container
 WORKDIR /usr/src/app/
 
-# Environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
@@ -45,15 +41,17 @@ RUN python -m venv /opt/venv && \
 
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy the Django project files
+# Ensure the secrets directory exists
+RUN mkdir -p /usr/src/app/secrets
+
+# Copy your Django project files
 COPY . /usr/src/app/
 
-# Copy and set permissions for the entrypoint script
+# Copy & give permissions to entrypoint.sh
 COPY ./utils/init.sh /usr/src/app/
 RUN chmod +x /usr/src/app/init.sh
 
 # Expose port 8000
 EXPOSE 8000
 
-# Start the entrypoint script
 CMD ["sh", "/usr/src/app/init.sh"]
