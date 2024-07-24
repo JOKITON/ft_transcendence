@@ -1,5 +1,5 @@
 # Proxy:
-- Change to Traefik
+- Change to Traefik [Done]
 
 # Front-End:
 - Create Pong game in JavaScript
@@ -40,7 +40,7 @@ IV.1 Overview
 	- Major module: Implement Two-Factor Authentication (2FA) and JWT. -> [https://developers.google.com/google-ads/api/docs/client-libs/python/oauth-web]
 - Devops
 	- Major module: Infrastructure Setup for Log Management.
-	- Minor module: Monitoring system.
+	- Minor module: Monitoring system. [Done]
 	- Major module: Designing the Backend as Microservices.
  - Graphics
 	(Optional) - Major module: Use of advanced 3D techniques. -> [https://threejs.org/examples/]
@@ -54,3 +54,8 @@ IV.1 Overview
 	(Optional) - Major module: Replacing Basic Pong with Server-Side Pong and Imple-
 	menting an API.
 	(Optional) - Major module: Enabling Pong Gameplay via CLI against Web Users with API Integration.
+
+
+## To Check:
+- Portainer ( Docker container management )
+( https://codigodiario.me/que-es-portainer-y-como-instalarlo/ )
