@@ -11,21 +11,20 @@ export default defineConfig({
     port: 80,
     proxy: {
       '/api/csrf/': {
-        target: 'http://csrf:8000', // Updated to match backend port
+        target: 'http://csrf:8000',
         changeOrigin: true,
-      },
-      '/api/auth/': {
-        target: 'http://auth:8000', // Updated to match backend port
-        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/csrf/, '/api/csrf'),
       },
       '/api/pong/': {
-        target: 'http://pong:8000', // Updated to match backend port
+        target: 'http://pong:8000',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/pong/, '/api/pong'),
       },
       '/api/user/': {
-        target: 'http://pong:8000', // Updated to match backend port
+        target: 'http://pong:8000',
         changeOrigin: true,
-      }
+        rewrite: (path) => path.replace(/^\/api\/user/, '/api/user'),
+      },
     },
     open: true,
     cors: true

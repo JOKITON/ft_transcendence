@@ -1,6 +1,5 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .auth import CustomTokenRefreshView, PublicKeyView, PrivateKeyView
+from .auth import PublicKeyView, PrivateKeyView
 
 urlpatterns = [
     path('key/public-key/', PublicKeyView.as_view(), name='public_key'),

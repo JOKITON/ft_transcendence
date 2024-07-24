@@ -66,6 +66,7 @@
 <script>
 import NavIndex from './NavIndex.vue'
 import { validateForm } from '../../utils/form'
+import { setAuthHeader } from '../../utils/auth'
 import api from '../../utils/api'
 
 export default {
@@ -94,8 +95,9 @@ export default {
           email: this.form.email,
           password: this.form.password,
           password_confirm: this.form.password_confirm,
-          token: api.defaults.headers.common['X-CSRFToken']
         })
+
+        setAuthHeader(response.data.access, response.data.refresh);
 
         console.log('Registration successful:', response.data)
         this.$router.push('/login')

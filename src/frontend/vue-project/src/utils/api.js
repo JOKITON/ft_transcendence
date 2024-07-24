@@ -1,49 +1,26 @@
 // utils/api.js
-import Cookies from "js-cookie";
-import axios from "axios";
-import { setAuthHeaderFromCookie } from "./auth";
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
-// Create an Axios instance
 const api = axios.create({
-  baseURL: '/api/',
-  timeout: 30000,
-  withCredentials: true, // Ensure cookies are sent with requests
-  xsrfHeaderName: "X-CSRFToken",
-  xsrfCookieName: "csrftoken",
+  baseURL: 'http://localhost/api/',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
 });
 
-// Interceptor to handle token refresh
-api.interceptors.response.use(
-  response => response,
-  async error => {
-    const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const refreshToken = Cookies.get("refresh_token");
-        if (refreshToken) {
-          const response = await api.post("auth/token/refresh/", { refresh: refreshToken });
-          const newAccessToken = response.data.access;
-          Cookies.set("access_token", newAccessToken, { secure: true, sameSite: "Lax" });
-          setAuthHeaderFromCookie();
-          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-          return api(originalRequest);
-        }
-      } catch (err) {
-        if (err.response && err.response.status === 401) {
-          // Refresh token is also invalid, log the user out
-          console.error("Refresh token is invalid", err);
-          Cookies.remove("access_token");
-          Cookies.remove("refresh_token");
-          window.location.href = "/login";  // Redirect to login page
-        } else {
-          console.error("Failed to refresh token", err);
-        }
-        return Promise.reject(error);
-      }
-    }
-    return Promise.reject(error);
+// Intercept requests to include CSRF token and Authorization header
+api.interceptors.request.use((config) => {
+  const csrfToken = Cookies.get('csrftoken');
+  if (csrfToken) {
+    config.headers['X-CSRFToken'] = csrfToken;
   }
-);
+  const accessToken = Cookies.get('access_token');
+  if (accessToken) {
+    config.headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+  return config;
+});
 
 export default api;

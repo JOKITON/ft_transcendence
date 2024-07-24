@@ -18,18 +18,6 @@ services:
     networks:
       - backend
 
-  auth:
-    container_name: auth
-    build:
-      context: ../backend/auth
-      dockerfile: Dockerfile
-    env_file: ../backend/.env-django
-    restart: always
-    networks:
-      - backend
-    depends_on:
-      - keys
-
   csrf:
     container_name: csrf
     build:
@@ -42,7 +30,6 @@ services:
       - backend
     depends_on:
       - keys
-      - auth
 
   pong:
     container_name: pong
@@ -56,7 +43,6 @@ services:
       - backend
     depends_on:
       - keys
-      - auth
       - csrf
 
   database:

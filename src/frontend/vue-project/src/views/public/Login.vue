@@ -65,7 +65,7 @@ export default {
       try {
         validateForm(0, this.form);
 
-        const response = await api.post("auth/token/", {
+        const response = await api.post("user/login/", {
           username: this.form.username,
           password: this.form.password,
         });

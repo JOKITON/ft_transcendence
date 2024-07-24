@@ -14,12 +14,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG");
 
-ALLOWED_HOSTS = ['pong']
+ALLOWED_HOSTS = ['localhost', 'auth', 'pong']
 
 SIMPLE_JWT = {
     'ALGORITHM': 'RS256',
-    'SIGNING_KEY': load_key('private'),
-    'VERIFYING_KEY': load_key('public'),
+    'SIGNING_KEY': load_key(Path('/usr/src/app/secrets/jwt_auth_private.pem')),
+    'VERIFYING_KEY': load_key(Path('/usr/src/app/secrets/jwt_auth_public.pem')),
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',
@@ -46,9 +46,13 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = 'Lax'  # For cross-site requests
 CSRF_COOKIE_NAME = 'csrftoken'
+
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_HTTPONLY = True
 
 # Application definition
 

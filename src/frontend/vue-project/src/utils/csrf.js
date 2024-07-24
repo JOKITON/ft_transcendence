@@ -11,7 +11,6 @@ async function checkCSRF() {
             return false;
         }
         const csrfToken = response.data.csrftoken;
-        console.log(csrfToken);
         api.defaults.headers.common['X-CSRFToken'] = csrfToken;
         Cookies.set('csrftoken', csrfToken, { secure: true, sameSite: 'Lax' });
         return true;
@@ -25,23 +24,25 @@ async function checkCSRF() {
 // Function to fetch and set CSRF token
 export default async function fetchAndSetCsrfToken() {
     try {
-        const status = await checkCSRF();
-        if (status) {
-            console.log('Valid CSRF tokens were found');
-            return; // CSRF token is valid, no need to fetch a new one
+        const csrfTokenValid = await checkCSRF();
+        if (csrfTokenValid) {
+            console.log('Valid CSRF token found');
+            return;
         }
-        console.log('No valid CSRF tokens were found');
 
+        console.log('Fetching new CSRF token');
         // Fetch new CSRF token from the server
         const response = await api.get("csrf/");
         const csrfToken = response.headers["x-csrftoken"];
 
-        console.log(csrfToken);
         // Set CSRF token in Axios defaults and cookies
         api.defaults.headers.common['X-CSRFToken'] = csrfToken;
         Cookies.set('csrftoken', csrfToken, { secure: true, sameSite: 'Lax' });
     } catch (error) {
-        console.error("Error fetching CSRF token:", error);
+        console.error("Error handling CSRF token:", error);
+        // Handle error, maybe log out the user or prompt them to log in again
         throw error;
     }
 }
+
+export { fetchAndSetCsrfToken };

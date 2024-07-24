@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = os.environ.get("DEBUG")
 
-ALLOWED_HOSTS = ['csrf']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -168,12 +168,8 @@ REST_FRAMEWORK = {
     ],
 }
 
-PRIVATE_KEY_PATH = os.environ.get("PRIVATE_KEY_PATH")
-PUBLIC_KEY_PATH = os.environ.get("PUBLIC_KEY_PATH")
-
 SIMPLE_JWT = {
     'ALGORITHM': 'RS256',
-    'SIGNING_KEY': load_key('private'),
     'VERIFYING_KEY': load_key('public'),
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',

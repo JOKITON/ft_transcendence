@@ -48,6 +48,7 @@
 <script>
 import api from "../../utils/api";
 import Cookies from 'js-cookie';
+import { removeLocalData } from '../../utils/auth';
 
 export default {
   name: "loginHome",
@@ -66,6 +67,7 @@ export default {
     async logoutUser() {
       try {
         const response = await api.post("user/logout/");
+        removeLocalData();
         console.log("Logout successful:", response.data);
         this.$router.push('/login');
       } catch (error) {

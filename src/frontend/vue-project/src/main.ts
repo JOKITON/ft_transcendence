@@ -15,6 +15,6 @@ app.use(router)
 
 // setup initial auth header
 setAuthHeaderFromCookie()
-fetchAndSetCsrfToken()
+// fetchAndSetCsrfToken()
 
 app.mount('#app')

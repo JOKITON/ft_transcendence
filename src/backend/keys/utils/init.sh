@@ -9,11 +9,11 @@ if [ "$DATABASE" = "postgres" ]; then
 fi
 
 # Generate keys for RSA
-if [ ! -f jwt_auth_private.pem ]; then
+if [ ! -f /usr/src/app/secrets/jwt_auth_private.pem ]; then
   openssl genpkey -algorithm RSA -out /usr/src/app/secrets/jwt_auth_private.pem -pkeyopt rsa_keygen_bits:2048
 fi
 
-if [ ! -f jwt_auth_public.pem ]; then
+if [ ! -f /usr/src/app/secrets/jwt_auth_public.pem ]; then
   openssl rsa -pubout -in /usr/src/app/secrets/jwt_auth_private.pem -out /usr/src/app/secrets/jwt_auth_public.pem
 fi
 

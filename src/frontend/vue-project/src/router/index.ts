@@ -4,7 +4,8 @@ import Login from '../views/public/Login.vue'
 import Register from '../views/public/Register.vue'
 import Home from '../views/private/Home.vue'
 
-import { refreshAuthToken } from '../utils/auth'
+import { checkAndRefreshToken } from '../utils/auth'
+import { fetchAndSetCsrfToken } from '../utils/csrf'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   /*
@@ -21,17 +22,40 @@ const router = createRouter({
   ]
 })
 
-// Navigation guard to check for authentication
+// Fetch and set CSRF token when the app starts
+fetchAndSetCsrfToken()
+  .then(() => {
+    console.log('CSRF token set successfully')
+  })
+  .catch((error) => {
+    console.error('Failed to fetch and set CSRF token:', error)
+  })
+
+// Navigation guard to check for authentication and CSRF token
 router.beforeEach(async (to, from, next) => {
-  if (to.matched.some((record): unknown => record.meta.requiresAuth)) {
-    const isRefreshed = await refreshAuthToken()
-    if (!isRefreshed) {
-      next('/login')
-    } else {
-      next()
+  try {
+    if (to.matched.some((record) => record.meta.requiresAuth)) {
+      const isRefreshed = await checkAndRefreshToken()
+      if (!isRefreshed) {
+        next('/login')
+        return
+      }
     }
-  } else {
+
+    // Ensure CSRF token is set
+    try {
+      await fetchAndSetCsrfToken()
+    } catch (error) {
+      console.error('Failed to fetch CSRF token:', error)
+      // Optionally redirect or show an error page
+      next('/login')
+      return
+    }
+
     next()
+  } catch (error) {
+    console.error('Navigation guard error:', error)
+    next('/login') // Redirect to login or show an error page if there's an issue
   }
 })
 
