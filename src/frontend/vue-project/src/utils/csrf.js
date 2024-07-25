@@ -7,7 +7,7 @@ async function checkCSRF() {
         const response = await api.get("csrf/check/");
         if (response.data.status === "off") {
             console.log("CSRF token is invalid or expired");
-            Cookies.remove('csrftoken', { path: '/' });
+            Cookies.remove('csrftoken', { secure: true, httpOnly: true, sameSite: 'Lax', path: '/' });
             return false;
         }
         const csrfToken = response.data.csrftoken;
@@ -16,7 +16,7 @@ async function checkCSRF() {
         return true;
     } catch (error) {
         console.error("Error checking CSRF token:", error);
-        Cookies.remove('csrftoken', { path: '/' });
+        Cookies.remove('csrftoken', { secure: true, httpOnly: true, sameSite: 'Lax', path: '/' });
     return false;
     }
 }

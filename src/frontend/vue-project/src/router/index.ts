@@ -22,15 +22,6 @@ const router = createRouter({
   ]
 })
 
-// Fetch and set CSRF token when the app starts
-fetchAndSetCsrfToken()
-  .then(() => {
-    console.log('CSRF token set successfully')
-  })
-  .catch((error) => {
-    console.error('Failed to fetch and set CSRF token:', error)
-  })
-
 // Navigation guard to check for authentication and CSRF token
 router.beforeEach(async (to, from, next) => {
   try {

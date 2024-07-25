@@ -89,7 +89,6 @@ export default {
       try {
         validateForm(1, this.form)
 
-        console.log(api.defaults.headers.common['X-CSRFToken'])
         const response = await api.post("user/register/", {
           username: this.form.username,
           email: this.form.email,
@@ -98,8 +97,7 @@ export default {
         })
 
         setAuthHeader(response.data.access, response.data.refresh);
-
-        console.log('Registration successful:', response.data)
+        
         this.$router.push('/login')
         // Handle successful registration (e.g., show success message, redirect)
       } catch (error) {

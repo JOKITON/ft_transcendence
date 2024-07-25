@@ -6,37 +6,14 @@ export function setAuthHeader(accessToken, refreshToken) {
   if (accessToken && refreshToken) {
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
     Cookies.set('refresh_token', refreshToken, { secure: true, httpOnly: true, sameSite: 'Lax' })
-    Cookies.set('access_token', accessToken, { secure: true, httpOnly: true, sameSite: 'Lax' })
-    setTokens(accessToken, refreshToken)
-  }
-}
-
-// Function to set Authorization header
-export function setAuthHeaderFromCookie() {
-  const accessToken = Cookies.get('access_token')
-  if (accessToken) {
-    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
-  } else {
-    delete api.defaults.headers.common['Authorization']
+    Cookies.set('access_token', accessToken, { secure: true, httpOnly:true, sameSite: 'Lax' })
   }
 }
 
 export function removeLocalData() {
-    // Clear tokens from localStorage
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('token_expiry');
-
-    // Clear tokens from cookies (if used)
-    Cookies.remove('access_token', { path: '/' });
-    Cookies.remove('refresh_token', { path: '/' });
-}
-
-function setTokens(accessToken, refreshToken) {
-  const expiry = new Date().getTime() + (5 * 60 * 1000); // 5 minutes from now
-  localStorage.setItem('access_token', accessToken);
-  localStorage.setItem('refresh_token', refreshToken);
-  localStorage.setItem('token_expiry', expiry);
+    // Clear tokens from cookies
+    Cookies.remove('access_token', { secure: true, httpOnly:true, sameSite: 'Lax' });
+    Cookies.remove('refresh_token', { secure: true, httpOnly:true, sameSite: 'Lax' });
 }
 
 // Example function to make an authenticated request
@@ -62,29 +39,46 @@ export async function refreshAuthToken() {
     );
     // Handle error
     alert("Session expired. Please log in again.");
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('token_expiry');
     return false;
   }
 }
 
-const GRACE_PERIOD = 5 * 60 * 1000; // 5 minutes grace period
-
 export async function checkAndRefreshToken() {
-  const expiry = localStorage.getItem('token_expiry');
-  const now = new Date().getTime();
+  try {
+    // Make a request to the server to verify the token
+    const response = await api.get('/user/token/verify/', { withCredentials: true });
 
+    console.log('Token verification response:', response.data);  // Log the response data
 
-  if (!expiry) return false;
-  // Check if the token is about to expire within the grace period
-  if (now >= (parseInt(expiry) - GRACE_PERIOD)) {
-    // Token has expired, attempt to refresh it
-    const refreshed = await refreshAuthToken();
-    return refreshed;
+    if (response.data.status === 'valid') {
+      return true; // Token is still valid
+    }
+  } catch (error) {
+    const response = error.response;
+    switch (response.data.status) {
+      case 'expired':
+        // Handle expired token
+        console.log('Token expired. Attempting to refresh.');
+        const refreshed = await refreshAuthToken();
+        return refreshed;
+
+      case 'invalid':
+        // Handle invalid token
+        console.log('Token invalid. Redirecting to login.');
+        await removeLocalData(); // Custom function to handle invalid token scenario
+        return false;
+
+      case 'missing':
+        // Handle missing token
+        console.log('Token missing. Redirecting to login.');
+        await removeLocalData(); // Custom function to handle missing token scenario
+        return false;
+
+      default:
+        console.error('Unexpected token status:', response.data.status);
+        return false;
+    }
   }
-
-  return true; // Token is still valid
 }
 
 export { api }

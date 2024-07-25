@@ -3,6 +3,8 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import AccessToken
+from django.http import JsonResponse
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,3 +31,17 @@ class TokenRefreshView(APIView):
         except TokenError as e:
             logger.error(f"Token refresh error: {e}")
             return Response({'detail': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+        
+def verify_token(request):
+    access_token = request.COOKIES.get('access_token')  # Get token from cookies
+    if not access_token:
+        return JsonResponse({"status": "missing"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Verify the token
+        AccessToken(access_token)  # This will raise an exception if the token is invalid
+        return JsonResponse({"status": "valid"})
+    except TokenError as e:
+        if "token_expired" in str(e):
+            return JsonResponse({"status": "expired"}, status=status.HTTP_401_UNAUTHORIZED)
+        return JsonResponse({"status": "invalid"}, status=status.HTTP_401_UNAUTHORIZED)

@@ -117,12 +117,22 @@ class LogoutView(APIView):
             if refresh_token:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
+                logger.info(f'Refresh token {refresh_token} blacklisted successfully.')
         except Exception as e:
+            logger.error(f'Error blacklisting token: {e}')
             return Response({'detail': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Perform the logout
         logout(request)
-        return Response({'detail': 'Successfully logged out.'}, status=status.HTTP_200_OK)
+        
+        # Create a response object to handle cookies
+        response = Response({'detail': 'Successfully logged out.'}, status=status.HTTP_200_OK)
+        
+        # Set cookies to expire immediately
+        response.set_cookie('access_token', '', expires='Thu, 01 Jan 1970 00:00:00 GMT', secure=True, httponly=True, samesite='Lax')
+        response.set_cookie('refresh_token', '', expires='Thu, 01 Jan 1970 00:00:00 GMT', secure=True, httponly=True, samesite='Lax')
+        
+        return response
 
 
 class SessionView(APIView):
@@ -144,19 +154,3 @@ class WhoAmIView(APIView):
             return Response({'error': 'User is not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response({'username': user.username})
-
-
-class RefreshTokenView(APIView):
-    def post(self, request):
-        data = request.data
-        refresh_token = data.get('refresh')
-        if not refresh_token:
-            return Response({'detail': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            refresh = RefreshToken(refresh_token)
-            access_token = str(refresh.access_token)
-            return Response({'access': access_token}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({'detail': 'Invalid refresh token'}, status=status.HTTP_400_BAD_REQUEST)
-
