@@ -4,8 +4,10 @@ import Login from '../views/public/Login.vue'
 import Register from '../views/public/Register.vue'
 import Home from '../views/private/Home.vue'
 
-import { checkAndRefreshToken } from '../utils/auth'
-import { fetchAndSetCsrfToken } from '../utils/csrf'
+import { checkAndRefreshToken } from '../utils/Api/auth'
+import { fetchAndSetCsrfToken } from '../utils/Api/csrf'
+import Pong from '../views/private/Pong/Pong.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   /*
@@ -15,8 +17,8 @@ const router = createRouter({
     { path: '/', component: Index },
     { path: '/login', component: Login },
     { path: '/register', component: Register },
-    { path: '/home', component: Home, meta: { requiresAuth: true } }
-    // { path: '/game', name: 'Game', component: Game, meta: { requiresAuth: true } },
+    { path: '/home', component: Home, meta: { requiresAuth: true } },
+    { path: '/pong', component: Pong, meta: { requiresAuth: true } }
     // { path: '/friend-list', name: 'FriendList', component: FriendList, meta: { requiresAuth: true } },
     // { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
   ]

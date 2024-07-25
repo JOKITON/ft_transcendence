@@ -42,9 +42,9 @@
 </template>
 
 <script>
-import { setAuthHeader } from "../../utils/auth";
-import api from "../../utils/api";
-import { validateForm } from "../../utils/form";
+import { setAuthHeader } from "../../utils/Api/auth";
+import api from "../../utils/Api/api";
+import { validateForm } from "../../utils/Api/form";
 import NavIndex from "./NavIndex.vue";
 
 export default {
@@ -70,7 +70,7 @@ export default {
           password: this.form.password,
         });
         
-        setAuthHeader(response.data.access, response.data.refresh);
+        setAuthHeader(response.data.access);
 
         this.$router.push("/home");
       } catch (error) {

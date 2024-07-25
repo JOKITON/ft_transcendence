@@ -2,18 +2,10 @@
 import Cookies from 'js-cookie'
 import api from './api'
 
-export function setAuthHeader(accessToken, refreshToken) {
-  if (accessToken && refreshToken) {
+export function setAuthHeader(accessToken) {
+  if (accessToken) {
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
-    Cookies.set('refresh_token', refreshToken, { secure: true, httpOnly: true, sameSite: 'Lax' })
-    Cookies.set('access_token', accessToken, { secure: true, httpOnly:true, sameSite: 'Lax' })
   }
-}
-
-export function removeLocalData() {
-    // Clear tokens from cookies
-    Cookies.remove('access_token', { secure: true, httpOnly:true, sameSite: 'Lax' });
-    Cookies.remove('refresh_token', { secure: true, httpOnly:true, sameSite: 'Lax' });
 }
 
 // Example function to make an authenticated request
@@ -26,10 +18,9 @@ export async function refreshAuthToken() {
     );
 
     const newAccessToken = response.data.access;
-    const newRefreshToken = response.data.refresh || Cookies.get('refresh_token');
 
     // Update auth headers if necessary
-    setAuthHeader(newAccessToken, newRefreshToken);
+    setAuthHeader(newAccessToken);
 
     return true;
   } catch (error) {
@@ -65,13 +56,11 @@ export async function checkAndRefreshToken() {
       case 'invalid':
         // Handle invalid token
         console.log('Token invalid. Redirecting to login.');
-        await removeLocalData(); // Custom function to handle invalid token scenario
         return false;
 
       case 'missing':
         // Handle missing token
         console.log('Token missing. Redirecting to login.');
-        await removeLocalData(); // Custom function to handle missing token scenario
         return false;
 
       default:

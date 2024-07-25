@@ -42,6 +42,19 @@ def verify_token(request):
         AccessToken(access_token)  # This will raise an exception if the token is invalid
         return JsonResponse({"status": "valid"})
     except TokenError as e:
+        response = JsonResponse({"status": "expired"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Set cookies to expire in the past
+        response.set_cookie('access_token', '', expires='Thu, 01 Jan 1970 00:00:00 GMT', secure=True, httponly=True, samesite='Lax')
+        response.set_cookie('refresh_token', '', expires='Thu, 01 Jan 1970 00:00:00 GMT', secure=True, httponly=True, samesite='Lax')
+        
         if "token_expired" in str(e):
-            return JsonResponse({"status": "expired"}, status=status.HTTP_401_UNAUTHORIZED)
-        return JsonResponse({"status": "invalid"}, status=status.HTTP_401_UNAUTHORIZED)
+            return response
+        else:
+            response = JsonResponse({"status": "invalid"}, status=status.HTTP_401_UNAUTHORIZED)
+            
+            # Reset cookies to expire in the past again, if needed
+            response.set_cookie('access_token', '', expires='Thu, 01 Jan 1970 00:00:00 GMT', secure=True, httponly=True, samesite='Lax')
+            response.set_cookie('refresh_token', '', expires='Thu, 01 Jan 1970 00:00:00 GMT', secure=True, httponly=True, samesite='Lax')
+            
+            return response
