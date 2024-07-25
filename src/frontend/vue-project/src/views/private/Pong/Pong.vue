@@ -5,9 +5,9 @@ export default {
 </setup>
 
 <script setup lang="ts">
-import ThreeServices from '../../../utils/Pong/Three'
-import Player from '../../../utils/Pong/Player'
-import Sphere from '../../../utils/Pong/Objects/Sphere'
+import ThreeServices from '../../../pong/Three'
+import Player from '../../../pong/Player'
+import Sphere from '../../../pong/Objects/Sphere'
 import { Vector3 } from 'three'
 
 const three = new ThreeServices(1400, 800)

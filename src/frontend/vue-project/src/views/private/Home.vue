@@ -29,8 +29,8 @@
           <input type="search" class="form-control" placeholder="Search..." aria-label="Search" />
         </form>
 
+        <p class="d-block link-body-emphasis text-decoration-none">{{ username }}</p>
         <div class="dropdown text-end">
-          <p class="d-block link-body-emphasis text-decoration-none">{{ username }}</p>
           <a
             @click="toggleDropdown"
             class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
@@ -211,4 +211,5 @@ main {
 .bd-mode-toggle .dropdown-menu .active .bi {
   display: block !important;
 }
+
 </style>
