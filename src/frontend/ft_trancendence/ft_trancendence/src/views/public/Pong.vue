@@ -5,32 +5,40 @@ export default {
 </setup>
 
 <script setup lang="ts">
-import ThreeServices from '../../service/pong/Three'
-import Player from '../../service/pong/Player'
-import Sphere from '../../service/pong/Objects/Sphere'
-import { Vector3 } from 'three'
+import { Vector3, Color } from 'three'
+import ThreeServices from '../../services/pong/Three'
+import Player from '../../services/pong/Player'
+import Sphere from '../../services/pong/Objects/Sphere'
 
 const three = new ThreeServices(1400, 800)
 
 const sphere = new Sphere()
-const play = new Player()
+const player = new Player()
+
+const player2 = new Player(
+  new Vector3(0.5, 2, 0.5),
+  new Color(0x00ff00),
+  new Vector3(6, 0, 0),
+  'w',
+  's'
+)
 sphere.position(new Vector3(0, 0, 0))
 
-three.addScene(play.get())
+three.addScene(player.get())
+three.addScene(player2.get())
 
 three.addScene(sphere.get())
 
 function animate() {
   requestAnimationFrame(animate)
+  player.update()
+  player2.update()
   three.animate()
-  play.update()
-  sphere.update()
-  play.event()
 }
 
 animate()
 </script>
 
 <template>
-  <canvas> {{ animate }}</canvas>
+  <canvas> {{ animate() }}</canvas>
 </template>
