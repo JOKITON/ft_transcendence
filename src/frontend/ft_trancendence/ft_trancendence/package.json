@@ -20,6 +20,7 @@
     "bootstrap": "^5.3.3",
     "pinia": "^2.1.7",
     "popper.js": "^1.16.1",
+    "three": "^0.166.1",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3",
     "winston": "^3.13.1"
@@ -29,6 +30,7 @@
     "@tsconfig/node20": "^20.1.4",
     "@types/jsdom": "^21.1.7",
     "@types/node": "^20.14.5",
+    "@types/three": "^0.166.0",
     "@vitejs/plugin-vue": "^5.0.5",
     "@vitejs/plugin-vue-jsx": "^4.0.0",
     "@vue/eslint-config-prettier": "^9.0.0",
@@ -47,6 +49,7 @@
     "vite": "^5.3.1",
     "vite-plugin-vue-devtools": "^7.3.1",
     "vitest": "^1.6.0",
-    "vue-tsc": "^2.0.21"
+    "vue-tsc": "^2.0.21",
+    "vue-types": "^5.1.3"
   }
 }
