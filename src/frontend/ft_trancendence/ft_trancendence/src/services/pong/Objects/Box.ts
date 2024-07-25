@@ -19,16 +19,11 @@ export default class Box implements IObject {
     return this.mesh
   }
 
-  up(y: number): void {
-    this.mesh.position.y += 1
+  moveUp(y: number): void {
+    this.mesh.position.y += y
   }
 
-  down(y: number): void {
+  moveDown(y: number): void {
     this.mesh.position.y -= y
-  }
-
-  update(): void {
-    this.mesh.rotation.x += 0.04
-    this.mesh.rotation.y += 0.06
   }
 }
