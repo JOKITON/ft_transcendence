@@ -1,8 +1,6 @@
 import { Scene, PerspectiveCamera, WebGLRenderer, Mesh } from 'three'
 
-import type { IThree } from './interfaces/IThree'
-
-export default class ThreeService implements IThree {
+export default class ThreeService implements IThreeService {
   private scene: Scene
   private camera: PerspectiveCamera
   private renderer: WebGLRenderer

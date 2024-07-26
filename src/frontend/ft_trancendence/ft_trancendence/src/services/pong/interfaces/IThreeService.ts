@@ -1,6 +1,6 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, Object3D, Mesh } from 'three'
+import { Scene, PerspectiveCamera, WebGLRenderer, Mesh } from 'three'
 
-export default interface IThree {
+export default interface IThreeService {
   //#region Properties
   scene: Scene
   camera: PerspectiveCamera
@@ -11,5 +11,6 @@ export default interface IThree {
   remove(Mesh: Mesh): void
   resize(width: number, height: number): void
   render(): void
+  animate(): void
   //#endregion
 }
