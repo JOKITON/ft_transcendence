@@ -7,7 +7,7 @@ export default class Sphere implements IObject {
   protected material: MeshBasicMaterial
   protected geometry: SphereGeometry
 
-  constructor(vector: Vector3 = new Vector3(0.2, 100, 100), color: Color = new Color()) {
+  constructor(vector: Vector3 = new Vector3(0.25, 100, 100), color: Color = new Color()) {
     this.geometry = new SphereGeometry(vector.x, vector.y, vector.z)
     this.material = new MeshBasicMaterial({ color })
     this.mesh = new Mesh(this.geometry, this.material)
