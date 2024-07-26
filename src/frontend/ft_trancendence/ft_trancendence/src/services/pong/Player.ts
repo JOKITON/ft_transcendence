@@ -8,13 +8,13 @@ export default class Player extends Box implements Iplayer {
   private name: string = 'NPC'
   private up: string
   private down: string
-  private keys: { [key: string]: boolean } = {}
-  //private keyboard: Keyboard = new Keyboard() <- no se si implemenratala o no pero para controlador online y demas igual y si
+  private keys: Set<string> = new Set()
 
+  //private keyboard: Keyboard = new Keyboard() <- no se si implemenratala o no pero para controlador online y demas igual y si
   constructor(
     geometry: Vector3 = new Vector3(0.2, 2, 0.2),
     color: Color = new Color(),
-    position: Vector3 = new Vector3(-8, 0.2, 0.2),
+    position: Vector3 = new Vector3(16, 0.2, 0.2),
     up: string = 'ArrowUp',
     down: string = 'ArrowDown'
   ) {
@@ -42,19 +42,19 @@ export default class Player extends Box implements Iplayer {
 
   event(): void {
     addEventListener('keydown', (event): void => {
-      this.keys[event.key] = true
+      this.keys.add(event.key)
     })
 
     addEventListener('keyup', (event): void => {
-      this.keys[event.key] = false
+      this.keys.delete(event.key)
     })
   }
 
   update(): void {
-    if (this.keys[this.up]) {
-      this.moveUp(0.2)
-    } else if (this.keys[this.down]) {
-      this.moveDown(0.2)
+    if (this.keys.has(this.up) && this.mesh.position.y < 6) {
+      this.moveUp(0.4)
+    } else if (this.keys.has(this.down) && this.mesh.position.y > -6) {
+      this.moveDown(0.4)
     }
   }
 
