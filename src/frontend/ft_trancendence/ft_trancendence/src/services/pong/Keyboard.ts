@@ -1,12 +1,12 @@
 import type IKeyboard from './interfaces/IKeyboard'
+import Player from './Player'
 
 export default class Keyboard implements IKeyboard {
-  keys: Set<string>
-  objetct: number
+  keys: Set<string> = new Set()
+  player: Player
 
-  constructor(typePlayer: string) {
-    this.keys = new Set()
-    this.objetct = this.choosePlayer(typePlayer)
+  constructor(Player: Player) {
+    this.player = Player
   }
 
   choosePlayer(type: string): number {
