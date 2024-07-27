@@ -1,7 +1,6 @@
 import { Scene, PerspectiveCamera, WebGLRenderer, Mesh } from 'three'
-import type { IThree } from './interfaces/IThree'
 
-export default class ThreeService implements IThree {
+export default class ThreeService implements IThreeService {
   private scene: Scene
   private camera: PerspectiveCamera
   private renderer: WebGLRenderer
@@ -11,7 +10,7 @@ export default class ThreeService implements IThree {
     this.camera = new PerspectiveCamera(75, width / height, 0.1, 1000)
     this.renderer = new WebGLRenderer()
     this.renderer.setSize(width, height)
-    this.camera.position.z = 7
+    this.camera.position.z = 10
     document.body.appendChild(this.renderer.domElement)
   }
 
