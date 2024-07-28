@@ -11,7 +11,7 @@ DOCKER_IMAGES_BACKEND = $(addprefix ft_transcendence_backend-,$(IMAGES_BACKEND))
 DOCKER_IMAGES_METRICS = $(addprefix ft_transcendence_metrics-,$(IMAGES_METRICS))
 # Add here the container names
 IMAGES = vue reverse-proxy
-IMAGES_BACKEND = keys csrf pong database
+IMAGES_BACKEND = keys pong database
 IMAGES_METRICS = grafana prometheus
 
 # Check if docker-compose exists

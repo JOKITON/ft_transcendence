@@ -69,6 +69,7 @@
 
 <script>
 import api from "../../utils/Api/api";
+import { removeAccessToken } from "../../utils/Api/auth";
 
 export default {
   name: 'loginHome',
@@ -88,6 +89,7 @@ export default {
       try {
         const response = await api.post("user/logout/");
         console.log("Logout successful:", response.data);
+        removeAccessToken();
         this.$router.push('/login');
       } catch (error) {
         console.error('Logout error:', error.response ? error.response.data : error.message)
@@ -124,8 +126,7 @@ export default {
 @import url('https://cdn.jsdelivr.net/npm/@docsearch/css@3');
 
 header {
-  background-color: beige;
-  height: 100px;
+  background-color: white;
 }
 
 main {

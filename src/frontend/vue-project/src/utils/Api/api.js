@@ -10,17 +10,4 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Intercept requests to include CSRF token and Authorization header
-api.interceptors.request.use((config) => {
-  const csrfToken = Cookies.get('csrftoken');
-  if (csrfToken) {
-    config.headers['X-CSRFToken'] = csrfToken;
-  }
-  const accessToken = Cookies.get('access_token');
-  if (accessToken) {
-    config.headers['Authorization'] = `Bearer ${accessToken}`;
-  }
-  return config;
-});
-
 export default api;

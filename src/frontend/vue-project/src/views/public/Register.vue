@@ -95,8 +95,6 @@ export default {
           password: this.form.password,
           password_confirm: this.form.password_confirm,
         })
-
-        setAuthHeader(response.data.access);
         
         this.$router.push('/login')
         // Handle successful registration (e.g., show success message, redirect)

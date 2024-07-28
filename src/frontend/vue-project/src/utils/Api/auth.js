@@ -2,25 +2,33 @@
 import Cookies from 'js-cookie'
 import api from './api'
 
-export function setAuthHeader(accessToken) {
+export function setAuthHeader() {
+  const accessToken = localStorage.getItem('access_token');
   if (accessToken) {
-    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
   }
 }
 
-// Example function to make an authenticated request
+export function setAccessToken(accessToken) {
+  localStorage.setItem('access_token', accessToken);
+  setAuthHeader(); // Update headers with the new token
+}
+
+export function removeAccessToken() {
+  localStorage.removeItem('access_token');
+}
+
 export async function refreshAuthToken() {
   try {
     const response = await api.post(
-      '/user/token/refresh/', 
-      {}, // No need to include the refresh token here if it's in cookies
+      '/user/token/refresh/',
       { withCredentials: true } // Ensure cookies are sent with the request
     );
 
     const newAccessToken = response.data.access;
-
-    // Update auth headers if necessary
-    setAuthHeader(newAccessToken);
+    if (newAccessToken) {
+      setAccessToken(newAccessToken);
+    }
 
     return true;
   } catch (error) {
@@ -28,7 +36,6 @@ export async function refreshAuthToken() {
       "Refresh token error:",
       error.response ? error.response.data : error.message
     );
-    // Handle error
     alert("Session expired. Please log in again.");
     return false;
   }
@@ -36,35 +43,42 @@ export async function refreshAuthToken() {
 
 export async function checkAndRefreshToken() {
   try {
-    // Make a request to the server to verify the token
-    const response = await api.get('/user/token/verify/', { withCredentials: true });
+    const accessToken = localStorage.getItem('access_token');
+    if (accessToken) {
+      setAuthHeader();
+      const response = await api.post('/user/token/verify/', {
+        token: accessToken,
+        withCredentials: true
+      });
 
-    console.log('Token verification response:', response.data);  // Log the response data
-
-    if (response.data.status === 'valid') {
-      return true; // Token is still valid
+      if (response.status === 200) {
+        return true; // Token is still valid
+      }
     }
+    else
+      console.log('No token found. Redirecting to login.');
+      return false;
   } catch (error) {
     const response = error.response;
     switch (response.data.status) {
       case 'expired':
-        // Handle expired token
         console.log('Token expired. Attempting to refresh.');
         const refreshed = await refreshAuthToken();
         return refreshed;
 
       case 'invalid':
-        // Handle invalid token
         console.log('Token invalid. Redirecting to login.');
+        removeAccessToken();
         return false;
 
       case 'missing':
-        // Handle missing token
         console.log('Token missing. Redirecting to login.');
+        removeAccessToken();
         return false;
 
       default:
         console.error('Unexpected token status:', response.data.status);
+        removeAccessToken();
         return false;
     }
   }
