@@ -1,5 +1,4 @@
 import './assets/css/styles.css'
-import fetchAndSetCsrfToken from './utils/Api/csrf'
 import { api } from './utils/Api/auth' // Import the functions from utils/auth.js
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'

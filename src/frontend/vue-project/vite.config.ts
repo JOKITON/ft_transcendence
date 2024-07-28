@@ -10,11 +10,6 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 80,
     proxy: {
-      '/api/csrf/': {
-        target: 'http://csrf:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/csrf/, '/api/csrf'),
-      },
       '/api/pong/': {
         target: 'http://pong:8000',
         changeOrigin: true,

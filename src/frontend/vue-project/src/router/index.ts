@@ -5,7 +5,6 @@ import Register from '../views/public/Register.vue'
 import Home from '../views/private/Home.vue'
 
 import { checkAndRefreshToken } from '../utils/Api/auth'
-import { fetchAndSetCsrfToken } from '../utils/Api/csrf'
 import Pong from '../views/private/Pong/Pong.vue'
 
 const router = createRouter({
@@ -33,16 +32,6 @@ router.beforeEach(async (to, from, next) => {
         next('/login')
         return
       }
-    }
-
-    // Ensure CSRF token is set
-    try {
-      await fetchAndSetCsrfToken()
-    } catch (error) {
-      console.error('Failed to fetch CSRF token:', error)
-      // Optionally redirect or show an error page
-      next('/login')
-      return
     }
 
     next()
