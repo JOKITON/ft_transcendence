@@ -4,7 +4,7 @@ import Login from '../views/public/Login.vue'
 import Register from '../views/public/Register.vue'
 import Home from '../views/private/Home.vue'
 
-import { checkAndRefreshToken } from '../utils/Api/auth'
+import { checkAndRefreshToken } from '../services/Api/auth'
 import Pong from '../views/private/Pong/Pong.vue'
 
 const router = createRouter({
@@ -17,7 +17,7 @@ const router = createRouter({
     { path: '/login', component: Login },
     { path: '/register', component: Register },
     { path: '/home', component: Home, meta: { requiresAuth: true } },
-    { path: '/pong', component: Pong },
+    { path: '/pong', component: Pong }
     // { path: '/friend-list', name: 'FriendList', component: FriendList, meta: { requiresAuth: true } },
     // { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
   ]

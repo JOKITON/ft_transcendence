@@ -65,9 +65,9 @@
 
 <script>
 import NavIndex from './NavIndex.vue'
-import { validateForm } from '../../utils/Api/form'
-import { setAuthHeader } from '../../utils/Api/auth'
-import api from '../../utils/Api/api'
+import { validateForm } from '../../services/Api/form'
+//import { setAuthHeader } from '../../services/Api/auth'
+import api from '../../services/Api/api'
 
 export default {
   name: 'CompRegister',
@@ -89,13 +89,13 @@ export default {
       try {
         validateForm(1, this.form)
 
-        const response = await api.post("user/register/", {
+        const response = await api.post('user/register/', {
           username: this.form.username,
           email: this.form.email,
           password: this.form.password,
-          password_confirm: this.form.password_confirm,
+          password_confirm: this.form.password_confirm
         })
-        
+
         this.$router.push('/login')
         // Handle successful registration (e.g., show success message, redirect)
       } catch (error) {

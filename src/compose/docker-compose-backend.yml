@@ -5,13 +5,9 @@ services:
     container_name: keys
     build: ../backend/keys
     env_file: ../backend/.env-django
-    environment: # hay que usar -env-file para esto
-      - PRIVATE_KEY_PATH=/usr/src/app/secrets/jwt_auth_private.pem
-      - PUBLIC_KEY_PATH=/usr/src/app/secrets/jwt_auth_public.pem
     restart: always
     volumes:
-      - shared_models:/usr/src/app/shared_models
-      - jwt_auth_keys:/usr/src/app/secrets
+      - jwt_auth_keys:/keys
     networks:
       - ft_transcendence
 
@@ -20,8 +16,8 @@ services:
     build: ../backend/api
     env_file: ../backend/.env-django
     restart: always
-    volumes:
-      - shared_models:/app/shared_models
+    #volumes:
+    # - shared_models:/app/shared_models
     networks:
       - ft_transcendence
     depends_on:
@@ -33,8 +29,8 @@ services:
     build: ../backend/admin # si el context y el file son lo mismo, mejor asi???
     env_file: ../backend/.env-django
     restart: always
-    volumes:
-      - shared_models:/usr/src/app/shared_models
+    #volumes:
+    # - shared_models:/usr/src/app/shared_models
     networks:
       - ft_transcendence
     depends_on:
@@ -45,43 +41,27 @@ services:
     build: ../backend/pong
     env_file: ../backend/.env-django
     restart: always
-    volumes:
-      - shared_models:/usr/src/app/shared_models
+    #volumes:
+    # - shared_models:/usr/src/app/shared_models
     networks:
       - ft_transcendence
     depends_on:
       - keys
 
-  database:
-    container_name: db
-    build: ../database/
-    env_file: ../database/.env-postgres
-    restart: always
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    shm_size: 128mb
-    networks:
-      - ft_transcendence
-
 networks:
   ft_transcendence:
     external: true
+
 volumes:
-  db-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../../volumes/backend/db
   jwt_auth_keys:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../../volumes/backend/jwt_auth_keys
-  shared_models:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../backend/shared_models
+      device: ../backend/keys/
+  #  shared_models:
+  # driver: local
+  #driver_opts:
+  # type: none
+  #o: bind
+  #device: ../backend/shared_models

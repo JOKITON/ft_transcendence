@@ -31,9 +31,7 @@
             />
           </div>
           <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary btn-block">
-              Log in
-            </button>
+            <button type="submit" class="btn btn-primary btn-block">Log in</button>
           </div>
         </form>
       </div>
@@ -42,49 +40,42 @@
 </template>
 
 <script>
-import { setAccessToken } from "../../utils/Api/auth";
-import api from "../../utils/Api/api";
-import { validateForm } from "../../utils/Api/form";
-import NavIndex from "./NavIndex.vue";
+import { setAccessToken } from '../../services/Api/auth'
+import api from '../../services/Api/api'
+import { validateForm } from '../../services/Api/form'
+import NavIndex from './NavIndex.vue'
 
 export default {
-  name: "CompLogin",
+  name: 'CompLogin',
   components: {
-    'NavIndex': NavIndex
+    NavIndex: NavIndex
   },
   data() {
     return {
       form: {
-        username: "",
-        password: "",
-      },
-    };
+        username: '',
+        password: ''
+      }
+    }
   },
   methods: {
     async loginUser() {
       try {
-        validateForm(0, this.form);
+        validateForm(0, this.form)
 
-        const response = await api.post("user/login/", {
+        const response = await api.post('user/login/', {
           username: this.form.username,
-          password: this.form.password,
-        });
-        if (response.data.access) 
-          setAccessToken(response.data.access);
+          password: this.form.password
+        })
+        if (response.data.access) setAccessToken(response.data.access)
 
-        this.$router.push("/home");
+        this.$router.push('/home')
       } catch (error) {
-        console.error(
-          "Login error:",
-          error.response ? error.response.data : error.message
-        );
+        console.error('Login error:', error.response ? error.response.data : error.message)
         // Handle login error (e.g., show error message to user)
-        alert(
-          "Login failed. " +
-            (error.response ? error.response.data.detail : error.message)
-        );
+        alert('Login failed. ' + (error.response ? error.response.data.detail : error.message))
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>

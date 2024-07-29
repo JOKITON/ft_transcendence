@@ -14,6 +14,17 @@ services:
     networks:
       - ft_transcendence
 
+  database:
+    container_name: db
+    build: ../database/
+    env_file: ../database/.env-postgres
+    restart: always
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    shm_size: 128mb
+    networks:
+      - ft_transcendence
+
   frontend:
     container_name: frontend
     image: frontend:0.0.1
@@ -22,10 +33,10 @@ services:
       - ft_transcendence
     restart: always
     volumes:
-      - vue_volume:/home/app/web/static/
-      - vue_volume:/home/app/web/media/
+      - frontend:/frontend
     depends_on:
       - reverse-proxy
+      - database
 
 networks:
   ft_transcendence:
@@ -33,9 +44,15 @@ networks:
     driver: bridge
 
 volumes:
-  vue_volume:
+  frontend:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../../volumes/frontend/
+      device: ../frontend/
+  db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../database/db

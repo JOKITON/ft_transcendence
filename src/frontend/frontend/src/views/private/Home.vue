@@ -63,14 +63,16 @@
     </p>
     <p class="lead">
       <a href="" class="btn btn-lg btn-light fw-bold border-white bg-white">Learn more</a>
-      <a @click="checkRounds" class="btn btn-lg btn-light fw-bold border-white bg-white">Check Rounds!</a>
+      <a @click="checkRounds" class="btn btn-lg btn-light fw-bold border-white bg-white"
+        >Check Rounds!</a
+      >
     </p>
   </main>
 </template>
 
 <script>
-import api from "../../utils/Api/api";
-import { removeAccessToken } from "../../utils/Api/auth";
+import api from '../../services/Api/api'
+import { removeAccessToken } from '../../services/Api/auth'
 
 export default {
   name: 'loginHome',
@@ -78,21 +80,21 @@ export default {
     return {
       isProfileVisible: false,
       isDropdownVisible: false,
-      username: 'User', // Replace this with actual data source if necessary
+      username: 'User' // Replace this with actual data source if necessary
     }
   },
   async created() {
     // Fetch or set the username when the component is created
     await this.fetchUsername()
-    await this.fetchPongTables();
+    await this.fetchPongTables()
   },
   methods: {
     async logoutUser() {
       try {
-        const response = await api.post("user/logout/");
-        console.log("Logout successful:", response.data);
-        removeAccessToken();
-        this.$router.push('/login');
+        const response = await api.post('user/logout/')
+        console.log('Logout successful:', response.data)
+        removeAccessToken()
+        this.$router.push('/login')
       } catch (error) {
         console.error('Logout error:', error.response ? error.response.data : error.message)
         alert('Logout failed. ' + (error.response ? error.response.data.message : error.message))
@@ -100,8 +102,8 @@ export default {
     },
     async fetchUsername() {
       try {
-        const response = await api.get("user/whoami/", { withCredentials: true });
-        this.username = response.data.username; // Replace with your actual response structure
+        const response = await api.get('user/whoami/', { withCredentials: true })
+        this.username = response.data.username // Replace with your actual response structure
       } catch (error) {
         console.error(
           'Error fetching username:',
@@ -214,5 +216,4 @@ main {
 .bd-mode-toggle .dropdown-menu .active .bi {
   display: block !important;
 }
-
 </style>

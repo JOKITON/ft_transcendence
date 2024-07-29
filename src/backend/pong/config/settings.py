@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import timedelta
+
 # import dj_database_url
 from .utils import load_key
 import os
@@ -12,33 +13,33 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG");
+DEBUG = os.environ.get("DEBUG")
 
-ALLOWED_HOSTS = ['localhost', 'auth', 'pong']
+ALLOWED_HOSTS = ["localhost", "auth", "pong"]
 
 SIMPLE_JWT = {
-    'ALGORITHM': 'RS256',
-    'SIGNING_KEY': load_key(Path('/usr/src/app/secrets/jwt_auth_private.pem')),
-    'VERIFYING_KEY': load_key(Path('/usr/src/app/secrets/jwt_auth_public.pem')),
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': False,
-    'AUTH_COOKIE': 'access_token',
-    'AUTH_COOKIE_REFRESH': 'refresh_token',
-    'AUTH_COOKIE_SECURE': True,
-    'AUTH_COOKIE_HTTP_ONLY': True,
-    'AUTH_COOKIE_PATH': '/',
-    'AUTH_COOKIE_SAMESITE': 'Lax',
+    "ALGORITHM": "RS256",
+    "SIGNING_KEY": load_key(Path("/usr/src/app/secrets/jwt_auth_private.pem")),
+    "VERIFYING_KEY": load_key(Path("/usr/src/app/secrets/jwt_auth_public.pem")),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": False,
+    "AUTH_COOKIE": "access_token",
+    "AUTH_COOKIE_REFRESH": "refresh_token",
+    "AUTH_COOKIE_SECURE": True,
+    "AUTH_COOKIE_HTTP_ONLY": True,
+    "AUTH_COOKIE_PATH": "/",
+    "AUTH_COOKIE_SAMESITE": "Lax",
 }
 
 SESSION_COOKIE_SECURE = True
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_HTTPONLY = True
 
 # Application definition
@@ -50,22 +51,21 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    
-    'corsheaders',
+    "corsheaders",
     "rest_framework",
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
-    'pong_app',
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "pong_app",
     "channels",
 ]
 
 
 # CORS
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:80',
-    'https://localhost:443',
-    'http://localhost',
-    'https://localhost',
+    "http://localhost:80",
+    "https://localhost:443",
+    "http://localhost",
+    "https://localhost",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -113,22 +113,23 @@ DATABASES = {
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
         "HOST": os.environ.get("POSTGRES_HOST"),
         "PORT": os.environ.get("POSTGRES_PORT"),
-        'OPTIONS': {
-            'options': os.environ.get("PONG_SCHEMA"),  # Set schema search path here
-        }
+        "OPTIONS": {
+            # Set schema search path here
+            "options": os.environ.get("PONG_SCHEMA"),
+        },
     }
 }
 
 # Configure Django Rest Framework settings if you're using it
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
         # Adjust permissions as per your API needs
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-		'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
         # Add other authentication classes as needed
     ],
 }

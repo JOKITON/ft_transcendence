@@ -2,21 +2,9 @@ NAME = ft_transcendence
 
 DOCKER = sudo docker-compose
 
-# docker-compose es una herramient y docker compose es un comando 
-# # Variables
-
 DOCKER_IMAGES = $(addprefix ft_transcendence-,$(IMAGES))
 DOCKER_IMAGES_BACKEND = $(addprefix ft_transcendence_backend-,$(IMAGES_BACKEND))
 DOCKER_IMAGES_METRICS = $(addprefix ft_transcendence_metrics-,$(IMAGES_METRICS))
-# Add here the container names
-IMAGES = vue reverse-proxy
-IMAGES_BACKEND = keys admin pong database
-IMAGES_METRICS = grafana prometheus
-
-# Check if docker-compose exists
-DOCKER_COMPOSE_EXISTS := $(shell command -v docker-compose 2>/dev/null)
-
-# Conditional command assignment
 
 COMPOSE = src/compose/docker-compose.yml
 
@@ -24,7 +12,7 @@ COMPOSE_METRICS = src/compose/docker-compose-metrics.yml
 
 COMPOSE_BACKEND = src/compose/docker-compose-backend.yml
 
-VOLUMES = volumes/backend/db volumes/frontend/static volumes/frontend/media volumes/metrics/prometheus volumes/metrics/grafana volumes/backend/jwt_auth_keys
+VOLUMES = src/database/db  volumes/backend/jwt_auth_keys
 
 .PHONY: all build down clean
 
@@ -35,10 +23,8 @@ $(VOLUMES) :
 
 up : $(VOLUMES)
 	# esto se puede definir con yaml mucho mejor
-	$(DOCKER) -f $(COMPOSE) up --build -d  --remove-orphans
-
-	$(DOCKER) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
-	#$(DOCKER) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
+	$(DOCKER) -f $(COMPOSE) -f $(COMPOSE_BACKEND)   up --build -d  --remove-orphans
+	
 
 logs:
 	$(DOCKER) -f $(COMPOSE) logs
@@ -51,10 +37,7 @@ logs-metrics:
 	$(DOCKER) -f $(COMPOSE_METRICS) logs
 
 down:
-	$(DOCKER) -f $(COMPOSE) down --volumes
-	$(DOCKER) -f $(COMPOSE_BACKEND) down --volumes
-	$(DOCKER) -f $(COMPOSE_METRICS) down --volumes
-	sudo docker network rm metrics frontend
+	$(DOCKER) -f $(COMPOSE) -f $(COMPOSE_BACKEND) -f $(COMPOSE_METRICS)  down --volumes --remove-orphans
 
 clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES)
@@ -64,7 +47,7 @@ clean:
 	@$(DOCKER) image prune --force
 	@sudo rm -rf $(VOLUMES)
 
-re: down clean up
+re: down up
 
 curl: 
 	curl -X POST \

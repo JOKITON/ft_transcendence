@@ -13,14 +13,14 @@
 FROM alpine:3.20 AS builder
 
 LABEL traefik.enable=true
-LABEL traefik.http.routers.ft_transcendence.rule="Host(`localhost`) && PathPrefix(`/`)"
-LABEL traefik.http.services.ft_transcendence.loadbalancer.server.port=80
+LABEL traefik.http.routers.frontend.rule="Host(`localhost`) && PathPrefix(`/`)"
+LABEL traefik.http.services.frontend.loadbalancer.server.port=80
 
 RUN apk add --no-cache npm=10.8.0-r0 nodejs=20.15.1-r0
 
-WORKDIR /ft_transcendence
+WORKDIR /frontend
 
-COPY ft_transcendence .
+COPY frontend .
 
 RUN npm update vite && npm i
 
