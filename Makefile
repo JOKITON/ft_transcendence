@@ -1,10 +1,9 @@
 NAME = ft_transcendence
 
-DOCKER = sudo docker
+DOCKER = sudo docker-compose
 
-# Variables
-DOCKER_COMPOSE_LINUX = $(DOCKER) compose
-DOCKER_COMPOSE_MAC = $(DOCKER)-compose
+# docker-compose es una herramient y docker compose es un comando 
+# # Variables
 
 DOCKER_IMAGES = $(addprefix ft_transcendence-,$(IMAGES))
 DOCKER_IMAGES_BACKEND = $(addprefix ft_transcendence_backend-,$(IMAGES_BACKEND))
@@ -18,11 +17,6 @@ IMAGES_METRICS = grafana prometheus
 DOCKER_COMPOSE_EXISTS := $(shell command -v docker-compose 2>/dev/null)
 
 # Conditional command assignment
-ifeq ($(DOCKER_COMPOSE_EXISTS),)
-    DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_LINUX)
-else
-    DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_MAC)
-endif
 
 COMPOSE = src/compose/docker-compose.yml
 
@@ -40,22 +34,28 @@ $(VOLUMES) :
 	@mkdir -p $(VOLUMES)
 
 up : $(VOLUMES)
-	@$(DOCKER) network create metrics
-	@$(DOCKER) network create frontend
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) up --build -d  --remove-orphans
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
+	# esto se puede definir con yaml mucho mejor
+	$(DOCKER) -f $(COMPOSE) up --build -d  --remove-orphans
+
+	$(DOCKER) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
+	#$(DOCKER) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
+
 logs:
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) logs
+	$(DOCKER) -f $(COMPOSE) logs
+
+
 logs-backend:
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) logs
+	$(DOCKER) -f $(COMPOSE_BACKEND) logs
+
 logs-metrics:
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) logs
+	$(DOCKER) -f $(COMPOSE_METRICS) logs
+
 down:
-	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) down --volumes
-	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) down --volumes
-	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) down --volumes
-	@$(DOCKER) network rm metrics frontend
+	$(DOCKER) -f $(COMPOSE) down --volumes
+	$(DOCKER) -f $(COMPOSE_BACKEND) down --volumes
+	$(DOCKER) -f $(COMPOSE_METRICS) down --volumes
+	sudo docker network rm metrics frontend
+
 clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES)
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES_BACKEND)

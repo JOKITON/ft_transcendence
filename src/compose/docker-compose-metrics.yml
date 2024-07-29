@@ -1,35 +1,25 @@
-# docker-compose-metrics.yml
-
 name: ft_transcendence_metrics
 
 services:
   prometheus:
     container_name: prometheus
-    build:
-      context: ../monitoring/prometheus
-      dockerfile: Dockerfile
+    build: ../monitoring/prometheus
     restart: always
-    ports:
-      - "9090:9090"
     volumes:
       - prometheus-data:/prometheus
     networks:
-      - metrics
+      - frontend
 
   grafana:
     container_name: grafana
-    build:
-      context: ../monitoring/grafana
-      dockerfile: Dockerfile
+    build: ../monitoring/grafana
     restart: always
-    ports:
-      - "3000:3000"
     env_file:
       - ../monitoring/grafana/.env-grafana
     volumes:
       - grafana-data:/var/lib/grafana
     networks:
-      - metrics
+      - frontend
 
 volumes:
   prometheus-data:
@@ -44,7 +34,3 @@ volumes:
       type: none
       o: bind
       device: ../../volumes/metrics/grafana
-
-networks:
-  metrics:
-    external: true

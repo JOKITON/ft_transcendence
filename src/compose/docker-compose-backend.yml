@@ -1,15 +1,11 @@
-# docker-compose-backend.yml
-
 name: ft_transcendence_backend
 
 services:
   keys:
     container_name: keys
-    build:
-      context: ../backend/keys
-      dockerfile: Dockerfile
+    build: ../backend/keys
     env_file: ../backend/.env-django
-    environment:
+    environment: # hay que usar -env-file para esto
       - PRIVATE_KEY_PATH=/usr/src/app/secrets/jwt_auth_private.pem
       - PUBLIC_KEY_PATH=/usr/src/app/secrets/jwt_auth_public.pem
     restart: always
@@ -17,75 +13,59 @@ services:
       - shared_models:/usr/src/app/shared_models
       - jwt_auth_keys:/usr/src/app/secrets
     networks:
-      - backend
+      - ft_transcendence
 
   api:
     container_name: api
-    build:
-      context: ../backend/api
-      dockerfile: Dockerfile
+    build: ../backend/api
     env_file: ../backend/.env-django
     restart: always
     volumes:
       - shared_models:/app/shared_models
     networks:
-      - backend
-      - frontend
+      - ft_transcendence
     depends_on:
       - keys
       - admin
 
   admin:
     container_name: admin
-    build:
-      context: ../backend/admin
-      dockerfile: Dockerfile
+    build: ../backend/admin # si el context y el file son lo mismo, mejor asi???
     env_file: ../backend/.env-django
     restart: always
     volumes:
       - shared_models:/usr/src/app/shared_models
     networks:
-      - backend
+      - ft_transcendence
     depends_on:
       - keys
 
   pong:
     container_name: pong
-    build:
-      context: ../backend/pong
-      dockerfile: Dockerfile
+    build: ../backend/pong
     env_file: ../backend/.env-django
     restart: always
     volumes:
       - shared_models:/usr/src/app/shared_models
     networks:
-      - frontend
-      - backend
+      - ft_transcendence
     depends_on:
       - keys
 
   database:
     container_name: db
-    build:
-      context: ../database/
-      dockerfile: Dockerfile
-    networks:
-      - backend
-      - metrics
+    build: ../database/
     env_file: ../database/.env-postgres
     restart: always
     volumes:
       - db-data:/var/lib/postgresql/data
     shm_size: 128mb
+    networks:
+      - ft_transcendence
 
 networks:
-  frontend:
+  ft_transcendence:
     external: true
-  backend:
-    driver: bridge
-  metrics:
-    external: true
-
 volumes:
   db-data:
     driver: local

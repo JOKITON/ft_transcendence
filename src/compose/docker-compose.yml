@@ -1,13 +1,9 @@
-# docker-compose.yml
-
 name: ft_transcendence
 
 services:
   reverse-proxy:
     container_name: proxy
-    build:
-      context: ../reverse-proxy/
-      dockerfile: Dockerfile
+    build: ../reverse-proxy/
     restart: always
     ports:
       - 8080:8080
@@ -16,25 +12,25 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
-      - frontend
-    depends_on:
-      - vue
+      - ft_transcendence
 
-  vue:
-    container_name: vue
-    build:
-      context: ../frontend/
-      dockerfile: Dockerfile
+  frontend:
+    container_name: frontend
+    image: frontend:0.0.1
+    build: ../frontend/
     networks:
-    - frontend
+      - ft_transcendence
     restart: always
     volumes:
       - vue_volume:/home/app/web/static/
       - vue_volume:/home/app/web/media/
+    depends_on:
+      - reverse-proxy
 
 networks:
-  frontend:
-    external: true
+  ft_transcendence:
+    name: ft_transcendence
+    driver: bridge
 
 volumes:
   vue_volume:

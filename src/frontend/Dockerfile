@@ -3,27 +3,25 @@
 #                                                         :::      ::::::::    #
 #    Dockerfile                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
+#    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/07/21 14:43:35 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/07/29 22:21:15 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM node:18-alpine AS builder
+FROM alpine:3.20 AS builder
 
 LABEL traefik.enable=true
-LABEL traefik.http.routers.vue.rule="Host(`localhost`) && PathPrefix(`/`)"
-LABEL traefik.http.services.vue.loadbalancer.server.port=80
+LABEL traefik.http.routers.ft_transcendence.rule="Host(`localhost`) && PathPrefix(`/`)"
+LABEL traefik.http.services.ft_transcendence.loadbalancer.server.port=80
 
-WORKDIR /vue-project
+RUN apk add --no-cache npm=10.8.0-r0 nodejs=20.15.1-r0
 
-COPY vue-project/package*.json ./
-RUN npm install
+WORKDIR /ft_transcendence
 
-COPY vue-project ./
-RUN npm update vite
+COPY ft_transcendence .
 
-EXPOSE 80
+RUN npm update vite && npm i
 
-CMD ["npm", "run", "dev", "--", "--host", "--port", "80"]
+CMD ["npm", "run", "dev", "--", "--host"]
