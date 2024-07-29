@@ -14,9 +14,40 @@ services:
       - PUBLIC_KEY_PATH=/usr/src/app/secrets/jwt_auth_public.pem
     restart: always
     volumes:
+      - shared_models:/usr/src/app/shared_models
       - jwt_auth_keys:/usr/src/app/secrets
     networks:
       - backend
+
+  api:
+    container_name: api
+    build:
+      context: ../backend/api
+      dockerfile: Dockerfile
+    env_file: ../backend/.env-django
+    restart: always
+    volumes:
+      - shared_models:/app/shared_models
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - keys
+      - admin
+
+  admin:
+    container_name: admin
+    build:
+      context: ../backend/admin
+      dockerfile: Dockerfile
+    env_file: ../backend/.env-django
+    restart: always
+    volumes:
+      - shared_models:/usr/src/app/shared_models
+    networks:
+      - backend
+    depends_on:
+      - keys
 
   pong:
     container_name: pong
@@ -25,6 +56,8 @@ services:
       dockerfile: Dockerfile
     env_file: ../backend/.env-django
     restart: always
+    volumes:
+      - shared_models:/usr/src/app/shared_models
     networks:
       - frontend
       - backend
@@ -66,3 +99,9 @@ volumes:
       type: none
       o: bind
       device: ../../volumes/backend/jwt_auth_keys
+  shared_models:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/shared_models

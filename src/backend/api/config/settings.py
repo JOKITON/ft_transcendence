@@ -14,7 +14,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG");
 
-ALLOWED_HOSTS = ['localhost', 'auth', 'pong']
+ALLOWED_HOSTS = ['localhost', 'api', 'pong']
 
 SIMPLE_JWT = {
     'ALGORITHM': 'RS256',
@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     "rest_framework",
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-    'pong_app',
+    'api_app',
     "channels",
 ]
 
@@ -66,6 +66,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://localhost:443',
     'http://localhost',
     'https://localhost',
+    'http://api'
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -78,7 +79,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "csp.middleware.CSPMiddleware",
-    "pong_app.middleware.TokenValidationMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

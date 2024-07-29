@@ -16,7 +16,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/pong/, '/api/pong'),
       },
       '/api/user/': {
-        target: 'http://pong:8000',
+        target: 'http://api:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/user/, '/api/user'),
       },

@@ -16,6 +16,7 @@ export function setAccessToken(accessToken) {
 
 export function removeAccessToken() {
   localStorage.removeItem('access_token');
+  api.defaults.headers.common['Authorization'] = "";
 }
 
 export async function refreshAuthToken() {
@@ -60,13 +61,13 @@ export async function checkAndRefreshToken() {
       return false;
   } catch (error) {
     const response = error.response;
-    switch (response.data.status) {
+    switch (response.data.code) {
       case 'expired':
         console.log('Token expired. Attempting to refresh.');
         const refreshed = await refreshAuthToken();
         return refreshed;
 
-      case 'invalid':
+      case 'token_not_valid':
         console.log('Token invalid. Redirecting to login.');
         removeAccessToken();
         return false;

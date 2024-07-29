@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import round
+from .models import Round
 
 
 class RoundSerializer(serializers.ModelSerializer):
     class Meta:
-        model = round
+        model = Round
         fields = "__all__"

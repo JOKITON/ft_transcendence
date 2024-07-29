@@ -11,44 +11,53 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "your-secret-key")  # Default for loca
 
 DEBUG = os.environ.get("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'keys']
+ALLOWED_HOSTS = ['localhost']
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.contenttypes',
+    'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'csp',
-    'key_app',
+    'admin_app',
+    'shared_models',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'csp.middleware.CSPMiddleware',
 ]
-
-ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'APP_DIRS': False,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
+
+ROOT_URLCONF = 'config.urls'
 
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
@@ -102,13 +111,10 @@ REST_FRAMEWORK = {
     ],
 }
 
-PRIVATE_KEY_PATH = os.environ.get("PRIVATE_KEY_PATH")
-PUBLIC_KEY_PATH = os.environ.get("PUBLIC_KEY_PATH")
-
 SIMPLE_JWT = {
     'ALGORITHM': 'RS256',
-    'SIGNING_KEY': load_key(PRIVATE_KEY_PATH),
-    'VERIFYING_KEY': load_key(PUBLIC_KEY_PATH),
+    'SIGNING_KEY': load_key(Path('/usr/src/app/secrets/jwt_auth_private.pem')),
+    'VERIFYING_KEY': load_key(Path('/usr/src/app/secrets/jwt_auth_public.pem')),
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',

@@ -18,10 +18,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from pong_app.urls import urlpatterns as urlspatterns_pong
-from user_app.urls import urlpatterns as urlpatterns_user
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/pong/", include(urlspatterns_pong)),
-    path("api/user/", include(urlpatterns_user)),
 ]

@@ -62,7 +62,8 @@
       text, and add your own fullscreen background photo to make it your own.
     </p>
     <p class="lead">
-      <a href="#" class="btn btn-lg btn-light fw-bold border-white bg-white">Learn more</a>
+      <a href="" class="btn btn-lg btn-light fw-bold border-white bg-white">Learn more</a>
+      <a @click="checkRounds" class="btn btn-lg btn-light fw-bold border-white bg-white">Check Rounds!</a>
     </p>
   </main>
 </template>
@@ -77,12 +78,13 @@ export default {
     return {
       isProfileVisible: false,
       isDropdownVisible: false,
-      username: 'User' // Replace this with actual data source if necessary
+      username: 'User', // Replace this with actual data source if necessary
     }
   },
   async created() {
     // Fetch or set the username when the component is created
     await this.fetchUsername()
+    await this.fetchPongTables();
   },
   methods: {
     async logoutUser() {
