@@ -1,12 +1,12 @@
-import type Box from '../Objects/Box'
-
-export default interface Iplayer extends Box {
-  score: number
+export default interface Iplayer {
   name: string
+  score: number
+  up: string
+  down: string
 
   setName(name: string): void
   getName(): string
-  setScore(score: number): void
+  addScore(): void
   getScore(): number
   event(): void
 }

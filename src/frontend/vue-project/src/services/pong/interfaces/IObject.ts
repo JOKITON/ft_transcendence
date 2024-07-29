@@ -1,10 +1,9 @@
-import { Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
 
 export default interface IObject {
   mesh: Mesh
   material: MeshStandardMaterial | MeshBasicMaterial
   get(): Mesh
-  up(y: number): void
-  down(y: number): void
-  update(): void
+  moveUp(y: number): void
+  moveDown(y: number): void
 }
