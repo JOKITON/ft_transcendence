@@ -1,0 +1,40 @@
+name: ft_transcendence_metrics
+
+services:
+  prometheus:
+    container_name: prometheus
+    build: ../monitoring/prometheus
+    restart: always
+    volumes:
+      - prometheus-data:/prometheus
+    networks:
+      - ft_transcendence
+
+  grafana:
+    container_name: grafana
+    build: ../monitoring/grafana
+    restart: always
+    env_file:
+      - ../monitoring/grafana/.env-grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - ft_transcendence
+
+networks:
+  ft_transcendence:
+    external: true
+
+volumes:
+  prometheus-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../../volumes/metrics/prometheus
+  grafana-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../../volumes/metrics/grafana

@@ -1,0 +1,58 @@
+name: ft_transcendence
+
+services:
+  reverse-proxy:
+    container_name: proxy
+    build: ../reverse-proxy/
+    restart: always
+    ports:
+      - 8080:8080
+      - 80:80
+      - 443:443
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - ft_transcendence
+
+  database:
+    container_name: db
+    build: ../database/
+    env_file: ../database/.env-postgres
+    restart: always
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    shm_size: 128mb
+    networks:
+      - ft_transcendence
+
+  frontend:
+    container_name: frontend
+    image: frontend:0.0.1
+    build: ../frontend/
+    networks:
+      - ft_transcendence
+    restart: always
+    volumes:
+      - frontend:/frontend
+    depends_on:
+      - reverse-proxy
+      - database
+
+networks:
+  ft_transcendence:
+    name: ft_transcendence
+    driver: bridge
+
+volumes:
+  frontend:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../frontend/
+  db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../database/db

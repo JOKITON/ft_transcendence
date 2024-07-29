@@ -1,5 +1,4 @@
 #!/bin/sh
-
 set -e
 
 if [ "$DATABASE" = "postgres" ]; then
@@ -48,12 +47,14 @@ if ! python manage.py migrate --noinput; then
   exit 1
 fi
 
-# Collect static files
-echo "Collecting static files..."
-if ! python manage.py collectstatic --no-input; then
-  echo "Collectstatic failed"
-  exit 1
-fi
+# echo "Creating superuser..."
+# if ! python manage.py createsuperuser
+
+# echo "Flushing database..."
+# python manage.py flush --no-input
+
+# echo "Creating superuser Joe..."
+# python manage.py createsuperuser --username=joe --email=joe@example.com
 
 # Start the Django development server
 echo "Starting Django development server..."

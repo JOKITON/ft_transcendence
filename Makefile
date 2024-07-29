@@ -1,56 +1,72 @@
 NAME = ft_transcendence
 
-# Variables
-DOCKER_COMPOSE_LINUX = sudo docker compose
-DOCKER_COMPOSE_MAC = sudo docker-compose
+DOCKER = sudo docker-compose
 
 DOCKER_IMAGES = $(addprefix ft_transcendence-,$(IMAGES))
-# Add here the container names
-IMAGES = ft_transcendence-database-1 login ft_transcendence-reverse-proxy-1 autentication
+DOCKER_IMAGES_BACKEND = $(addprefix ft_transcendence_backend-,$(IMAGES_BACKEND))
+DOCKER_IMAGES_METRICS = $(addprefix ft_transcendence_metrics-,$(IMAGES_METRICS))
 
-# Check if docker-compose exists
-DOCKER_COMPOSE_EXISTS := $(shell command -v docker-compose 2>/dev/null)
-
-# Conditional command assignment
-ifeq ($(DOCKER_COMPOSE_EXISTS),)
-    DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_LINUX)
-else
-    DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_MAC)
-endif
-
-COMPOSE_BACK = src/compose/docker-compose-backend.yml
-COMPOSE_FRONT = src/compose/docker-compose-frontend.yml
-COMPOSE_MONI = src/compose/docker-compose-monitoring.yml
-COMPOSE_UTILS = src/compose/docker-compose-utils.yml
 COMPOSE = src/compose/docker-compose.yml
+
+COMPOSE_METRICS = src/compose/docker-compose-metrics.yml
+
+COMPOSE_BACKEND = src/compose/docker-compose-backend.yml
+
+VOLUMES = src/database/db  volumes/backend/jwt_auth_keys
 
 .PHONY: all build down clean
 
 all : up
 
-up :
-	$(DOCKER_COMPOSE_CMD) --env-file ./src/database/.env.dev  -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK) -f $(COMPOSE_FRONT) -f $(COMPOSE_MONI) up --build -d  --remove-orphans
+$(VOLUMES) :
+	@mkdir -p $(VOLUMES)
+
+up : $(VOLUMES)
+	# esto se puede definir con yaml mucho mejor
+	$(DOCKER) -f $(COMPOSE) -f $(COMPOSE_BACKEND)   up --build -d  --remove-orphans
+	
+
+logs:
+	$(DOCKER) -f $(COMPOSE) logs
+
+
+logs-backend:
+	$(DOCKER) -f $(COMPOSE_BACKEND) logs
+
+logs-metrics:
+	$(DOCKER) -f $(COMPOSE_METRICS) logs
+
 down:
-	$(DOCKER_COMPOSE_CMD) --env-file ./src/database/.env.dev  -f  $(COMPOSE_UTILS) -f  $(COMPOSE_BACK) -f $(COMPOSE_FRONT) -f $(COMPOSE_MONI) down --volumes 
+	$(DOCKER) -f $(COMPOSE) -f $(COMPOSE_BACKEND) -f $(COMPOSE_METRICS)  down --volumes --remove-orphans
+
 clean:
-	sudo docker rmi -f $(sudo docker images -aq)
-	sudo docker rm -vf $(sudo docker ps -aq)
+	@$(DOCKER) rmi -f $(DOCKER_IMAGES)
+	@$(DOCKER) rmi -f $(DOCKER_IMAGES_BACKEND)
+	@$(DOCKER) rmi -f $(DOCKER_IMAGES_METRICS)
+	@$(DOCKER) network prune --force
+	@$(DOCKER) image prune --force
+	@sudo rm -rf $(VOLUMES)
 
-re: down  up
-
-info:
-	@sudo docker ps
-	@sudo docker images
-	@sudo docker volume ls
-	@sudo docker network ls
-	@sudo $(DOCKER_COMPOSE_CMD) ps
-	@sudo $(DOCKER_COMPOSE_CMD) images
+re: down up
 
 curl: 
 	curl -X POST \
 		http://localhost/api/pong/rounds/ \
 	 -H 'Content-Type: application/json' \
   -d '{ "player1": "1", "player2": "2", "score1": 10, "score2": 8 }'
+
+info:
+	@sudo docker ps
+	@sudo docker images
+	@sudo docker volume ls
+	@sudo docker network ls
+	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE) ps
+	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) ps
+	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) ps
+	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE) images
+	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) images
+	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) images
+
 # Help target
 help:
 	@echo "Usage: make [TARGET]"
