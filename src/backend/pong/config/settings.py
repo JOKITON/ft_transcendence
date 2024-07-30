@@ -19,8 +19,8 @@ ALLOWED_HOSTS = ["localhost", "auth", "pong"]
 
 SIMPLE_JWT = {
     "ALGORITHM": "RS256",
-    "SIGNING_KEY": load_key(Path("/usr/src/app/secrets/jwt_auth_private.pem")),
-    "VERIFYING_KEY": load_key(Path("/usr/src/app/secrets/jwt_auth_public.pem")),
+    "SIGNING_KEY": load_key(Path("/pong/secrets/jwt_auth_private.pem")),
+    "VERIFYING_KEY": load_key(Path("/pong/secrets/jwt_auth_public.pem")),
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",

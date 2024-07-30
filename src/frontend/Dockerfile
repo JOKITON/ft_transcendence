@@ -24,4 +24,4 @@ COPY frontend .
 
 RUN npm update vite && npm i
 
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD npm --prefix /frontend/frontend run dev -- --host

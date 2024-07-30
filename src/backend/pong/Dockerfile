@@ -21,9 +21,8 @@ RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3
 
 RUN cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 
-WORKDIR /usr/src/app/
+WORKDIR /pong/
 
-# Environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
@@ -34,4 +33,4 @@ RUN python -m venv /opt/venv && source /opt/venv/bin/activate \
 
 ENV PATH="/opt/venv/bin:$PATH"
 
-CMD ["sh", "utils/init.sh"]
+CMD ["zsh", "utils/init.sh"]

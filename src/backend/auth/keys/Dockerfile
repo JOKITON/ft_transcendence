@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/07/30 00:13:17 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/07/30 19:45:05 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ FROM alpine:3.20 AS builder
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.autentication.rule="Host(`localhost`) && PathPrefix(`/api/key/`)"
-LABEL traefik.http.services.autentication.loadbalancer.server.port=80
+LABEL traefik.http.services.autentication.loadbalancer.server.port=8000 
 
 RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd python3 zsh \
   && cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
@@ -32,6 +32,5 @@ RUN python -m venv /opt/venv &&  source /opt/venv/bin/activate \
 ENV PATH="/opt/venv/bin:$PATH"
 
 RUN mkdir -p secrets
-
 
 CMD ["sh", "utils/init.sh"]
