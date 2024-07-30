@@ -9,11 +9,11 @@ if [ "$DATABASE" = "postgres" ]; then
 fi
 
 # Generate keys for RSA
-if [ ! -f /usr/src/app/secrets/jwt_auth_private.pem ]; then
+if [ ! -f /keys/secrets/jwt_auth_private.pem ]; then
   openssl genpkey -algorithm RSA -out /keys/secrets/jwt_auth_private.pem -pkeyopt rsa_keygen_bits:2048
 fi
 
-if [ ! -f /usr/src/app/secrets/jwt_auth_public.pem ]; then
+if [ ! -f /keys/secrets/jwt_auth_public.pem ]; then
   openssl rsa -pubout -in /keys/secrets/jwt_auth_private.pem -out /keys/secrets/jwt_auth_public.pem
 fi
 
@@ -28,4 +28,4 @@ python manage.py migrate --noinput
 
 # Start the Django development server
 echo "Starting Django development server..."
-exec gunicorn --bind 0.0.0.0:80 config.wsgi:application --reload --timeout 120
+exec gunicorn --bind 0.0.0.0:8000 config.wsgi:application --reload --timeout 120

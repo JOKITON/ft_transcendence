@@ -37,8 +37,7 @@ logs-metrics:
 	$(DOCKER) -f $(COMPOSE_METRICS) logs
 
 down:
-	$(DOCKER) -f $(COMPOSE) -f $(COMPOSE_BACKEND) -f $(COMPOSE_METRICS)  down --volumes --remove-orphans
-
+	$(DOCKER) -f $(COMPOSE) -f $(COMPOSE_BACKEND)   down --volumes --remove-orphans --rmi all
 clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES)
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES_BACKEND)

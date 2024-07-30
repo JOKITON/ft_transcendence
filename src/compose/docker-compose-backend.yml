@@ -3,7 +3,7 @@ name: ft_transcendence_backend
 services:
   keys:
     container_name: keys
-    build: ../backend/keys
+    build: ../backend/auth/keys
     env_file: ../backend/.env-django
     restart: always
     volumes:
@@ -13,7 +13,7 @@ services:
 
   api:
     container_name: api
-    build: ../backend/api
+    build: ../backend/auth/api
     env_file: ../backend/.env-django
     restart: always
     #volumes:
@@ -26,7 +26,7 @@ services:
 
   admin:
     container_name: admin
-    build: ../backend/admin # si el context y el file son lo mismo, mejor asi???
+    build: ../backend/auth/admin # si el context y el file son lo mismo, mejor asi???
     env_file: ../backend/.env-django
     restart: always
     #volumes:
@@ -41,8 +41,8 @@ services:
     build: ../backend/pong
     env_file: ../backend/.env-django
     restart: always
-    #volumes:
-    # - shared_models:/usr/src/app/shared_models
+    volumes:
+      - pong:/usr/src/app/shared_models
     networks:
       - ft_transcendence
     depends_on:
@@ -58,10 +58,10 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ../backend/keys/
-  #  shared_models:
-  # driver: local
-  #driver_opts:
-  # type: none
-  #o: bind
-  #device: ../backend/shared_models
+      device: ../backend/auth/keys/
+  pong:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/pong/
