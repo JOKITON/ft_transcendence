@@ -29,12 +29,6 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,
-    'AUTH_COOKIE': 'access_token',
-    'AUTH_COOKIE_REFRESH': 'refresh_token',
-    'AUTH_COOKIE_SECURE': True,
-    'AUTH_COOKIE_HTTP_ONLY': True,
-    'AUTH_COOKIE_PATH': '/',
-    'AUTH_COOKIE_SAMESITE': 'Lax',
 }
 
 SESSION_COOKIE_SECURE = True
@@ -56,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'api_app',
+    'axes',
     "channels",
 ]
 
@@ -79,6 +74,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "csp.middleware.CSPMiddleware",
+    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -131,7 +127,18 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         # Add other authentication classes as needed
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '10/minute',  # Limit authenticated users to 5 requests per minute
+        'anon': '5/minute',  # Limit anonymous users to 2 requests per minute
+    },
 }
+
+AXES_FAILURE_LIMIT = 5  # Number of failed login attempts
+AXES_COOLOFF_TIME = 0.1  # Cool-off time in hours
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

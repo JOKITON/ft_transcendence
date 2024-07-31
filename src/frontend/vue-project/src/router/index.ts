@@ -23,7 +23,7 @@ const router = createRouter({
   ]
 })
 
-// Navigation guard to check for authentication and CSRF token
+// Navigation guard to check for authentication
 router.beforeEach(async (to, from, next) => {
   try {
     if (to.matched.some((record) => record.meta.requiresAuth)) {

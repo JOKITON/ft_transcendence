@@ -84,7 +84,6 @@ export default {
   async created() {
     // Fetch or set the username when the component is created
     await this.fetchUsername()
-    await this.fetchPongTables();
   },
   methods: {
     async logoutUser() {

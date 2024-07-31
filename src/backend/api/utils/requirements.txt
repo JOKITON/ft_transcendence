@@ -15,6 +15,7 @@ dj-database-url==2.2.0
 djangorestframework-simplejwt==5.3.1
 PyJWT==2.8.0
 django-cors-headers==4.4.0
+django-axes
 # Security
 django[argon2]==5.0.7
 cryptography==42.0.8

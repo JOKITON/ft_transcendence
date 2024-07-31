@@ -7,52 +7,23 @@
         <form id="registerForm" @submit.prevent="registerUser">
           <div class="mb-3">
             <label for="username" class="form-label">Username</label>
-            <input
-              id="username"
-              v-model="form.username"
-              type="text"
-              name="username"
-              class="form-control"
-              placeholder="Enter your username"
-              required
-              autofocus
-            />
+            <input id="username" v-model="form.username" type="text" name="username" class="form-control"
+              placeholder="Enter your username" required autofocus />
           </div>
           <div class="mb-3">
             <label for="email" class="form-label">Email</label>
-            <input
-              id="email"
-              v-model="form.email"
-              type="email"
-              name="email"
-              class="form-control"
-              placeholder="Enter your email"
-              required
-            />
+            <input id="email" v-model="form.email" type="email" name="email" class="form-control"
+              placeholder="Enter your email" required />
           </div>
           <div class="mb-3">
             <label for="password" class="form-label">New Password</label>
-            <input
-              id="password"
-              v-model="form.password"
-              type="password"
-              name="password"
-              class="form-control"
-              placeholder="Enter your password"
-              required
-            />
+            <input id="password" v-model="form.password" type="password" name="password" class="form-control"
+              placeholder="Enter your password" required />
           </div>
           <div class="mb-3">
             <label for="password_confirm" class="form-label">Repeat Password</label>
-            <input
-              id="password_confirm"
-              v-model="form.password_confirm"
-              type="password"
-              name="password_confirm"
-              class="form-control"
-              placeholder="Repeat your password"
-              required
-            />
+            <input id="password_confirm" v-model="form.password_confirm" type="password" name="password_confirm"
+              class="form-control" placeholder="Repeat your password" required />
           </div>
           <div class="d-grid gap-2">
             <button type="submit" class="btn btn-primary btn-block">Register</button>
@@ -87,23 +58,46 @@ export default {
   methods: {
     async registerUser() {
       try {
-        validateForm(1, this.form)
+        // Validate form data before sending request
+        validateForm(1, this.form);
 
-
+        // Make the API request
         const response = await api.post("user/register/", {
           username: this.form.username,
           email: this.form.email,
           password: this.form.password,
-        })
-        
-        this.$router.push('/login')
-        // Handle successful registration (e.g., show success message, redirect)
+        });
+
+        // Handle successful registration
+        this.$router.push('/login');
+        // Optionally show a success message
+        alert('Registration successful. Please log in.');
+
       } catch (error) {
-        console.error('Registration error:', error.response ? error.response.data : error.message)
-        // Handle registration error (e.g., show error message to user)
-        alert(
-          'Registration failed. ' + (error.response ? error.response.data.message : error.message)
-        )
+        console.error('Registration error:', error.response);
+
+        // Check if error.response exists
+        if (error.response) {
+          // Extract error messages
+          const status = error.response.status;
+          const message = error.response.data.message || 'An error occurred.';
+          const errors = error.response.data.errors || {};
+
+          // Format error message
+          let errorMessage = `Registration failed. ${message}`;
+          if (Object.keys(errors).length > 0) {
+            errorMessage += '\nErrors:\n';
+            for (const [field, msgs] of Object.entries(errors)) {
+              errorMessage += `${field}: ${msgs.join(', ')}\n`;
+            }
+          }
+
+          // Show error message
+          alert(errorMessage);
+        } else {
+          // Handle cases where error.response is not available
+          alert('Registration failed. Please try again later.');
+        }
       }
     }
   }

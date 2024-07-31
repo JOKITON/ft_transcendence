@@ -1,72 +1,57 @@
-from django.http import JsonResponse, HttpResponse
-from django.utils.decorators import method_decorator
-from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from django.contrib.auth.models import User
+from .serializers import UserSerializer, UserRegistrationSerializer, UserLoginSerializer
 import logging
 
 logger = logging.getLogger(__name__)
 
 class RegisterView(APIView):
     def post(self, request):
-        data = request.data
-        username = data.get('username')
-        password = data.get('password')
-        email = data.get('email')
-
-        if not username or not password or not email:
+        serializer = UserRegistrationSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                'message': 'Registration successful',
+                'user_id': user.id,
+            }, status=status.HTTP_201_CREATED)
+        else:
             return Response(
-                {'message': 'Username, password, and email are required', 'status': 'error'},
+                {'message': 'Invalid data', 'errors': serializer.errors, 'status': 'error'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-        if User.objects.filter(username=username).exists():
-            return Response({'message': 'Username already exists', 'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if User.objects.filter(email=email).exists():
-            return Response({'message': 'Email already exists', 'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
-
-        user = User.objects.create_user(username=username, email=email, password=password)
-
-        response = Response({
-            'message': 'Registration successful',
-            'user_id': user.id,
-        }, status=status.HTTP_201_CREATED)
-
-        return response
 
 
 class LoginView(APIView):
     def post(self, request):
-        data = request.data
-        username = data.get('username')
-        password = data.get('password')
+        serializer = UserLoginSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            # You may want to use Django's session authentication or JWT
+            login(request, user)  # Sets session cookies
 
-        if not username or not password:
-            return Response({"detail": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+            # Generate JWT tokens if you're using JWT
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
 
-        user = authenticate(username=username, password=password)
-
-        if user is None:
-            return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        login(request, user)
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        refresh_token = str(refresh)
-
-        response = Response({
-            'access': access_token,
-            'refresh': refresh_token
-        }, status=status.HTTP_200_OK)
-
-        return response
+            return Response({
+                'access': access_token,
+                'refresh': refresh_token
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {'message': 'Invalid credentials', 'errors': serializer.errors, 'status': 'error'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 class LogoutView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -142,3 +127,14 @@ class ChangePassword(APIView):
         request.user.save()
 
         return Response({'message': 'Password changed successfully', 'status': 'success'}, status=status.HTTP_200_OK)
+
+
+class UserListView(generics.ListCreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]  # Require authentication
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]  # Require authentication

@@ -76,15 +76,30 @@ export default {
 
         this.$router.push("/home");
       } catch (error) {
-        console.error(
-          "Login error:",
-          error.response ? error.response.data : error.message
-        );
-        // Handle login error (e.g., show error message to user)
-        alert(
-          "Login failed. " +
-            (error.response ? error.response.data.detail : error.message)
-        );
+        console.error('Registration error:', error.response);
+
+        // Check if error.response exists
+        if (error.response) {
+          // Extract error messages
+          const status = error.response.status;
+          const message = error.response.data.message || 'An error occurred.';
+          const errors = error.response.data.errors || {};
+
+          // Format error message
+          let errorMessage = `Login failed. ${message}`;
+          if (Object.keys(errors).length > 0) {
+            errorMessage += '\nErrors:\n';
+            for (const [field, msgs] of Object.entries(errors)) {
+              errorMessage += `${field}: ${msgs.join(', ')}\n`;
+            }
+          }
+
+          // Show error message
+          alert(errorMessage);
+        } else {
+          // Handle cases where error.response is not available
+          alert('Registration failed. Please try again later.');
+        }
       }
     },
   },
