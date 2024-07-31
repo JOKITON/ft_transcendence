@@ -71,6 +71,8 @@ export default {
         });
         if (response.data.access) 
           setAccessToken(response.data.access);
+        else
+          throw ("Error. No access token provided")
 
         this.$router.push("/home");
       } catch (error) {

@@ -9,30 +9,32 @@
   import ThreeServices from '../../../services/pong/ThreeService'
   import Player from '../../../services/pong/Player'
   import Sphere from '../../../services/pong/Objects/Sphere'
-  
+  import DashedWall from '../../../services/pong/Objects/DashedWall'
+
   const three = new ThreeServices(1400, 600)
-  
+
   const sphere = new Sphere()
-  
-  const muroHorizontal = new Player(new Vector3(33, 0.2, 0.2), new Color(), new Vector3(0, 7, 0))
-  const muroVertical = new Player(new Vector3(33, 0.2, 0.2), new Color(), new Vector3(0, -7, 0))
-  const vertical = new Player(new Vector3(0.1, 13, 0.2), new Color(), new Vector3(0, 0, 0))
+
+  const horizWallUp = new Player(new Vector3(33, 0.2, 0.2), new Color(), new Vector3(0, 7, 0))
+  const horizWallDown = new Player(new Vector3(33, 0.2, 0.2), new Color(), new Vector3(0, -7, 0))
+  const points = [new Vector3(0.05, -7, 0.05), new Vector3(0.05, 7, 0.05)];
+  const vertWallMid = new DashedWall(points, new Color('white'), 0.5, 0.5);
   
   const player = new Player()
   const player2 = new Player(new Vector3(0.2, 2, 0.2), new Color(), new Vector3(-16, 0, 0), 'w', 's')
   
   sphere.position(new Vector3(0, 0, 0))
   
-  // muros de la cancha
-  three.addScene(muroHorizontal.get())
-  three.addScene(vertical.get())
-  three.addScene(muroVertical.get())
+  // Walls & Vertical dashed lines
+  three.addScene(horizWallUp.get())
+  three.addScene(horizWallDown.get())
+  three.addScene(vertWallMid.get())
   
-  // jugadores
+  // Players
   three.addScene(player.get())
   three.addScene(player2.get())
   
-  // pelota
+  // Ball
   three.addScene(sphere.get())
   
   function animate() {

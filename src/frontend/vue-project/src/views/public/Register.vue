@@ -89,11 +89,11 @@ export default {
       try {
         validateForm(1, this.form)
 
+
         const response = await api.post("user/register/", {
           username: this.form.username,
           email: this.form.email,
           password: this.form.password,
-          password_confirm: this.form.password_confirm,
         })
         
         this.$router.push('/login')
