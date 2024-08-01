@@ -45,6 +45,7 @@ services:
     volumes:
       - shared_models:/usr/src/app/shared_models
     networks:
+      - frontend
       - backend
     depends_on:
       - keys

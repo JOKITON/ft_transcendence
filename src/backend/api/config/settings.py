@@ -55,13 +55,12 @@ INSTALLED_APPS = [
 ]
 
 
-# CORS
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:80',
-    'https://localhost:443',
+    'http://localhost:3000',  # Adjust this if using a different port for development
+    'https://localhost:3000',
     'http://localhost',
     'https://localhost',
-    'http://api'
+    'http://api',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -123,7 +122,6 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
 		'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         # Add other authentication classes as needed
     ],
@@ -132,8 +130,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.AnonRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'user': '10/minute',  # Limit authenticated users to 5 requests per minute
-        'anon': '5/minute',  # Limit anonymous users to 2 requests per minute
+        'user': '15/minute',  # Limit authenticated users to 5 requests per minute
+        'anon': '10/minute',  # Limit anonymous users to 2 requests per minute
     },
 }
 

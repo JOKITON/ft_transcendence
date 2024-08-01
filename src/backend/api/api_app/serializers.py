@@ -3,11 +3,6 @@ from django.contrib.auth.models import User
 from . import models
 from django.contrib.auth import authenticate
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'email')  # Do not include password
-
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

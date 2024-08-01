@@ -32,6 +32,8 @@ COMPOSE_BACKEND = src/compose/docker-compose-backend.yml
 
 VOLUMES = volumes/backend/db volumes/frontend/static volumes/frontend/media volumes/metrics/prometheus volumes/metrics/grafana volumes/backend/jwt_auth_keys
 
+NETWORKS = networks/frontend networks/metrics
+
 .PHONY: all build down clean
 
 all : up
@@ -39,9 +41,13 @@ all : up
 $(VOLUMES) :
 	@mkdir -p $(VOLUMES)
 
-up : $(VOLUMES)
+$(NETWORKS) :
 	@$(DOCKER) network create metrics
 	@$(DOCKER) network create frontend
+	mkdir networks
+	touch networks/metrics networks/frontend
+
+up : $(VOLUMES) $(NETWORKS)
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) up --build -d  --remove-orphans
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
@@ -55,6 +61,7 @@ down:
 	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) down --volumes
 	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) down --volumes
 	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) down --volumes
+	rm -rf networks
 	@$(DOCKER) network rm metrics frontend
 clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES)

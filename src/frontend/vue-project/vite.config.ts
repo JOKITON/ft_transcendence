@@ -20,6 +20,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/user/, '/api/user'),
       },
+      '/api/admin/': {
+        target: 'http://admin:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/admin/, '/api/admin'),
+      },
     },
     open: true,
     cors: true

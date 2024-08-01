@@ -1,8 +1,12 @@
 from django.urls import path
 from .views import PlayerListCreateAPIView, GameSessionListCreateAPIView, ScoreListCreateAPIView
+from .views import UserListView, UserDetailView
 
 urlpatterns = [
-    path('api/players/', PlayerListCreateAPIView.as_view(), name='player-list-create'),
-    path('api/gamesessions/', GameSessionListCreateAPIView.as_view(), name='gamesession-list-create'),
-    path('api/scores/', ScoreListCreateAPIView.as_view(), name='score-list-create'),
+    path('players/', PlayerListCreateAPIView.as_view(), name='player-list-create'),
+    path('gamesessions/', GameSessionListCreateAPIView.as_view(), name='gamesession-list-create'),
+    path('scores/', ScoreListCreateAPIView.as_view(), name='score-list-create'),
+    
+    path('users/', UserListView.as_view(), name='user-list'),
+    path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
 ]

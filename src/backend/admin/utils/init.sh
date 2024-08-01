@@ -53,8 +53,8 @@ fi
 # echo "Flushing database..."
 # python manage.py flush --no-input
 
-# echo "Creating superuser Joe..."
-# python manage.py createsuperuser --username=joe --email=joe@example.com
+echo "Creating superuser Transcend..."
+python manage.py createsuperuser --noinput
 
 # Start the Django development server
 echo "Starting Django development server..."

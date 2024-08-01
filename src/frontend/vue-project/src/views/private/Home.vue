@@ -15,12 +15,12 @@
 
         <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <li>
-            <router-link class="nav-link px-2 link-secondary" to="/overview">OverView</router-link>
+            <router-link class="nav-link px-2 link-secondary" to="/home">Home</router-link>
           </li>
           <li><router-link class="nav-link px-2 link-secondary" to="/pong">Pong</router-link></li>
           <li>
-            <router-link class="nav-link px-2 link-secondary" to="/friend-list"
-              >Friend List</router-link
+            <router-link class="nav-link px-2 link-secondary" to="/user-list"
+              >User List</router-link
             >
           </li>
         </ul>
@@ -63,7 +63,6 @@
     </p>
     <p class="lead">
       <a href="" class="btn btn-lg btn-light fw-bold border-white bg-white">Learn more</a>
-      <a @click="checkRounds" class="btn btn-lg btn-light fw-bold border-white bg-white">Check Rounds!</a>
     </p>
   </main>
 </template>
@@ -99,7 +98,7 @@ export default {
     },
     async fetchUsername() {
       try {
-        const response = await api.get("user/whoami/", { withCredentials: true });
+        const response = await api.get("user/whoami/");
         this.username = response.data.username; // Replace with your actual response structure
       } catch (error) {
         console.error(

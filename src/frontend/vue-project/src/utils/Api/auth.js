@@ -23,7 +23,6 @@ export async function refreshAuthToken() {
   try {
     const response = await api.post(
       '/user/token/refresh/',
-      { withCredentials: true } // Ensure cookies are sent with the request
     );
 
     const newAccessToken = response.data.access;
@@ -49,7 +48,6 @@ export async function checkAndRefreshToken() {
       setAuthHeader();
       const response = await api.post('/user/token/verify/', {
         token: accessToken,
-        withCredentials: true
       });
 
       if (response.status === 200) {

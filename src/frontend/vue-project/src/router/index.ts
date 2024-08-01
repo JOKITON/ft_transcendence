@@ -6,6 +6,7 @@ import Home from '../views/private/Home.vue'
 
 import { checkAndRefreshToken } from '../utils/Api/auth'
 import Pong from '../views/private/Pong/Pong.vue'
+import UserList from '../views/private/UserList.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,7 +19,7 @@ const router = createRouter({
     { path: '/register', component: Register },
     { path: '/home', component: Home, meta: { requiresAuth: true } },
     { path: '/pong', component: Pong },
-    // { path: '/friend-list', name: 'FriendList', component: FriendList, meta: { requiresAuth: true } },
+    { path: '/user-list', name: 'userList', component: UserList, meta: { requiresAuth: true } },
     // { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
   ]
 })

@@ -6,8 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from django.contrib.auth.models import User
-from .serializers import UserSerializer, UserRegistrationSerializer, UserLoginSerializer
+from .serializers import UserRegistrationSerializer, UserLoginSerializer
 import logging
 
 logger = logging.getLogger(__name__)
@@ -127,14 +126,3 @@ class ChangePassword(APIView):
         request.user.save()
 
         return Response({'message': 'Password changed successfully', 'status': 'success'}, status=status.HTTP_200_OK)
-
-
-class UserListView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]  # Require authentication
-
-class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]  # Require authentication
