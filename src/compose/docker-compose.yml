@@ -29,17 +29,16 @@ services:
     - frontend
     restart: always
     volumes:
-      - vue_volume:/home/app/web/static/
-      - vue_volume:/home/app/web/media/
+      - frontend_static:/vue-project/src/
 
 networks:
   frontend:
     external: true
 
 volumes:
-  vue_volume:
+  frontend_static:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../../volumes/frontend/
+      device: ../frontend/vue-project/src/

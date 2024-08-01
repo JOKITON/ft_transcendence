@@ -11,7 +11,7 @@ DOCKER_IMAGES_BACKEND = $(addprefix ft_transcendence_backend-,$(IMAGES_BACKEND))
 DOCKER_IMAGES_METRICS = $(addprefix ft_transcendence_metrics-,$(IMAGES_METRICS))
 # Add here the container names
 IMAGES = vue reverse-proxy
-IMAGES_BACKEND = keys admin pong database
+IMAGES_BACKEND = keys admin pong database api
 IMAGES_METRICS = grafana prometheus
 
 # Check if docker-compose exists
@@ -30,24 +30,19 @@ COMPOSE_METRICS = src/compose/docker-compose-metrics.yml
 
 COMPOSE_BACKEND = src/compose/docker-compose-backend.yml
 
-VOLUMES = volumes/backend/db volumes/frontend/static volumes/frontend/media volumes/metrics/prometheus volumes/metrics/grafana volumes/backend/jwt_auth_keys
-
 NETWORKS = networks/frontend networks/metrics
 
 .PHONY: all build down clean
 
 all : up
 
-$(VOLUMES) :
-	@mkdir -p $(VOLUMES)
-
 $(NETWORKS) :
 	@$(DOCKER) network create metrics
 	@$(DOCKER) network create frontend
 	mkdir networks
-	touch networks/metrics networks/frontend
+	touch $(NETWORKS)
 
-up : $(VOLUMES) $(NETWORKS)
+up : $(NETWORKS)
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) up --build -d  --remove-orphans
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
@@ -69,7 +64,6 @@ clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES_METRICS)
 	@$(DOCKER) network prune --force
 	@$(DOCKER) image prune --force
-	@sudo rm -rf $(VOLUMES)
 
 re: down clean up
 

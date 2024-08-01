@@ -27,13 +27,12 @@ services:
     env_file: ../backend/.env-django
     restart: always
     volumes:
-      - shared_models:/app/shared_models
+      - shared_models:/usr/src/app/shared_models
     networks:
       - backend
       - frontend
     depends_on:
       - keys
-      - admin
 
   admin:
     container_name: admin
@@ -48,6 +47,7 @@ services:
       - frontend
       - backend
     depends_on:
+      - api
       - keys
 
   pong:
@@ -89,17 +89,7 @@ networks:
 
 volumes:
   db-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../../volumes/backend/db
   jwt_auth_keys:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../../volumes/backend/jwt_auth_keys
   shared_models:
     driver: local
     driver_opts:

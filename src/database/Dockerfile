@@ -2,6 +2,8 @@ FROM postgres:alpine3.20
 
 EXPOSE 5432
 
+WORKDIR /var/lib/postgresql
+
 # Add schema creation script
 COPY ./init_db.sh /docker-entrypoint-initdb.d/
 RUN chmod +x /docker-entrypoint-initdb.d/init_db.sh
