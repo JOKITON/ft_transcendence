@@ -1,10 +1,11 @@
 import type IPlayer from './interfaces/IPlayer';
 import Box from './Objects/Box';
-import { Color, Vector3 } from 'three';
+import Sphere from './Objects/Sphere';
+import { Sphere as ThreeSphere, BoxGeometry, Color, Vector3 } from 'three';
 
 export default class Player extends Box implements IPlayer {
-  private score: number = 0;
   private name: string = 'NPC';
+  private score: number = 0;
   private up: string;
   private down: string;
   private keys: Set<string> = new Set();
@@ -12,11 +13,11 @@ export default class Player extends Box implements IPlayer {
   private keyupListener: (event: KeyboardEvent) => void;
 
   constructor(
-    geometry: Vector3 = new Vector3(0.2, 2, 0),
-    color: Color = new Color(),
-    position: Vector3 = new Vector3(16, 0.2, 0),
-    up: string = 'ArrowUp',
-    down: string = 'ArrowDown'
+    geometry: Vector3,
+    color: Color,
+    position: Vector3 ,
+    up: string,
+    down: string
   ) {
     super(geometry, color, position);
     this.down = down;
@@ -77,5 +78,17 @@ export default class Player extends Box implements IPlayer {
     window.removeEventListener('keyup', this.keyupListener);
     
     console.log('Player disposed');
+  }
+
+  public getBoundingSphere(): ThreeSphere {
+    const size = (this.mesh.geometry as BoxGeometry).parameters;
+    const radius = Math.sqrt(size.width ** 2 + size.height ** 2 + size.depth ** 2) / 2;
+    return new ThreeSphere(this.mesh.position, radius);
+  }
+
+  public intersects(other: Sphere): boolean {
+    const playerSphere = this.getBoundingSphere();
+    const ballSphere = other.getBoundingSphere();
+    return playerSphere.intersectsSphere(ballSphere);
   }
 }

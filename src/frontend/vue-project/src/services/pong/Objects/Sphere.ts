@@ -1,11 +1,11 @@
-import { Color, Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three';
+import { Color, Mesh, MeshBasicMaterial, SphereGeometry, Vector3, Sphere as ThreeSphere } from 'three';
+import Player from './../Player'
 
 export default class Sphere {
   protected mesh: Mesh;
   protected material: MeshBasicMaterial;
   protected geometry: SphereGeometry;
   protected velocity: Vector3;
-  protected initialPos: Vector3;
 
   // Define the game area boundaries
   private readonly minX: number;
@@ -41,34 +41,28 @@ export default class Sphere {
     return this.mesh;
   }
 
-  update(): void {
-    // Update velocity based on acceleration
-    // this.velocity.add(this.acceleration);
-
+  update(): number {
     // Update position based on velocity
     this.mesh.position.add(this.velocity);
 
     // Check for collisions with boundaries and reverse velocity if needed
-    this.checkCollisions();
+    return (this.checkCollisions());
   }
 
-  private checkCollisions(): void {
+  private checkCollisions(): number {
     // Check collisions with the X boundaries
-    // console.log(this.mesh.position.x);
     if (this.mesh.position.x <= this.minX) {
-      this.mesh.position.x = this.minX;
       this.velocity.x *= -1;
+      return 1;
     } else if (this.mesh.position.x >= this.maxX) {
-      this.mesh.position.x = this.maxX;
       this.velocity.x *= -1;
+      return 2;
     }
 
     // Check collisions with the Y boundaries
     if (this.mesh.position.y <= this.minY) {
-      this.mesh.position.y = this.minY;
       this.velocity.y *= -1;
     } else if (this.mesh.position.y >= this.maxY) {
-      this.mesh.position.y = this.maxY;
       this.velocity.y *= -1;
     }
 
@@ -80,5 +74,30 @@ export default class Sphere {
       this.mesh.position.z = this.maxZ;
       this.velocity.z *= -1;
     }
+    return 0;
+  }
+
+  // Create a bounding sphere for collision detection
+  public getBoundingSphere(): ThreeSphere {
+    // Assume the sphere radius is the same as its geometry's radius
+    const radius = (this.geometry as SphereGeometry).parameters.radius;
+    return new ThreeSphere(this.mesh.position, radius);
+  }
+
+  // Check if this sphere intersects with another sphere
+  public intersects(other: Player): boolean {
+    const thisSphere = this.getBoundingSphere();
+    const otherSphere = other.getBoundingSphere();
+    return thisSphere.intersectsSphere(otherSphere);
+  }
+
+  public invertVelocity(velocity: number) {
+    this.velocity.x *= velocity;
+  }
+
+  public goMiddle() {
+    this.mesh.position.x = 0
+    this.mesh.position.y = 0
+    this.mesh.position.z = 0
   }
 }
