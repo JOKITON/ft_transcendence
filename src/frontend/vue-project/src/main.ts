@@ -1,5 +1,4 @@
 import './assets/css/styles.css'
-import { api } from './utils/Api/auth' // Import the functions from utils/auth.js
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'

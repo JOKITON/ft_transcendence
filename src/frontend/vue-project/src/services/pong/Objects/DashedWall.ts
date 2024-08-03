@@ -1,10 +1,11 @@
-import { Color, LineSegments, LineDashedMaterial, BufferGeometry, Float32BufferAttribute, Vector3 } from 'three';
+import { Mesh, Color, LineSegments, LineDashedMaterial, BufferGeometry, Vector3 } from 'three';
 import type IObject from '../interfaces/IObject';
 
 export default class DashedLine implements IObject {
   protected line: LineSegments;
   protected material: LineDashedMaterial;
   protected geometry: BufferGeometry;
+  protected mesh: Mesh;
 
   constructor(
     points: Vector3[] = [new Vector3(0.2, -1, 0.2), new Vector3(0.2, 1, 0.2)],

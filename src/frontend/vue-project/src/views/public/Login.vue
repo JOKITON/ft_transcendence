@@ -81,7 +81,6 @@ export default {
         // Check if error.response exists
         if (error.response) {
           // Extract error messages
-          const status = error.response.status;
           const message = error.response.data.message || 'An error occurred.';
           const errors = error.response.data.errors || {};
 

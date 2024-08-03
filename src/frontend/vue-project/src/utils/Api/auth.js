@@ -1,5 +1,4 @@
 // utils/auth.js
-import Cookies from 'js-cookie'
 import api from './api'
 
 export function setAuthHeader() {
@@ -62,7 +61,7 @@ export async function checkAndRefreshToken() {
     switch (response.data.code) {
       case 'expired':
         console.log('Token expired. Attempting to refresh.');
-        const refreshed = await refreshAuthToken();
+        let refreshed = await refreshAuthToken();
         return refreshed;
 
       case 'token_not_valid':
