@@ -52,10 +52,14 @@ export default class Sphere {
   private checkCollisions(): number {
     // Check collisions with the X boundaries
     if (this.mesh.position.x <= this.minX) {
+      this.velocity.x = -0.15;
       this.velocity.x *= -1;
+      this.goMiddle();
       return 1;
     } else if (this.mesh.position.x >= this.maxX) {
+      this.velocity.x = 0.15;
       this.velocity.x *= -1;
+      this.goMiddle();
       return 2;
     }
 
@@ -99,5 +103,14 @@ export default class Sphere {
     this.mesh.position.x = 0
     this.mesh.position.y = 0
     this.mesh.position.z = 0
+  }
+
+  public speedUp(speed: number) {
+    if (Math.abs(this.velocity.x) > 1)
+      return ;
+    if (this.velocity.x < 0)
+      this.velocity.x -= speed;
+    else
+      this.velocity.x += speed;
   }
 }
