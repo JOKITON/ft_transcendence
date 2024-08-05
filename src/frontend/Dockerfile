@@ -6,7 +6,7 @@
 #    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/07/29 22:21:15 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/08/04 14:59:12 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,4 +24,4 @@ COPY frontend .
 
 RUN npm update vite && npm i
 
-CMD npm --prefix /frontend/frontend run dev -- --host
+CMD npm  run dev -- --host

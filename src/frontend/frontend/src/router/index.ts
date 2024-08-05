@@ -1,12 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Index from '../views/public/Index.vue'
-import Login from '../views/public/Login.vue'
-import Register from '../views/public/Register.vue'
-import Home from '../views/private/Home.vue'
+import RegisterForm from '../components/Registerform.vue'
 
-import { checkAndRefreshToken } from '../services/Api/auth'
 import Pong from '../views/private/Pong/Pong.vue'
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   /*
@@ -14,9 +10,7 @@ const router = createRouter({
    **/
   routes: [
     { path: '/', component: Index },
-    { path: '/login', component: Login },
-    { path: '/register', component: Register },
-    { path: '/home', component: Home, meta: { requiresAuth: true } },
+    { path: '/register', component: RegisterForm },
     { path: '/pong', component: Pong }
     // { path: '/friend-list', name: 'FriendList', component: FriendList, meta: { requiresAuth: true } },
     // { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },

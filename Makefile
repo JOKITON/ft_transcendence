@@ -23,8 +23,10 @@ $(VOLUMES) :
 
 up : $(VOLUMES)
 	# esto se puede definir con yaml mucho mejor
-	$(DOCKER) -f $(COMPOSE) -f $(COMPOSE_BACKEND)   up --build -d  --remove-orphans
+	$(DOCKER) -f $(COMPOSE) up --build -d  --remove-orphans
 	
+down:
+	$(DOCKER) -f $(COMPOSE) down --volumes --remove-orphans --rmi all
 
 logs:
 	$(DOCKER) -f $(COMPOSE) logs
@@ -36,8 +38,6 @@ logs-backend:
 logs-metrics:
 	$(DOCKER) -f $(COMPOSE_METRICS) logs
 
-down:
-	$(DOCKER) -f $(COMPOSE) -f $(COMPOSE_BACKEND)   down --volumes --remove-orphans --rmi all
 clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES)
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES_BACKEND)
