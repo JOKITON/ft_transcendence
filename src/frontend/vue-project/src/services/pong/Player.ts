@@ -5,23 +5,23 @@ import { Sphere as ThreeSphere, BoxGeometry, Color, Vector3 } from 'three';
 
 export default class Player extends Box implements IPlayer {
   private name: string = 'NPC';
+  private position: Vector3;
   private score: number = 0;
   private up: string;
   private down: string;
   private keys: Set<string> = new Set();
-  private keydownListener: (event: KeyboardEvent) => void;
-  private keyupListener: (event: KeyboardEvent) => void;
 
   constructor(
     geometry: Vector3,
     color: Color,
-    position: Vector3 ,
+    position: Vector3,
     up: string,
     down: string
   ) {
     super(geometry, color, position);
-    this.down = down;
+    this.position = position;
     this.up = up;
+    this.down = down;
     this.setupEventListeners();
   }
 
@@ -42,22 +42,31 @@ export default class Player extends Box implements IPlayer {
   }
 
   private setupEventListeners(): void {
-    this.keydownListener = (event: KeyboardEvent) => {
-      this.keys.add(event.key);
-    };
+    window.addEventListener('keydown', this.handleKeyDown);
+    window.addEventListener('keyup', this.handleKeyUp);
+  }
 
-    this.keyupListener = (event: KeyboardEvent) => {
-      this.keys.delete(event.key);
-    };
+  private handleKeyDown = (event: KeyboardEvent): void => {
+    if (event.code === this.up) {
+      this.keys.add(this.up);
+    } else if (event.code === this.down) {
+      this.keys.add(this.down);
+    }
+  }
 
-    window.addEventListener('keydown', this.keydownListener);
-    window.addEventListener('keyup', this.keyupListener);
+  private handleKeyUp = (event: KeyboardEvent): void => {
+    if (event.code === this.up) {
+      this.keys.delete(this.up);
+    } else if (event.code === this.down) {
+      this.keys.delete(this.down);
+    }
   }
 
   update(): void {
     if (this.keys.has(this.up) && this.mesh.position.y < 6) {
       this.moveUp(0.4);
-    } else if (this.keys.has(this.down) && this.mesh.position.y > -6) {
+    } 
+    if (this.keys.has(this.down) && this.mesh.position.y > -6) {
       this.moveDown(0.4);
     }
   }
@@ -66,7 +75,7 @@ export default class Player extends Box implements IPlayer {
     // Dispose of geometry and material
     if (this.mesh.geometry) this.mesh.geometry.dispose();
     if (this.mesh.material) {
-      if (this.mesh.material instanceof Array) {
+      if (Array.isArray(this.mesh.material)) {
         this.mesh.material.forEach(mat => mat.dispose());
       } else {
         this.mesh.material.dispose();
@@ -74,8 +83,8 @@ export default class Player extends Box implements IPlayer {
     }
 
     // Remove event listeners
-    window.removeEventListener('keydown', this.keydownListener);
-    window.removeEventListener('keyup', this.keyupListener);
+    window.removeEventListener('keydown', this.handleKeyDown);
+    window.removeEventListener('keyup', this.handleKeyUp);
     
     console.log('Player disposed');
   }
@@ -90,5 +99,11 @@ export default class Player extends Box implements IPlayer {
     const playerSphere = this.getBoundingSphere();
     const ballSphere = other.getBoundingSphere();
     return playerSphere.intersectsSphere(ballSphere);
+  }
+
+  public returnToPlace() {
+    this.mesh.position.x = (this.position.x);
+    this.mesh.position.y = (this.position.y);
+    this.mesh.position.z = (this.position.z);
   }
 }

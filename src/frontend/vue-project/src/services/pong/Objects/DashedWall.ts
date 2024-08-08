@@ -8,10 +8,11 @@ export default class DashedLine implements IObject {
   protected mesh: Mesh;
 
   constructor(
-    points: Vector3[] = [new Vector3(0.2, -1, 0.2), new Vector3(0.2, 1, 0.2)],
+    points: Vector3[],
     color: Color = new Color(0xffffff),
     dashSize: number = 1,
-    gapSize: number = 0.5
+    gapSize: number = 0.5,
+    lineWidth: number = 1,
   ) {
     this.geometry = new BufferGeometry().setFromPoints(points);
     
@@ -19,7 +20,7 @@ export default class DashedLine implements IObject {
       color: color,
       dashSize: dashSize,
       gapSize: gapSize,
-      linewidth: 2 // Line width (optional)
+      linewidth: lineWidth // Line width (optional)
     });
 
     this.line = new LineSegments(this.geometry, this.material);

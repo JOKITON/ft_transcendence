@@ -1,13 +1,9 @@
-import { Color, Mesh, MeshPhongMaterial, Vector3, font } from 'three';
+import { Color, Mesh, MeshPhongMaterial, Vector3 } from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
-const depth = 20,
-  size = 70,
-  curveSegments = 4,
-  bevelThickness = 2,
-  bevelSize = 1.5,
-  bevelEnabled = true;
+const depth = 0,
+  size = 1;
 
 export default class Score {
   private mesh: Mesh;
@@ -16,7 +12,7 @@ export default class Score {
   private textGeometry?: TextGeometry;
 
   constructor(score: string, color: Color, initialPos: Vector3) {
-    this.material = new MeshPhongMaterial({ color, flatShading: true });
+    this.material = new MeshPhongMaterial({ color });
     this.mesh = new Mesh(); // Initialize mesh without geometry
     this.mesh.position.set(initialPos.x, initialPos.y, initialPos.z);
 
@@ -30,7 +26,7 @@ export default class Score {
     return new Promise<void>((resolve, reject) => {
       const loader = new FontLoader();
       loader.load(
-        'fonts/Roboto.json', // Font URL
+        './fonts/Roboto.json', // Font URL
         (font) => {
           this.font = font;
           resolve();
@@ -55,11 +51,7 @@ export default class Score {
     this.textGeometry = new TextGeometry(score, {
       font: this.font,
       size: size,
-      height: depth,
-      curveSegments: curveSegments,
-      bevelThickness: bevelThickness,
-      bevelSize: bevelSize,
-      bevelEnabled: bevelEnabled
+      depth: depth,
     });
 
     // Update mesh with new geometry
@@ -67,11 +59,15 @@ export default class Score {
     this.mesh.material = this.material;
   }
 
-  public updateScore(score: string) {
-    this.updateText(score);
+  public updateScore(score: number) {
+    this.updateText(score.toString());
   }
 
   public get(): Mesh {
     return this.mesh;
+  }
+
+  public update() {
+
   }
 }
