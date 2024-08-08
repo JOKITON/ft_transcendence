@@ -14,7 +14,7 @@ const three = new ThreeService(window.innerWidth, window.innerHeight)
 const bounds = { minX: -16.2, maxX: 16.2, minY: -6.2, maxY: 6.2, minZ: 0, maxZ: 0 }
 
 const ballVectorY = Math.random() * 0.2 - 0.1;
-const ball = new Sphere(new Vector3(0.33, 10, 10), new Color('white'), new Vector3(0, 0, 0), new Vector3(0.15, ballVectorY, 0), bounds)
+const ball = new Sphere(new Vector3(0.33, 10, 10), new Color('white'), new Vector3(0, 0, 0), new Vector3(0.05, ballVectorY, 0), bounds)
 
 const horizWallUp = new Player(new Vector3(33, 0.2, 0), new Color(), new Vector3(0, 7, 0))
 const horizWallDown = new Player(new Vector3(33, 0.2, 0), new Color(), new Vector3(0, -7, 0))

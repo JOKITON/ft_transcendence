@@ -64,10 +64,10 @@ export default class Player extends Box implements IPlayer {
 
   update(): void {
     if (this.keys.has(this.up) && this.mesh.position.y < 6) {
-      this.moveUp(0.4);
+      this.moveUp(0.15);
     } 
     if (this.keys.has(this.down) && this.mesh.position.y > -6) {
-      this.moveDown(0.4);
+      this.moveDown(0.15);
     }
   }
 
