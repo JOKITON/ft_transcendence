@@ -30,14 +30,16 @@ export default class ThreeService {
   }
 
   removeScene(mesh: Mesh): void {
-    if (this.scene.contains(mesh)) {
+    // Check if the scene contains the mesh
+    if (this.scene.children.includes(mesh)) {
       this.scene.remove(mesh);
     }
-
+  
+    // Dispose of the mesh's geometry and material
     if (mesh.geometry) {
       mesh.geometry.dispose();
     }
-
+  
     if (mesh.material) {
       if (Array.isArray(mesh.material)) {
         mesh.material.forEach(mat => mat.dispose());
@@ -46,6 +48,7 @@ export default class ThreeService {
       }
     }
   }
+  
 
   resize(width: number, height: number): void {
     this.camera.aspect = width / height;
@@ -72,15 +75,30 @@ export default class ThreeService {
   }
 
   dispose(): void {
-    // Clean up all objects in the scene
-    this.scene.children.forEach(child => {
-      if (child instanceof Mesh) {
-        this.removeScene(child);
+    try {
+      if (this.scene) {
+        this.scene.children.forEach(child => {
+          if (child instanceof Mesh) {
+            this.removeScene(child);
+          }
+        });
       }
-    });
-
-    // Dispose of the renderer and remove its canvas
-    this.renderer.dispose();
-    document.body.removeChild(this.renderer.domElement);
+    } catch (error) {
+      console.error('Error disposing scene objects:', error);
+    }
+  
+    try {
+      if (this.renderer) {
+        this.renderer.dispose();
+        if (this.renderer.domElement) {
+          document.body.removeChild(this.renderer.domElement);
+        }
+      }
+    } catch (error) {
+      console.error('Error disposing renderer:', error);
+    }
   }
+  
+  
+  
 }

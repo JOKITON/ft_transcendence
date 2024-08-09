@@ -113,4 +113,17 @@ export default class Sphere {
     else
       this.velocity.x += speed;
   }
+
+  dispose(): void {
+    // Dispose of geometry and material
+    if (this.mesh.geometry) this.mesh.geometry.dispose();
+    if (this.mesh.material) {
+      if (Array.isArray(this.mesh.material)) {
+        this.mesh.material.forEach(mat => mat.dispose());
+      } else {
+        this.mesh.material.dispose();
+      }
+    }
+    console.log('Ball disposed');
+  }
 }

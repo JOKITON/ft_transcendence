@@ -99,6 +99,9 @@ onMounted(() => {
 onBeforeUnmount(() => {
   three.stopAnimation()
   three.dispose()
+  player.dispose()
+  player2.dispose()
+  ball.dispose()
 })
 </script>
 
