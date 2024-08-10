@@ -22,7 +22,8 @@ export function handleCollisions(ball : Sphere, player: Player, player2 : Player
     const collisionDetected = checkCollisions(ball, player, player2);
     
     if (collisionDetected) {
-	  ball.speedUp(0.025);
+      console.log('Colission detected!');
+	    ball.speedUp(0.025);
       collisionAmounts++;
       // Increase interval if collisions are frequent
       collisionCheckInterval = 100;

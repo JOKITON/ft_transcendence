@@ -3,6 +3,7 @@ import { onMounted, onBeforeUnmount, ref } from 'vue'
 import { Vector3, Color } from 'three'
 import ThreeService from '../../../services/pong/ThreeService'
 import Player from '../../../services/pong/Player'
+import Wall from '../../../services/pong/Wall'
 import Sphere from '../../../services/pong/Objects/Sphere'
 import DashedWall from '../../../services/pong/Objects/DashedWall'
 import Score from '../../../services/pong/Objects/Score'
@@ -13,15 +14,26 @@ const three = new ThreeService(window.innerWidth, window.innerHeight)
 // Define bounds of the Pong game
 const bounds = { minX: -16.2, maxX: 16.2, minY: -6.2, maxY: 6.2, minZ: 0, maxZ: 0 }
 
+// Ball object
 const ballVectorY = Math.random() * 0.2 - 0.1;
-const ball = new Sphere(new Vector3(0.33, 10, 10), new Color('white'), new Vector3(0, 0, 0), new Vector3(0.05, ballVectorY, 0), bounds)
+const ballVelocity = new Vector3(0.15, ballVectorY, 0)
+const ballGeometry = [
+  0.33, // radius
+  10, // widthSegments
+  10 // heightSegments
+]
+const ball = new Sphere(ballGeometry, new Color('white'), new Vector3(0, 0, 0), ballVelocity, bounds)
 
-const horizWallUp = new Player(new Vector3(33, 0.2, 0), new Color(), new Vector3(0, 7, 0))
-const horizWallDown = new Player(new Vector3(33, 0.2, 0), new Color(), new Vector3(0, -7, 0))
+// Horizontal walls
+const vecHorizWall = new Vector3(33, 0.2, 0)
+const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 7, 0), new Color())
+const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -7, 0), new Color())
 
-const vectorLine = [new Vector3(0, -7, 0.05), new Vector3(0, 7, 0.05)]
-const vertWallMid = new DashedWall(vectorLine, new Color('white'), 0.33, 0.5, 10)
+// Vertical dashed wall
+const vecWallMid = [new Vector3(0, -7, 0.05), new Vector3(0, 7, 0.05)]
+const wallMid = new DashedWall(vecWallMid, new Color('white'), 0.33, 0.5, 10)
 
+// Player objects
 const player = new Player(new Vector3(0.4, 2, 0.5), new Color('red'), new Vector3(16, 0, 0), 'ArrowUp', 'ArrowDown')
 const player2 = new Player(new Vector3(0.4, 2, 0.5), new Color('blue'), new Vector3(-16, 0, 0), 'KeyW', 'KeyS')
 
@@ -33,7 +45,7 @@ const scorePlayer2 = new Score('0', new Color('white'), new Vector3(1.5, 5, 0));
 function setupScene() {
   three.addScene(horizWallUp.get())
   three.addScene(horizWallDown.get())
-  three.addScene(vertWallMid.get())
+  three.addScene(wallMid.get())
   three.addScene(player.get())
   three.addScene(player2.get())
   three.addScene(ball.get())

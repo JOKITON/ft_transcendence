@@ -6,6 +6,7 @@ export default class Sphere {
   protected material: MeshBasicMaterial;
   protected geometry: SphereGeometry;
   protected velocity: Vector3;
+  protected inVelocity: number;
 
   // Define the game area boundaries
   private readonly minX: number;
@@ -16,17 +17,18 @@ export default class Sphere {
   private readonly maxZ: number;
 
   constructor(
-    vector: Vector3,
+    vector: Array<number>,
     color: Color,
     initialPos: Vector3,
     velocity: Vector3,
     bounds: { minX: number, maxX: number, minY: number, maxY: number, minZ: number, maxZ: number }
   ) {
-    this.geometry = new SphereGeometry(vector.x, vector.y, vector.z);
+    this.geometry = new SphereGeometry(vector[0], vector[1], vector[2]);
     this.material = new MeshBasicMaterial({ color });
     this.mesh = new Mesh(this.geometry, this.material);
     this.mesh.position.set(initialPos.x, initialPos.y, initialPos.z);
     this.velocity = velocity;
+    this.inVelocity = velocity.x;
 
     // Set boundaries for the game area
     this.minX = bounds.minX;
@@ -52,12 +54,12 @@ export default class Sphere {
   private checkCollisions(): number {
     // Check collisions with the X boundaries
     if (this.mesh.position.x <= this.minX) {
-      this.velocity.x = -0.15;
+      this.velocity.x = this.inVelocity;
       this.velocity.x *= -1;
       this.goMiddle();
       return 1;
     } else if (this.mesh.position.x >= this.maxX) {
-      this.velocity.x = 0.15;
+      this.velocity.x = this.inVelocity;
       this.velocity.x *= -1;
       this.goMiddle();
       return 2;
