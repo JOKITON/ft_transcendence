@@ -4,6 +4,4 @@ export default interface IObject {
   mesh: Mesh
   material: MeshStandardMaterial | MeshBasicMaterial
   get(): Mesh
-  moveUp(y: number): void
-  moveDown(y: number): void
 }

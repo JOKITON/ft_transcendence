@@ -2,8 +2,8 @@ import { Object3D, Scene, PerspectiveCamera, WebGLRenderer, Mesh } from 'three';
 import { AmbientLight, DirectionalLight } from 'three';
 
 const ambientLight = new AmbientLight(0xffffff, 0.5); // Ambient light with a low intensity
-const directionalLight = new DirectionalLight(0xffffff, 1); // Directional light with a high intensity
-directionalLight.position.set(10, 10, 10).normalize();
+const directionalLight = new DirectionalLight(0xffffff, 2); // Directional light with a high intensity
+directionalLight.position.set(0, 5, 10).normalize();
 
 export default class ThreeService {
   private scene: Scene;

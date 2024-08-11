@@ -2,16 +2,12 @@ import Box from './Objects/Box';
 import { Color, Vector3 } from 'three';
 
 export default class Wall extends Box {
-  private name: string = 'NPC';
-  private position: Vector3;
-
   constructor(
     geometry: Vector3,
     position: Vector3,
     color: Color,
   ) {
     super(geometry, color, position);
-    this.position = position;
   }
 
   dispose(): void {

@@ -56,12 +56,12 @@ export default class Sphere {
     if (this.mesh.position.x <= this.minX) {
       this.velocity.x = this.inVelocity;
       this.velocity.x *= -1;
-      this.goMiddle();
+      this.setPosition(new Vector3(0, 0, 0));
       return 1;
     } else if (this.mesh.position.x >= this.maxX) {
       this.velocity.x = this.inVelocity;
       this.velocity.x *= -1;
-      this.goMiddle();
+      this.setPosition(new Vector3(0, 0, 0));
       return 2;
     }
 
@@ -101,10 +101,10 @@ export default class Sphere {
     this.velocity.x *= velocity;
   }
 
-  public goMiddle() {
-    this.mesh.position.x = 0
-    this.mesh.position.y = 0
-    this.mesh.position.z = 0
+  public setPosition(pos: Vector3) {
+    this.mesh.position.x = pos.x;
+    this.mesh.position.y = pos.y;
+    this.mesh.position.z = pos.z;
   }
 
   public speedUp(speed: number) {

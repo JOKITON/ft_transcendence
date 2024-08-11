@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { Vector3, Color } from 'three'
+import { Mesh, Vector3, Color } from 'three'
 import ThreeService from '../../../services/pong/ThreeService'
 import Player from '../../../services/pong/Player'
 import Wall from '../../../services/pong/Wall'
@@ -25,22 +25,27 @@ const ballGeometry = [
 const ball = new Sphere(ballGeometry, new Color('white'), new Vector3(0, 0, 0), ballVelocity, bounds)
 
 // Horizontal walls
-const vecHorizWall = new Vector3(33, 0.2, 0)
-const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 7, 0), new Color())
-const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -7, 0), new Color())
+const vecHorizWall = new Vector3(33, 0.3, 1)
+const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 7, 0), new Color('white'))
+const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -7, 0), new Color('white'))
 
 // Vertical dashed wall
-const vecWallMid = [new Vector3(0, -7, 0.05), new Vector3(0, 7, 0.05)]
-const wallMid = new DashedWall(vecWallMid, new Color('white'), 0.33, 0.5, 10)
+const vecWallMid = [new Vector3(0, -7, -0.05), new Vector3(0, 7, -0.05)]
+const dashedLine = [
+  10, // lineWidth
+  0.66, // dashSize
+  0.5, // gapSize
+]
+const wallMid = new DashedWall(vecWallMid, new Color('green'), dashedLine)
 
 // Player objects
-const player = new Player(new Vector3(0.4, 2, 0.5), new Color('red'), new Vector3(16, 0, 0), 'ArrowUp', 'ArrowDown')
-const player2 = new Player(new Vector3(0.4, 2, 0.5), new Color('blue'), new Vector3(-16, 0, 0), 'KeyW', 'KeyS')
+const player = new Player(new Vector3(0.4, 2, 0.5), new Color('red'), new Vector3(15, 0, 0), 'ArrowUp', 'ArrowDown')
+const player2 = new Player(new Vector3(0.4, 2, 0.5), new Color('blue'), new Vector3(-15, 0, 0), 'KeyW', 'KeyS')
 
 let numScorePlayerOne = 0;
 let numScorePlayerTwo = 0;
-const scorePlayer1 = new Score('0', new Color('white'), new Vector3(-2.2, 5, 0));
-const scorePlayer2 = new Score('0', new Color('white'), new Vector3(1.5, 5, 0));
+const scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 5, 0));
+const scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 5, 0));
 
 function setupScene() {
   three.addScene(horizWallUp.get())
@@ -65,11 +70,13 @@ function update() {
     if ( check == playerOneLost ) {
       console.log('Player 1 lost!');
       scorePlayer1.updateScore(numScorePlayerOne + 1);
+      blinkObject(scorePlayer1.get());
       numScorePlayerOne += 1;
     }
     else if ( check == playerTwoLost ) {
       console.log('Player 2 lost!');
       scorePlayer2.updateScore(numScorePlayerTwo + 1);
+      blinkObject(scorePlayer2.get());
       numScorePlayerTwo += 1;
     }
     else
@@ -86,6 +93,25 @@ function update() {
   // Check if anything is colliding
   handleCollisions(ball, player, player2);
 }
+
+function blinkObject(mesh: Mesh) {
+  let visible = true; // Track the visibility state
+  const blinkDuration = 800; // Total duration for the blinking effect
+  const blinkInterval = 200; // Interval between visibility toggles
+
+  // Set an interval to toggle visibility
+  const intervalId = setInterval(() => {
+    visible = !visible;
+    mesh.visible = visible; // Toggle the visibility
+
+    // After the total blink duration, clear the interval
+    setTimeout(() => {
+      clearInterval(intervalId);
+      mesh.visible = true; // Ensure the mesh is visible after blinking
+    }, blinkDuration);
+  }, blinkInterval);
+}
+
 
 function returnObjectsToPlace() {
   player.returnToPlace();
@@ -114,6 +140,8 @@ onBeforeUnmount(() => {
   player.dispose()
   player2.dispose()
   ball.dispose()
+  scorePlayer1.dispose()
+  scorePlayer2.dispose()
 })
 </script>
 
