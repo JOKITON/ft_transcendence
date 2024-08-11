@@ -57,6 +57,7 @@ import NavIndex from '../views/public/NavIndex.vue'
 import type UserRequest from '@/services/User/Model/UserRequest'
 import type UserResponse from '@/services/User/Model/UserResponse'
 import Api from '../utils/Api/Api'
+import { useRouter } from 'vue-router'
 
 const form = ref<UserRequest>({
   username: '',
@@ -76,6 +77,8 @@ const handleSubmit = async (): Promise<void> => {
       password: '',
       email: ''
     }
+    const router = useRouter()
+    router.push('login')
   } catch (error: any) {
     console.error('An error occurred while submitting the form:', error)
     error.value = 'An error occurred while submitting the form'

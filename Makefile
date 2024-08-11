@@ -24,6 +24,7 @@ $(VOLUMES) :
 up : $(VOLUMES)
 	# esto se puede definir con yaml mucho mejor
 	$(DOCKER) -f $(COMPOSE) up --build -d  --remove-orphans
+
 	
 down:
 	$(DOCKER) -f $(COMPOSE) down --volumes --remove-orphans --rmi all
@@ -50,9 +51,9 @@ re: down up
 
 curl: 
 	curl -X POST \
-		http://localhost/api/pong/rounds/ \
+		http://localhost/api/login \
 	 -H 'Content-Type: application/json' \
-  -d '{ "player1": "1", "player2": "2", "score1": 10, "score2": 8 }'
+	 -d '{ "username": "admin", "password": "admin"}'
 
 info:
 	@sudo docker ps

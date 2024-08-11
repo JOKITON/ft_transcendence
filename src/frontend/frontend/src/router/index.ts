@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Index from '../views/public/Index.vue'
 import RegisterForm from '../components/Registerform.vue'
+import Login from '../components/Login.vue'
 
 import Pong from '../views/private/Pong/Pong.vue'
 const router = createRouter({
@@ -9,9 +10,10 @@ const router = createRouter({
    * este es el enrutador, funciona igual que django es muy parecido
    **/
   routes: [
-    { path: '/', component: Index },
-    { path: '/register', component: RegisterForm },
-    { path: '/pong', component: Pong }
+    { path: '/', name: 'home', component: Index },
+    { path: '/register', name: 'register', component: RegisterForm },
+    { path: '/login', name: 'login', component: Login },
+    { path: '/pong', name: 'game', component: Pong }
     // { path: '/friend-list', name: 'FriendList', component: FriendList, meta: { requiresAuth: true } },
     // { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
   ]
