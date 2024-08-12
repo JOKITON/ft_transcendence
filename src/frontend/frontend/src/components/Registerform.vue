@@ -54,9 +54,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import NavIndex from '../views/public/NavIndex.vue'
-import type UserRequest from '@/services/User/Model/UserRequest'
-import type UserResponse from '@/services/User/Model/UserResponse'
+import type UserRequest from '@/Models/User/UserRequst'
+import type UserResponse from '@/Models/User/UserResponse'
 import Api from '../utils/Api/Api'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const apiInstance = new Api()
 
 const form = ref<UserRequest>({
   username: '',
@@ -65,16 +69,15 @@ const form = ref<UserRequest>({
 })
 
 const handleSubmit = async (): Promise<void> => {
-  const apiInstance = new Api()
   try {
-    console.log('Submitting form:', form.value)
-    const response = await apiInstance.post<UserResponse>('register', form.value)
-    console.log('Form submitted successfully:', response)
-    alert('Form submitted successfully!')
-    form.value = {
-      username: '',
-      password: '',
-      email: ''
+    console.debug('Submitting form:', form.value)
+
+    const response = await apiInstance.post<UserResponse>('register', form.value).then().catch()
+    if (response.status == 400) {
+      console.error('errror de registro')
+    } else {
+      console.log('Form submitted successfully:', response)
+      router.push('/login')
     }
   } catch (error: any) {
     console.error('An error occurred while submitting the form:', error)

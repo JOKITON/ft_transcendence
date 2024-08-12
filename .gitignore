@@ -4,4 +4,5 @@ package-lock.json
 volumes/
 venv/
 db/
+__pycache__/
 *.pem

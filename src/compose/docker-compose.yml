@@ -42,11 +42,11 @@ services:
 
   authentication:
     container_name: autentication
-    build: ../authentication/
+    build: ../backend/authentication/
     env_file: ../.env.dev
     restart: always
     volumes:
-      - ../authentication/:/autentication
+      - authentication:/authentication
     networks:
       - ft_transcendence
     depends_on:
@@ -72,9 +72,10 @@ volumes:
       type: none
       o: bind
       device: ../database/db
-  auth:
+
+  authentication:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../authentication
+      device: ../backend/authentication/authentication/

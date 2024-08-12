@@ -21,6 +21,14 @@ export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
     })
   }
 
+  public async setAuthHeader(token: string): Promise<void> {
+    this.api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+  }
+
+  public async removeAuthHeader(): Promise<void> {
+    this.api.defaults.headers.common['Authorization'] = ''
+  }
+
   public async get<Tresponse>(url: string, Params?: Record<string, any>): Promise<Tresponse> {
     try {
       console.log('url', url)
@@ -41,7 +49,7 @@ export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
     }
   }
 
-  public async delete(url: string, Params?: Record<string, any>): Promise<any> {
+  public async delete(url: string, Params?: Record<string, any>): Promise<any | Tresponse> {
     try {
       const response: AxiosResponse<Tresponse> = await this.api.post<Tresponse>(url, { Params })
       return response.data
