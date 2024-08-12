@@ -43,7 +43,7 @@
 import NavIndex from '../views/public/NavIndex.vue'
 import Api from '../utils/Api/Api'
 import { ref } from 'vue'
-import type UserLoginResponse from '@/Models/User/Login/UserLoginResponse'
+import type UserLoginResponse from '@/Models/User/Login/UserLoginresponse'
 import type UserLoginRequest from '@/Models/User/Login/UserLoginRequst'
 import { useRouter } from 'vue-router'
 
@@ -56,14 +56,16 @@ const handleSubmit = async (): Promise<void> => {
   const apiInstance = new Api()
   try {
     const response = await apiInstance.post<UserLoginResponse>('login', form.value)
-    console.log('Submitting form:', response)
-    console.log('Form submitted successfully:', response)
-
-    form.value = {
-      username: '',
-      password: ''
+    if (response.status !== 200) {
+      throw new Error('An error occurred while submitting the form')
+    } else if (response.token === undefined) {
+      throw new Error('An error occurred while submitting the form')
+    } else {
+      localStorage.setItem('accessToken', response.token.accessToken)
+      localStorage.setItem('refreshToken', response.token.refreshToken)
+      apiInstance.setAuthHeader(response.token.access)
+      router.push('/pong')
     }
-    router.push('/')
   } catch (error: any) {
     console.error('An error occurred while submitting the form:', error)
     error.value = 'An error occurred while submitting the form'
