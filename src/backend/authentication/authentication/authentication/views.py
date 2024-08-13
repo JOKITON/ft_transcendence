@@ -15,9 +15,11 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 class RegisterUserView(APIView):
     def post(self, request) -> Response:
+        print(f"request.data ->: {request.data}")
         serializer = UserSerializerRegister(
             data=request.data, context={"request": request}
         )
+        print(f"serializer ->: {serializer}")
         if serializer.is_valid():
             user = serializer.save()
             if user:
@@ -38,10 +40,13 @@ class RegisterUserView(APIView):
 
 class LoginUserView(APIView):
     def post(self, request) -> Response:
+        print(f"request.data ->: {request.data}")
         serializer = UserSerializerLogin(
             data=request.data, context={"request": request}
         )
 
+        print(f"serializer ->: {serializer}")
+        print(f"serializer.is_valid() ->: {serializer.is_valid()}")
         if serializer.is_valid():
             user = serializer.validated_data
             login(request, user)

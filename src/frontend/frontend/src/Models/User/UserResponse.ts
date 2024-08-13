@@ -1,4 +1,4 @@
-import type token from './token'
+import type { token } from './token'
 
 export default interface UserResponse {
   message: string

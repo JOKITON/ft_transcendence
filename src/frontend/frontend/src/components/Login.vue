@@ -42,31 +42,39 @@
 <script setup lang="ts">
 import NavIndex from '../views/public/NavIndex.vue'
 import Api from '../utils/Api/Api'
-import { ref } from 'vue'
-import type UserLoginResponse from '@/Models/User/Login/UserLoginresponse'
-import type UserLoginRequest from '@/Models/User/Login/UserLoginRequst'
+import type UserRequest from '@/Models/User/UserRequest'
+import type UserResponse from '@/Models/User/UserResponse'
 import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 
 const router = useRouter()
-const form = ref<UserLoginRequest>({
+const form = ref<UserRequest>({
   username: '',
   password: ''
 })
+
+const apiInstance = new Api<UserRequest, UserResponse>()
+
 const handleSubmit = async (): Promise<void> => {
-  const apiInstance = new Api()
   try {
-    const response = await apiInstance.post<UserLoginResponse>('login', form.value)
+    console.log('Form submitted successfully:', form.value)
+    const response: UserResponse = await apiInstance.post<UserResponse>('login', form.value)
+    console.log('Response:', response.status)
     if (response.status !== 200) {
+      window.alert('An error occurred while submitting the form')
       throw new Error('An error occurred while submitting the form')
     } else if (response.token === undefined) {
       throw new Error('An error occurred while submitting the form')
     } else {
       localStorage.setItem('accessToken', response.token.accessToken)
       localStorage.setItem('refreshToken', response.token.refreshToken)
-      apiInstance.setAuthHeader(response.token.access)
+      apiInstance.setAuthHeader(response.token.accessToken)
       router.push('/pong')
     }
   } catch (error: any) {
+    //pop up error Message
+    window.alert('An error occurred while submitting the form')
+
     console.error('An error occurred while submitting the form:', error)
     error.value = 'An error occurred while submitting the form'
   }

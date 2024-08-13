@@ -19,6 +19,7 @@ class UserSerializerRegister(serializers.ModelSerializer):
         fields: List = ["username", "email", "password"]
 
     def create(self, validated_data) -> User:
+        print(f"validated_data ->: {validated_data}")
         user: User = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
@@ -35,6 +36,8 @@ class UserSerializerLogin(serializers.Serializer):
     password: serializers.CharField = serializers.CharField(required=True)
 
     def validate(self, attrs) -> User:
+        print(f"attrs ->: {attrs}")
+
         user = authenticate(
             username=attrs.get("username"), password=attrs.get("password")
         )
@@ -42,4 +45,5 @@ class UserSerializerLogin(serializers.Serializer):
             user.ip_last_login = self.context["request"].META.get("REMOTE_ADDR")
             user.save()
             return user
+        print("sale un error")
         raise serializers.ValidationError("Incorrect Credentials")

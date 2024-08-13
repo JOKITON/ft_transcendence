@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Index from '../views/public/Index.vue'
 import RegisterForm from '../components/Registerform.vue'
 import Login from '../components/Login.vue'
-
+import Auth from '../services/User/Services/Auth/Auth'
 import Pong from '../views/private/Pong/Pong.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,11 +19,13 @@ const router = createRouter({
   ]
 })
 
+const auth = new Auth()
+
 // Navigation guard to check for authentication and CSRF token
 router.beforeEach(async (to, from, next) => {
   try {
     if (to.matched.some((record) => record.meta.requiresAuth)) {
-      const isRefreshed = await checkAndRefreshToken()
+      const isRefreshed = await auth.checkAndRefreshToken()
       if (!isRefreshed) {
         next('/login')
         return
