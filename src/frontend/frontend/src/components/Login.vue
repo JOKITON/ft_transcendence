@@ -47,19 +47,17 @@ import type UserResponse from '@/Models/User/UserResponse'
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 
+const apiInstance: Api<UserRequest, UserResponse> = new Api<UserRequest, UserResponse>()
 const router = useRouter()
+
 const form = ref<UserRequest>({
   username: '',
   password: ''
 })
 
-const apiInstance = new Api<UserRequest, UserResponse>()
-
-const handleSubmit = async (): Promise<void> => {
+const handleSubmit: () => Promise<void> = async () => {
   try {
-    console.log('Form submitted successfully:', form.value)
     const response: UserResponse = await apiInstance.post<UserResponse>('login', form.value)
-    console.log('Response:', response.status)
     if (response.status !== 200) {
       window.alert('An error occurred while submitting the form')
       throw new Error('An error occurred while submitting the form')
