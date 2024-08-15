@@ -2,9 +2,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models.base import ModelBase
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from typing import Dict, List
+from typing import List
 from .models import User
 import logging
+from rest_framework_simplejwt.tokens import AccessToken
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +38,6 @@ class UserSerializerLogin(serializers.Serializer):
     password: serializers.CharField = serializers.CharField(required=True)
 
     def validate(self, attrs) -> User:
-        print(f"attrs ->: {attrs}")
-
         user = authenticate(
             username=attrs.get("username"), password=attrs.get("password")
         )
@@ -45,5 +45,8 @@ class UserSerializerLogin(serializers.Serializer):
             user.ip_last_login = self.context["request"].META.get("REMOTE_ADDR")
             user.save()
             return user
-        print("sale un error")
         raise serializers.ValidationError("Incorrect Credentials")
+
+
+class TokenVerifySerializer(serializers.Serializer):
+    token: serializers.CharField = serializers.CharField()

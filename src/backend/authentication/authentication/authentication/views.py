@@ -1,7 +1,15 @@
+from sys import exception
+from rest_framework_simplejwt.tokens import (
+    AccessToken,
+    RefreshToken,
+    Token,
+)
+from .serializers import (
+    UserSerializerRegister,
+    UserSerializerLogin,
+    TokenVerifySerializer,
+)
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import UserSerializerRegister, UserSerializerLogin
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.tokens import RefreshToken, Token
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,16 +18,15 @@ from rest_framework import status
 from typing import Dict
 import logging
 
+
 logger: logging.Logger = logging.getLogger(__name__)
 
 
 class RegisterUserView(APIView):
     def post(self, request) -> Response:
-        print(f"request.data ->: {request.data}")
         serializer = UserSerializerRegister(
             data=request.data, context={"request": request}
         )
-        print(f"serializer ->: {serializer}")
         if serializer.is_valid():
             user = serializer.save()
             if user:
@@ -28,7 +35,6 @@ class RegisterUserView(APIView):
                     "status": status.HTTP_201_CREATED,
                 }
                 return Response(response, status=status.HTTP_201_CREATED)
-        print(f"serializer.errors ->: {serializer.errors}, {serializer}")
         return Response(
             {
                 "message": "User not created",
@@ -40,13 +46,9 @@ class RegisterUserView(APIView):
 
 class LoginUserView(APIView):
     def post(self, request) -> Response:
-        print(f"request.data ->: {request.data}")
         serializer = UserSerializerLogin(
             data=request.data, context={"request": request}
         )
-
-        print(f"serializer ->: {serializer}")
-        print(f"serializer.is_valid() ->: {serializer.is_valid()}")
         if serializer.is_valid():
             user = serializer.validated_data
             login(request, user)
@@ -54,7 +56,7 @@ class LoginUserView(APIView):
             access_token: str = str(refresh.access_token)
             refresh_token: str = str(refresh)
             response: Dict = {
-                "message": "User logged in successfully",
+                "message": f"User {user.username} logged in successfully",
                 "status": status.HTTP_200_OK,
                 "token": {
                     "accessToken": access_token,
@@ -73,15 +75,11 @@ class LoginUserView(APIView):
             )
 
 
-class UserTokenObtainPairView(TokenObtainPairView):
-    serializer_class = UserSerializerRegister
-
-
 class LogoutView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def post(self, request) -> Response:
         if not request.user.is_authenticated:
             return Response(
                 {"detail": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED
@@ -89,7 +87,7 @@ class LogoutView(APIView):
 
         # Blacklist the refresh token if using blacklist strategy
         try:
-            refresh_token = request.data.get("refresh")
+            refresh_token = request.data.get("refreshToken")
             if refresh_token:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
@@ -99,7 +97,6 @@ class LogoutView(APIView):
             return Response(
                 {"detail": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
             )
-
         # Perform the logout
         logout(request)
         response = Response(
@@ -114,7 +111,7 @@ class SessionView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-        return Response({"isAuthenticated": True})
+        return Response({"isAuthenticated": True}, status=status.HTTP_200_OK)
 
 
 class WhoAmIView(APIView):
@@ -130,7 +127,7 @@ class WhoAmIView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         else:
-            return Response({"username": user.username})
+            return Response({"username": user.username}, status=status.HTTP_200_OK)
 
 
 class ChangePassword(APIView):
@@ -147,7 +144,7 @@ class ChangePassword(APIView):
             return Response(
                 {
                     "message": "Username, old password, and new password are required",
-                    "status": "error",
+                    "status": status.HTTP_400_BAD_REQUEST,
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -180,3 +177,64 @@ class ChangePassword(APIView):
             {"message": "Password changed successfully", "status": "success"},
             status=status.HTTP_200_OK,
         )
+
+
+class TokenVerifyView(APIView):
+    def post(self, request) -> Response:
+        serializer = TokenVerifySerializer(data=request.data)
+
+        if not serializer.is_valid():
+            print("no paso que no paso que paso")
+            return Response(
+                {"message": "request no valid", "status": status.HTTP_400_BAD_REQUEST},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        print("paso que paso")
+        token = serializer.validated_data.get("token")
+        try:
+            print(token)
+            token = AccessToken(token)
+            token.verify()
+            return Response(
+                {"message": "Token is valid", "status": status.HTTP_200_OK},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            logger.error(f"Error verifying token: {e}")
+            return Response(
+                {"message": "Token is invalid", "status": status.HTTP_400_BAD_REQUEST},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class TokenRefreshView(APIView):
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refreshToken")
+            if not refresh_token:
+                return Response(
+                    {
+                        "detail": "Refresh token is required",
+                        status: status.HTTP_400_BAD_REQUEST,
+                        "permitid": 0,
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            token = RefreshToken(refresh_token)
+            new_token = token.access_token
+            return Response(
+                {"accessToken": str(new_token), "refreshToken": str(new_token)},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            logger.error(f"Error refreshing token: {e}")
+            return Response(
+                {
+                    "detail": "Refresh token is required",
+                    status: status.HTTP_400_BAD_REQUEST,
+                    "permitid": 0,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )

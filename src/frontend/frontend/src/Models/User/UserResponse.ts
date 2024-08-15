@@ -1,7 +1,7 @@
 import type { token } from './token'
 
-export default interface UserResponse {
+export interface UserResponse {
   message: string
   status: number
-  token: token
+  token?: token
 }

@@ -66,7 +66,7 @@ const handleSubmit: () => Promise<void> = async () => {
     } else {
       localStorage.setItem('accessToken', response.token.accessToken)
       localStorage.setItem('refreshToken', response.token.refreshToken)
-      apiInstance.setAuthHeader(response.token.accessToken)
+      console.log('Login successful')
       router.push('/pong')
     }
   } catch (error: any) {

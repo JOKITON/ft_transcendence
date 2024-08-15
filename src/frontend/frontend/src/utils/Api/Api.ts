@@ -27,9 +27,9 @@ export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
     delete this.api.defaults.headers.common['Authorization']
   }
 
-  public async get<Tresponse>(url: string, Params?: Record<string, any>): Promise<Tresponse> {
+  public async get<Tresponse>(url: string, Params: Record<string, any>): Promise<Tresponse> {
     try {
-      console.log('url', url)
+      console.log('Params:', Params)
       const response: AxiosResponse<Tresponse> = await this.api.get<Tresponse>(url, Params)
       return response.data
     } catch (e: any) {

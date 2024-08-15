@@ -1,28 +1,29 @@
 import Api from '../../../../utils/Api/Api'
 import type IAuth from '@/services/User/Services/Auth/IAuth'
+import type { tokenVerify } from '../../../../Models/User/token'
 
 export default class Auth<Trequest, Tresponse> implements IAuth<Trequest, Tresponse> {
   private api: Api<Trequest, Tresponse> = new Api()
 
   constructor() {}
 
-  public async setAuthHeader<Token>(
-    url: string = 'token/verify'
-  ): Promise<Record<string, string> | any> {
-    const accessToken = localStorage.getItem('access_token')
+  public async setAuthHeader(url: string = 'token/verify'): Promise<any> {
+    const accessToken: String | null = localStorage.getItem('access_token')
+    console.log('jwt twt   ', accessToken)
     if (accessToken) {
-      return await this.api.get<Token>(url, { accessToken })
+      const send = { token: accessToken, withCredentials: true }
+      return await this.api.get<tokenVerify>(url, send)
     }
+    return false
   }
 
   public async checkAndRefreshToken(): Promise<boolean | any> {
     try {
       const response = await this.setAuthHeader()
       if (response) {
-        console.log(response)
+        console.log('jwt twt   ', response)
         return response
       }
-      console.log(response)
     } catch (error: any) {
       console.error('Refresh token error:', error.response ? error.response.data : error.message)
       alert('Session expired. Please log in again.')

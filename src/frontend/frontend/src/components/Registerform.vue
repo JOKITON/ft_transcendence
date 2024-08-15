@@ -73,7 +73,7 @@ const handleSubmit = async (): Promise<void> => {
     console.debug('Submitting form:', form.value)
 
     console.log('Form submitted successfully:', form.value)
-    const response = await apiInstance.post<UserResponse>('register', form.value)
+    const response: UserResponse = await apiInstance.post<UserResponse>('register', form.value)
     if (response.status == 400) {
       console.error('errror de registro')
     } else {

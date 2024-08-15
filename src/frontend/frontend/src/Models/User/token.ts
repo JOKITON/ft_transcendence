@@ -3,7 +3,13 @@ export interface token {
   refreshToken: string
 }
 
-export interface tokenVerify {
+export interface tokenRequest {
   token: string
-  withCredentials: boolean
+  withCredentials?: boolean
+}
+
+export interface tokenResponse {
+  detail: string
+  code: string
+  permitid: number
 }
