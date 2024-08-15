@@ -24,6 +24,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 class RegisterUserView(APIView):
     def post(self, request) -> Response:
+        print(request.data)
         serializer = UserSerializerRegister(
             data=request.data, context={"request": request}
         )
@@ -76,10 +77,12 @@ class LoginUserView(APIView):
 
 
 class LogoutView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [
+        JWTAuthentication
+    ]  # hay que enviarle en header el bearer token
 
     def post(self, request) -> Response:
+        print(request.user)
         if not request.user.is_authenticated:
             return Response(
                 {"detail": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED
@@ -87,7 +90,7 @@ class LogoutView(APIView):
 
         # Blacklist the refresh token if using blacklist strategy
         try:
-            refresh_token = request.data.get("refreshToken")
+            refresh_token = request.data.get("accessToken")
             if refresh_token:
                 token = RefreshToken(refresh_token)
                 token.blacklist()

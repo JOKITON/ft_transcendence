@@ -10,7 +10,7 @@ export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
       'Content-Type': 'application/json',
       Accept: 'application/json' // <- pongo ejemplo para meter mas datos al headers de la api
     },
-    withCredentials: boolean = true
+    withCredentials: boolean = false
   ) {
     this.api = axios.create({
       baseURL: url,
@@ -33,13 +33,14 @@ export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
       const response: AxiosResponse<Tresponse> = await this.api.get<Tresponse>(url, Params)
       return response.data
     } catch (e: any) {
-      console.error(e)
+      console.error('error', e)
       return <Tresponse>{}
     }
   }
   public async post<Tresponse>(url: string, data: Trequest): Promise<Tresponse> {
     try {
-      const response: AxiosResponse<Tresponse> = await this.api.post<Tresponse>(url, data)
+      console.log('Data:', data)
+      const response = await this.api.post<Tresponse>(url, data)
       return response.data
     } catch (e: any) {
       console.error(e)
