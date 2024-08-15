@@ -31,4 +31,4 @@ fi
 
 # Start the Django development server
 echo "Starting Django development server..."
-exec gunicorn --bind 0.0.0.0:80 --workers=3 config.wsgi:application --reload --timeout 120
+gunicorn --bind 0.0.0.0:80 --workers=3 config.wsgi:application --reload --timeout 120

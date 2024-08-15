@@ -1,10 +1,8 @@
 import type IApi from './IApi'
 import axios, { type AxiosInstance, type AxiosResponse } from 'axios'
-//import Logger from '../Logger/Logger'
 
 export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
   private api: AxiosInstance
-  // private logger: Logger = new Logger()
 
   constructor(
     url: string = 'http://localhost/api/',
@@ -26,13 +24,13 @@ export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
   }
 
   public async removeAuthHeader(): Promise<void> {
-    this.api.defaults.headers.common['Authorization'] = ''
+    delete this.api.defaults.headers.common['Authorization']
   }
 
-  public async get<Tresponse>(url: string, Params?: Record<string, any>): Promise<Tresponse> {
+  public async get<Tresponse>(url: string, Params: Record<string, any>): Promise<Tresponse> {
     try {
-      console.log('url', url)
-      const response: AxiosResponse<Tresponse> = await this.api.post<Tresponse>(url, { Params })
+      console.log('Params:', Params)
+      const response: AxiosResponse<Tresponse> = await this.api.get<Tresponse>(url, Params)
       return response.data
     } catch (e: any) {
       console.error(e)
@@ -49,7 +47,7 @@ export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
     }
   }
 
-  public async delete(url: string, Params?: Record<string, any>): Promise<any | Tresponse> {
+  public async delete(url: string, Params?: Record<string, any>): Promise<any> {
     try {
       const response: AxiosResponse<Tresponse> = await this.api.post<Tresponse>(url, { Params })
       return response.data
