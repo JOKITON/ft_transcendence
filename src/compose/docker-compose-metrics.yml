@@ -5,8 +5,6 @@ services:
     container_name: prometheus
     build: ../monitoring/prometheus
     restart: always
-    volumes:
-      - prometheus-data:/prometheus
     networks:
       - ft_transcendence
 
@@ -14,10 +12,6 @@ services:
     container_name: grafana
     build: ../monitoring/grafana
     restart: always
-    env_file:
-      - ../monitoring/grafana/.env-grafana
-    volumes:
-      - grafana-data:/var/lib/grafana
     networks:
       - ft_transcendence
 
@@ -31,10 +25,10 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ../../volumes/metrics/prometheus
+      device: ../monitoring/prometheus/
   grafana-data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../../volumes/metrics/grafana
+      device: ../monitoring/grafana/

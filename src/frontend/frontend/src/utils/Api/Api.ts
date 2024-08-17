@@ -1,3 +1,4 @@
+import type { AxiosError } from 'node_modules/axios/index.cjs'
 import type IApi from './IApi'
 import axios, { type AxiosInstance, type AxiosResponse } from 'axios'
 
@@ -10,7 +11,7 @@ export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
       'Content-Type': 'application/json',
       Accept: 'application/json' // <- pongo ejemplo para meter mas datos al headers de la api
     },
-    withCredentials: boolean = false
+    withCredentials: boolean = true
   ) {
     this.api = axios.create({
       baseURL: url,
@@ -29,7 +30,6 @@ export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
 
   public async get<Tresponse>(url: string, Params: Record<string, any>): Promise<Tresponse> {
     try {
-      console.log('Params:', Params)
       const response: AxiosResponse<Tresponse> = await this.api.get<Tresponse>(url, Params)
       return response.data
     } catch (e: any) {
@@ -39,11 +39,12 @@ export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
   }
   public async post<Tresponse>(url: string, data: Trequest): Promise<Tresponse> {
     try {
-      console.log('Data:', data)
-      const response = await this.api.post<Tresponse>(url, data)
+      const response: AxiosResponse<Tresponse> = await this.api.post<Tresponse>(url, data)
       return response.data
-    } catch (e: any) {
-      console.error(e)
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        console.error('error axios ', error)
+      }
       return <Tresponse>{}
     }
   }

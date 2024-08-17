@@ -57,27 +57,27 @@ const form = ref<UserRequest>({
 
 const handleSubmit: () => Promise<void> = async () => {
   try {
-    console.log('this is my api global', api)
     const response: UserResponse = await api.post<UserResponse>('login', form.value)
+
     if (response.status !== 200) {
       window.alert('An error occurred while submitting the form')
     } else if (response.token === undefined) {
       window.alert('An error occurred while submitting the form')
     } else {
-      //this.api.setAuthHeader(response.token.accessToken)
-      //api.setAuthHeader(response.token.accessToken)
-      localStorage.setItem('accessToken', response.token.accessToken)
-      localStorage.setItem('refreshToken', response.token.refreshToken)
-      api.setAuthHeader(response.token.accessToken)
-      console.log('Login successful')
-      router.push('/pong')
+      {
+        // remove old sessionid
+        document.cookie = `sessionid='11';`
+        console.log(document.cookie, ' cookie')
+        localStorage.setItem('accessToken', response.token.accessToken)
+        localStorage.setItem('refreshToken', response.token.refreshToken)
+        api.setAuthHeader(response.token.accessToken)
+        console.log('Login successful ', response)
+        //router.push('/pong')
+      }
     }
   } catch (error: any) {
-    //pop up error Message
     window.alert('An error occurred while submitting the form')
-
     console.error('An error occurred while submitting the form:', error)
-    error.value = 'An error occurred while submitting the form'
   }
 }
 </script>

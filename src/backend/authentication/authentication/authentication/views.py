@@ -187,13 +187,11 @@ class TokenVerifyView(APIView):
         serializer = TokenVerifySerializer(data=request.data)
 
         if not serializer.is_valid():
-            print("no paso que no paso que paso")
             return Response(
                 {"message": "request no valid", "status": status.HTTP_400_BAD_REQUEST},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        print("paso que paso")
         token = serializer.validated_data.get("token")
         try:
             print(token)

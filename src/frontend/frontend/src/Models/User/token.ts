@@ -9,7 +9,6 @@ export interface tokenRequest {
 }
 
 export interface tokenResponse {
-  detail: string
-  code: string
-  permitid: number
+  message?: string
+  status?: number
 }

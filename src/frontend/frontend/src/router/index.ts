@@ -2,9 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Index from '../views/public/Index.vue'
 import RegisterForm from '../components/Registerform.vue'
 import Login from '../components/Login.vue'
-import Auth from '../services/User/Services/Auth/Auth'
 import Pong from '../views/private/Pong/Pong.vue'
-import type { tokenVerify } from '../Models/User/token'
+import Auth from '../services/User/Services/Auth/Auth'
+import type { tokenResponse, tokenRequest } from '@/Models/User/token'
+import { ref, inject } from 'vue'
+import type Api from '@/utils/Api/Api'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,22 +17,24 @@ const router = createRouter({
     { path: '/', name: 'home', component: Index },
     { path: '/register', name: 'register', component: RegisterForm },
     { path: '/login', name: 'login', component: Login },
-    { path: '/pong', name: 'pong', component: Pong, meta: { requiresAuth: true } }
+    { path: '/pong', name: 'pong', component: Pong }
     // { path: '/friend-list', name: 'FriendList', component: FriendList, meta: { requiresAuth: true } },
     // { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
   ]
 })
 
-const auth: Auth<any, tokenVerify> = new Auth()
-
 // Navigation guard to check for authentication and CSRF token
 router.beforeEach(async (to, from, next): Promise<void> => {
   try {
+    const api = inject('$api') as Api<tokenRequest, tokenResponse>
+    const auth: Auth<tokenRequest, tokenResponse> = new Auth<tokenRequest, tokenResponse>(api)
     if (to.matched.some((record) => record.meta.requiresAuth)) {
-      const isRefreshed = await auth.checkAndRefreshToken()
-
-      console.log('isRefreshed:', isRefreshed)
-      if (isRefreshed == null || isRefreshed.code !== 'token_not_valid') {
+      const tokenr = ref<tokenRequest>({
+        token: localStorage.getItem('accessToken') || '',
+        withCredentials: true
+      })
+      const valid: tokenResponse = await auth.checkAndRefreshToken(tokenr.value)
+      if (valid == null || valid.status !== 200) {
         next('/login')
         return
       }
