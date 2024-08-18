@@ -51,6 +51,19 @@ export default class Sphere {
     return (this.checkCollisions());
   }
 
+  public setVelocityX(velocityX: number): void {
+    if (velocityX)
+      this.velocity.x = velocityX;
+  }
+  public setVelocityY(velocityY: number): void {
+    if (velocityY)
+      this.velocity.y = velocityY;
+  }
+  public setVelocityZ(velocityZ: number): void {
+    if (velocityZ)
+      this.velocity.z = velocityZ;
+  }
+
   private checkCollisions(): number {
     // Check collisions with the X boundaries
     if (this.mesh.position.x <= this.minX) {
@@ -97,8 +110,8 @@ export default class Sphere {
     return thisSphere.intersectsSphere(otherSphere);
   }
 
-  public invertVelocity(velocity: number) {
-    this.velocity.x *= velocity;
+  public invertVelocity(): void {
+    this.velocity.x *= -1;
   }
 
   public setPosition(pos: Vector3) {

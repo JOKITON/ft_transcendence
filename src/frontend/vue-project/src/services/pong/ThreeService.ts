@@ -13,9 +13,9 @@ export default class ThreeService {
 
   constructor(width: number = window.innerWidth, height: number = window.innerHeight) {
     this.scene = new Scene();
-    this.camera = new PerspectiveCamera(100, width / height, 0.01, 1000); // Adjusted FOV for better view
-    this.renderer = new WebGLRenderer({ antialias: false });
-    this.renderer.setSize(width, height);
+    this.camera = new PerspectiveCamera(100, width / (height - 100), 0.01, 1000); // Adjusted FOV for better view
+    this.renderer = new WebGLRenderer({ antialias: true });
+    this.renderer.setSize(width, height - 100);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.camera.position.z = 10;
 

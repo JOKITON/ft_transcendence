@@ -7,6 +7,7 @@ export default class Player extends Box implements IPlayer {
   private name: string = 'NPC';
   private position: Vector3;
   private score: number = 0;
+  public isAI: boolean = false;
   private up: string;
   private down: string;
   private keys: Set<string> = new Set();
@@ -16,13 +17,20 @@ export default class Player extends Box implements IPlayer {
     color: Color,
     position: Vector3,
     up: string,
-    down: string
+    down: string,
+    name: string,
   ) {
     super(geometry, color, position);
     this.position = position;
-    this.up = up;
-    this.down = down;
-    this.setupEventListeners();
+    this.name = name;
+    if (up && down) {
+      this.up = up;
+      this.down = down;
+      this.setupEventListeners();
+    }
+    else {
+      this.isAI = true;
+    }
   }
 
   setName(name: string): void {
@@ -62,14 +70,44 @@ export default class Player extends Box implements IPlayer {
     }
   }
 
+  updateAI(ball: Sphere): void {
+    if (this.isAI)
+      this.manageAI(ball);
+  }
+
   update(): void {
     if (this.keys.has(this.up) && this.mesh.position.y < 6) {
-      this.moveUp(0.25);
+      this.moveUp(0.15);
     } 
     if (this.keys.has(this.down) && this.mesh.position.y > -6) {
-      this.moveDown(0.25);
+      this.moveDown(0.15);
     }
   }
+
+  manageAI(ball: Sphere): void {
+    const ballPos = ball.get();
+    const ballPosX = ballPos.position.x;
+    const ballPosY = ballPos.position.y;
+  
+    const reactionDelay = 300; // Adjust this value to make the AI slower
+    setTimeout(() => {
+      if (ballPosX > 0) { // Only react when the ball is on the AI's side
+        const moveSpeed = 0.15; // AI movement speed (reduce this value to slow down AI)
+  
+        if (this.mesh.position.y < 6 && this.mesh.position.y < ballPosY) {
+          // Add randomness to simulate human error
+          const randomFactor = Math.random() * 0.05; // Adjust the randomness factor
+          this.moveUp(moveSpeed - randomFactor);
+        } 
+        
+        if (this.mesh.position.y > -6 && this.mesh.position.y > ballPosY) {
+          const randomFactor = Math.random() * 0.05; // Adjust the randomness factor
+          this.moveDown(moveSpeed - randomFactor);
+        }
+      }
+    }, reactionDelay);
+  }
+  
 
   dispose(): void {
     // Dispose of geometry and material
@@ -83,8 +121,10 @@ export default class Player extends Box implements IPlayer {
     }
 
     // Remove event listeners
-    window.removeEventListener('keydown', this.handleKeyDown);
-    window.removeEventListener('keyup', this.handleKeyUp);
+    if (!this.isAI) {
+      window.removeEventListener('keydown', this.handleKeyDown);
+      window.removeEventListener('keyup', this.handleKeyUp);
+    }
     
     console.log('Player disposed');
   }

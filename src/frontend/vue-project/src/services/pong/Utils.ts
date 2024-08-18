@@ -10,7 +10,7 @@ function checkCollisions(ball : Sphere, player : Player, player2 : Player): bool
 	const playerIntersects = ball.intersects(player) || ball.intersects(player2);
   
 	if (playerIntersects) {
-	  ball.invertVelocity(-1); // Reverse ball direction upon collision
+	  ball.invertVelocity(); // Reverse ball direction upon collision
 	  return true;
 	}
 	return false;
@@ -22,7 +22,6 @@ export function handleCollisions(ball : Sphere, player: Player, player2 : Player
     const collisionDetected = checkCollisions(ball, player, player2);
     
     if (collisionDetected) {
-      console.log('Colission detected!');
 	    ball.speedUp(0.025);
       collisionAmounts++;
       // Increase interval if collisions are frequent
