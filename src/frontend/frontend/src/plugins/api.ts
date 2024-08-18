@@ -1,6 +1,6 @@
 import Api from '../utils/Api/Api'
 
-const api: Api<any, any> = new Api<any, any>()
+const api: Api = new Api()
 
 export default {
   install: (Vue: any): void => {

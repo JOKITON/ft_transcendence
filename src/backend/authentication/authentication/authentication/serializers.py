@@ -1,28 +1,23 @@
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models.base import ModelBase
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from typing import List
 from .models import User
 import logging
-from rest_framework_simplejwt.tokens import AccessToken
-import time
 
 logger = logging.getLogger(__name__)
 
 
 class UserSerializerRegister(serializers.ModelSerializer):
     username: serializers.CharField = serializers.CharField(required=True)
+    password: serializers.CharField = serializers.CharField(required=True)
     email: serializers.EmailField = serializers.EmailField(required=True)
-    password: serializers.CharField = serializers.CharField(
-        write_only=True, required=True
-    )
 
     class Meta:
         model: ModelBase = User
-        fields: List = ["username", "email", "password"]
+        fields: List = ["username", "password", "email"]
 
-    def create(self, validated_data) -> User:
+    def create(self, validated_data) -> User | serializers.ValidationError:
         user: User = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
@@ -30,11 +25,12 @@ class UserSerializerRegister(serializers.ModelSerializer):
             ip=self.context["request"].META.get("REMOTE_ADDR"),
             ip_last_login=self.context["request"].META.get("REMOTE_ADDR"),
         )
+        print(user)
         logger.info(f"User {user.username} created")
         return user
 
 
-class UserSerializerLogin(serializers.Serializer):
+class UserSerializer(serializers.Serializer):
     username: serializers.CharField = serializers.CharField(required=True)
     password: serializers.CharField = serializers.CharField(required=True)
 
@@ -50,4 +46,7 @@ class UserSerializerLogin(serializers.Serializer):
 
 
 class TokenVerifySerializer(serializers.Serializer):
-    token: serializers.CharField = serializers.CharField()
+    token: serializers.CharField = serializers.CharField(required=True)
+
+    def validate(self, attrs) -> dict:
+        return attrs

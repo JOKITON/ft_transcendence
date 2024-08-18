@@ -47,7 +47,7 @@ import { useRouter } from 'vue-router'
 import { ref, inject } from 'vue'
 import type Api from '@/utils/Api/Api'
 
-const api = inject('$api') as Api<UserRequest, UserResponse>
+const api = inject('$api') as Api
 const router = useRouter()
 
 const form = ref<UserRequest>({
@@ -65,13 +65,10 @@ const handleSubmit: () => Promise<void> = async () => {
       window.alert('An error occurred while submitting the form')
     } else {
       {
-        // remove old sessionid
-        document.cookie = `sessionid='11';`
-        console.log(document.cookie, ' cookie')
         localStorage.setItem('accessToken', response.token.accessToken)
         localStorage.setItem('refreshToken', response.token.refreshToken)
-        api.setAuthHeader(response.token.accessToken)
         console.log('Login successful ', response)
+        api.setAccessToken(localStorage.getItem('accessToken'))
         //router.push('/pong')
       }
     }

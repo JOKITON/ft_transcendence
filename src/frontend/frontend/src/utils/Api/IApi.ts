@@ -1,7 +1,6 @@
-export default interface IApi<Trequest> {
+export default interface IApi {
   get<Tresponse>(url: string, Params?: Record<string, any>): Promise<Tresponse>
-  post<Tresponse>(url: string, data: Trequest): Promise<Tresponse>
+  post<Tresponse>(url: string, data: Record<string, any>): Promise<Tresponse>
   delete(url: string, Params?: Record<string, any>): Promise<any>
-  setAuthHeader(token: string): Promise<void>
-  removeAuthHeader(): Promise<void>
+  setAccessToken(token: string | null): void
 }
