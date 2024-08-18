@@ -41,13 +41,13 @@
 
 <script setup lang="ts">
 import NavIndex from '../views/public/NavIndex.vue'
-import Api from '../utils/Api/Api'
 import type UserRequest from '@/Models/User/UserRequest'
 import type UserResponse from '@/Models/User/UserResponse'
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
+import type Api from '@/utils/Api/Api'
 
-const apiInstance: Api<UserRequest, UserResponse> = new Api<UserRequest, UserResponse>()
+const api = inject('$api') as Api
 const router = useRouter()
 
 const form = ref<UserRequest>({
@@ -57,24 +57,24 @@ const form = ref<UserRequest>({
 
 const handleSubmit: () => Promise<void> = async () => {
   try {
-    const response: UserResponse = await apiInstance.post<UserResponse>('login', form.value)
+    const response: UserResponse = await api.post<UserResponse>('login', form.value)
+
     if (response.status !== 200) {
       window.alert('An error occurred while submitting the form')
-      throw new Error('An error occurred while submitting the form')
     } else if (response.token === undefined) {
-      throw new Error('An error occurred while submitting the form')
+      window.alert('An error occurred while submitting the form')
     } else {
-      localStorage.setItem('accessToken', response.token.accessToken)
-      localStorage.setItem('refreshToken', response.token.refreshToken)
-      console.log('Login successful')
-      router.push('/pong')
+      {
+        localStorage.setItem('accessToken', response.token.accessToken)
+        localStorage.setItem('refreshToken', response.token.refreshToken)
+        console.log('Login successful ', response)
+        api.setAccessToken(localStorage.getItem('accessToken'))
+        //router.push('/pong')
+      }
     }
   } catch (error: any) {
-    //pop up error Message
     window.alert('An error occurred while submitting the form')
-
     console.error('An error occurred while submitting the form:', error)
-    error.value = 'An error occurred while submitting the form'
   }
 }
 </script>

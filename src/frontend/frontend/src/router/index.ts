@@ -2,15 +2,15 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Index from '../views/public/Index.vue'
 import RegisterForm from '../components/Registerform.vue'
 import Login from '../components/Login.vue'
-import Auth from '../services/User/Services/Auth/Auth'
 import Pong from '../views/private/Pong/Pong.vue'
-import type { tokenVerify } from '../Models/User/token'
+import Auth from '../services/User/Services/Auth/Auth'
+import type { tokenResponse, tokenRequest } from '@/Models/User/token'
+import Api from '../utils/Api/Api'
+import { ref, inject } from 'vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  /*
-   * este es el enrutador, funciona igual que django es muy parecido
-   **/
+
   routes: [
     { path: '/', name: 'home', component: Index },
     { path: '/register', name: 'register', component: RegisterForm },
@@ -21,16 +21,27 @@ const router = createRouter({
   ]
 })
 
-const auth: Auth<any, tokenVerify> = new Auth()
-
-// Navigation guard to check for authentication and CSRF token
 router.beforeEach(async (to, from, next): Promise<void> => {
   try {
-    if (to.matched.some((record) => record.meta.requiresAuth)) {
-      const isRefreshed = await auth.checkAndRefreshToken()
+    const api = inject('$api') as Api
+    console.log('from to ', from, to)
+    if (to.name === 'login' || to.name === 'register') {
+      next()
+      return
+    }
+    if (localStorage.getItem('accessToken') != null) {
+      api.setAccessToken(localStorage.getItem('accessToken'))
+    }
+    const auth: Auth = new Auth(api)
 
-      console.log('isRefreshed:', isRefreshed)
-      if (isRefreshed == null || isRefreshed.code !== 'token_not_valid') {
+    if (to.matched.some((record) => record.meta.requiresAuth)) {
+      const token = ref<tokenRequest>({
+        token: localStorage.getItem('accessToken') as string
+      })
+      console.log('token', token.value)
+      const isRefreshed: tokenResponse = await auth.checkAndRefreshToken<tokenResponse>(token.value)
+      console.log('isRefreshed', isRefreshed)
+      if (isRefreshed.status != 200) {
         next('/login')
         return
       }

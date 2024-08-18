@@ -1,4 +1,3 @@
-from sys import exception
 from rest_framework_simplejwt.tokens import (
     AccessToken,
     RefreshToken,
@@ -6,7 +5,7 @@ from rest_framework_simplejwt.tokens import (
 )
 from .serializers import (
     UserSerializerRegister,
-    UserSerializerLogin,
+    UserSerializer,
     TokenVerifySerializer,
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -24,6 +23,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 class RegisterUserView(APIView):
     def post(self, request) -> Response:
+        print(request.data)
         serializer = UserSerializerRegister(
             data=request.data, context={"request": request}
         )
@@ -46,9 +46,7 @@ class RegisterUserView(APIView):
 
 class LoginUserView(APIView):
     def post(self, request) -> Response:
-        serializer = UserSerializerLogin(
-            data=request.data, context={"request": request}
-        )
+        serializer = UserSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             user = serializer.validated_data
             login(request, user)
@@ -80,17 +78,20 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request) -> Response:
-        if not request.user.is_authenticated:
-            return Response(
-                {"detail": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED
-            )
+        print(request.user)
+        serializer = UserSerializer(data=request.data, context={"request": request})
 
+        if not serializer.is_valid():
+            return Response(
+                {"detail": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+            )
         # Blacklist the refresh token if using blacklist strategy
         try:
-            refresh_token = request.data.get("refreshToken")
+            refresh_token = request.data.get("accessToken")
             if refresh_token:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
+                logout(request.username)
                 logger.info(f"Refresh token {refresh_token} blacklisted successfully.")
         except Exception as e:
             logger.error(f"Error blacklisting token: {e}")
@@ -181,21 +182,21 @@ class ChangePassword(APIView):
 
 class TokenVerifyView(APIView):
     def post(self, request) -> Response:
+        print(str(request.data) + " <-request.data")
         serializer = TokenVerifySerializer(data=request.data)
 
         if not serializer.is_valid():
-            print("no paso que no paso que paso")
             return Response(
-                {"message": "request no valid", "status": status.HTTP_400_BAD_REQUEST},
+                {
+                    "message": "request no valid",
+                    "status": status.HTTP_400_BAD_REQUEST,
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-        print("paso que paso")
-        token = serializer.validated_data.get("token")
         try:
-            print(token)
-            token = AccessToken(token)
-            token.verify()
+            token = serializer.validated_data.get("token")
+            AccessToken(token)
+
             return Response(
                 {"message": "Token is valid", "status": status.HTTP_200_OK},
                 status=status.HTTP_200_OK,
@@ -203,7 +204,10 @@ class TokenVerifyView(APIView):
         except Exception as e:
             logger.error(f"Error verifying token: {e}")
             return Response(
-                {"message": "Token is invalid", "status": status.HTTP_400_BAD_REQUEST},
+                {
+                    "message": "Token not invalid",
+                    "status": status.HTTP_400_BAD_REQUEST,
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

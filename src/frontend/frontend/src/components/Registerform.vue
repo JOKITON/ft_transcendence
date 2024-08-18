@@ -52,15 +52,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import NavIndex from '../views/public/NavIndex.vue'
 import type UserRequest from '@/Models/User/UserRequst'
 import type UserResponse from '@/Models/User/UserResponse'
-import Api from '../utils/Api/Api'
+import type Api from '@/utils/Api/Api'
 import { useRouter } from 'vue-router'
+import { ref, inject } from 'vue'
 
+const api: Api = inject('$api') as Api
 const router = useRouter()
-const apiInstance = new Api()
 
 const form = ref<UserRequest>({
   username: '',
@@ -70,12 +70,9 @@ const form = ref<UserRequest>({
 
 const handleSubmit = async (): Promise<void> => {
   try {
-    console.debug('Submitting form:', form.value)
-
-    console.log('Form submitted successfully:', form.value)
-    const response: UserResponse = await apiInstance.post<UserResponse>('register', form.value)
+    const response: UserResponse = await api.post<UserResponse>('register', form.value)
     if (response.status == 400) {
-      console.error('errror de registro')
+      console.error('error de registro')
     } else {
       console.log('Form submitted successfully:', response)
       router.push('/login')

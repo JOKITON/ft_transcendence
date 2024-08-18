@@ -1,5 +1,3 @@
-export default interface IAuth<Trequest, Tresponse> {
-  setToken(token: string): void
-  refreshAuthToken(): Promise<boolean>
-  checkAndRefreshToken(): Promise<boolean>
+export default interface IAuth {
+  checkAndRefreshToken<Tresponse>(data: Record<string, any>): Promise<Tresponse>
 }

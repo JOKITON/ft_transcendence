@@ -1,7 +1,8 @@
-import type IApi from './IApi'
+import type { AxiosError } from 'node_modules/axios/index.cjs'
 import axios, { type AxiosInstance, type AxiosResponse } from 'axios'
+import type IApi from './IApi'
 
-export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
+export default class Api implements IApi {
   private api: AxiosInstance
 
   constructor(
@@ -10,7 +11,7 @@ export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
       'Content-Type': 'application/json',
       Accept: 'application/json' // <- pongo ejemplo para meter mas datos al headers de la api
     },
-    withCredentials: boolean = true
+    withCredentials: boolean = false
   ) {
     this.api = axios.create({
       baseURL: url,
@@ -19,41 +20,50 @@ export default class Api<Trequest, Tresponse> implements IApi<Trequest> {
     })
   }
 
-  public async setAuthHeader(token: string): Promise<void> {
-    this.api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+  public setAccessToken(token: string | null = localStorage.getItem('accessToken')): void {
+    if (token) this.api.defaults.headers.Authorization = `Bearer ${token}`
   }
 
-  public async removeAuthHeader(): Promise<void> {
-    delete this.api.defaults.headers.common['Authorization']
-  }
-
-  public async get<Tresponse>(url: string, Params: Record<string, any>): Promise<Tresponse> {
+  public async get<Tresponse>(url: string, data: Record<string, any>): Promise<Tresponse> {
     try {
-      console.log('Params:', Params)
-      const response: AxiosResponse<Tresponse> = await this.api.get<Tresponse>(url, Params)
+      const response: AxiosResponse<Tresponse> = await this.api.get<Tresponse>(url, data)
       return response.data
-    } catch (e: any) {
-      console.error(e)
-      return <Tresponse>{}
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error: ', error)
+      } else {
+        console.error('Unexpected error: ', error)
+      }
+      throw error
     }
   }
-  public async post<Tresponse>(url: string, data: Trequest): Promise<Tresponse> {
+
+  public async post<Tresponse>(url: string, data: Record<string, any>): Promise<Tresponse> {
     try {
       const response: AxiosResponse<Tresponse> = await this.api.post<Tresponse>(url, data)
+      console.log('response: ', response)
       return response.data
-    } catch (e: any) {
-      console.error(e)
-      return <Tresponse>{}
+    } catch (error: any | AxiosError) {
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error: ', error)
+      } else {
+        console.error('Unexpected error: ', error)
+      }
+      throw error.response.data
     }
   }
 
-  public async delete(url: string, Params?: Record<string, any>): Promise<any> {
+  public async delete<Tresponse>(url: string, data: Record<string, any>): Promise<Tresponse> {
     try {
-      const response: AxiosResponse<Tresponse> = await this.api.post<Tresponse>(url, { Params })
+      const response: AxiosResponse<Tresponse> = await this.api.delete<Tresponse>(url, data)
       return response.data
-    } catch (e: any) {
-      console.error(e)
-      return <Tresponse>{}
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error: ', error)
+      } else {
+        console.error('Unexpected error: ', error)
+      }
+      throw error
     }
   }
 }
