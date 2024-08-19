@@ -76,10 +76,10 @@ export default class Player extends Box implements IPlayer {
   }
 
   update(): void {
-    if (this.keys.has(this.up) && this.mesh.position.y < 6) {
+    if (this.keys.has(this.up) && this.mesh.position.y < 8) {
       this.moveUp(0.15);
     } 
-    if (this.keys.has(this.down) && this.mesh.position.y > -6) {
+    if (this.keys.has(this.down) && this.mesh.position.y > -8) {
       this.moveDown(0.15);
     }
   }
@@ -94,13 +94,13 @@ export default class Player extends Box implements IPlayer {
       if (ballPosX > 0) { // Only react when the ball is on the AI's side
         const moveSpeed = 0.15; // AI movement speed (reduce this value to slow down AI)
   
-        if (this.mesh.position.y < 6 && this.mesh.position.y < ballPosY) {
+        if (this.mesh.position.y < 8 && this.mesh.position.y < ballPosY) {
           // Add randomness to simulate human error
           const randomFactor = Math.random() * 0.05; // Adjust the randomness factor
           this.moveUp(moveSpeed - randomFactor);
         } 
         
-        if (this.mesh.position.y > -6 && this.mesh.position.y > ballPosY) {
+        if (this.mesh.position.y > -8 && this.mesh.position.y > ballPosY) {
           const randomFactor = Math.random() * 0.05; // Adjust the randomness factor
           this.moveDown(moveSpeed - randomFactor);
         }

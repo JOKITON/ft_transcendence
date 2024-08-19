@@ -7,6 +7,7 @@ import Player from '../../../services/pong/Player';
 import Sphere from '../../../services/pong/Objects/Sphere';
 import DashedWall from '../../../services/pong/Objects/DashedWall';
 import Score from '../../../services/pong/Objects/Score';
+import GameOver from '../../../services/pong/Objects/GameOver';
 import Wall from '../../../services/pong/Wall';
 import { handleCollisions } from '../../../services/pong/Utils';
 
@@ -15,24 +16,29 @@ const props = defineProps({
   player2Name: String,
 });
 
+const emit = defineEmits(['returnToMenu']);
+const returnToMenu = () => {
+  emit('returnToMenu');
+};
+
 const three = new ThreeService(window.innerWidth, window.innerHeight);
 
 // Define bounds of the Pong game
-const bounds = { minX: -16.2, maxX: 16.2, minY: -6.2, maxY: 6.2, minZ: 0, maxZ: 0 };
+const bounds = { minX: -16.2, maxX: 16.2, minY: -9.2, maxY: 9.2, minZ: 0, maxZ: 0 };
 
 // Ball object
 const ballVectorY = Math.random() * 0.2 - 0.1;
 const ballVelocity = new Vector3(0.05, ballVectorY, 0);
-const ballGeometry = [0.33, 10, 10];
+const ballGeometry = [0.5, 10, 10];
 const ball = new Sphere(ballGeometry, new Color('white'), new Vector3(0, 0, 0), ballVelocity, bounds);
 
 // Horizontal walls
 const vecHorizWall = new Vector3(33, 0.3, 1);
-const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 7, 0), new Color('white'));
-const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -7, 0), new Color('white'));
+const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'));
+const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
 
 // Vertical dashed wall
-const vecWallMid = [new Vector3(0, -7, -0.05), new Vector3(0, 7, -0.05)];
+const vecWallMid = [new Vector3(0, -9, 0), new Vector3(0, 9, 0)];
 const dashedLine = [10, 0.66, 0.5];
 const wallMid = new DashedWall(vecWallMid, new Color('green'), dashedLine);
 
@@ -43,14 +49,16 @@ let player2: Player;
 // Scores
 let numScorePlayerOne = 0;
 let numScorePlayerTwo = 0;
-const scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 5, 0));
-const scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 5, 0));
+const scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0));
+const scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0));
 
 const isAnimating = ref(true);
+const isGameOver = ref(false);
+const winner = ref('');
 
 // Initialize players with the provided names
-player = new Player(new Vector3(0.4, 2, 0.5), new Color('red'), new Vector3(16, 0, 0), 'ArrowUp', 'ArrowDown', props.player1Name);
-player2 = new Player(new Vector3(0.4, 2, 0.5), new Color('blue'), new Vector3(-16, 0, 0), 'KeyW', 'KeyS', props.player2Name);
+player = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(16, 0, 0), 'ArrowUp', 'ArrowDown', props.player1Name);
+player2 = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(-16, 0, 0), 'KeyW', 'KeyS', props.player2Name);
 
 function setupScene() {
   three.addScene(horizWallUp.get());
@@ -69,16 +77,22 @@ function update() {
   let check = ball.update();
   if (check) {
     if (check === 1) {
-      console.log(`${player.getName()} lost!`);
       numScorePlayerTwo += 1;
       scorePlayer2.updateScore(numScorePlayerTwo);
       blinkObject(scorePlayer2.get());
+      if (numScorePlayerTwo == 5) {
+        console.log(`${player.getName()} lost!`);
+        endGame(player2.getName());
+      }
       ball.invertVelocity();
     } else if (check === 2) {
-      console.log(`${player2.getName()} lost!`);
       numScorePlayerOne += 1;
       scorePlayer1.updateScore(numScorePlayerOne);
       blinkObject(scorePlayer1.get());
+      if (numScorePlayerOne == 5) {
+        console.log(`${player2.getName()} lost!`);
+        endGame(player.getName());
+      }
     } else {
       console.error('Unexpected check value');
     }
@@ -122,6 +136,20 @@ function toggleAnimation(event: KeyboardEvent) {
     console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`);
   } 
 }
+
+const endGame = (winningPlayer: string) => {
+  const finalScore = new GameOver(winningPlayer + ' won!', new Color('white'), new Vector3(0, 0.5, 0));
+  three.addScene(finalScore.get());
+  blinkObject(finalScore.get());
+  setTimeout(() => {
+    finalScore.updateScore("Returning to home...");
+  }, 2000);
+  setTimeout(() => {
+    winner.value = winningPlayer;
+    isGameOver.value = true;
+    returnToMenu();
+  }, 5000);
+};
 
 onMounted(() => {
   setupScene()

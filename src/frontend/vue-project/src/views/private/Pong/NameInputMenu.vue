@@ -59,16 +59,45 @@ import { ref } from 'vue';
 
 const player1Name = ref('');
 const player2Name = ref('');
+const player3Name = ref('');
+const player4Name = ref('');
+const player5Name = ref('');
+const player6Name = ref('');
+const player7Name = ref('');
+const player8Name = ref('');
 const gameMode = ref('');
 
 const emit = defineEmits(['startGame']);
 
 const startGame = () => {
-	emit('startGame', {
-		gameMode: gameMode.value,
-		player1Name: player1Name.value,
-		player2Name: player2Name.value,
-	});
+	let data;
+
+	if (gameMode.value === 'onePlayer') {
+		data = {
+			gameMode: gameMode.value,
+			player1Name: player1Name.value,
+		};
+	} else if (gameMode.value === 'twoPlayer') {
+		data = {
+			gameMode: gameMode.value,
+			player1Name: player1Name.value,
+			player2Name: player2Name.value,
+		};
+	} else if (gameMode.value === 'eightPlayer') {
+		data = {
+			gameMode: gameMode.value,
+			player1Name: player1Name.value,
+			player2Name: player2Name.value,
+			player3Name: player3Name.value,
+			player4Name: player4Name.value,
+			player5Name: player5Name.value,
+			player6Name: player6Name.value,
+			player7Name: player7Name.value,
+			player8Name: player8Name.value,
+		};
+	}
+
+	emit('startGame', data);
 };
 </script>
 

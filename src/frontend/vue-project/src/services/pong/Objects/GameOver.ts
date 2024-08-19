@@ -11,7 +11,7 @@ export default class Score {
   private font?: Font;
   private textGeometry?: TextGeometry;
 
-  constructor(score: number, color: Color, initialPos: Vector3) {
+  constructor(score: string, color: Color, initialPos: Vector3) {
     this.material = new MeshPhongMaterial({ color });
     this.mesh = new Mesh(); // Initialize mesh without geometry
     this.mesh.position.set(initialPos.x, initialPos.y, initialPos.z);
@@ -75,11 +75,8 @@ export default class Score {
     this.mesh.material = this.material;
   }
 
-  public updateScore(numScore: number) {
-    if (numScore > 99 || numScore < -99)
-      this.updateText('0');
-    else
-      this.updateText(numScore.toString());
+  public updateScore(endingText: string) {
+    this.updateText(endingText);
   }
 
   public get(): Mesh {
