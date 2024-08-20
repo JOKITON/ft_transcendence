@@ -39,8 +39,12 @@ export default class Sphere {
     this.maxZ = bounds.maxZ;
   }
 
-  get(): Mesh {
+  public get(): Mesh {
     return this.mesh;
+  }
+
+  public getVelocity(): boolean {
+    return (this.velocity.x > 0);
   }
 
   update(): number {
@@ -114,6 +118,14 @@ export default class Sphere {
     this.velocity.x *= -1;
   }
 
+  public randomizeDirection(): void {
+    const randNum = Math.random();
+    if (randNum > 0.5)
+      this.velocity.y -= (randNum * 0.1);
+    else  
+      this.velocity.y += (randNum * 0.1);
+  }
+
   public setPosition(pos: Vector3) {
     this.mesh.position.x = pos.x;
     this.mesh.position.y = pos.y;
@@ -139,6 +151,5 @@ export default class Sphere {
         this.mesh.material.dispose();
       }
     }
-    console.log('Ball disposed');
   }
 }

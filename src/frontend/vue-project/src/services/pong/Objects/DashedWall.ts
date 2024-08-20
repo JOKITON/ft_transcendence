@@ -36,7 +36,15 @@ export default class DashedLine {
     this.line.computeLineDistances(); // Recompute line distances for updated points
   }
 
-  /* update(): void {
-    // You can implement any animation or updates here if needed
-  } */
+  dispose(): void {
+    // Dispose of geometry and material
+    if (this.geometry) this.geometry.dispose();
+    if (this.material) {
+      if (Array.isArray(this.material)) {
+        this.material.forEach(mat => mat.dispose());
+      } else {
+        this.material.dispose();
+      }
+    }
+  }
 }

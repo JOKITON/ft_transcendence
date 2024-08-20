@@ -97,7 +97,5 @@ export default class HelpText {
         this.mesh.material.dispose();
       }
     }
-    
-    console.log('Score disposed');
   }
 }

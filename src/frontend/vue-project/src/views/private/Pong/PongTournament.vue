@@ -256,11 +256,16 @@ onMounted(() => {
 onBeforeUnmount(() => {
   three.stopAnimation();
   three.dispose();
-  player.dispose();
-  player2.dispose();
+  player?.dispose();
+  player2?.dispose();
   ball.dispose();
+  horizWallDown.dispose();
+  horizWallUp.dispose();
+  wallMid.dispose();
   scorePlayer1.dispose();
   scorePlayer2.dispose();
+  helpTextPlayerOne.dispose();
+  helpTextPlayerTwo.dispose();
 });
 </script>
 

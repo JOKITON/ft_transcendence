@@ -100,7 +100,5 @@ export default class Score {
         this.mesh.material.dispose();
       }
     }
-    
-    console.log('Score disposed');
   }
 }

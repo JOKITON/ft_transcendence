@@ -7,8 +7,10 @@ export default class Player extends Box implements IPlayer {
   private name: string = 'NPC';
   private position: Vector3;
   private score: number = 0;
+  private moveSpeed: number = 0.15;
 
   private aiDifficulty: number = 1;
+  private reactionDelay: number = 300;
   private isAI: boolean = false;
 
   private up: string;
@@ -76,6 +78,7 @@ export default class Player extends Box implements IPlayer {
 
   setAiDifficulty( difficulty: number ) : void {
     this.aiDifficulty = difficulty;
+    this.reactionDelay = (300 / this.aiDifficulty); // Adjust this value to make the AI slower
   }
 
   updateAI(ball: Sphere): void {
@@ -92,28 +95,43 @@ export default class Player extends Box implements IPlayer {
     }
   }
 
+  public setSpeed(speed: number): void {
+    this.moveSpeed = speed;
+  }
+
   manageAI(ball: Sphere): void {
     const ballPos = ball.get();
     const ballPosX = ballPos.position.x;
     const ballPosY = ballPos.position.y;
   
-    const reactionDelay = (300 / this.aiDifficulty); // Adjust this value to make the AI slower
     setTimeout(() => {
-      if (ballPosX > 0) { // Only react when the ball is on the AI's side
-        const moveSpeed = 0.15; // AI movement speed (reduce this value to slow down AI)
-  
+      if (ballPosX > 0 && this.mesh.position.x > 0 && ball.getVelocity()) { // Only react when the ball is on the AI's side
+        let randomFactor = 0;
+        if (this.aiDifficulty < 10)
+          randomFactor = (Math.random() * 0.05); // Adjust the randomness factor
+
         if (this.mesh.position.y < 8 && this.mesh.position.y < ballPosY) {
-          // Add randomness to simulate human error
-          const randomFactor = Math.random() * 0.05; // Adjust the randomness factor
-          this.moveUp(moveSpeed - randomFactor);
+          this.moveUp(this.moveSpeed - randomFactor);
         } 
         
         if (this.mesh.position.y > -8 && this.mesh.position.y > ballPosY) {
-          const randomFactor = Math.random() * 0.05; // Adjust the randomness factor
-          this.moveDown(moveSpeed - randomFactor);
+          this.moveDown(this.moveSpeed - randomFactor);
         }
       }
-    }, reactionDelay);
+      else if (ballPosX < 0 && this.mesh.position.x < 0 && !ball.getVelocity()) {
+        let randomFactor = 0;
+        if (this.aiDifficulty < 10)
+          randomFactor = (Math.random() * 0.05); // Adjust the randomness factor
+  
+        if (this.mesh.position.y < 8 && this.mesh.position.y < ballPosY) {
+          this.moveUp(this.moveSpeed - randomFactor);
+        } 
+        
+        if (this.mesh.position.y > -8 && this.mesh.position.y > ballPosY) {
+          this.moveDown(this.moveSpeed - randomFactor);
+        }
+      }
+    }, this.reactionDelay);
   }
   
 
@@ -133,8 +151,6 @@ export default class Player extends Box implements IPlayer {
       window.removeEventListener('keydown', this.handleKeyDown);
       window.removeEventListener('keyup', this.handleKeyUp);
     }
-    
-    console.log('Player disposed');
   }
 
   public getBoundingSphere(): ThreeSphere {

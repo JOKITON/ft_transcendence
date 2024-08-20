@@ -10,6 +10,7 @@ function checkCollisions(ball : Sphere, player : Player, player2 : Player): bool
   
 	if (playerIntersects) {
 	  ball.invertVelocity(); // Reverse ball direction upon collision
+    ball.randomizeDirection();
 	  return true;
 	}
 	return false;

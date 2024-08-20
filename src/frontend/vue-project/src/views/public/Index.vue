@@ -18,15 +18,20 @@
       </p>
     </div>
   </div>
+  <PongReviewAI/>
 </template>
+
 
 <script>
 import NavIndex from "./NavIndex.vue";
+import PongReviewAI from "./PongReviewAI.vue";
+import { markRaw } from 'vue';
 
 export default {
   name: "compIndex",
   components: {
-    'NavIndex': NavIndex
+    'NavIndex': NavIndex,
+    'PongReviewAI': markRaw(PongReviewAI),
   },
 };
 </script>
@@ -37,11 +42,12 @@ export default {
   padding: auto;
   margin: auto;
   width: 40%;
-  text-align: center
+  text-align: center;
 }
 
 html, body {
   background-image: url('../../assets/images/background.jpeg');
 }
+
 
 </style>

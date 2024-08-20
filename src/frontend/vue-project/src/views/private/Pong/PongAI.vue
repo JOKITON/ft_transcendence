@@ -14,7 +14,7 @@ import { handleCollisions } from '../../../services/pong/Utils';
 
 const props = defineProps({
   players: Array<Object>,
-  aiDifficulty: String,
+  aiDifficulty: Number,
 });
 
 const emit = defineEmits(['returnToMenu']);
@@ -69,7 +69,7 @@ const winner = ref('');
 // Initialize players with the provided names
 player = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(-16, 0, 0), 'ArrowUp', 'ArrowDown', player1Name.value);
 playerAI = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(16, 0, 0), '', '', 'AI');
-playerAI.setAiDifficulty(Number(props.aiDifficulty));
+playerAI.setAiDifficulty(Number(Number(props.aiDifficulty)));
 
 const helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
 
@@ -190,13 +190,17 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  three.stopAnimation();
   three.dispose();
   player?.dispose();
   playerAI?.dispose();
   ball.dispose();
+  horizWallDown.dispose();
+  horizWallUp.dispose();
+  wallMid.dispose();
   scorePlayer1.dispose();
   scorePlayerAI.dispose();
+  helpTextPlayerOne.dispose();
+  helpTextPlayerTwo.dispose();
 });
 </script>
 

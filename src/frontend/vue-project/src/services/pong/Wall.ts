@@ -20,7 +20,5 @@ export default class Wall extends Box {
         this.mesh.material.dispose();
       }
     }
-
-    console.log('Wall disposed');
   }
 }
