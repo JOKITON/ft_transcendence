@@ -2,8 +2,8 @@ import { Object3D, Scene, PerspectiveCamera, WebGLRenderer, Mesh } from 'three';
 import { AmbientLight, DirectionalLight } from 'three';
 
 const ambientLight = new AmbientLight(0xffffff, 0.5); // Ambient light with a low intensity
-const directionalLight = new DirectionalLight(0xffffff, 1); // Directional light with a high intensity
-directionalLight.position.set(10, 10, 10).normalize();
+const directionalLight = new DirectionalLight(0xffffff, 2); // Directional light with a high intensity
+directionalLight.position.set(0, 5, 10).normalize();
 
 export default class ThreeService {
   private scene: Scene;
@@ -13,9 +13,9 @@ export default class ThreeService {
 
   constructor(width: number = window.innerWidth, height: number = window.innerHeight) {
     this.scene = new Scene();
-    this.camera = new PerspectiveCamera(100, width / height, 0.01, 1000); // Adjusted FOV for better view
-    this.renderer = new WebGLRenderer({ antialias: false });
-    this.renderer.setSize(width, height);
+    this.camera = new PerspectiveCamera(100, width / (height - 100), 0.01, 1000); // Adjusted FOV for better view
+    this.renderer = new WebGLRenderer({ antialias: true });
+    this.renderer.setSize(width, height - 100);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.camera.position.z = 10;
 
@@ -30,14 +30,16 @@ export default class ThreeService {
   }
 
   removeScene(mesh: Mesh): void {
-    if (this.scene.contains(mesh)) {
+    // Check if the scene contains the mesh
+    if (this.scene.children.includes(mesh)) {
       this.scene.remove(mesh);
     }
-
+  
+    // Dispose of the mesh's geometry and material
     if (mesh.geometry) {
       mesh.geometry.dispose();
     }
-
+  
     if (mesh.material) {
       if (Array.isArray(mesh.material)) {
         mesh.material.forEach(mat => mat.dispose());
@@ -46,6 +48,7 @@ export default class ThreeService {
       }
     }
   }
+  
 
   resize(width: number, height: number): void {
     this.camera.aspect = width / height;
@@ -72,15 +75,30 @@ export default class ThreeService {
   }
 
   dispose(): void {
-    // Clean up all objects in the scene
-    this.scene.children.forEach(child => {
-      if (child instanceof Mesh) {
-        this.removeScene(child);
+    try {
+      if (this.scene) {
+        this.scene.children.forEach(child => {
+          if (child instanceof Mesh) {
+            this.removeScene(child);
+          }
+        });
       }
-    });
-
-    // Dispose of the renderer and remove its canvas
-    this.renderer.dispose();
-    document.body.removeChild(this.renderer.domElement);
+    } catch (error) {
+      console.error('Error disposing scene objects:', error);
+    }
+  
+    try {
+      if (this.renderer) {
+        this.renderer.dispose();
+        if (this.renderer.domElement) {
+          document.body.removeChild(this.renderer.domElement);
+        }
+      }
+    } catch (error) {
+      console.error('Error disposing renderer:', error);
+    }
   }
+  
+  
+  
 }

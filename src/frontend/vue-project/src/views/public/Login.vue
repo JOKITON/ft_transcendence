@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { setAccessToken } from "../../utils/Api/auth";
+import { setAccessToken, setRefreshToken } from "../../utils/Api/auth";
 import api from "../../utils/Api/api";
 import { validateForm } from "../../utils/Api/form";
 import NavIndex from "./NavIndex.vue";
@@ -69,8 +69,10 @@ export default {
           username: this.form.username,
           password: this.form.password,
         });
-        if (response.data.access) 
+        if (response.data.access) {
           setAccessToken(response.data.access);
+          setRefreshToken(response.data.refresh);
+        }
         else
           throw ("Error. No access token provided")
 

@@ -1,26 +1,22 @@
-import { Mesh, Color, LineSegments, LineDashedMaterial, BufferGeometry, Vector3 } from 'three';
-import type IObject from '../interfaces/IObject';
+import { Color, LineSegments, LineDashedMaterial, BufferGeometry, Vector3 } from 'three';
 
-export default class DashedLine implements IObject {
+export default class DashedLine {
   protected line: LineSegments;
   protected material: LineDashedMaterial;
   protected geometry: BufferGeometry;
-  protected mesh: Mesh;
 
   constructor(
     points: Vector3[],
     color: Color = new Color(0xffffff),
-    dashSize: number = 1,
-    gapSize: number = 0.5,
-    lineWidth: number = 1,
+    lineDashedParams: Array<number>,
   ) {
     this.geometry = new BufferGeometry().setFromPoints(points);
     
     this.material = new LineDashedMaterial({
       color: color,
-      dashSize: dashSize,
-      gapSize: gapSize,
-      linewidth: lineWidth // Line width (optional)
+      linewidth: lineDashedParams[0], // Line width (optional)
+      dashSize: lineDashedParams[1],
+      gapSize: lineDashedParams[2],
     });
 
     this.line = new LineSegments(this.geometry, this.material);
@@ -29,14 +25,6 @@ export default class DashedLine implements IObject {
 
   get(): LineSegments {
     return this.line;
-  }
-
-  moveUp(y: number): void {
-    this.line.position.y += y;
-  }
-
-  moveDown(y: number): void {
-    this.line.position.y -= y;
   }
 
   position(vector: Vector3): void {

@@ -6,6 +6,7 @@ export default class Sphere {
   protected material: MeshBasicMaterial;
   protected geometry: SphereGeometry;
   protected velocity: Vector3;
+  protected inVelocity: number;
 
   // Define the game area boundaries
   private readonly minX: number;
@@ -16,17 +17,18 @@ export default class Sphere {
   private readonly maxZ: number;
 
   constructor(
-    vector: Vector3,
+    vector: Array<number>,
     color: Color,
     initialPos: Vector3,
     velocity: Vector3,
     bounds: { minX: number, maxX: number, minY: number, maxY: number, minZ: number, maxZ: number }
   ) {
-    this.geometry = new SphereGeometry(vector.x, vector.y, vector.z);
+    this.geometry = new SphereGeometry(vector[0], vector[1], vector[2]);
     this.material = new MeshBasicMaterial({ color });
     this.mesh = new Mesh(this.geometry, this.material);
     this.mesh.position.set(initialPos.x, initialPos.y, initialPos.z);
     this.velocity = velocity;
+    this.inVelocity = velocity.x;
 
     // Set boundaries for the game area
     this.minX = bounds.minX;
@@ -49,17 +51,30 @@ export default class Sphere {
     return (this.checkCollisions());
   }
 
+  public setVelocityX(velocityX: number): void {
+    if (velocityX)
+      this.velocity.x = velocityX;
+  }
+  public setVelocityY(velocityY: number): void {
+    if (velocityY)
+      this.velocity.y = velocityY;
+  }
+  public setVelocityZ(velocityZ: number): void {
+    if (velocityZ)
+      this.velocity.z = velocityZ;
+  }
+
   private checkCollisions(): number {
     // Check collisions with the X boundaries
     if (this.mesh.position.x <= this.minX) {
-      this.velocity.x = -0.15;
+      this.velocity.x = this.inVelocity;
       this.velocity.x *= -1;
-      this.goMiddle();
+      this.setPosition(new Vector3(0, 0, 0));
       return 1;
     } else if (this.mesh.position.x >= this.maxX) {
-      this.velocity.x = 0.15;
+      this.velocity.x = this.inVelocity;
       this.velocity.x *= -1;
-      this.goMiddle();
+      this.setPosition(new Vector3(0, 0, 0));
       return 2;
     }
 
@@ -95,14 +110,14 @@ export default class Sphere {
     return thisSphere.intersectsSphere(otherSphere);
   }
 
-  public invertVelocity(velocity: number) {
-    this.velocity.x *= velocity;
+  public invertVelocity(): void {
+    this.velocity.x *= -1;
   }
 
-  public goMiddle() {
-    this.mesh.position.x = 0
-    this.mesh.position.y = 0
-    this.mesh.position.z = 0
+  public setPosition(pos: Vector3) {
+    this.mesh.position.x = pos.x;
+    this.mesh.position.y = pos.y;
+    this.mesh.position.z = pos.z;
   }
 
   public speedUp(speed: number) {
@@ -112,5 +127,18 @@ export default class Sphere {
       this.velocity.x -= speed;
     else
       this.velocity.x += speed;
+  }
+
+  dispose(): void {
+    // Dispose of geometry and material
+    if (this.mesh.geometry) this.mesh.geometry.dispose();
+    if (this.mesh.material) {
+      if (Array.isArray(this.mesh.material)) {
+        this.mesh.material.forEach(mat => mat.dispose());
+      } else {
+        this.mesh.material.dispose();
+      }
+    }
+    console.log('Ball disposed');
   }
 }

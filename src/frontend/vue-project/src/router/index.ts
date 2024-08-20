@@ -4,8 +4,8 @@ import Login from '../views/public/Login.vue'
 import Register from '../views/public/Register.vue'
 import Home from '../views/private/Home.vue'
 
-import { checkAndRefreshToken } from '../utils/Api/auth'
-import Pong from '../views/private/Pong/Pong.vue'
+import { checkAndRefreshToken, refreshAuthToken } from '../utils/Api/auth'
+import PongIndex from '../views/private/Pong/PongIndex.vue'
 import UserList from '../views/private/UserList.vue'
 
 const router = createRouter({
@@ -14,12 +14,13 @@ const router = createRouter({
    * este es el enrutador, funciona igual que django es muy parecido
    **/
   routes: [
-    { path: '/', component: Index },
-    { path: '/login', component: Login },
-    { path: '/register', component: Register },
-    { path: '/home', component: Home, meta: { requiresAuth: true } },
-    { path: '/pong', component: Pong },
-    { path: '/user-list', name: 'userList', component: UserList, meta: { requiresAuth: true } },
+    { path: '/', name: 'IndexPage', component: Index },
+    { path: '/register', name: 'RegisterPage', component: Register },
+    { path: '/login', name: 'LoginPage', component: Login },
+    { path: '/home', name: 'HomePage', component: Home, meta: { requiresAuth: true } },
+    
+    { path: '/pong', name: 'PongGame', component: PongIndex, meta: { requiresAuth: true } },
+    { path: '/user-list', name: 'UserList', component: UserList, meta: { requiresAuth: true } },
     // { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
   ]
 })

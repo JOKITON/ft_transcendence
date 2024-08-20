@@ -2,16 +2,16 @@ import { Color, Mesh, MeshPhongMaterial, Vector3 } from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
-const depth = 0.15,
-  size = 2;
+const depth = 0,
+  size = 1;
 
-export default class Score {
+export default class HelpText {
   private mesh: Mesh;
   private material: MeshPhongMaterial;
   private font?: Font;
   private textGeometry?: TextGeometry;
 
-  constructor(score: number, color: Color, initialPos: Vector3) {
+  constructor(score: string, color: Color, initialPos: Vector3) {
     this.material = new MeshPhongMaterial({ color });
     this.mesh = new Mesh(); // Initialize mesh without geometry
     this.mesh.position.set(initialPos.x, initialPos.y, initialPos.z);
@@ -53,7 +53,7 @@ export default class Score {
       size: size,
       depth: depth,
       curveSegments: 0,
-      bevelThickness: 0.15,
+      bevelThickness: 0.05,
       bevelSize: 0,
       bevelEnabled: true
     });
@@ -75,11 +75,8 @@ export default class Score {
     this.mesh.material = this.material;
   }
 
-  public updateScore(numScore: number) {
-    if (numScore > 99 || numScore < -99)
-      this.updateText('0');
-    else
-      this.updateText(numScore.toString());
+  public updateScore(endingText: string) {
+    this.updateText(endingText);
   }
 
   public get(): Mesh {

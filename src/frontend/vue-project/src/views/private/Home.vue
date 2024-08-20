@@ -1,62 +1,7 @@
 <template>
-  <header class="p-3 mb-3 border-bottom">
-    <div class="container">
-      <div
-        class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
-      >
-        <a
-          href="/"
-          class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none"
-        >
-          <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
-            <use xlink:href="#bootstrap"></use>
-          </svg>
-        </a>
-
-        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-          <li>
-            <router-link class="nav-link px-2 link-secondary" to="/home">Home</router-link>
-          </li>
-          <li><router-link class="nav-link px-2 link-secondary" to="/pong">Pong</router-link></li>
-          <li>
-            <router-link class="nav-link px-2 link-secondary" to="/user-list"
-              >User List</router-link
-            >
-          </li>
-        </ul>
-
-        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-          <input type="search" class="form-control" placeholder="Search..." aria-label="Search" />
-        </form>
-
-        <p class="d-block link-body-emphasis text-decoration-none">{{ username }}</p>
-        <div class="dropdown text-end">
-          <a
-            @click="toggleDropdown"
-            class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
-          >
-            <img
-              src="https://avatars.githubusercontent.com/u/99480973?v=4"
-              alt="mdo"
-              class="rounded-circle"
-              width="32"
-              height="32"
-            />
-          </a>
-          <ul class="dropdown-menu text-small" :class="{ show: isDropdownVisible }">
-            <li><a @click="openSettings" class="dropdown-item">Settings</a></li>
-            <li><a @click="openProfile" class="dropdown-item">Profile</a></li>
-            <li>
-              <hr class="dropdown-divider" />
-            </li>
-            <li><a @click="logoutUser" class="dropdown-item">Sign out</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </header>
+  <NavHome></NavHome>
   <main class="px-3">
-    <h1>Hello, {{ username }}</h1>
+    <h1>Hello {{ username }},</h1>
     <p class="lead">
       Cover is a one-page template for building simple and beautiful home pages. Download, edit the
       text, and add your own fullscreen background photo to make it your own.
@@ -70,9 +15,13 @@
 <script>
 import api from "../../utils/Api/api";
 import { removeAccessToken } from "../../utils/Api/auth";
+import NavHome from "./NavHome.vue";
 
 export default {
   name: 'loginHome',
+  components: {
+    NavHome: NavHome
+  },
   data() {
     return {
       isProfileVisible: false,
