@@ -4,7 +4,7 @@ import Login from '../views/public/Login.vue'
 import Register from '../views/public/Register.vue'
 import Home from '../views/private/Home.vue'
 
-import { checkAndRefreshToken } from '../utils/Api/auth'
+import { checkAndRefreshToken, refreshAuthToken } from '../utils/Api/auth'
 import PongIndex from '../views/private/Pong/PongIndex.vue'
 import UserList from '../views/private/UserList.vue'
 

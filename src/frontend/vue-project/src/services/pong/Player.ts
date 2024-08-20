@@ -7,7 +7,10 @@ export default class Player extends Box implements IPlayer {
   private name: string = 'NPC';
   private position: Vector3;
   private score: number = 0;
-  public isAI: boolean = false;
+
+  private aiDifficulty: number = 1;
+  private isAI: boolean = false;
+
   private up: string;
   private down: string;
   private keys: Set<string> = new Set();
@@ -55,6 +58,7 @@ export default class Player extends Box implements IPlayer {
   }
 
   private handleKeyDown = (event: KeyboardEvent): void => {
+    event.preventDefault();
     if (event.code === this.up) {
       this.keys.add(this.up);
     } else if (event.code === this.down) {
@@ -68,6 +72,10 @@ export default class Player extends Box implements IPlayer {
     } else if (event.code === this.down) {
       this.keys.delete(this.down);
     }
+  }
+
+  setAiDifficulty( difficulty: number ) : void {
+    this.aiDifficulty = difficulty;
   }
 
   updateAI(ball: Sphere): void {
@@ -89,7 +97,7 @@ export default class Player extends Box implements IPlayer {
     const ballPosX = ballPos.position.x;
     const ballPosY = ballPos.position.y;
   
-    const reactionDelay = 300; // Adjust this value to make the AI slower
+    const reactionDelay = (300 / this.aiDifficulty); // Adjust this value to make the AI slower
     setTimeout(() => {
       if (ballPosX > 0) { // Only react when the ball is on the AI's side
         const moveSpeed = 0.15; // AI movement speed (reduce this value to slow down AI)

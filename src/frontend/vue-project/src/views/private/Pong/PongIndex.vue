@@ -1,38 +1,29 @@
 <script setup>
 import { ref, markRaw } from 'vue';
+import axios from 'axios';
 import NavHome from "../NavHome.vue";
 import PongAI from "./PongAI.vue";
 import Pong2P from "./Pong2P.vue";
-import PongTournament from "./PongTournament.vue"; // Assuming you have a component for the tournament mode
+import PongTournament from "./PongTournament.vue";
 import NameInputMenu from "./NameInputMenu.vue";
 
-// Define the reactive properties
+// Reactive state variables
 const showMenu = ref(true);
-const selectedGame = ref(null);  // This will hold 'PongAI', 'Pong2P', or 'PongTournament'
-const player1Name = ref('');
-const player2Name = ref('');
-const player3Name = ref('');
-const player4Name = ref('');
-const player5Name = ref('');
-const player6Name = ref('');
-const player7Name = ref('');
-const player8Name = ref('');
+const selectedGame = ref(null);
+const aiDif = ref(1);
+const arPlayers = ref([]); // Initialize as an array
 
-// Function to handle the game start event
+// Handle game start
 const handleStartGame = (data) => {
-  let gameMode = data.gameMode;
+  const { aiDifficulty, gameMode, players } = data;
 
-  // Store player names based on the game mode
-  player1Name.value = data.player1Name || '';
-  player2Name.value = data.player2Name || '';
-  player3Name.value = data.player3Name || '';
-  player4Name.value = data.player4Name || '';
-  player5Name.value = data.player5Name || '';
-  player6Name.value = data.player6Name || '';
-  player7Name.value = data.player7Name || '';
-  player8Name.value = data.player8Name || '';
+  // Store player names and optionally AI difficulty
+  if (data.aiDifficulty) {
+    aiDif.value = aiDifficulty;
+  }
+  arPlayers.value = players;
 
-  // Determine which game component to use based on the selected game mode
+  // Select appropriate game component
   if (gameMode === 'onePlayer') {
     selectedGame.value = markRaw(PongAI);
   } else if (gameMode === 'twoPlayer') {
@@ -41,12 +32,44 @@ const handleStartGame = (data) => {
     selectedGame.value = markRaw(PongTournament);
   }
 
-  // Hide the menu and show the selected game
+  // Hide menu and show game
   showMenu.value = false;
 };
 
-// Function to handle returning to the main menu
-const returnToMenu = () => {
+// Send tournament data to backend
+const sendTournamentData = async (tournamentResults) => {
+  try {
+    const response = await axios.post("/pong/tournament/", tournamentResults);
+    console.log('Data sent successfully:', response.data);
+  } catch (error) {
+    console.error('Error sending data:', error);
+
+    if (error.response) {
+      const message = error.response.data.message || 'An error occurred.';
+      const errors = error.response.data.errors || {};
+
+      let errorMessage = `Request failed. ${message}`;
+      if (Object.keys(errors).length > 0) {
+        errorMessage += '\nErrors:\n';
+        for (const [field, msgs] of Object.entries(errors)) {
+          errorMessage += `${field}: ${msgs.join(', ')}\n`;
+        }
+      }
+      alert(errorMessage);
+    } else {
+      alert('Request to the backend failed. Please try again later.');
+    }
+  }
+};
+
+// Handle returning to the main menu
+const handleReturnToMenu = (tournamentResults) => {
+  console.log('Tournament Results:', tournamentResults);
+
+  // Send tournament results to backend
+  sendTournamentData(tournamentResults);
+
+  // Reset the state to return to the menu
   showMenu.value = true;
   selectedGame.value = null;
 };
@@ -62,15 +85,9 @@ const returnToMenu = () => {
     <!-- Dynamically load the selected game component -->
     <component 
       :is="selectedGame" 
-      :player1Name="player1Name" 
-      :player2Name="player2Name"
-      :player3Name="player3Name"
-      :player4Name="player4Name"
-      :player5Name="player5Name"
-      :player6Name="player6Name"
-      :player7Name="player7Name"
-      :player8Name="player8Name"
-      @returnToMenu="returnToMenu"
+      :players="arPlayers"
+      :aiDifficulty=aiDif
+      @returnToMenu="handleReturnToMenu"
     />
   </div>
 </template>

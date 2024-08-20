@@ -22,7 +22,7 @@
                 <li>
                   <hr class="dropdown-divider" />
                 </li>
-                <li><a @click="" class="dropdown-item">Add something here</a></li>
+                <li><a class="dropdown-item">Add something here</a></li>
               </ul>
             </div>
           </li>

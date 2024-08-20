@@ -7,16 +7,22 @@ import Player from '../../../services/pong/Player';
 import Sphere from '../../../services/pong/Objects/Sphere';
 import DashedWall from '../../../services/pong/Objects/DashedWall';
 import Score from '../../../services/pong/Objects/Score';
+import HelpText from '../../../services/pong/Objects/HelpText';
 import GameOver from '../../../services/pong/Objects/GameOver';
 import Wall from '../../../services/pong/Wall';
 import { handleCollisions } from '../../../services/pong/Utils';
 
 const props = defineProps({
-  player1Name: String,
-  player2Name: String,
+  players: Array<Object>,
 });
-
 const emit = defineEmits(['returnToMenu']);
+
+// Extract initial players for the current game
+let player1Name = ref(props.players[0].player1Name);
+let player2Name = ref(props.players[0].player2Name);
+
+console.log('Players:', props.players[0].player1Name, props.players[0].player2Name);
+
 const returnToMenu = () => {
   emit('returnToMenu');
 };
@@ -57,10 +63,18 @@ const isGameOver = ref(false);
 const winner = ref('');
 
 // Initialize players with the provided names
-player = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(16, 0, 0), 'ArrowUp', 'ArrowDown', props.player1Name);
-player2 = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(-16, 0, 0), 'KeyW', 'KeyS', props.player2Name);
+player = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(16, 0, 0), 'ArrowUp', 'ArrowDown', player1Name.value);
+player2 = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(-16, 0, 0), 'KeyW', 'KeyS', player2Name.value);
+
+const helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
+
+const helpTextPlayerOne = new HelpText(player1Name.value, new Color('white'), new Vector3(-16, 3.5, 0));
+const helpTextPlayerTwo = new HelpText(player2Name.value, new Color('white'), new Vector3(16, 3.5, 0));
 
 function setupScene() {
+  three.addScene(helpTextSpace.get());
+  three.addScene(helpTextPlayerOne.get());
+  three.addScene(helpTextPlayerTwo.get());
   three.addScene(horizWallUp.get());
   three.addScene(horizWallDown.get());
   three.addScene(wallMid.get());
@@ -69,9 +83,16 @@ function setupScene() {
   three.addScene(ball.get());
   three.addScene(scorePlayer1.get());
   three.addScene(scorePlayer2.get());
+
+  isAnimating.value = false;
 }
 
 function update() {
+  setTimeout(() => {
+    three.removeScene(helpTextPlayerOne.get());
+    three.removeScene(helpTextPlayerTwo.get());
+    three.removeScene(helpTextSpace.get());
+  }, 4000);
   if (!isAnimating.value) return;
 
   let check = ball.update();

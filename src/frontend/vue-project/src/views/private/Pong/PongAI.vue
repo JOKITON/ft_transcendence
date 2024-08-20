@@ -7,15 +7,24 @@ import Player from '../../../services/pong/Player';
 import Sphere from '../../../services/pong/Objects/Sphere';
 import DashedWall from '../../../services/pong/Objects/DashedWall';
 import Score from '../../../services/pong/Objects/Score';
+import HelpText from '../../../services/pong/Objects/HelpText';
 import GameOver from '../../../services/pong/Objects/GameOver';
 import Wall from '../../../services/pong/Wall';
 import { handleCollisions } from '../../../services/pong/Utils';
 
 const props = defineProps({
-  player1Name: String,
+  players: Array<Object>,
+  aiDifficulty: String,
 });
 
 const emit = defineEmits(['returnToMenu']);
+
+// Extract initial players for the current game
+let player1Name = ref(props.players[0].player1Name);
+console.log('Player:', props.players[0].player1Name);
+
+console.log('AI Difficulty: ', props.aiDifficulty);
+
 const returnToMenu = () => {
   emit('returnToMenu');
 };
@@ -38,7 +47,7 @@ const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('
 
 // Vertical dashed wall
 const vecWallMid = [new Vector3(0, -9, 0), new Vector3(0, 9, 0)];
-const dashedLine = [10, 0.66, 0.5];
+const dashedLine = [1, 0.66, 0.5];
 const wallMid = new DashedWall(vecWallMid, new Color('green'), dashedLine);
 
 // Player objects (to be initialized later)
@@ -51,15 +60,26 @@ let numScorePlayerTwo = 0;
 const scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0));
 const scorePlayerAI = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0));
 
+const helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0));
+
 const isAnimating = ref(true);
 const isGameOver = ref(false);
 const winner = ref('');
 
 // Initialize players with the provided names
-player = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(-16, 0, 0), 'ArrowUp', 'ArrowDown', props.player1Name);
+player = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(-16, 0, 0), 'ArrowUp', 'ArrowDown', player1Name.value);
 playerAI = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(16, 0, 0), '', '', 'AI');
+playerAI.setAiDifficulty(Number(props.aiDifficulty));
+
+const helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
+
+const helpTextPlayerOne = new HelpText(player1Name.value, new Color('white'), new Vector3(-16, 3.5, 0));
+const helpTextPlayerTwo = new HelpText('AI', new Color('white'), new Vector3(16, 3.5, 0));
 
 function setupScene() {
+  three.addScene(helpTextSpace.get());
+  three.addScene(helpTextPlayerOne.get());
+  three.addScene(helpTextPlayerTwo.get());
   three.addScene(horizWallUp.get());
   three.addScene(horizWallDown.get());
   three.addScene(wallMid.get());
@@ -68,9 +88,16 @@ function setupScene() {
   three.addScene(ball.get());
   three.addScene(scorePlayer1.get());
   three.addScene(scorePlayerAI.get());
+
+  isAnimating.value = false;
 }
 
 function update() {
+  setTimeout(() => {
+    three.removeScene(helpTextPlayerOne.get());
+    three.removeScene(helpTextPlayerTwo.get());
+    three.removeScene(helpTextSpace.get());
+  }, 4000);
   if (!isAnimating.value) return;
 
   let check = ball.update();
@@ -106,7 +133,7 @@ function update() {
   }
 
   player.update();
-  playerAI.updateAI(ball);
+  playerAI.updateAI(ball, props.aiDifficulty);
   handleCollisions(ball, player, playerAI);
 }
 

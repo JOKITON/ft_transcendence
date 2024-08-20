@@ -13,21 +13,31 @@ export function setAccessToken(accessToken) {
   setAuthHeader(); // Update headers with the new token
 }
 
+export function setRefreshToken(refreshToken) {
+  localStorage.setItem('refresh_token', refreshToken);
+}
+
 export function removeAccessToken() {
   localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
   api.defaults.headers.common['Authorization'] = "";
 }
 
 export async function refreshAuthToken() {
   try {
-    const response = await api.post(
-      '/user/token/refresh/',
+    const refreshToken = localStorage.getItem('refresh_token');
+    const response = await api.post('/user/token/refresh/', {
+      refresh: refreshToken,
+    }
     );
 
     const newAccessToken = response.data.access;
+    const newRefreshToken = response.data.refresh;
     if (newAccessToken) {
       setAccessToken(newAccessToken);
     }
+    if (newRefreshToken)
+      setRefreshToken(newRefreshToken);
 
     return true;
   } catch (error) {
@@ -61,8 +71,7 @@ export async function checkAndRefreshToken() {
     switch (response.data.code) {
       case 'expired':
         console.log('Token expired. Attempting to refresh.');
-        let refreshed = await refreshAuthToken();
-        return refreshed;
+        return (await refreshAuthToken());
 
       case 'token_not_valid':
         console.log('Token invalid. Redirecting to login.');
