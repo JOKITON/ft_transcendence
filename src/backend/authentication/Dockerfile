@@ -13,7 +13,7 @@
 FROM alpine:3.20
 
 LABEL traefik.enable=true
-LABEL traefik.http.routers.authentication.rule="Host(`localhost`) && PathPrefix(`/api/`)"
+LABEL traefik.http.routers.authentication.rule="Host(`localhost`) && PathPrefix(`/api/v1`)"
 LABEL traefik.http.services.authentication.loadbalancer.server.port=80
 
 RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3

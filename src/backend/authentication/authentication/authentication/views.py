@@ -57,8 +57,8 @@ class LoginUserView(APIView):
                 "message": f"User {user.username} logged in successfully",
                 "status": status.HTTP_200_OK,
                 "token": {
-                    "accessToken": access_token,
-                    "refreshToken": refresh_token,
+                    "token": access_token,
+                    "refresh": refresh_token,
                 },
             }
             return Response(response, status=status.HTTP_200_OK)
@@ -196,11 +196,11 @@ class TokenVerifyView(APIView):
         try:
             token = serializer.validated_data.get("token")
             AccessToken(token)
-
             return Response(
                 {"message": "Token is valid", "status": status.HTTP_200_OK},
                 status=status.HTTP_200_OK,
             )
+
         except Exception as e:
             logger.error(f"Error verifying token: {e}")
             return Response(
@@ -212,6 +212,7 @@ class TokenVerifyView(APIView):
             )
 
 
+"""
 class TokenRefreshView(APIView):
     def post(self, request):
         try:
@@ -242,3 +243,4 @@ class TokenRefreshView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+"""
