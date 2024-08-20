@@ -1,13 +1,19 @@
 export interface token {
-  accessToken: string
-  refreshToken: string
+  token: string
+  refresh: string
 }
 
 export interface tokenRequest {
   token: string
 }
 
+export interface tokenRefreshRequest {
+  refresh: string
+}
+
 export interface tokenResponse {
-  message?: string
+  detail?: string
   status?: number
+  token?: string
+  code?: string
 }

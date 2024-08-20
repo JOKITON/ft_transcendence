@@ -1,3 +1,3 @@
 export default interface IAuth {
-  checkAndRefreshToken<Tresponse>(data: Record<string, any>): Promise<Tresponse>
+  checkAndRefreshToken(data: Record<string, any>): Promise<boolean>
 }
