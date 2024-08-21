@@ -1,8 +1,8 @@
-import type IAuth from '@/services/User/Services/Auth/IAuth'
+import type IAuth from './IAuth'
 import Api from '../../../../utils/Api/Api'
-import type { tokenResponse, token } from '@/Models/User/token'
+import type { tokenResponse, token } from '@/models/auth/token'
 
-export default class Auth implements IAuth {
+export default class auth implements IAuth {
   private api: Api = new Api()
 
   constructor(api?: Api) {

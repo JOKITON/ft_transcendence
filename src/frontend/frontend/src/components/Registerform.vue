@@ -71,7 +71,7 @@ const form = ref<UserRequest>({
 const handleSubmit = async (): Promise<void> => {
   try {
     const response: UserResponse = await api.post<UserResponse>('register', form.value)
-    if (response.status == 400) {
+    if (response.status != 201) {
       console.error('error de registro')
     } else {
       console.log('Form submitted successfully:', response)

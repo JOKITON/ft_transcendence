@@ -9,7 +9,7 @@ import api from './plugins/api'
 
 const app = createApp(App)
 
-app.use(api) // esto de podria hacer para tener acceso a la instancia de axios en toda la app
+app.use(api)
 app.use(createPinia())
 app.use(router)
 app.mount('#app')

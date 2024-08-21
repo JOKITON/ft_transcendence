@@ -41,8 +41,8 @@
 
 <script setup lang="ts">
 import NavIndex from '../views/public/NavIndex.vue'
-import type UserRequest from '@/Models/User/UserRequest'
-import type UserResponse from '@/Models/User/UserResponse'
+import type userRequest from '@/models/user/userRequest'
+import type userResponse from '@/models/user/userResponse'
 import { useRouter } from 'vue-router'
 import { ref, inject } from 'vue'
 import type Api from '@/utils/Api/Api'
@@ -50,35 +50,26 @@ import type Api from '@/utils/Api/Api'
 const api = inject('$api') as Api
 const router = useRouter()
 
-const form = ref<UserRequest>({
+const form = ref<userRequest>({
   username: '',
   password: ''
 })
 
 const handleSubmit: () => Promise<void> = async () => {
   try {
-    const response: UserResponse = await api.post<UserResponse>('login', form.value, [
-      'data',
-      'status'
-    ])
+    const response: userResponse = await api.post<userResponse>('login', form.value)
 
     console.log('response', response)
-    if (response.status !== 200) {
+    if (response.status !== 200 || response.token === undefined) {
       window.alert('An error occurred while submitting the form')
       localStorage.removeItem('token')
       localStorage.removeItem('refresh')
-    } else if (response.token === undefined) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('refresh')
-      window.alert('An error occurred while submitting the form')
     } else {
-      {
-        localStorage.setItem('token', response.token.token)
-        localStorage.setItem('refresh', response.token.refresh)
-        console.log('Login successful ', response)
-        api.setAccessToken(localStorage.getItem('token'))
-        //router.push('/pong')
-      }
+      localStorage.setItem('token', response.token.token)
+      localStorage.setItem('refresh', response.token.refresh)
+      console.log('Login successful ', response)
+      api.setAccessToken(localStorage.getItem('token'))
+      router.push('/pong')
     }
   } catch (error: any) {
     window.alert('An error occurred while submitting the form')
