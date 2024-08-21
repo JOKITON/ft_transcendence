@@ -3,8 +3,9 @@ import Index from '../views/public/Index.vue'
 import RegisterForm from '../components/Registerform.vue'
 import Login from '../components/Login.vue'
 import Pong from '../views/private/Pong/Pong.vue'
-import type { tokenResponse, token } from '@/Models/User/token'
+import type { tokenResponse, token } from '@/models/auth/token'
 import Api from '../utils/Api/Api'
+import type ApiResponse from '../utils/Api/Api'
 import { inject } from 'vue'
 
 const router = createRouter({
@@ -47,15 +48,8 @@ router.beforeEach(async (to, from, next): Promise<void> => {
       )
       console.log('token', response)
       if (!response || response.status !== 200) {
-        const token = await api.post<token>('token/refresh', {
-          refresh: localStorage.getItem('refresh') as string
-        })
-        if (token) {
-          localStorage.setItem('token', token.token)
-          localStorage.setItem('refresh', token.refresh)
-          next('/login')
-          return
-        }
+        next('/login')
+        return
       }
     }
     next()

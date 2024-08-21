@@ -8,6 +8,12 @@ if [ "$DATABASE" = "postgres" ]; then
   done
 fi
 
+mkdir -p /authentication/keys
+
+openssl genrsa -out /authentication/keys/private.pem 2048
+
+openssl rsa -in /authentication/keys/private.pem -pubout -out /authentication/keys/public.pem
+
 # Apply database migrations first time
 echo "Applying database migrations..."
 if ! python manage.py makemigrations authentication --noinput; then

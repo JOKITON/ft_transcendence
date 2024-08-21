@@ -33,7 +33,7 @@ export default class Api implements IApi {
 
   public async get<TResponse>(
     url: string,
-    request?: ResponseKey[],
+    request: ResponseKey[] = ['data', 'status'],
     headers?: { [key: string]: string } | Record<string, any>
   ): Promise<ApiResponse<TResponse> | ApiResponse<null>> {
     return await this.api
@@ -45,7 +45,7 @@ export default class Api implements IApi {
   public async post<TResponse>(
     url: string,
     data?: Record<string, any>,
-    request?: ResponseKey[],
+    request: ResponseKey[] = ['data', 'status'],
     headers?: { [key: string]: string } | Record<string, any>
   ): Promise<ApiResponse<TResponse> | ApiResponse<null>> {
     return await this.api
@@ -56,7 +56,7 @@ export default class Api implements IApi {
 
   public async delete<TResponse>(
     url: string,
-    request?: ResponseKey[],
+    request: ResponseKey[] = ['data', 'status'],
     headers?: { [key: string]: string } | Record<string, any>
   ): Promise<ApiResponse<TResponse> | ApiResponse<null>> {
     return await this.api
@@ -69,7 +69,7 @@ export default class Api implements IApi {
     response: AxiosResponse<T>,
     requests: ResponseKey[] = []
   ): ApiResponse<T> {
-    if (!requests || requests.length === 0) {
+    if (!requests || !requests.length) {
       return {
         data: response.data,
         status: response.status,
@@ -83,7 +83,6 @@ export default class Api implements IApi {
     requests.forEach((request) => {
       switch (request) {
         case 'data':
-          //meto los objetos directamente en vez de data: {Object [...] <- concateno}
           Object.assign(result, { ...response.data })
           break
         case 'status':
