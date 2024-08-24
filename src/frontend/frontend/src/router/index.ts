@@ -25,13 +25,12 @@ const Auth: auth = new auth()
 
 router.beforeEach(async (to, from, next): Promise<void> => {
   try {
-    console.log('from to ', to)
     if (to.name === 'login' || to.name === 'register') {
       next()
       return
     }
 
-    const response: boolean = await Auth.checkAndRefreshToken<tokenResponse>()
+    const response: boolean = await Auth.checkAndRefreshToken()
     if (to.matched.some((record) => record.meta.requiresAuth)) {
       if (response === true) {
         next()

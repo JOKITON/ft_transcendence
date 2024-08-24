@@ -46,31 +46,27 @@ import type userResponse from '@/models/user/userResponse'
 import { useRouter } from 'vue-router'
 import { ref, inject } from 'vue'
 import type Api from '@/utils/Api/Api'
+import auth from '../services/user/services/auth/auth.ts'
+
+const Auth = new auth()
 
 const api = inject('$api') as Api
 const router = useRouter()
 
-const form = ref<userRequest>({
+const form: Ref<userRequest> = ref<userRequset>({
   username: '',
   password: ''
 })
 
 const handleSubmit: () => Promise<void> = async () => {
   try {
-    const response: userResponse = await api.post<userResponse>('login', form.value)
-
-    console.log('response', response)
-    if (response.status !== 200) {
-      window.alert('An error occurred while submitting the form login')
-      console.log(response)
-      localStorage.removeItem('access')
-      localStorage.removeItem('refresh')
-    } else {
-      localStorage.setItem('access', response.token.access)
-      localStorage.setItem('refresh', response.token.refresh)
+    const response: boolean = await Auth.login<userResponse>(form.value)
+    if (response === true) {
       console.log('Login successful ', response)
-      api.setAccessToken(localStorage.getItem('access'))
       router.push('/pong')
+      api.setAccessToken(localStorage.getItem('access'))
+    } else {
+      window.alert('An error occurred while submitting the form login')
     }
   } catch (error: any) {
     window.alert('An error occurred while submitting the form')

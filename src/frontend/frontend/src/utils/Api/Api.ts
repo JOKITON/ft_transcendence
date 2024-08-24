@@ -21,10 +21,8 @@ export default class Api implements IApi {
     })
   }
 
-  public setAccessToken(token: string | null = localStorage.getItem('accessToken')): void {
-    if (token) {
-      this.api.defaults.headers.Authorization = `Bearer ${token}`
-    }
+  public setAccessToken(token: string | null = localStorage.getItem('access')): void {
+    if (token) this.api.defaults.headers.Authorization = `Bearer ${token}`
   }
 
   public removeAccessToken(): void {
@@ -35,11 +33,11 @@ export default class Api implements IApi {
     url: string,
     request: ResponseKey[] = ['data', 'status'],
     headers?: { [key: string]: string } | Record<string, any>
-  ): Promise<ApiResponse<TResponse> | ApiResponse<null>> {
+  ): Promise<ApiResponse<TResponse>> {
     return await this.api
       .get<TResponse>(url, { headers: headers })
       .then((response) => this.formatResponse(response, request))
-      .catch((error) => this.handleError(error))
+      .catch((error) => this.handleError<TResponse>(error))
   }
 
   public async post<TResponse>(
@@ -47,22 +45,22 @@ export default class Api implements IApi {
     data?: Record<string, any>,
     request: ResponseKey[] = ['data', 'status'],
     headers?: { [key: string]: string } | Record<string, any>
-  ): Promise<ApiResponse<TResponse> | ApiResponse<null>> {
+  ): Promise<ApiResponse<TResponse>> {
     return await this.api
       .post<TResponse>(url, data, { headers: headers })
       .then((response) => this.formatResponse(response, request))
-      .catch((error) => this.handleError(error))
+      .catch((error) => this.handleError<TResponse>(error))
   }
 
   public async delete<TResponse>(
     url: string,
     request: ResponseKey[] = ['data', 'status'],
     headers?: { [key: string]: string } | Record<string, any>
-  ): Promise<ApiResponse<TResponse> | ApiResponse<null>> {
+  ): Promise<ApiResponse<TResponse>> {
     return await this.api
       .delete<TResponse>(url, { headers: headers })
       .then((response) => this.formatResponse(response, request))
-      .catch((error) => this.handleError(error))
+      .catch((error) => this.handleError<TResponse>(error))
   }
 
   private switchResponse<T>(
@@ -71,7 +69,7 @@ export default class Api implements IApi {
   ): ApiResponse<T> {
     if (!requests || !requests.length) {
       return {
-        data: response.data,
+        ...response.data,
         status: response.status,
         headers: response.headers,
         config: response.config,
@@ -106,11 +104,10 @@ export default class Api implements IApi {
   }
 
   private formatResponse<T>(response: AxiosResponse<T>, request?: ResponseKey[]): ApiResponse<T> {
-    if (request && request?.length > 0 && response) {
-      return this.switchResponse(response, request)
-    }
+    if (request && request?.length > 0 && response) return this.switchResponse(response, request)
+
     return {
-      data: response.data,
+      ...response.data,
       status: response.status,
       headers: response.headers,
       config: response.config,
@@ -118,10 +115,10 @@ export default class Api implements IApi {
     }
   }
 
-  private handleError(error: AxiosError): ApiResponse<null> {
+  private handleError<Terror>(error: AxiosError): ApiResponse<Terror> {
     const response: AxiosResponse<unknown, any> | undefined = error.response
     return {
-      data: null,
+      data: {} as Terror,
       status: response?.status ?? 500,
       headers: response?.headers ?? {},
       config: response?.config ?? {},
