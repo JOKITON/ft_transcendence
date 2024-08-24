@@ -50,15 +50,15 @@ class LoginUserView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data
             login(request, user)
-            refresh: Token = RefreshToken.for_user(user)
-            access_token: str = str(refresh.access_token)
-            refresh_token: str = str(refresh)
+            refresh_token: Token = RefreshToken.for_user(user)
+            access: str = str(refresh_token.access_token)
+            refresh: str = str(refresh_token)
             response: Dict = {
                 "message": f"User {user.username} logged in successfully",
                 "status": status.HTTP_200_OK,
                 "token": {
-                    "token": access_token,
-                    "refresh": refresh_token,
+                    "access": access,
+                    "refresh": refresh,
                 },
             }
             return Response(response, status=status.HTTP_200_OK)

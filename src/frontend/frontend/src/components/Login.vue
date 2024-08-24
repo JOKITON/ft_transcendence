@@ -60,15 +60,16 @@ const handleSubmit: () => Promise<void> = async () => {
     const response: userResponse = await api.post<userResponse>('login', form.value)
 
     console.log('response', response)
-    if (response.status !== 200 || response.token === undefined) {
-      window.alert('An error occurred while submitting the form')
-      localStorage.removeItem('token')
+    if (response.status !== 200) {
+      window.alert('An error occurred while submitting the form login')
+      console.log(response)
+      localStorage.removeItem('access')
       localStorage.removeItem('refresh')
     } else {
-      localStorage.setItem('token', response.token.token)
+      localStorage.setItem('access', response.token.access)
       localStorage.setItem('refresh', response.token.refresh)
       console.log('Login successful ', response)
-      api.setAccessToken(localStorage.getItem('token'))
+      api.setAccessToken(localStorage.getItem('access'))
       router.push('/pong')
     }
   } catch (error: any) {

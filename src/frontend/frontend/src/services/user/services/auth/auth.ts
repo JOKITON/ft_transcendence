@@ -1,6 +1,6 @@
 import type IAuth from './IAuth'
 import Api from '../../../../utils/Api/Api'
-import type { tokenResponse, token } from '@/models/auth/token'
+import type { ApiResponse } from '@/utils/Api/IApi'
 
 export default class auth implements IAuth {
   private api: Api = new Api()
@@ -9,21 +9,43 @@ export default class auth implements IAuth {
     if (api) this.api = api
   }
 
-  public async checkAndRefreshToken<tokenResponse>(data: Record<string, any>): Promise<boolean> {
+  public async checkAndRefreshToken<TResponse>(): Promise<boolean> {
     try {
-      /*if (response.code != 200) {
-        return false
-      } else if ((response.detail = 'Token not valid')) {
-        const r: token = await this.api.post<token>('token/refresh', data)
-        console.log('Refresh response:', response)
-        localStorage.setItem('token', r.token)
-        localStorage.setItem('refresh', r.refresh)
-        return this.checkAndRefreshToken(data) // Recursive call to check the new token
-      }*/
+      const response: ApiResponse<TResponse> | ApiResponse<null> = await this.api.post<TResponse>(
+        'token/verify',
+        {
+          token: localStorage.getItem('access') as string
+        },
+        ['status'],
+        {
+          Authorization: `Bearer ${localStorage.getItem('access') as string}`
+        }
+      )
+      console.log('checkAndRefreshToken', response)
+      if (response && response.status === 200) return true
+      else {
+        const refresh: ApiResponse<TResponse> | ApiResponse<null> = await this.api.post<TResponse>(
+          'token/refresh',
+          {
+            refresh: localStorage.getItem('refresh')
+          }
+        )
+        localStorage.setItem('access', refresh.access)
+        localStorage.setItem('refresh', refresh.refresh)
+        this.api.setAccessToken(refresh.access)
+        if (refresh && refresh.status === 200) {
+          this.checkAndRefreshToken()
+        } else {
+          localStorage.removeItem('access')
+          localStorage.removeItem('refresh')
+          console.error('Error refreshing token:', refresh)
+          return false
+        }
+      }
       return false
     } catch (error: any) {
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('access')
+      localStorage.removeItem('refresh')
       console.error('Error checking token:', error)
       return false
     }

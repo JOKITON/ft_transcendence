@@ -1,6 +1,7 @@
 export interface token {
-  token: string
+  access: string
   refresh: string
+  status?: number
 }
 
 export interface tokenRequest {
@@ -14,6 +15,6 @@ export interface tokenRefreshRequest {
 export interface tokenResponse {
   detail?: string
   status?: number
-  token?: string
+  token?: token
   code?: string
 }
