@@ -51,6 +51,8 @@ services:
     depends_on:
       - reverse-proxy
       - database
+#secrets:
+#  auth_traefik:
 
 networks:
   ft_transcendence:
@@ -64,14 +66,12 @@ volumes:
       type: none
       o: bind
       device: ../frontend/frontend
-
   db-data:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: ../database/db
-
   authentication:
     driver: local
     driver_opts:

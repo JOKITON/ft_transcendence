@@ -1,3 +1,5 @@
 export default interface IAuth {
-  checkAndRefreshToken(data: Record<string, any>): Promise<boolean>
+  checkAndRefreshToken(): Promise<boolean>
+  login(data: Record<string, any>): Promise<boolean>
+  register(data: Record<string, any>): Promise<boolean>
 }
