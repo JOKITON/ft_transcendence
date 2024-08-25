@@ -48,9 +48,8 @@ import { ref, inject } from 'vue'
 import type Api from '@/utils/Api/Api'
 import auth from '../services/user/services/auth/auth.ts'
 
-const Auth = new auth()
-
-const api = inject('$api') as Api
+const api: Api = inject('$api') as Api
+const Auth: auth = new auth(api)
 const router = useRouter()
 
 const form: Ref<userRequest> = ref<userRequset>({
@@ -62,12 +61,10 @@ const handleSubmit: () => Promise<void> = async () => {
   try {
     const response: boolean = await Auth.login<userResponse>(form.value)
     if (response === true) {
-      console.log('Login successful ', response)
       router.push('/pong')
-      api.setAccessToken(localStorage.getItem('access'))
-    } else {
-      window.alert('An error occurred while submitting the form login')
+      api?.setAccessToken()
     }
+    console.log('Login successful ', response)
   } catch (error: any) {
     window.alert('An error occurred while submitting the form')
     console.error('An error occurred while submitting the form:', error)

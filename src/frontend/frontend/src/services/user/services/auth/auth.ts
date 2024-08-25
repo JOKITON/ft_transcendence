@@ -19,10 +19,30 @@ export default class auth implements IAuth {
         this.setToken(response?.token as token)
         this.api.setAccessToken(response.token?.access)
         return true
+      } else {
+        window.alert('An error occurred while submitting the form login')
+        return false
       }
-      return false
     } catch (error: any) {
       console.error('Error logging in:', error)
+      return false
+    }
+  }
+
+  public async register(data: Record<string, any>): Promise<boolean> {
+    try {
+      const response: ApiResponse<userResponse> = await this.api.post<userResponse>(
+        'register',
+        data
+      )
+      if (response.status === 200) {
+        return true
+      } else {
+        console.error('error de registro')
+        return false
+      }
+    } catch (error: any) {
+      console.error('Error registering user:', error)
       return false
     }
   }

@@ -1,6 +1,6 @@
-import type { AxiosError } from 'axios'
 import type { IApi, ApiResponse, ResponseKey } from './IApi'
 import type { AxiosInstance, AxiosResponse } from 'axios'
+import type { AxiosError } from 'axios'
 import axios from 'axios'
 
 export default class Api implements IApi {
@@ -63,10 +63,7 @@ export default class Api implements IApi {
       .catch((error) => this.handleError<TResponse>(error))
   }
 
-  private switchResponse<T>(
-    response: AxiosResponse<T>,
-    requests: ResponseKey[] = []
-  ): ApiResponse<T> {
+  private switchResponse<T>(response: AxiosResponse<T>, requests?: ResponseKey[]): ApiResponse<T> {
     if (!requests || !requests.length) {
       return {
         ...response.data,
@@ -115,10 +112,10 @@ export default class Api implements IApi {
     }
   }
 
-  private handleError<Terror>(error: AxiosError): ApiResponse<Terror> {
+  private handleError<T>(error: AxiosError): ApiResponse<T> {
     const response: AxiosResponse<unknown, any> | undefined = error.response
     return {
-      data: {} as Terror,
+      ...(response?.data ?? {}),
       status: response?.status ?? 500,
       headers: response?.headers ?? {},
       config: response?.config ?? {},
