@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Index from '../views/public/Index.vue'
-import Register from '../components/Register.vue'
-import Login from '../components/Login.vue'
+import Register from '../views/public/Register.vue'
+import Login from '../views/public/Login.vue'
 import Pong from '../views/private/Pong/Pong.vue'
 import auth from '../services/user/services/auth/auth'
+import UserList from '../views/private/UserList.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,7 +13,8 @@ const router = createRouter({
     { path: '/', name: 'home', component: Index },
     { path: '/register', name: 'register', component: Register },
     { path: '/login', name: 'login', component: Login },
-    { path: '/pong', name: 'pong', component: Pong, meta: { requiresAuth: true } }
+    { path: '/pong', name: 'pong', component: Pong, meta: { requiresAuth: true } },
+    // { path: '/user-list', name: 'UserList', component: UserList, meta: { requiresAuth: true } },
     // { path: '/friend-list', name: 'FriendList', component: FriendList, meta: { requiresAuth: true } },
     // { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
   ]

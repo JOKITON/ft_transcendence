@@ -3,6 +3,7 @@ export default interface Iplayer {
   score: number
   up: string
   down: string
+  keys: Set<string>
 
   setName(name: string): void
   getName(): string

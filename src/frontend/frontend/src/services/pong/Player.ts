@@ -1,64 +1,157 @@
-import type Iplayer from './interfaces/IPlayer'
-import Box from './Objects/Box'
-import { Color, Vector3, Vector2 } from 'three'
-import Keyboard from './Keyboard'
+import type IPlayer from './interfaces/IPlayer';
+import Box from './Objects/Box';
+import Sphere from './Objects/Sphere';
+import { Sphere as ThreeSphere, BoxGeometry, Color, Vector3 } from 'three';
 
-export default class Player extends Box implements Iplayer {
-  private score: number = 0
-  private name: string = 'NPC'
-  private up: string
-  private down: string
-  private keys: Set<string> = new Set()
+export default class Player extends Box implements IPlayer {
+  private name: string = 'NPC';
+  private position: Vector3;
+  private score: number = 0;
 
-  //private keyboard: Keyboard = new Keyboard() <- no se si implemenratala o no pero para controlador online y demas igual y si
+  private aiDifficulty: number = 1;
+  private isAI: boolean = false;
+
+  private up: string;
+  private down: string;
+  private keys: Set<string> = new Set();
+
   constructor(
-    geometry: Vector3 = new Vector3(0.2, 2, 0.2),
-    color: Color = new Color(),
-    position: Vector3 = new Vector3(16, 0.2, 0.2),
-    up: string = 'ArrowUp',
-    down: string = 'ArrowDown'
+    geometry: Vector3,
+    color: Color,
+    position: Vector3,
+    up: string,
+    down: string,
+    name: string,
   ) {
-    super(geometry, color, position) // esto se refiere a la clase padre
-    this.down = down
-    this.up = up
-    this.event()
-  }
-
-  setName(name: string): void {
-    this.name = name
-  }
-
-  getName(): string {
-    return this.name
-  }
-
-  addScore(): void {
-    this.score += 1
-  }
-
-  getScore(): number {
-    return this.score
-  }
-
-  event(): void {
-    addEventListener('keydown', (event): void => {
-      this.keys.add(event.key)
-    })
-
-    addEventListener('keyup', (event): void => {
-      this.keys.delete(event.key)
-    })
-  }
-
-  update(): void {
-    if (this.keys.has(this.up) && this.mesh.position.y < 6) {
-      this.moveUp(0.4)
-    } else if (this.keys.has(this.down) && this.mesh.position.y > -6) {
-      this.moveDown(0.4)
+    super(geometry, color, position);
+    this.position = position;
+    this.name = name;
+    if (up && down) {
+      this.up = up;
+      this.down = down;
+      this.setupEventListeners();
+    }
+    else {
+      this.isAI = true;
     }
   }
 
-  destructor(): void {
-    console.log('destructor Player')
+  setName(name: string): void {
+    this.name = name;
+  }
+
+  getName(): string {
+    return this.name;
+  }
+
+  addScore(): void {
+    this.score += 1;
+  }
+
+  getScore(): number {
+    return this.score;
+  }
+
+  private setupEventListeners(): void {
+    window.addEventListener('keydown', this.handleKeyDown);
+    window.addEventListener('keyup', this.handleKeyUp);
+  }
+
+  private handleKeyDown = (event: KeyboardEvent): void => {
+    event.preventDefault();
+    if (event.code === this.up) {
+      this.keys.add(this.up);
+    } else if (event.code === this.down) {
+      this.keys.add(this.down);
+    }
+  }
+
+  private handleKeyUp = (event: KeyboardEvent): void => {
+    if (event.code === this.up) {
+      this.keys.delete(this.up);
+    } else if (event.code === this.down) {
+      this.keys.delete(this.down);
+    }
+  }
+
+  setAiDifficulty( difficulty: number ) : void {
+    this.aiDifficulty = difficulty;
+  }
+
+  updateAI(ball: Sphere): void {
+    if (this.isAI)
+      this.manageAI(ball);
+  }
+
+  update(): void {
+    if (this.keys.has(this.up) && this.mesh.position.y < 8) {
+      this.moveUp(0.15);
+    } 
+    if (this.keys.has(this.down) && this.mesh.position.y > -8) {
+      this.moveDown(0.15);
+    }
+  }
+
+  manageAI(ball: Sphere): void {
+    const ballPos = ball.get();
+    const ballPosX = ballPos.position.x;
+    const ballPosY = ballPos.position.y;
+  
+    const reactionDelay = (300 / this.aiDifficulty); // Adjust this value to make the AI slower
+    setTimeout(() => {
+      if (ballPosX > 0) { // Only react when the ball is on the AI's side
+        const moveSpeed = 0.15; // AI movement speed (reduce this value to slow down AI)
+  
+        if (this.mesh.position.y < 8 && this.mesh.position.y < ballPosY) {
+          // Add randomness to simulate human error
+          const randomFactor = Math.random() * 0.05; // Adjust the randomness factor
+          this.moveUp(moveSpeed - randomFactor);
+        } 
+        
+        if (this.mesh.position.y > -8 && this.mesh.position.y > ballPosY) {
+          const randomFactor = Math.random() * 0.05; // Adjust the randomness factor
+          this.moveDown(moveSpeed - randomFactor);
+        }
+      }
+    }, reactionDelay);
+  }
+  
+
+  dispose(): void {
+    // Dispose of geometry and material
+    if (this.mesh.geometry) this.mesh.geometry.dispose();
+    if (this.mesh.material) {
+      if (Array.isArray(this.mesh.material)) {
+        this.mesh.material.forEach(mat => mat.dispose());
+      } else {
+        this.mesh.material.dispose();
+      }
+    }
+
+    // Remove event listeners
+    if (!this.isAI) {
+      window.removeEventListener('keydown', this.handleKeyDown);
+      window.removeEventListener('keyup', this.handleKeyUp);
+    }
+    
+    console.log('Player disposed');
+  }
+
+  public getBoundingSphere(): ThreeSphere {
+    const size = (this.mesh.geometry as BoxGeometry).parameters;
+    const radius = Math.sqrt(size.width ** 2 + size.height ** 2 + size.depth ** 2) / 2;
+    return new ThreeSphere(this.mesh.position, radius);
+  }
+
+  public intersects(other: Sphere): boolean {
+    const playerSphere = this.getBoundingSphere();
+    const ballSphere = other.getBoundingSphere();
+    return playerSphere.intersectsSphere(ballSphere);
+  }
+
+  public returnToPlace() {
+    this.mesh.position.x = (this.position.x);
+    this.mesh.position.y = (this.position.y);
+    this.mesh.position.z = (this.position.z);
   }
 }

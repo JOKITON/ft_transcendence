@@ -22,7 +22,7 @@
     "pinia": "^2.1.7",
     "popper.js": "^1.16.1",
     "sleep-promise": "^9.1.0",
-    "three": "^0.166.1",
+    "three": "^0.167.1",
     "vue": "^3.4.29",
     "vue-router": "^4.4.3",
     "winston": "^3.13.1"

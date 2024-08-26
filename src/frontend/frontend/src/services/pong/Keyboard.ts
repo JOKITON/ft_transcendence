@@ -34,10 +34,4 @@ export default class Keyboard implements IKeyboard {
   controlPlayer(): void {
     console.log('controlPlayer')
   }
-  //
-  addKey(key: string): void {
-    //addEventListener('keydown', (event): void => {})
-    //addEventListener('keyup', (event): void => {})
-    //this.keys.add(key)
-  }
 }
