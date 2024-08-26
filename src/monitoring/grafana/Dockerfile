@@ -6,11 +6,11 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/26 18:57:05 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/07/20 22:14:48 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/08/26 18:03:26 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20 AS Builder
+FROM alpine:latest AS Builder
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.grafana.rule=Host(`grafana.localhost`)

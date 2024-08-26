@@ -22,7 +22,7 @@ const Auth: auth = new auth()
 
 router.beforeEach(async (to, from, next): Promise<void> => {
   try {
-    if (to.name === 'login' || to.name === 'register') {
+    if (to.name === 'login' || to.name === 'home' || to.name === 'register') {
       next()
       return
     }

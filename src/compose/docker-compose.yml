@@ -20,8 +20,8 @@ services:
     env_file: ../database/.env-postgres
     ports:
       - 5432
-    volumes:
-      - db-data:/var/lib/postgresql/data
+    # volumes:
+      # - db-data:/var/lib/postgresql/data
     restart: always
     shm_size: 128mb
     networks:
