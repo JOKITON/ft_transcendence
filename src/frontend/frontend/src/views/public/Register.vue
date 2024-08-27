@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import NavIndex from '../views/public/NavIndex.vue'
+import NavIndex from './NavIndex.vue'
 import type UserRequest from '@/Models/User/UserRequst'
 import type UserResponse from '@/Models/User/UserResponse'
 import type Api from '@/utils/Api/Api'
