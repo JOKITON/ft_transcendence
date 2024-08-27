@@ -7,41 +7,30 @@
         You need to either
         <router-link class="" to="/login" data-link="login">log in</router-link>
         or
-        <router-link class="" to="/register" data-link="register"
-          >sign up</router-link
-        >.
+        <router-link class="" to="/register" data-link="register">sign up</router-link>.
       </p>
       <hr />
       <p class="mb-0">
-        Things seem pretty boring here... Do you think you can beat me in a Pong
-        game?
+        Things seem pretty boring here... Do you think you can beat me in a Pong game?
       </p>
     </div>
   </div>
 </template>
 
-<script>
-import NavIndex from "./NavIndex.vue";
-
-export default {
-  name: "compIndex",
-  components: {
-    'NavIndex': NavIndex
-  },
-};
+<script setup lang="ts">
+import NavIndex from './NavIndex.vue'
 </script>
 
 <style>
-
 .block {
   padding: auto;
   margin: auto;
   width: 40%;
-  text-align: center
+  text-align: center;
 }
 
-html, body {
+html,
+body {
   background-image: url('../../assets/images/background.jpeg');
 }
-
 </style>
