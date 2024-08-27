@@ -1,6 +1,5 @@
 import Player from './Player'
 import Sphere from './Objects/Sphere'
-import { defaults } from 'node_modules/axios/index.cjs'
 
 // Time control for collision detection
 let collisionCheckInterval: number = 10 // in milliseconds
@@ -16,7 +15,7 @@ function checkCollisions(ball: Sphere, player: Player, player2: Player): boolean
   return false
 }
 
-export default function handleCollisions(ball: Sphere, player: Player, player2: Player) {
+export function handleCollisions(ball: Sphere, player: Player, player2: Player) {
   const now = performance.now()
   if (now - lastCollisionCheckTime >= collisionCheckInterval) {
     const collisionDetected = checkCollisions(ball, player, player2)
