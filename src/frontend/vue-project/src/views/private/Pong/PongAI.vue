@@ -29,7 +29,8 @@ const returnToMenu = () => {
   emit('returnToMenu');
 };
 
-const three = new ThreeService(window.innerWidth, window.innerHeight);
+const songElement = ref(null); // Reference to the audio element
+let three;
 
 // Define bounds of the Pong game
 const bounds = { minX: -16.2, maxX: 16.2, minY: -9.2, maxY: 9.2, minZ: 0, maxZ: 0 };
@@ -99,6 +100,7 @@ function update() {
     three.removeScene(helpTextSpace.get());
   }, 4000);
   if (!isAnimating.value) return;
+  three.setAudio(songElement.value);
 
   let check = ball.update();
   if (check) {
@@ -181,8 +183,11 @@ const endGame = (winningPlayer: string) => {
 };
 
 onMounted(() => {
-  setupScene()
-  three.startAnimation(update)
+  // Initialize ThreeService with the correct reference to the audio element
+  three = new ThreeService(window.innerWidth, window.innerHeight);
+  setupScene();
+  three.startAnimation(update);
+
   window.addEventListener('resize', () => {
     three.resize(window.innerWidth, window.innerHeight);
   });
@@ -205,5 +210,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <audio ref="songElement" preload="auto" style="display: none">
+    <source src="/src/assets/songs/ping-pong.mp3" type="audio/mp3">
+  </audio>
   <div></div>
 </template>

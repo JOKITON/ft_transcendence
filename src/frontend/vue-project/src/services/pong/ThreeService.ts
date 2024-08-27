@@ -1,8 +1,8 @@
-import { Object3D, Scene, PerspectiveCamera, WebGLRenderer, Mesh } from 'three';
+import { Object3D, Scene, PerspectiveCamera, WebGLRenderer, Mesh, AudioListener, PositionalAudio } from 'three';
 import { AmbientLight, DirectionalLight } from 'three';
 
-const ambientLight = new AmbientLight(0xffffff, 0.5); // Ambient light with a low intensity
-const directionalLight = new DirectionalLight(0xffffff, 2); // Directional light with a high intensity
+const ambientLight = new AmbientLight(0xffffff, 0.5);
+const directionalLight = new DirectionalLight(0xffffff, 2);
 directionalLight.position.set(0, 5, 10).normalize();
 
 export default class ThreeService {
@@ -10,23 +10,39 @@ export default class ThreeService {
   private camera: PerspectiveCamera;
   private renderer: WebGLRenderer;
   private animationFrameId: number | null = null;
+  private audioOn: boolean = false;
 
   constructor(width: number = window.innerWidth, height: number = window.innerHeight) {
     this.scene = new Scene();
-    this.camera = new PerspectiveCamera(100, width / (height - 100), 0.01, 1000); // Adjusted FOV for better view
+    this.camera = new PerspectiveCamera(100, width / (height - 100), 0.01, 1000);
     this.renderer = new WebGLRenderer({ antialias: true });
     this.renderer.setSize(width, height - 100);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.camera.position.z = 10;
 
+    this.scene.add(ambientLight);
+    this.scene.add(directionalLight);
+
     // Append renderer canvas to the DOM
     document.body.appendChild(this.renderer.domElement);
   }
 
+  public setAudio( songElement: HTMLAudioElement) {
+    const listener = new AudioListener();
+    this.camera.add(listener);
+    // Ensure songElement is a valid HTMLMediaElement before using it
+    if (songElement instanceof HTMLMediaElement && this.audioOn == false) {
+      const sound1 = new PositionalAudio(listener);
+      sound1.setMediaElementSource(songElement);
+      sound1.setRefDistance(20);
+
+      this.scene.add(sound1);
+      this.audioOn = true;
+    }
+  }
+
   addScene(object: Object3D): void {
     this.scene.add(object);
-    this.scene.add(ambientLight);
-    this.scene.add(directionalLight);
   }
 
   removeScene(mesh: Mesh): void {
