@@ -12,63 +12,68 @@
   </main>
 </template>
 
-<script>
-import api from '../../services/Api/api'
-import { removeAccessToken } from '../../services/Api/auth'
-import NavHome from "./NavHome.vue";
+<script setup lang="ts">
+import { ref, onMounted, inject } from 'vue'
+import { useRouter } from 'vue-router'
+import NavHome from './NavHome.vue'
+import auth from '../../services/user/services/auth/auth.ts'
+import type Api from '@/utils/Api/Api'
+// Variables reactivas
+const isProfileVisible = ref(false)
+const isDropdownVisible = ref(false)
+const username = ref('User') // Valor por defecto, será actualizado más adelante
+const api: Api = inject('$api') as Api
+const Auth: auth = new auth(api)
+const router = useRouter()
 
-export default {
-  name: 'loginHome',
-  data() {
-    return {
-      isProfileVisible: false,
-      isDropdownVisible: false,
-      username: 'User' // Replace this with actual data source if necessary
+// Función para cerrar sesión
+const logoutUser = async () => {
+  try {
+    const response = await Auth.logout()
+    if (response.status === 200) {
+      console.log('Logout successful:', response.data)
+      Auth.removeAccessToken()
+      router.push('/login')
+    } else {
+      console.error('Logout failed:', response.data)
+      alert('Logout failed. ' + response.data.message)
+      Auth.removeAccessToken()
     }
-  },
-  async created() {
-    // Fetch or set the username when the component is created
-    await this.fetchUsername()
-    await this.fetchPongTables()
-  },
-  methods: {
-    async logoutUser() {
-      try {
-        const response = await api.post('user/logout/')
-        console.log('Logout successful:', response.data)
-        removeAccessToken()
-        this.$router.push('/login')
-      } catch (error) {
-        console.error('Logout error:', error.response ? error.response.data : error.message)
-        alert('Logout failed. ' + (error.response ? error.response.data.message : error.message))
-      }
-    },
-    async fetchUsername() {
-      try {
-        const response = await api.get('user/whoami/', { withCredentials: true })
-        this.username = response.data.username // Replace with your actual response structure
-      } catch (error) {
-        console.error(
-          'Error fetching username:',
-          error.response ? error.response.data : error.message
-        )
-      }
-    },
-    toggleDropdown() {
-      this.isDropdownVisible = !this.isDropdownVisible
-    },
-    openSettings() {
-      // Implement your settings logic here
-      alert('Settings clicked')
-    },
-    openProfile() {
-      // Implement your profile logic here
-      alert('Profile clicked')
-    }
+  } catch (error) {
+    console.error('Logout error:', error.response ? error.response.data : error.message)
+    alert('Logout failed. ' + (error.response ? error.response.data.message : error.message))
   }
 }
-</script>
 
+// Función para obtener el nombre de usuario
+const fetchUsername = async () => {
+  try {
+    const response = await api.get('user/whoami/', { withCredentials: true })
+    username.value = response.data.username // Reemplazar con la estructura real de tu respuesta
+  } catch (error) {
+    console.error('Error fetching username:', error.response ? error.response.data : error.message)
+  }
+}
+
+// Función para alternar el menú desplegable
+const toggleDropdown = () => {
+  isDropdownVisible.value = !isDropdownVisible.value
+}
+
+// Funciones de manejo de perfil y configuración
+const openSettings = () => {
+  alert('Settings clicked')
+}
+
+const openProfile = () => {
+  alert('Profile clicked')
+}
+
+// Lifecycle hook similar a `created` en Options API
+onMounted(async () => {
+  await fetchUsername()
+})
+</script>
 <style>
 @import url('https://cdn.jsdelivr.net/npm/@docsearch/css@3');
 

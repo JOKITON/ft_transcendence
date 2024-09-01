@@ -24,10 +24,6 @@
   </nav>
 </template>
 
-<script>
-export default {
-  name: 'NavIndex'
-}
-</script>
+<script setup lang="ts"></script>
 
 <style></style>
