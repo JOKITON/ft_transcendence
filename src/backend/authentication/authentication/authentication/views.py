@@ -10,9 +10,9 @@ from .serializers import (
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from django.contrib.auth import login, logout
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework import status
 from typing import Dict
 import logging
@@ -23,7 +23,6 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 class RegisterUserView(APIView):
     def post(self, request) -> Response:
-        print(request.data)
         serializer = UserSerializerRegister(
             data=request.data, context={"request": request}
         )
@@ -77,27 +76,24 @@ class LogoutView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request) -> Response:
-        print(request.user)
-        serializer = UserSerializer(data=request.data, context={"request": request})
-
-        if not serializer.is_valid():
+    def post(self, request):
+        if not request.user.is_authenticated:
             return Response(
-                {"detail": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+                {"detail": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED
             )
-        # Blacklist the refresh token if using blacklist strategy
+
         try:
-            refresh_token = request.data.get("accessToken")
+            refresh_token = request.data.get("refresh")
             if refresh_token:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
-                logout(request.username)
                 logger.info(f"Refresh token {refresh_token} blacklisted successfully.")
         except Exception as e:
             logger.error(f"Error blacklisting token: {e}")
             return Response(
                 {"detail": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
             )
+
         # Perform the logout
         logout(request)
         response = Response(

@@ -71,62 +71,66 @@
     </div>
   </header>
 </template>
-<script>
-import api from '../../utils/Api/Api'
 
-export default {
-  name: 'NavHome',
-  data() {
-    return {
-      isProfileVisible: false,
-      isDropdownSettingsVisible: false,
-      isDropdownAdminVisible: false,
-      username: 'User' // Replace this with actual data source if necessary
-    }
-  },
-  async created() {
-    // Fetch or set the username when the component is created
-    await this.fetchUsername()
-  },
-  methods: {
-    async logoutUser() {
-      try {
-        const response = await api.post('user/logout/')
-        console.log('Logout successful:', response.data)
-        removeAccessToken()
-        this.$router.push('/login')
-      } catch (error) {
-        console.error('Logout error:', error.response ? error.response.data : error.message)
-        alert('Logout failed. ' + (error.response ? error.response.data.message : error.message))
-      }
-    },
-    async fetchUsername() {
-      try {
-        const response = await api.get('user/whoami/')
-        this.username = response.data.username // Replace with your actual response structure
-      } catch (error) {
-        console.error(
-          'Error fetching username:',
-          error.response ? error.response.data : error.message
-        )
-      }
-    },
-    toggleDropdownSettings() {
-      this.isDropdownSettingsVisible = !this.isDropdownSettingsVisible
-    },
-    toggleDropdownAdmin() {
-      this.isDropdownAdminVisible = !this.isDropdownAdminVisible
-    },
-    openSettings() {
-      // Implement your settings logic here
-      alert('Settings clicked')
-    },
-    openProfile() {
-      // Implement your profile logic here
-      alert('Profile clicked')
-    }
+<script setup lang="ts">
+import { ref, onMounted, inject } from 'vue'
+import { useRouter } from 'vue-router'
+import type Api from '../../services/Api/api'
+import auth from '../../services/user/services/auth/auth'
+
+const api: Api = inject('$api') as Api
+const Auth: auth = new auth(api)
+// Variables reactivas
+const isProfileVisible = ref(false)
+const isDropdownSettingsVisible = ref(false)
+const isDropdownAdminVisible = ref(false)
+const username = ref('User') // Valor por defecto, será actualizado más adelante
+
+const router = useRouter()
+
+// Función para cerrar sesión
+const logoutUser = async () => {
+  try {
+    const response: boolean = await Auth.logout()
+    console.log('Logout successful:', response.data)
+    router.push('/login')
+  } catch (error) {
+    console.error('Logout error:', error.response ? error.response.data : error.message)
+    alert('Logout failed. ' + (error.response ? error.response.data.message : error.message))
   }
 }
-</script>
 
+// Función para obtener el nombre de usuario
+const fetchUsername = async () => {
+  try {
+    const response = await api.get('whoami')
+    username.value = response.data.username // Reemplazar con la estructura real de tu respuesta
+  } catch (error) {
+    console.error('Error fetching username:', error.response ? error.response.data : error.message)
+  }
+}
+
+// Funciones para alternar los menús desplegables
+const toggleDropdownSettings = () => {
+  isDropdownSettingsVisible.value = !isDropdownSettingsVisible.value
+}
+
+const toggleDropdownAdmin = () => {
+  isDropdownAdminVisible.value = !isDropdownAdminVisible.value
+}
+
+// Funciones de manejo de perfil y configuración
+const openSettings = () => {
+  alert('Settings clicked')
+}
+
+const openProfile = () => {
+  alert('Profile clicked')
+}
+
+// Lifecycle hook similar a `created` en Options API
+onMounted(async () => {
+  await fetchUsername()
+})
+</script>
 <style></style>
