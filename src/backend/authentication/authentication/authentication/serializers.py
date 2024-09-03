@@ -15,7 +15,7 @@ class UserSerializerRegister(serializers.ModelSerializer):
 
     class Meta:
         model: ModelBase = User
-        fields: List = ["username", "password", "email"]
+        fields: List = ["username", "password", "email", "nickname"]
 
     def create(self, validated_data) -> User | serializers.ValidationError:
         user: User = User.objects.create_user(
@@ -24,9 +24,8 @@ class UserSerializerRegister(serializers.ModelSerializer):
             password=validated_data["password"],
             ip=self.context["request"].META.get("REMOTE_ADDR"),
             ip_last_login=self.context["request"].META.get("REMOTE_ADDR"),
+            nickname=validated_data.get("nickname"),
         )
-        print(user)
-        logger.info(f"User {user.username} created")
         return user
 
 

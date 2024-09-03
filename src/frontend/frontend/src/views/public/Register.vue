@@ -19,6 +19,19 @@
             />
           </div>
           <div class="mb-3">
+            <label for="nickname" class="form-label">nickname</label>
+            <input
+              id="nickname"
+              v-model="form.nickname"
+              type="text"
+              name="nickname"
+              class="form-control"
+              placeholder="Enter your nickname"
+              required
+              autofocus
+            />
+          </div>
+          <div class="mb-3">
             <label for="email" class="form-label">Email</label>
             <input
               id="email"
@@ -65,7 +78,8 @@ const router = useRouter()
 const form = ref<UserRequest>({
   username: '',
   password: '',
-  email: ''
+  email: '',
+  nickname: ''
 })
 
 const handleSubmit = async (): Promise<void> => {
