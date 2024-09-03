@@ -20,45 +20,31 @@ IV.1 Overview
 	- Major module: Use a Framework as backend. [Done]
 	- Minor module: Use a front-end framework or toolkit. [Done]
 	- Minor module: Use a database for the backend. [Done]
-	(Santi) - Major module: Store the score of a tournament in the Blockchain. [Advanced]
 
 - User Management
 	- Major module: Standard user management, authentication, users across
 	tournaments. [2/3 Done]
-	- Major module: Implementing a remote authentication.
 
 - Gameplay and user experience
-	- Major module: Remote players
-	- Major module: Multiplayers (more than 2 in the same game).
-	(Optional) - Major module: Add Another Game with User History and Matchmaking.
-	(Optional) - Minor module: Game Customization Options.
-	- Major module: Live chat.
+	- Major module: Remote players [To-Do]
+	- Major module: Live chat. [Difficult To-Do]
+
+	- Major module: Multiplayers (more than 2 in the same game). [Easy To-Do]
 
 - AI-Algo
-	(Optional) - Major module: Introduce an AI Opponent.
-	(Optional) - Minor module: User and Game Stats Dashboards
+	- Major module: Introduce an AI Opponent. [Done]
 
 - Cybersecurity
-	(Very Optional) - Major module: Implement WAF/ModSecurity with Hardened Configuration and HashiCorp Vault for Secrets Management.
-	(Very Optional) - Minor module: GDPR Compliance Options with User Anonymization, Local Data Management, and Account Deletion.
-	- Major module: Implement Two-Factor Authentication (2FA) and JWT. -> [https://developers.google.com/google-ads/api/docs/client-libs/python/oauth-web]
+	- Major module: Implement Two-Factor Authentication (2FA) and JWT. -> [https://developers.google.com/google-ads/api/docs/client-libs/python/oauth-web] [To-Do]
 
 - Devops
-	(Optional) - Major module: Infrastructure Setup for Log Management.
-	(Optional) - Minor module: Monitoring system.
-	- Major module: Designing the Backend as Microservices.
+	- Minor module: Monitoring system. [To-Do]
+	- Major module: Designing the Backend as Microservices. [Done]
 
  - Graphics
-	(Optional) - Major module: Use of advanced 3D techniques. -> [https://threejs.org/examples/]
+	- Major module: Use of advanced 3D techniques. -> [https://threejs.org/examples/] [Done]
 
 - Accessibility
-	(Optional) - Minor module: Support on all devices.
-	(Optional) - Minor module: Expanding Browser Compatibility.
-	(Optional) - Minor module: Multiple language supports. [https://vue-i18n.intlify.dev/guide/installation.html]
-	(Optional) - Minor module: Add accessibility for Visually Impaired Users.
-	(Optional) - Minor module: Server-Side Rendering (SSR) Integration.
-
-- Server-Side Pong
-	(Optional) - Major module: Replacing Basic Pong with Server-Side Pong and Imple-
-	menting an API.
-	(Optional) - Major module: Enabling Pong Gameplay via CLI against Web Users with API Integration.
+	(Optional) - Minor module: Expanding Browser Compatibility. [Done]
+	(Optional) - Minor module: Multiple language supports. [https://vue-i18n.intlify.dev/guide/installation.html] [Easy To-Do]
+	(Optional) - Minor module: Server-Side Rendering (SSR) Integration. [Easy To-Do]
