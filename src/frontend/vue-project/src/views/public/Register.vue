@@ -16,6 +16,11 @@
               placeholder="Enter your email" required />
           </div>
           <div class="mb-3">
+            <label for="alias" class="form-label">New Alias</label>
+            <input id="alias" v-model="form.password" type="text" name="alias" class="form-control"
+              placeholder="Enter your alias" required />
+          </div>
+          <div class="mb-3">
             <label for="password" class="form-label">New Password</label>
             <input id="password" v-model="form.password" type="password" name="password" class="form-control"
               placeholder="Enter your password" required />
@@ -49,6 +54,7 @@ export default {
       form: {
         username: '',
         email: '',
+        alias: '',
         password: '',
         password_confirm: ''
       }
