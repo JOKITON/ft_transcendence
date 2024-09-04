@@ -29,6 +29,32 @@ export default class auth implements IAuth {
     }
   }
 
+  public async logout(): Promise<boolean> {
+    try {
+      const response: ApiResponse<Record<string, any>> = await this.api.post<Record<string, any>>(
+        'logout',
+        {
+          token: localStorage.getItem('refresh') as string
+        },
+        ['status'],
+        {
+          Authorization: `Bearer ${localStorage.getItem('access') as string}`
+        }
+      )
+
+      if (response && response?.status === 200) {
+        this.removeToken()
+        return true
+      } else {
+        console.error('Error logging out:', response)
+        return false
+      }
+    } catch (error: any) {
+      console.error('Error logging out:', error)
+      return false
+    }
+  }
+
   public async register(data: Record<string, any>): Promise<boolean> {
     try {
       const response: ApiResponse<userResponse> = await this.api.post<userResponse>(
@@ -52,13 +78,15 @@ export default class auth implements IAuth {
       const response: boolean = await this.verifyToken()
       if (response === true) return true
       else {
-        const refresh: ApiResponse<token> = await this.api.post<token>('token/refresh', {
-          refresh: localStorage.getItem('refresh')
+        const refresh: string | null = localStorage.getItem('refresh')
+        if (!refresh) return false
+        const response: ApiResponse<token> = await this.api.post<token>('token/refresh', {
+          refresh: refresh
         })
 
-        this.setToken(refresh as token)
-        this.api.setAccessToken(refresh?.refresh)
-        if (refresh && refresh.status === 200) {
+        this.setToken(response as token)
+        this.api.setAccessToken(response?.refresh)
+        if (response && response.status === 200) {
           if (true === (await this.verifyToken())) return true
         } else {
           this.removeToken()
@@ -102,12 +130,12 @@ export default class auth implements IAuth {
     }
   }
 
-  private setToken(token: token): void {
+  public setToken(token: token): void {
     localStorage.setItem('access', token?.access)
     localStorage.setItem('refresh', token?.refresh)
   }
 
-  private removeToken(): void {
+  public removeToken(): void {
     localStorage.removeItem('access')
     localStorage.removeItem('refresh')
   }

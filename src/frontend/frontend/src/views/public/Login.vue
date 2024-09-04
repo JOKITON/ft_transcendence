@@ -40,13 +40,13 @@
 </template>
 
 <script setup lang="ts">
-import NavIndex from '../views/public/NavIndex.vue'
+import NavIndex from './NavIndex.vue'
 import type userRequest from '@/models/user/userRequest'
 import type userResponse from '@/models/user/userResponse'
 import { useRouter } from 'vue-router'
 import { ref, inject } from 'vue'
 import type Api from '@/utils/Api/Api'
-import auth from '../services/user/services/auth/auth.ts'
+import auth from '../../services/user/services/auth/auth.ts'
 
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)

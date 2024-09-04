@@ -19,6 +19,19 @@
             />
           </div>
           <div class="mb-3">
+            <label for="nickname" class="form-label">nickname</label>
+            <input
+              id="nickname"
+              v-model="form.nickname"
+              type="text"
+              name="nickname"
+              class="form-control"
+              placeholder="Enter your nickname"
+              required
+              autofocus
+            />
+          </div>
+          <div class="mb-3">
             <label for="email" class="form-label">Email</label>
             <input
               id="email"
@@ -52,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import NavIndex from '../views/public/NavIndex.vue'
+import NavIndex from './NavIndex.vue'
 import type UserRequest from '@/Models/User/UserRequst'
 import type UserResponse from '@/Models/User/UserResponse'
 import type Api from '@/utils/Api/Api'
@@ -65,7 +78,8 @@ const router = useRouter()
 const form = ref<UserRequest>({
   username: '',
   password: '',
-  email: ''
+  email: '',
+  nickname: ''
 })
 
 const handleSubmit = async (): Promise<void> => {
