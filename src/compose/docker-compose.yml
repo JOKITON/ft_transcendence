@@ -28,11 +28,11 @@ services:
       - ft_transcendence
   frontend:
     container_name: frontend
-    image: frontend:0.0.1
     build: ../frontend/
     networks:
       - ft_transcendence
     volumes:
+      - node_modules:/frontend/node_modules
       - frontend:/frontend
     restart: always
     depends_on:
@@ -60,6 +60,7 @@ networks:
     driver: bridge
 
 volumes:
+  node_modules:
   frontend:
     driver: local
     driver_opts:

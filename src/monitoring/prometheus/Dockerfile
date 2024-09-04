@@ -6,11 +6,11 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/09 15:44:01 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/08/26 18:03:26 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/04 11:15:23 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:latest AS builder
+FROM alpine:3.20.2
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.prometheus.rule=Host(`prometheus.localhost`)

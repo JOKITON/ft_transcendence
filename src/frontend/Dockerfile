@@ -6,15 +6,17 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/08/26 18:37:02 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/04 11:17:32 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM node:alpine
+FROM node:alpine3.20
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.frontend.rule="Host(`localhost`) && PathPrefix(`/`)"
 LABEL traefik.http.services.frontend.loadbalancer.server.port=80
+
+
 
 WORKDIR /frontend
 

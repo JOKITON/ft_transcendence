@@ -6,11 +6,11 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/08/26 18:15:06 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/04 11:18:50 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM python:alpine3.19
+FROM python:alpine3.20
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.authentication.rule="Host(`localhost`) && PathPrefix(`/api/v1`)"

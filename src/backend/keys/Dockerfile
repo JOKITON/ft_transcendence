@@ -6,11 +6,11 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/08/26 18:16:52 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/04 11:15:00 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:latest
+FROM alpine:3.20.2
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.keys.rule="Host(`localhost`) && PathPrefix(`/api/v1/keys`)"
