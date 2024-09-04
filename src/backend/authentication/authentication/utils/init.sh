@@ -35,6 +35,9 @@ if ! python manage.py collectstatic --no-input; then
   exit 1
 fi
 
+echo "Creating superuser Transcend..."
+python manage.py createsuperuser --noinput
+
 # Start the Django development server
 echo "Starting Django development server..."
 gunicorn --bind 0.0.0.0:80 --workers=3 config.wsgi:application --reload --timeout 120

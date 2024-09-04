@@ -42,7 +42,7 @@ services:
   authentication:
     container_name: autentication
     build: ../backend/authentication/
-    env_file: ../.env.dev
+    env_file: ../backend/.env-django
     restart: always
     volumes:
       - authentication:/authentication
