@@ -6,27 +6,16 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-<<<<<<< Updated upstream
-#    Updated: 2024/09/04 11:15:00 by jaizpuru         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
-FROM alpine:3.20.2
-=======
-#    Updated: 2024/09/05 20:08:29 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/08/01 11:25:56 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM alpine:3.20 AS builder
->>>>>>> Stashed changes
 
 LABEL traefik.enable=true
-LABEL traefik.http.routers.autentication.rule="Host(`localhost`) && PathPrefix(`/api/key/`)"
+LABEL traefik.http.routers.autentication.rule="Host(`localhost`) && PathPrefix(`/api/admin/`)"
 LABEL traefik.http.services.autentication.loadbalancer.server.port=8000
 
-<<<<<<< Updated upstream
-RUN apk add --no-cache gcc curl tzdata shadow openssl netcat-openbsd zsh python3 py3-pip
-=======
 RUN apk add --no-cache \
     curl \
     tzdata \
@@ -37,7 +26,6 @@ RUN apk add --no-cache \
     python3 \
     zsh && \
     cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
->>>>>>> Stashed changes
 
 # Set the working directory in the container
 WORKDIR /usr/src/app/
@@ -45,18 +33,11 @@ WORKDIR /usr/src/app/
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-<<<<<<< Updated upstream
-COPY authentication .
-
-RUN python -m venv /opt/venv && source /opt/venv/bin/activate \
-  && pip3 install --no-cache-dir -r utils/requirements.txt
-=======
 # Copy and install Python dependencies
-COPY keys/requirements.txt .
+COPY requirements.txt .
 RUN python -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
     pip install --no-cache-dir -r requirements.txt
->>>>>>> Stashed changes
 
 ENV PATH="/opt/venv/bin:$PATH"
 
@@ -64,10 +45,10 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN mkdir -p /usr/src/app/secrets
 
 # Copy your Django project files
-COPY keys /usr/src/app/
+COPY . /usr/src/app/
 
 # Copy & give permissions to entrypoint.sh
-COPY keys/utils/init.sh /usr/src/app/
+COPY ./utils/init.sh /usr/src/app/
 RUN chmod +x /usr/src/app/init.sh
 
 # Expose port 8000

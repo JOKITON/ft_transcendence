@@ -6,38 +6,32 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-<<<<<<< Updated upstream
-#    Updated: 2024/09/04 11:15:04 by jaizpuru         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
-FROM alpine:3.20.2
+<<<<<<< Updated upstream:src/backend/authentication/Dockerfile
+#    Updated: 2024/09/04 11:18:50 by jaizpuru         ###   ########.fr        #
 =======
-#    Updated: 2024/09/05 20:04:56 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/05 18:53:36 by jaizpuru         ###   ########.fr        #
+>>>>>>> Stashed changes:src/backend/auth/Dockerfile
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20
->>>>>>> Stashed changes
+FROM python:alpine3.20
 
 LABEL traefik.enable=true
-LABEL traefik.http.routers.authentication.rule="Host(`localhost`) && PathPrefix(`/api/pong/`)"
-LABEL traefik.http.services.authentication.loadbalancer.server.port=8000
-# tu con el proxy puedes exponer o no este contenedor a la red externa, o exponerlo en unhost difernete
+LABEL traefik.http.routers.auth.rule="Host(`localhost`) && PathPrefix(`/api/v1`)"
+LABEL traefik.http.services.auth.loadbalancer.server.port=80
 
 RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3 py3-pip
 
 RUN cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 
-WORKDIR /usr/src/app/
+WORKDIR /usr/src/app/auth
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY pong .
+COPY auth .
 
-RUN python -m venv /opt/venv && source /opt/venv/bin/activate \
-  && pip3 install --no-cache-dir -r utils/requirements.txt
+RUN pip install --no-cache-dir -r utils/requirements.txt
 
 ENV PATH="/opt/venv/bin:$PATH"
 

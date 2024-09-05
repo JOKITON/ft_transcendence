@@ -1,56 +1,75 @@
 name: ft_transcendence_backend
 
 services:
+  db:
+    container_name: db
+    build: ../database/
+    env_file: ../database/.env-postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: always
+    shm_size: 128mb
+    networks:
+      - backend
+
   keys:
     container_name: keys
-    build: ../backend/auth/keys
-    env_file: ../backend/.env-django
+    build: ../backend/keys/
+    env_file: ../backend/.env-dev
     restart: always
     volumes:
       - jwt_auth_keys:/keys
     networks:
-      - ft_transcendence
-
-  api:
-    container_name: api
-    build: ../backend/auth/api
-    env_file: ../backend/.env-django
-    restart: always
-    #volumes:
-    # - shared_models:/app/shared_models
-    networks:
-      - ft_transcendence
+      - backend
     depends_on:
-      - keys
-      - admin
+      - db
 
-  admin:
-    container_name: admin
-    build: ../backend/auth/admin # si el context y el file son lo mismo, mejor asi???
-    env_file: ../backend/.env-django
+  auth:
+    container_name: auth
+    build: ../backend/auth/
+    env_file: ../backend/.env-dev
     restart: always
-    #volumes:
-    # - shared_models:/usr/src/app/shared_models
+    volumes:
+      - auth:/auth
     networks:
-      - ft_transcendence
+      - frontend
+      - backend
     depends_on:
+      - db
       - keys
 
   pong:
     container_name: pong
     build: ../backend/pong
-    env_file: ../backend/.env-django
+    env_file: ../backend/.env-dev
     restart: always
     volumes:
-      - pong:/usr/src/app/shared_models
+      - pong:/pong
     networks:
-      - ft_transcendence
+      - backend
     depends_on:
+      - db
+      - keys
+
+  admin:
+    container_name: admin
+    build: ../backend/admin/
+    env_file: ../backend/.env-dev
+    restart: always
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - db
+      - auth
       - keys
 
 networks:
-  ft_transcendence:
+  frontend:
     external: true
+  backend:
+    name: ft_transcendence-backend
+    driver: bridge
 
 volumes:
   jwt_auth_keys:
@@ -58,10 +77,22 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ../backend/auth/keys/
+      device: ../backend/keys/keys
   pong:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../backend/pong/
+      device: ../backend/pong/pong
+  db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../database/db
+  auth:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/auth/auth/

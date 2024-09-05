@@ -23,6 +23,7 @@ $(VOLUMES) :
 
 up : $(VOLUMES)
 	# esto se puede definir con yaml mucho mejor
+	$(DOCKER) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
 	$(DOCKER) -f $(COMPOSE) up --build -d  --remove-orphans
 	#$(DOCKER) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
 

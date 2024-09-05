@@ -12,8 +12,9 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: always
     networks:
-      - ft_transcendence
+      - frontend
 
+<<<<<<< Updated upstream
   database:
     container_name: db
     build: ../database/
@@ -26,11 +27,13 @@ services:
     shm_size: 128mb
     networks:
       - ft_transcendence
+=======
+>>>>>>> Stashed changes
   frontend:
     container_name: frontend
     build: ../frontend/
     networks:
-      - ft_transcendence
+      - frontend
     volumes:
       - node_modules:/frontend/node_modules
       - frontend:/frontend
@@ -38,8 +41,8 @@ services:
     restart: always
     depends_on:
       - reverse-proxy
-      - database
 
+<<<<<<< Updated upstream
   authentication:
     container_name: autentication
     build: ../backend/authentication/
@@ -52,31 +55,20 @@ services:
     depends_on:
       - reverse-proxy
       - database
+=======
+>>>>>>> Stashed changes
 #secrets:
 #  auth_traefik:
 
 networks:
-  ft_transcendence:
-    name: ft_transcendence
-    driver: bridge
+  frontend:
+    external: true
 
 volumes:
-  node_modules:
   frontend:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: ../frontend/frontend
-  db-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../database/db
-  authentication:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../backend/authentication/authentication/
+  node_modules:
