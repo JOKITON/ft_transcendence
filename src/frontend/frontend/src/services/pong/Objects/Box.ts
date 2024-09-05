@@ -14,15 +14,15 @@ export default class Box implements IObject {
     this.mesh.position.set(position.x, position.y, position.z)
   }
 
-  public get(): Mesh {
+  get(): Mesh {
     return this.mesh
   }
 
-  public moveUp(y: number): void {
+  moveUp(y: number): void {
     this.mesh.position.y += y
   }
 
-  public moveDown(y: number): void {
+  moveDown(y: number): void {
     this.mesh.position.y -= y
   }
 }

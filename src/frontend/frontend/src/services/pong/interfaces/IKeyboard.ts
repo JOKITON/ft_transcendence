@@ -1,5 +1,7 @@
 import type Player from '../Player'
 
 export default interface IKeyboard {
-  choosePlayer(type: string): number
+  keys: Set<string>
+  player: Player
+  addKey(key: string): void
 }

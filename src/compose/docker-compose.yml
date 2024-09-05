@@ -34,6 +34,7 @@ services:
       - ft_transcendence
     volumes:
       - frontend:/frontend
+      - node_modules:/frontend/node_modules
     restart: always
     depends_on:
       - reverse-proxy
@@ -60,6 +61,7 @@ networks:
     driver: bridge
 
 volumes:
+  node_modules:
   frontend:
     driver: local
     driver_opts:
