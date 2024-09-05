@@ -9,7 +9,7 @@ export default class Keyboard implements IKeyboard {
     this.player = Player
   }
 
-  public choosePlayer(type: string): number {
+  choosePlayer(type: string): number {
     switch (type) {
       case 'online':
       case 'player1': {
@@ -31,7 +31,7 @@ export default class Keyboard implements IKeyboard {
     }
   }
 
-  public controlPlayer(): void {
+  controlPlayer(): void {
     console.log('controlPlayer')
   }
 }

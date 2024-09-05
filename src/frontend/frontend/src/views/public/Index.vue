@@ -15,10 +15,12 @@
       </p>
     </div>
   </div>
+  <PongReviewAI/>
 </template>
 
 <script setup lang="ts">
-import NavIndex from './NavIndex.vue'
+import NavIndex from './NavIndex.vue';
+import PongReviewAI from "./PongReviewAI.vue";
 </script>
 
 <style>
