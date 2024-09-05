@@ -20,11 +20,11 @@ IV.1 Overview
 	- Major module: Use a Framework as backend. [Done]
 	- Minor module: Use a front-end framework or toolkit. [Done]
 	- Minor module: Use a database for the backend. [Done]
+	- Major module: Store the score of a tournament in the Blockchain. [To-Do Santi]
 
 - User Management
 	- Major module: Standard user management, authentication, users across
 	tournaments. [2/3 Done]
-
 - Gameplay and user experience
 	- Major module: Remote players [To-Do]
 	- Major module: Live chat. [Difficult To-Do]
