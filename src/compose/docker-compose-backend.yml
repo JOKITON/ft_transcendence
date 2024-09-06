@@ -3,46 +3,34 @@ name: ft_transcendence_backend
 services:
   keys:
     container_name: keys
-    build: ../backend/auth/keys
-    env_file: ../backend/.env-django
+    build: ../backend/keys
     restart: always
-    volumes:
-      - jwt_auth_keys:/keys
+    # volumes:
+    # - keys:/keys
     networks:
       - ft_transcendence
-
-  api:
-    container_name: api
-    build: ../backend/auth/api
-    env_file: ../backend/.env-django
-    restart: always
-    #volumes:
-    # - shared_models:/app/shared_models
-    networks:
-      - ft_transcendence
-    depends_on:
-      - keys
-      - admin
-
-  admin:
-    container_name: admin
-    build: ../backend/auth/admin # si el context y el file son lo mismo, mejor asi???
-    env_file: ../backend/.env-django
-    restart: always
-    #volumes:
-    # - shared_models:/usr/src/app/shared_models
-    networks:
-      - ft_transcendence
-    depends_on:
-      - keys
+    ports:
+      - 8000
 
   pong:
     container_name: pong
     build: ../backend/pong
-    env_file: ../backend/.env-django
+    env_file: ../.env.dev
+    restart: always
+    # volumes:
+    # - pong:/pong
+    networks:
+      - ft_transcendence
+    depends_on:
+      - keys
+
+  authentication:
+    container_name: autentication
+    build: ../backend/authentication/
+    env_file: ../.env.dev
     restart: always
     volumes:
-      - pong:/usr/src/app/shared_models
+      - authentication:/authentication
     networks:
       - ft_transcendence
     depends_on:
@@ -53,15 +41,21 @@ networks:
     external: true
 
 volumes:
-  jwt_auth_keys:
+  keys:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../backend/auth/keys/
+      device: ../backend/keys/keys/
   pong:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../backend/pong/
+      device: ../backend/pong/pong/
+  authentication:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/authentication/authentication/

@@ -1,4 +1,5 @@
 #!/bin/sh
+
 set -e
 
 if [ "$DATABASE" = "postgres" ]; then
@@ -8,20 +9,24 @@ if [ "$DATABASE" = "postgres" ]; then
   done
 fi
 
-KEY_DIR="/authentication/secrets"
+# Generate RSA keys if they don't exist
+KEY_DIR="/pong/secrets"
 mkdir -p "$KEY_DIR"
 
-if [ ! -f /authentication/secrets/public.pem ]; then
-  curl -o /authentication/secrets/public.pem http://keys:8000/api/v1/keys/public
-  if ! openssl rsa -pubin -in /authentication/secrets/public.pem -text -noout >/dev/null 2>&1; then
+# Fetch public key from JWT Key Management Service
+if [ ! -f /pong/secrets/public.pem ]; then
+  curl -o /pong/secrets/public.pem http://keys:8000/api/v1/keys/public
+  if ! openssl rsa -pubin -in /pong/secrets/public.pem -text -noout >/dev/null 2>&1; then
     echo "Error: Fetched public key is not valid."
     exit 1
   fi
 fi
 
-if [ ! -f /authentication/secrets/private.pem ]; then
-  curl -o /authentication/secrets/private.pem http://keys:8000/api/v1/keys/private
-  if ! openssl rsa -in /authentication/secrets/private.pem -check >/dev/null 2>&1; then
+# Fetch private key from JWT Key Management Service
+if [ ! -f /pong/secrets/private.pem ]; then
+  curl -o /pong/secrets/private.pem http://keys:8000/api/v1/keys/private
+  # Validate the fetched key (optional check)
+  if ! openssl rsa -in /pong/secrets/private.pem -check >/dev/null 2>&1; then
     echo "Error: Fetched private key is not valid."
     exit 1
   fi
@@ -29,7 +34,7 @@ fi
 
 # Apply database migrations first time
 echo "Applying database migrations..."
-if ! python manage.py makemigrations authentication --noinput; then
+if ! python manage.py makemigrations --noinput; then
   echo "Migrations failed"
   exit 1
 fi
@@ -50,4 +55,4 @@ fi
 
 # Start the Django development server
 echo "Starting Django development server..."
-gunicorn --bind 0.0.0.0:80 --workers=3 config.wsgi:application --reload --timeout 120
+exec gunicorn --bind 0.0.0.0:8000 config.wsgi:application --reload --timeout 120

@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import KeyView
+from .views import PublicKeyView, PrivateKeyView
 
-urlspatterns = [
-    path("public", KeyView.as_view()),
-    path("private", KeyView.as_view()),
+urlpatterns = [
+    path("public", PublicKeyView.as_view(), name="public"),
+    path("private", PrivateKeyView.as_view(), name="private"),
 ]

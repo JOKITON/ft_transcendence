@@ -24,11 +24,13 @@ $(VOLUMES) :
 up : $(VOLUMES)
 	# esto se puede definir con yaml mucho mejor
 	$(DOCKER) -f $(COMPOSE) up --build -d  --remove-orphans
+	$(DOCKER) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
 	#$(DOCKER) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
 
 	
 down:
-	$(DOCKER) -f $(COMPOSE) down --volumes --remove-orphans --rmi all
+	$(DOCKER) -f $(COMPOSE) down --volumes --remove-orphans --rmi all --remove-orphans
+	$(DOCKER) -f $(COMPOSE_BACKEND) down --volumes --remove-orphans --rmi all --remove-orphans
 
 logs:
 	$(DOCKER) -f $(COMPOSE) logs
@@ -40,12 +42,7 @@ logs-backend:
 logs-metrics:
 	$(DOCKER) -f $(COMPOSE_METRICS) logs
 
-clean:
-	@$(DOCKER) rmi -f $(DOCKER_IMAGES)
-	@$(DOCKER) rmi -f $(DOCKER_IMAGES_BACKEND)
-	@$(DOCKER) rmi -f $(DOCKER_IMAGES_METRICS)
-	@$(DOCKER) network prune --force
-	@$(DOCKER) image prune --force
+clean: down
 	@sudo rm -rf $(VOLUMES)
 
 re: down up

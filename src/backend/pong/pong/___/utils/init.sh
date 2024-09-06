@@ -1,5 +1,4 @@
 #!/bin/sh
-
 set -e
 
 if [ "$DATABASE" = "postgres" ]; then
@@ -14,21 +13,20 @@ KEY_DIR="/pong/secrets"
 mkdir -p "$KEY_DIR"
 
 # Fetch public key from JWT Key Management Service
-if [ ! -f /pong/secrets/jwt_auth_public.pem ]; then
-  mkdir -p /pong/secrets
-  curl -o /pong/secrets/jwt_auth_public.pem http://keys:8000/api/key/public-key/
+if [ ! -f "$KEY_DIR/public.pem" ]; then
+  curl -o $KEY_DIR/public.pem http://localhost/api/v1/keys/public/
   # Validate the fetched key (optional check)
-  if ! openssl rsa -pubin -in /pong/secrets/jwt_auth_public.pem -text -noout >/dev/null 2>&1; then
+  if ! openssl rsa -pubin -in $KEY_DIR/public.pem -text -noout >/dev/null 2>&1; then
     echo "Error: Fetched public key is not valid."
     exit 1
   fi
 fi
 
 # Fetch private key from JWT Key Management Service
-if [ ! -f /pong/secrets/jwt_auth_private.pem ]; then
-  curl -o /pong/secrets/jwt_auth_private.pem http://keys:8000/api/key/private-key/
+if [ ! -f $KEY_DIR/private.pem ]; then
+  curl -o $KEY_DIR/private.pem http://localhost/api/v1/keys/private
   # Validate the fetched key (optional check)
-  if ! openssl rsa -in /pong/secrets/jwt_auth_private.pem -check >/dev/null 2>&1; then
+  if ! openssl rsa -in $KEY_DIR/private.pem -check >/dev/null 2>&1; then
     echo "Error: Fetched private key is not valid."
     exit 1
   fi
@@ -57,4 +55,4 @@ fi
 
 # Start the Django development server
 echo "Starting Django development server..."
-exec gunicorn --bind 0.0.0.0:8000 config.wsgi:application --reload --timeout 120
+exec gunicorn --bind 0.0.0.0:80 config.wsgi:application --reload --timeout 120

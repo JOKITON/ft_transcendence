@@ -5,10 +5,11 @@
 #                                                     +:+ +:+         +:+      #
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/08/09 23:26:16 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/09/04 11:15:00 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/06 18:23:06 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+
 
 FROM alpine:3.20
 
@@ -25,7 +26,7 @@ WORKDIR /keys
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY authentication .
+COPY keys .
 
 RUN python -m venv /opt/venv && source /opt/venv/bin/activate \
   && pip install --no-cache-dir -r utils/requirements.txt
