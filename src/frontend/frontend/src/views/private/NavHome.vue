@@ -88,11 +88,6 @@ const username = ref('User') // Valor por defecto, será actualizado más adelan
 
 const router = useRouter()
 
-// Función para abrir perfil
-const openProfile = async () => {
-  router.push('/profile')
-}
-
 // Función para cerrar sesión
 const logoutUser = async () => {
   try {
@@ -131,6 +126,7 @@ const openSettings = () => {
 
 const openProfile = () => {
   alert('Profile clicked')
+  router.push('/profile')
 }
 
 // Lifecycle hook similar a `created` en Options API

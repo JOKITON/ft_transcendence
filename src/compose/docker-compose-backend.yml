@@ -46,10 +46,12 @@ services:
     volumes:
       - pong:/pong
     networks:
+      - frontend
       - backend
     depends_on:
       - db
       - keys
+      - auth
 
   admin:
     container_name: admin
@@ -61,8 +63,9 @@ services:
       - backend
     depends_on:
       - db
-      - auth
       - keys
+      - pong
+      - auth
 
 networks:
   frontend:

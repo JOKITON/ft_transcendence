@@ -6,19 +6,11 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-<<<<<<< Updated upstream
-#    Updated: 2024/09/04 11:15:04 by jaizpuru         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
-FROM alpine:3.20.2
-=======
-#    Updated: 2024/09/05 20:04:56 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/06 11:02:05 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM alpine:3.20
->>>>>>> Stashed changes
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.authentication.rule="Host(`localhost`) && PathPrefix(`/api/pong/`)"

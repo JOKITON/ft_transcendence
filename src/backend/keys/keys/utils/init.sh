@@ -17,9 +17,6 @@ if [ ! -f /usr/src/app/secrets/jwt_auth_public.pem ]; then
   openssl rsa -pubout -in /usr/src/app/secrets/jwt_auth_private.pem -out /usr/src/app/secrets/jwt_auth_public.pem
 fi
 
-echo "Applying database migrations..."
-python manage.py migrate --noinput
-
 # echo "Flushing database..."
 # python manage.py flush --no-input
 

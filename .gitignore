@@ -6,3 +6,5 @@ venv/
 db/
 __pycache__/
 *.pem
+staticfiles/
+networks/

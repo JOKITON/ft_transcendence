@@ -14,21 +14,6 @@ services:
     networks:
       - frontend
 
-<<<<<<< Updated upstream
-  database:
-    container_name: db
-    build: ../database/
-    env_file: ../database/.env-postgres
-    ports:
-      - 5432
-    # volumes:
-      # - db-data:/var/lib/postgresql/data
-    restart: always
-    shm_size: 128mb
-    networks:
-      - ft_transcendence
-=======
->>>>>>> Stashed changes
   frontend:
     container_name: frontend
     build: ../frontend/
@@ -42,21 +27,6 @@ services:
     depends_on:
       - reverse-proxy
 
-<<<<<<< Updated upstream
-  authentication:
-    container_name: autentication
-    build: ../backend/authentication/
-    env_file: ../backend/.env-django
-    restart: always
-    volumes:
-      - authentication:/authentication
-    networks:
-      - ft_transcendence
-    depends_on:
-      - reverse-proxy
-      - database
-=======
->>>>>>> Stashed changes
 #secrets:
 #  auth_traefik:
 

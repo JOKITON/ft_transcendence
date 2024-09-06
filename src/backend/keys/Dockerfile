@@ -6,27 +6,16 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-<<<<<<< Updated upstream
-#    Updated: 2024/09/04 11:15:00 by jaizpuru         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
-FROM alpine:3.20.2
-=======
-#    Updated: 2024/09/05 20:08:29 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/06 18:24:49 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM alpine:3.20 AS builder
->>>>>>> Stashed changes
 
 LABEL traefik.enable=true
-LABEL traefik.http.routers.autentication.rule="Host(`localhost`) && PathPrefix(`/api/key/`)"
-LABEL traefik.http.services.autentication.loadbalancer.server.port=8000
+LABEL traefik.http.routers.keys.rule="Host(`localhost`) && PathPrefix(`/api/key/`)"
+LABEL traefik.http.services.keys.loadbalancer.server.port=8000
 
-<<<<<<< Updated upstream
-RUN apk add --no-cache gcc curl tzdata shadow openssl netcat-openbsd zsh python3 py3-pip
-=======
 RUN apk add --no-cache \
     curl \
     tzdata \
@@ -37,7 +26,6 @@ RUN apk add --no-cache \
     python3 \
     zsh && \
     cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
->>>>>>> Stashed changes
 
 # Set the working directory in the container
 WORKDIR /usr/src/app/
@@ -45,18 +33,11 @@ WORKDIR /usr/src/app/
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-<<<<<<< Updated upstream
-COPY authentication .
-
-RUN python -m venv /opt/venv && source /opt/venv/bin/activate \
-  && pip3 install --no-cache-dir -r utils/requirements.txt
-=======
 # Copy and install Python dependencies
 COPY keys/requirements.txt .
 RUN python -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
     pip install --no-cache-dir -r requirements.txt
->>>>>>> Stashed changes
 
 ENV PATH="/opt/venv/bin:$PATH"
 

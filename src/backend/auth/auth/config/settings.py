@@ -38,8 +38,8 @@ SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(minutes=30),
-    "SIGNING_KEY": "/usr/src/app/auth/keys/jwt_auth_private.pem",
-    "VERIFYING_KEY": "/usr/src/app/auth/keys/jwt_auth_public.pem",
+    "SIGNING_KEY": "/authentication/keys/jwt_auth_private.pem",
+    "VERIFYING_KEY": "/authentication/keys/jwt_auth_public.pem",
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
@@ -110,11 +110,7 @@ CORS_ALLOWED_ORIGINS = [
 # CORS_ALLOW_CREDENTIALS = True
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-<<<<<<< Updated upstream:src/backend/authentication/authentication/config/settings.py
 # Database
-=======
-# DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
->>>>>>> Stashed changes:src/backend/auth/auth/config/settings.py
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
