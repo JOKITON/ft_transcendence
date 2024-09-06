@@ -6,7 +6,7 @@ services:
     build: ../database/
     env_file: ../database/.env-postgres
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/_dataTrascendence
     restart: always
     shm_size: 128mb
     networks:
