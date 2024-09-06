@@ -12,6 +12,7 @@ class UserSerializerRegister(serializers.ModelSerializer):
     username: serializers.CharField = serializers.CharField(required=True)
     password: serializers.CharField = serializers.CharField(required=True)
     email: serializers.EmailField = serializers.EmailField(required=True)
+    nickname: serializers.CharField = serializers.CharField(required=False)
 
     class Meta:
         model: ModelBase = User
