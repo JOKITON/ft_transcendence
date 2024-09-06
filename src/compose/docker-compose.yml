@@ -34,7 +34,7 @@ services:
     networks:
       - ft_transcendence
     volumes:
-      #- frontend:/frontend
+      - frontend:/frontend
       - node_modules:/frontend/node_modules
     restart: always
     depends_on:
@@ -68,7 +68,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ../frontend/frontend
+      device: ../frontend/frontend/
   database:
     driver: local
     driver_opts:
