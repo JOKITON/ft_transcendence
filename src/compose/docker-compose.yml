@@ -15,17 +15,18 @@ services:
       - ft_transcendence
 
   database:
-    container_name: db
+    container_name: database
     build: ../database/
     env_file: ../database/.env-postgres
     ports:
       - 5432
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - database:/var/lib/postgresql/data
     restart: always
     shm_size: 128mb
     networks:
       - ft_transcendence
+
   frontend:
     container_name: frontend
     image: frontend:0.0.1
@@ -33,7 +34,7 @@ services:
     networks:
       - ft_transcendence
     volumes:
-      - frontend:/frontend
+      #- frontend:/frontend
       - node_modules:/frontend/node_modules
     restart: always
     depends_on:
@@ -68,7 +69,7 @@ volumes:
       type: none
       o: bind
       device: ../frontend/frontend
-  db-data:
+  database:
     driver: local
     driver_opts:
       type: none
