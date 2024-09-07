@@ -15,7 +15,7 @@ mkdir -p "$KEY_DIR"
 
 # Fetch public key from JWT Key Management Service
 if [ ! -f /pong/secrets/public.pem ]; then
-  curl -o /pong/secrets/public.pem http://keys:8000/api/v1/keys/public
+  curl -o /pong/secrets/public.pem http:/keys/api/v1/keys/public
   if ! openssl rsa -pubin -in /pong/secrets/public.pem -text -noout >/dev/null 2>&1; then
     echo "Error: Fetched public key is not valid."
     exit 1
@@ -24,7 +24,7 @@ fi
 
 # Fetch private key from JWT Key Management Service
 if [ ! -f /pong/secrets/private.pem ]; then
-  curl -o /pong/secrets/private.pem http://keys:8000/api/v1/keys/private
+  curl -o /pong/secrets/private.pem http:/keys/api/v1/keys/private
   # Validate the fetched key (optional check)
   if ! openssl rsa -in /pong/secrets/private.pem -check >/dev/null 2>&1; then
     echo "Error: Fetched private key is not valid."

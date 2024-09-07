@@ -6,14 +6,14 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/06 19:35:56 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/09/07 23:53:58 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM alpine:3.20
 
 LABEL traefik.enable=true
-LABEL traefik.http.routers.pong.rule="Host(`localhost`) && PathPrefix(`/api/v1/`)"
+LABEL traefik.http.routers.pong.rule="Host(`localhost`) && PathPrefix(`/api/v1/pong`)"
 LABEL traefik.http.services.pong.loadbalancer.server.port=80 
 
 RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3 py3-pip

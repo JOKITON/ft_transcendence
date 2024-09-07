@@ -10,7 +10,7 @@ fi
 
 # Generate keys for RSA
 
-mkdir -p keys/secrets
+mkdir -p /keys/secrets
 
 openssl genrsa -out /keys/secrets/private.pem 2048
 

@@ -12,7 +12,7 @@ KEY_DIR="/authentication/secrets"
 mkdir -p "$KEY_DIR"
 
 if [ ! -f /authentication/secrets/public.pem ]; then
-  curl -o /authentication/secrets/public.pem http://keys:8000/api/v1/keys/public
+  curl -o /authentication/secrets/public.pem http://keys/api/v1/keys/public
   if ! openssl rsa -pubin -in /authentication/secrets/public.pem -text -noout >/dev/null 2>&1; then
     echo "Error: Fetched public key is not valid."
     exit 1
@@ -20,7 +20,7 @@ if [ ! -f /authentication/secrets/public.pem ]; then
 fi
 
 if [ ! -f /authentication/secrets/private.pem ]; then
-  curl -o /authentication/secrets/private.pem http://keys:8000/api/v1/keys/private
+  curl -o /authentication/secrets/private.pem http://keys/api/v1/keys/private
   if ! openssl rsa -in /authentication/secrets/private.pem -check >/dev/null 2>&1; then
     echo "Error: Fetched private key is not valid."
     exit 1
