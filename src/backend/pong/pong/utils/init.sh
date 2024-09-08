@@ -14,22 +14,10 @@ KEY_DIR="/pong/secrets"
 mkdir -p "$KEY_DIR"
 
 # Fetch public key from JWT Key Management Service
-if [ ! -f /pong/secrets/public.pem ]; then
-  curl -o /pong/secrets/public.pem http:/keys/api/v1/keys/public
-  if ! openssl rsa -pubin -in /pong/secrets/public.pem -text -noout >/dev/null 2>&1; then
-    echo "Error: Fetched public key is not valid."
-    exit 1
-  fi
-fi
-
-# Fetch private key from JWT Key Management Service
-if [ ! -f /pong/secrets/private.pem ]; then
-  curl -o /pong/secrets/private.pem http:/keys/api/v1/keys/private
-  # Validate the fetched key (optional check)
-  if ! openssl rsa -in /pong/secrets/private.pem -check >/dev/null 2>&1; then
-    echo "Error: Fetched private key is not valid."
-    exit 1
-  fi
+curl -o /pong/secrets/public.pem http://keys/api/v1/keys/public
+if ! openssl rsa -pubin -in /pong/secrets/public.pem -text -noout >/dev/null 2>&1; then
+  echo "Error: Fetched public key is not valid."
+  exit 1
 fi
 
 # Apply database migrations first time
@@ -55,4 +43,4 @@ fi
 
 # Start the Django development server
 echo "Starting Django development server..."
-exec gunicorn --bind 0.0.0.0:8000 config.wsgi:application --reload --timeout 120
+exec gunicorn --bind 0.0.0.0:80 config.wsgi:application --reload --timeout 120

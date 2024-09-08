@@ -1,7 +1,5 @@
 from pathlib import Path
 from datetime import timedelta
-
-# import dj_database_url
 import os
 import dj_database_url
 
@@ -15,7 +13,6 @@ DEBUG = os.environ.get("DEBUG")
 
 ALLOWED_HOSTS = ["*"]
 
-# Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -27,8 +24,9 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
-    "pong",
     "channels",
+    "UserModel",
+    "pong",
 ]
 
 
@@ -41,24 +39,19 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 SIMPLE_JWT = {
-    "ALGORITHM": "RS256",
-    "SIGNING_KEY": "/pong/secrets/private.pem",
-    "VERIFYING_KEY": "/pong/secrets/public.pem",
-    "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=30),
+    "SIGNING_KEY": None,
+    "VERIFYING_KEY": open("/pong/secrets/public.pem").read(),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
-    "AUTH_COOKIE": "access_token",
-    "AUTH_COOKIE_REFRESH": "refresh_token",
-    "AUTH_COOKIE_SECURE": True,
-    "AUTH_COOKIE_HTTP_ONLY": True,
-    "AUTH_COOKIE_PATH": "/",
-    "AUTH_COOKIE_SAMESITE": "Lax",
+    "ALGORITHM": "RS256",
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
 
 SESSION_COOKIE_SECURE = True
@@ -66,6 +59,7 @@ SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_HTTPONLY = True
 
 
+AUTH_USER_MODEL = "UserModel.User"
 CORS_ALLOW_CREDENTIALS = True
 
 MIDDLEWARE = [
@@ -105,12 +99,10 @@ DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
-        # Adjust permissions as per your API needs
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.BasicAuthentication",
-        # Add other authentication classes as needed
     ],
 }
 
