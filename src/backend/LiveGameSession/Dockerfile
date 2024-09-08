@@ -6,14 +6,14 @@
 #    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/05 20:54:09 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/05 20:54:09 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/09/07 23:55:19 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM alpine:3:20 as builder
 
 LABEL traefik.enable=true
-LABEL traefik.http.routers.LiveGameSession.rule="Host(`localhost`) && PathPrefix(`/api/v1`)"
+LABEL traefik.http.routers.LiveGameSession.rule="Host(`localhost`) && PathPrefix(`/api/v1/live`)"
 LABEL traefik.http.service.LiveGameSession.loadbalancer.server.port=80
 
 RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3

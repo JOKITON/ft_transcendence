@@ -1,14 +1,14 @@
 <template>
-	<NavHome></NavHome>
-	<main class="px-3">
-		<div>
-			<ul>
-				<li v-for="user in users" :key="user.id">
-					<strong>{{ user.username }}</strong> - {{ user.email }}
-				</li>
-			</ul>
-		</div>
-	</main>
+  <NavHome></NavHome>
+  <main class="px-3">
+    <div>
+      <ul>
+        <li v-for="user in users" :key="user.id">
+          <strong>{{ user.username }}</strong> - {{ user.email }}
+        </li>
+      </ul>
+    </div>
+  </main>
 </template>
 
 <script>
@@ -35,8 +35,19 @@ export default {
 	methods: {
 		async fetchUserList() {
 			try {
-				const response = await api.get("admin/users/");
-				const data = response.data;
+			  const response: ApiResponse<Record<string, any>> = await this.api.post<Record<string, any>>(
+          'pong/users',
+        {
+          token: localStorage.getItem('refresh') as string
+        },
+        ['data','status'],
+        {
+          Authorization: `Bearer ${localStorage.getItem('access') as string}`
+        }
+      )
+
+        const data = response.data;
+        console.log(data);
 				this.users = data.map(user => new User(user.id, user.username, user.email));
 			} catch (error) {
 				console.error(
@@ -62,6 +73,4 @@ export default {
 }
 </script>
 
-<style>
-
-</style>
+<style></style>

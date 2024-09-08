@@ -1,4 +1,6 @@
 .vscode/
+staticfiles
+migrations
 node_modules/
 package-lock.json
 volumes/

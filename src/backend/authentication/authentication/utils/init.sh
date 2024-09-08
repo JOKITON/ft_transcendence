@@ -8,15 +8,24 @@ if [ "$DATABASE" = "postgres" ]; then
   done
 fi
 
-mkdir -p /authentication/keys
+KEY_DIR="/authentication/secrets"
+mkdir -p "$KEY_DIR"
 
-openssl genrsa -out /authentication/keys/private.pem 2048
+curl -o /authentication/secrets/public.pem http://keys/api/v1/keys/public
+if ! openssl rsa -pubin -in /authentication/secrets/public.pem -text -noout >/dev/null 2>&1; then
+  echo "Error: Fetched public key is not valid."
+  exit 1
+fi
 
-openssl rsa -in /authentication/keys/private.pem -pubout -out /authentication/keys/public.pem
+curl -o /authentication/secrets/private.pem http://keys/api/v1/keys/private
+if ! openssl rsa -in /authentication/secrets/private.pem -check >/dev/null 2>&1; then
+  echo "Error: Fetched private key is not valid."
+  exit 1
+fi
 
 # Apply database migrations first time
 echo "Applying database migrations..."
-if ! python manage.py makemigrations authentication --noinput; then
+if ! python manage.py makemigrations --noinput; then
   echo "Migrations failed"
   exit 1
 fi

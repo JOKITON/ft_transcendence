@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "UserModel",
     "authentication",
 ]
 
@@ -36,14 +37,14 @@ SESSION_COOKIE_HTTPONLY = True
 
 SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(minutes=30),
-    "SIGNING_KEY": "/authentication/keys/private.pem",
-    "VERIFYING_KEY": "/authentication/keys/public.pem",
+    "SIGNING_KEY": open("/authentication/secrets/private.pem").read(),
+    "VERIFYING_KEY": open("/authentication/secrets/public.pem").read(),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
-    "ALGORITHM": "HS256",
+    "ALGORITHM": "RS256",
     "AUTH_HEADER_TYPES": ("Bearer",),
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
@@ -63,7 +64,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 
-AUTH_USER_MODEL = "authentication.User"
+AUTH_USER_MODEL = "UserModel.User"
 
 TEMPLATES = [
     {

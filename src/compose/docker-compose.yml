@@ -34,26 +34,14 @@ services:
     networks:
       - ft_transcendence
     volumes:
-      #- frontend:/frontend
+      - frontend:/frontend
       - node_modules:/frontend/node_modules
     restart: always
     depends_on:
       - reverse-proxy
       - database
 
-  authentication:
-    container_name: autentication
-    build: ../backend/authentication/
-    env_file: ../.env.dev
-    restart: always
-    volumes:
-      - authentication:/authentication
-    networks:
-      - ft_transcendence
-    depends_on:
-      - reverse-proxy
-      - database
-#secrets:
+  #secrets:
 #  auth_traefik:
 
 networks:
@@ -68,16 +56,10 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ../frontend/frontend
+      device: ../frontend/frontend/
   database:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: ../database/db
-  authentication:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../backend/authentication/authentication/

@@ -2,7 +2,7 @@ from django.db.models.base import ModelBase
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from typing import List
-from .models import User
+from UserModel.models import User
 import logging
 
 logger = logging.getLogger(__name__)

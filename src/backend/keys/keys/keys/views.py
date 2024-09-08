@@ -1,22 +1,22 @@
-from rest_framework import ApiView
-from rest_framework.response import Response
+from django.http import HttpResponse
+from django.views import View
 
 
-"""
-estaria guay crear cierta logica de regeneracion de claves
-
-que de enviara automanticamente a todos los servicios cada n tiempo
-
-esto lo hacemos basicamente para que jwt, pueda autentificar en varios serivicios a la vez
-"""
-
-
-class KeyPublicView(ApiView):
+class PublicKeyView(View):
     def get(self, request):
-        return Response({"key": "public"})
+        try:
+            with open("/keys/secrets/public.pem", "r") as f:
+                public_key = f.read()
+            return HttpResponse(public_key, content_type="text/plain")
+        except Exception as e:
+            return HttpResponse(f"Error: {str(e)}", status=500)
 
 
-class KeyPrivateView(ApiView):
+class PrivateKeyView(View):
     def get(self, request):
-        return Response({"key": "private"})
-
+        try:
+            with open("/keys/secrets/private.pem", "r") as f:
+                private_key = f.read()
+            return HttpResponse(private_key, content_type="text/plain")
+        except Exception as e:
+            return HttpResponse(f"Error: {str(e)}", status=500)
