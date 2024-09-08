@@ -8,18 +8,12 @@ if [ "$DATABASE" = "postgres" ]; then
   done
 fi
 
-KEY_DIR="/authentication/secrets"
+KEY_DIR="/friendship/secrets"
 mkdir -p "$KEY_DIR"
 
 curl -o /friendship/secrets/public.pem http://keys/api/v1/keys/public
 if ! openssl rsa -pubin -in /friendship/secrets/public.pem -text -noout >/dev/null 2>&1; then
   echo "Error: Fetched public key is not valid."
-  exit 1
-fi
-
-curl -o /friendship/secrets/private.pem http://keys/api/v1/keys/private
-if ! openssl rsa -in /friendship/secrets/private.pem -check >/dev/null 2>&1; then
-  echo "Error: Fetched private key is not valid."
   exit 1
 fi
 

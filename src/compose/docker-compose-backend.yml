@@ -5,8 +5,8 @@ services:
     container_name: keys
     build: ../backend/keys
     restart: always
-    # volumes:
-    # - keys:/keys
+    volumes:
+      - keys:/keys
     networks:
       - ft_transcendence
     ports:
@@ -17,8 +17,8 @@ services:
     build: ../backend/pong
     env_file: ../.env.dev
     restart: always
-    # volumes:
-    # - pong:/pong
+    volumes:
+      - pong:/pong
     networks:
       - ft_transcendence
     depends_on:
@@ -31,6 +31,18 @@ services:
     restart: always
     volumes:
       - authentication:/authentication
+    networks:
+      - ft_transcendence
+    depends_on:
+      - keys
+
+  friendship:
+    container_name: friendship
+    build: ../backend/friendship/
+    env_file: ../.env.dev
+    restart: always
+    volumes:
+      - friendship:/friendship
     networks:
       - ft_transcendence
     depends_on:
@@ -59,3 +71,9 @@ volumes:
       type: none
       o: bind
       device: ../backend/authentication/authentication/
+  friendship:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/friendship/friendship/
