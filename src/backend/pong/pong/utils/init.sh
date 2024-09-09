@@ -34,11 +34,11 @@ if [ ! -f /usr/src/app/secrets/jwt_auth_private.pem ]; then
 fi
 
 # Apply database migrations
-echo "Applying database migrations..."
-if ! python manage.py migrate --noinput; then
-  echo "Migrations failed"
-  exit 1
-fi
+# echo "Applying database migrations..."
+# if ! python manage.py migrate --noinput; then
+#  echo "Migrations failed"
+#  exit 1
+# fi
 
 # Collect static files
 echo "Collecting static files..."

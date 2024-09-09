@@ -1,6 +1,7 @@
 from datetime import timedelta
 from pathlib import Path
 import os
+from .utils import load_key
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,12 +39,12 @@ SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(minutes=30),
-    "SIGNING_KEY": "/authentication/keys/jwt_auth_private.pem",
-    "VERIFYING_KEY": "/authentication/keys/jwt_auth_public.pem",
+    'SIGNING_KEY': load_key(Path('/auth/keys/jwt_auth_private.pem')),
+    'VERIFYING_KEY': load_key(Path('/auth/keys/jwt_auth_public.pem')),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
-    "ALGORITHM": "HS256",
+    "ALGORITHM": "RS256",
     "AUTH_HEADER_TYPES": ("Bearer",),
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",

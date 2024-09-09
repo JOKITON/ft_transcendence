@@ -126,6 +126,13 @@ class WhoAmIView(APIView):
         else:
             return Response({"username": user.username}, status=status.HTTP_200_OK)
 
+""" class ChangeUser(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, requst):
+        data = request.data
+        username = data.get("user") """
 
 class ChangePassword(APIView):
     authentication_classes = [JWTAuthentication]
