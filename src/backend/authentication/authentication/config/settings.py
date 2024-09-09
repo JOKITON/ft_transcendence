@@ -60,7 +60,16 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "csp.middleware.CSPMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "authentication.middleware.UpdateLastRequestMiddleware",
+    "authentication.middleware.RateLimitMiddleware",
 ]
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",  # O cualquier otro backend
+        "LOCATION": "rate-limit-cache",
+    }
+}
 
 ROOT_URLCONF = "config.urls"
 
