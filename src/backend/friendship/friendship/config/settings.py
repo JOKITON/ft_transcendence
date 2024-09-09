@@ -12,7 +12,7 @@ SECRET_KEY = "django-insecure-h5^lj8m2p!h2qj(rjfywpm=5dnzg1mggheg35*lev$vg$(p9m&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -64,8 +64,8 @@ SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_HTTPONLY = True
 
-AUTH_USER_MODEL = "UserModel.User"
 
+AUTH_USER_MODEL = "UserModel.User"
 CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "config.urls"
@@ -90,6 +90,16 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 
 DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+    ],
+}
 
 
 AUTH_PASSWORD_VALIDATORS = [
