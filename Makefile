@@ -45,7 +45,7 @@ $(NETWORKS) :
 up : $(NETWORKS)
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) up --build -d  --remove-orphans
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
+	# $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
 logs:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) logs
 logs-backend:

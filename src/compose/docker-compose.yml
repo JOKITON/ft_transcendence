@@ -22,7 +22,6 @@ services:
     volumes:
       - node_modules:/frontend/node_modules
       - frontend:/frontend
-      - node_modules:/frontend/node_modules
     restart: always
     depends_on:
       - reverse-proxy

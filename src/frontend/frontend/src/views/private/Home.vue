@@ -1,7 +1,7 @@
 <template>
   <NavHome></NavHome>
   <main class="px-3">
-    <h1>Hello {{ username }},</h1>
+    <h1>Hello helloooo {{ username }},</h1>
     <p class="lead">
       Cover is a one-page template for building simple and beautiful home pages. Download, edit the
       text, and add your own fullscreen background photo to make it your own.
