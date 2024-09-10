@@ -37,7 +37,7 @@ SESSION_COOKIE_HTTPONLY = True
 
 SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(minutes=30),
     'SIGNING_KEY': load_key(Path('/auth/keys/jwt_auth_private.pem')),
     'VERIFYING_KEY': load_key(Path('/auth/keys/jwt_auth_public.pem')),

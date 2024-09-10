@@ -114,7 +114,7 @@ const fetchUsername = async () => {
 const fetchFriendList = async () => {
   try {
     const response = await api.get('friend-list')
-    username.value = response.data.username // Reemplazar con la estructura real de tu respuesta
+    username.value = response.username // Reemplazar con la estructura real de tu respuesta
   } catch (error) {
     console.error('Error fetching username:', error.response ? error.response.data : error.message)
   }
@@ -135,7 +135,6 @@ const openSettings = () => {
 }
 
 const openProfile = () => {
-  alert('Profile clicked')
   router.push('/profile')
 }
 

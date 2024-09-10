@@ -95,6 +95,46 @@
             <div class="col-sm-6 mb-3">
               <div class="card h-100">
                 <div class="card-body">
+                  <h6 class="d-flex align-items-center mb-3">Users List</h6>
+
+                  <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>
+                        <span class="status-indicator bg-success"></span>
+                        Jane Smith
+                      </span>
+                      <span class="badge bg-success">Online</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>
+                        <span class="status-indicator bg-danger"></span>
+                        Mike Johnson
+                      </span>
+                      <span class="badge bg-danger">Offline</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>
+                        <span class="status-indicator bg-success"></span>
+                        Emily Davis
+                      </span>
+                      <span class="badge bg-success">Online</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>
+                        <span class="status-indicator bg-danger"></span>
+                        David Brown
+                      </span>
+                      <span class="badge bg-danger">Offline</span>
+                    </li>
+                  </ul>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body">
                   <h6 class="d-flex align-items-center mb-3">Friends List</h6>
 
                   <ul class="list-group">

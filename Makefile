@@ -64,6 +64,11 @@ clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES_METRICS)
 	@$(DOCKER) network prune --force
 	@$(DOCKER) image prune --force
+fclean:
+	@(DOCKER) rm $(docker ps -qa)
+	@(DOCKER) rmi $(docker images -q)
+	@(DOCKER) volume rm $(docker volume ls -q)
+	@(DOCKER) system prune --force
 
 re: down clean up
 
