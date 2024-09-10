@@ -127,7 +127,6 @@ class WhoAmIView(APIView):
             )
         else:
             user_data = {
-                "id": user.id,
                 "username": user.username,
                 "email": user.email,
                 "nickname": user.nickname,
