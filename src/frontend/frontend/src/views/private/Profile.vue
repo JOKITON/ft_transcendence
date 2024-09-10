@@ -45,18 +45,18 @@
                   <h6 class="mb-0">Email</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                  <span v-if="!isEditing">fip@jukmuh.al</span>
+                  <span v-if="!isEditing">{{ email }}</span>
                   <input v-else type="email" class="form-control" v-model="user.email">
                 </div>
               </div>
               <hr>
               <div class="row">
                 <div class="col-sm-3">
-                  <h6 class="mb-0">Phone</h6>
+                  <h6 class="mb-0">Nickname</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                  <span v-if="!isEditing">(239) 816-9029</span>
-                  <input v-else type="text" class="form-control" v-model="user.phone">
+                  <span v-if="!isEditing">{{nickname}}</span>
+                  <input v-else type="text" class="form-control" v-model="user.nickname">
                 </div>
               </div>
               <hr>
@@ -168,25 +168,21 @@
   <!-- ---------------------------------------------------------------- -->
 
 </template>
-
 <script setup lang="ts">
 import NavHome from './NavHome.vue'
 import { ref, onMounted, inject } from 'vue'
 const api: Api = inject('$api') as Api;
 
 const isEditing = ref(false);
-const username = ref('User')
-
-// Lifecycle hook similar a `created` en Options API
-onMounted(async () => {
-  await fetchUsername()
-})
+const username = ref('User');
+const email = ref('email');
+const nickname = ref('nickname');
 
 // Datos originales del usuario (inmutables)
 const originalUser = ref({
   fullName: username ? username : '(None)',
-  email: 'fip@jukmuh.al',
-  phone: '(239) 816-9029',
+  email: email ? email : '(None)',
+  nickname:  nickname ? nickname : '(None)',
   mobile: '(320) 380-4539',
   address: 'Bay Area, San Francisco, CA',
 });
@@ -215,11 +211,38 @@ const fetchUsername = async () => {
   try {
     const response = await api.get('whoami')
     username.value = response.username // Reemplazar con la estructura real de tu respuesta
+    console.log("usuario:" + username.value )
   } catch (error) {
     console.error('Error fetching username:', error.response ? error.response.username : error.message)
   }
 }
+
+const fetchEmail = async () => {
+  try {
+    const response = await api.get('whoami')
+    email.value = response.email // Reemplazar con la estructura real de tu respuesta
+    console.log("email es:" + response.email)
+  } catch (error) {
+    console.error('Error fetching email:', error.response ? error.response.email : error.message)
+  }
+}
+
+const fetchNickname = async () => {
+  try {
+    const response = await api.get('whoami')
+    nickname.value = response.nickname // Reemplazar con la estructura real de tu respuesta
+    console.log("nickname:" + response.nickname)
+  } catch (error) {
+    console.error('Error fetching nickname:', error.response ? error.response.nickname : error.message)
+  }
+}
+
+
+onMounted(async () => {
+  await Promise.all([fetchUsername(), fetchEmail(),fetchNickname()]);
+});
 </script>
+
 
 
 <style scoped>

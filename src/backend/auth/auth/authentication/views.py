@@ -111,6 +111,8 @@ class SessionView(APIView):
         return Response({"isAuthenticated": True}, status=status.HTTP_200_OK)
 
 
+
+
 class WhoAmIView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -124,7 +126,14 @@ class WhoAmIView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         else:
-            return Response({"username": user.username}, status=status.HTTP_200_OK)
+            user_data = {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "nickname": user.nickname,
+                # Agrega aquí otros campos que desees mostrar
+            }
+            return Response(user_data, status=status.HTTP_200_OK)
 
 """ class ChangeUser(APIView):
     authentication_classes = [JWTAuthentication]
