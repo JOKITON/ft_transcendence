@@ -7,6 +7,7 @@ import auth from '../services/user/services/auth/auth'
 //import UserList from '../views/private/UserList.vue'
 import Home from '../views/private/Home.vue'
 import Profile from '../views/private/Profile.vue'
+import Friends from '../views/private/Friends.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
 
@@ -19,6 +20,7 @@ const router = createRouter({
     // { path: '/user-list', name: 'UserList', component: UserList, meta: { requiresAuth: true } },
     // { path: '/friend-list', name: 'FriendList', component: FriendList, meta: { requiresAuth: true } },
     { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
+    { path: '/friends', name: 'Friends', component: Friends, meta: { requiresAuth: true } },
   ]
 })
 

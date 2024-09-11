@@ -133,6 +133,39 @@ class WhoAmIView(APIView):
                 # Agrega aquí otros campos que desees mostrar
             }
             return Response(user_data, status=status.HTTP_200_OK)
+class UpdateUserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user
+        data = request.data
+
+        # Obtener los campos que se van a actualizar
+        new_email = data.get('email', None)
+        new_full_name = data.get('fullName', None)
+        new_nickname = data.get('nickname', None)
+        new_mobile = data.get('mobile', None)
+        new_address = data.get('address', None)
+
+        # Validar si el email ya existe
+        if new_email and User.objects.filter(email=new_email).exclude(id=user.id).exists():
+            return Response({"error": "Email already in use"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Actualizar los campos del usuario si están presentes en la petición
+        if new_email:
+            user.email = new_email
+        if new_full_name:
+            user.full_name = new_full_name
+        if new_nickname:
+            user.nickname = new_nickname
+        if new_mobile:
+            user.mobile = new_mobile
+        if new_address:
+            user.address = new_address
+
+        user.save()
+
+        return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
 
 """ class ChangeUser(APIView):
     authentication_classes = [JWTAuthentication]

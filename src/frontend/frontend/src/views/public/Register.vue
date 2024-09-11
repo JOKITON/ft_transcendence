@@ -6,6 +6,19 @@
         <h2 class="card-header text-center mb-4 oswald-header">Register</h2>
         <form id="registerForm" @submit.prevent="handleSubmit">
           <div class="mb-3">
+            <label for="p_image" class="form-label">p_image</label>
+            <input
+              id="p_image"
+              v-model="form.p_"
+              type="text"
+              name="nickname"
+              class="form-control"
+              placeholder="Enter your nickname"
+              required
+              autofocus
+            />
+          </div> 
+          <div class="mb-3">
             <label for="username" class="form-label">Username</label>
             <input
               id="username"
@@ -79,7 +92,8 @@ const form = ref<UserRequest>({
   username: '',
   password: '',
   email: '',
-  nickname: ''
+  nickname: '',
+  p_image: ''
 })
 
 const handleSubmit = async (): Promise<void> => {

@@ -61,6 +61,7 @@
           <ul class="dropdown-menu text-small" :class="{ show: isDropdownSettingsVisible }">
             <li><a @click="openSettings" class="dropdown-item">Settings</a></li>
             <li><a @click="openProfile" class="dropdown-item">Profile</a></li>
+            <li><a @click="openFriends" class="dropdown-item">Friends</a></li>
             <li>
               <hr class="dropdown-divider" />
             </li>
@@ -125,10 +126,12 @@ const openSettings = () => {
 }
 
 const openProfile = () => {
-  alert('Profile clicked')
   router.push('/profile')
 }
 
+const openFriends = () => {
+  router.push('/friends')
+}
 // Lifecycle hook similar a `created` en Options API
 onMounted(async () => {
   await fetchUsername()

@@ -4,19 +4,15 @@
   <!-- ---------------------------------------------------------------- -->
   <div class="container">
     <div class="main-body">
-
-
-      <!-- /Breadcrumb -->
-
       <div class="row gutters-sm">
         <div class="col-md-4 mb-3">
           <div class="card">
             <div class="card-body">
               <div class="d-flex flex-column align-items-center text-center">
-                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle"
-                  width="150">
+                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle" width="150">
+                <button class="btn btn-primary">@click="editImage">Edit image</button>
                 <div class="mt-3">
-                  <h4>{{ username }}</h4>
+                  <h4>{{ user.fullName }}</h4>
                   <p class="text-secondary mb-1">Full Stack Developer</p>
                   <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
                   <button class="btn btn-primary">Follow</button>
@@ -30,6 +26,7 @@
         <div class="col-md-8">
           <div class="card mb-3">
             <div class="card-body">
+              <!-- Fullname -->
               <div class="row">
                 <div class="col-sm-3">
                   <h6 class="mb-0">Fullname</h6>
@@ -40,6 +37,8 @@
                 </div>
               </div>
               <hr>
+
+              <!-- Email -->
               <div class="row">
                 <div class="col-sm-3">
                   <h6 class="mb-0">Email</h6>
@@ -50,127 +49,92 @@
                 </div>
               </div>
               <hr>
+
+              <!-- Nickname -->
               <div class="row">
                 <div class="col-sm-3">
                   <h6 class="mb-0">Nickname</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                  <span v-if="!isEditing">{{nickname}}</span>
+                  <span v-if="!isEditing">{{ nickname }}</span>
                   <input v-else type="text" class="form-control" v-model="user.nickname">
                 </div>
               </div>
               <hr>
+
+              <!-- Mobile -->
               <div class="row">
                 <div class="col-sm-3">
                   <h6 class="mb-0">Mobile</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                  <span v-if="!isEditing">(320) 380-4539</span>
+                  <span v-if="!isEditing">{{ user.mobile }}</span>
                   <input v-else type="text" class="form-control" v-model="user.mobile">
                 </div>
               </div>
               <hr>
+
+              <!-- Address -->
               <div class="row">
                 <div class="col-sm-3">
                   <h6 class="mb-0">Address</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                  <span v-if="!isEditing">Bay Area, San Francisco, CA</span>
+                  <span v-if="!isEditing">{{ user.address }}</span>
                   <input v-else type="text" class="form-control" v-model="user.address">
                 </div>
               </div>
               <hr>
+
+              <!-- Save or Edit button -->
               <div class="row">
                 <div class="col-sm-12">
                   <button class="btn btn-info" @click="isEditing ? saveChanges() : toggleEdit()">
                     {{ isEditing ? 'Save' : 'Edit' }}
                   </button>
-
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="row gutters-sm">
-            <div class="col-sm-6 mb-3">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h6 class="d-flex align-items-center mb-3">Friends List</h6>
-
-                  <ul class="list-group">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>
-                        <span class="status-indicator bg-success"></span>
-                        Jane Smith
-                      </span>
-                      <span class="badge bg-success">Online</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>
-                        <span class="status-indicator bg-danger"></span>
-                        Mike Johnson
-                      </span>
-                      <span class="badge bg-danger">Offline</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>
-                        <span class="status-indicator bg-success"></span>
-                        Emily Davis
-                      </span>
-                      <span class="badge bg-success">Online</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>
-                        <span class="status-indicator bg-danger"></span>
-                        David Brown
-                      </span>
-                      <span class="badge bg-danger">Offline</span>
-                    </li>
-                  </ul>
-
-                </div>
-              </div>
-            </div>
-            <div class="col-sm-6 mb-3">
-              <div class="card h-100">
-                <div class="card-body card-body2">
-                  <h6 class="d-flex align-items-center mb-3">Player Stats</h6>
-                  <div class="d-flex flex-column">
-                    <div class="d-flex justify-content-between mb-3">
-                      <span>Victories:</span>
-                      <span>123</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3">
-                      <span>Losses:</span>
-                      <span>45</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3">
-                      <span>Games Played:</span>
-                      <span>168</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3">
-                      <span>Total Points:</span>
-                      <span>9876</span>
-                    </div>
+          <!-- Player Stats -->
+          <div class="col-sm-6 mb-3">
+            <div class="card h-100">
+              <div class="card-body card-body2">
+                <h6 class="d-flex align-items-center mb-3">Player Stats</h6>
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Victories:</span>
+                    <span>123</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Losses:</span>
+                    <span>45</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Games Played:</span>
+                    <span>168</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Total Points:</span>
+                    <span>9876</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-
-
         </div>
+
       </div>
 
     </div>
   </div>
   <!-- ---------------------------------------------------------------- -->
-
 </template>
 <script setup lang="ts">
-import NavHome from './NavHome.vue'
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject } from 'vue';
+import NavHome from './NavHome.vue';
+
 const api: Api = inject('$api') as Api;
 
 const isEditing = ref(false);
@@ -178,7 +142,7 @@ const username = ref('User');
 const email = ref('email');
 const nickname = ref('nickname');
 
-// Datos originales del usuario (inmutables)
+
 const originalUser = ref({
   fullName: username ? username : '(None)',
   email: email ? email : '(None)',
@@ -187,62 +151,85 @@ const originalUser = ref({
   address: 'Bay Area, San Francisco, CA',
 });
 
-// Datos editables del usuario
+
 const user = ref({ ...originalUser.value });
 
 function toggleEdit() {
   if (isEditing.value) {
-    // Si se estaba en modo edición y se cancela (sin guardar), se restauran los valores originales
+    // Si se cancela, se restauran los valores originales
     user.value = { ...originalUser.value };
   } else {
-    // Si se hace clic en "Edit", se comienza la edición
-    user.value = { ...originalUser.value }; // Asegurarse de comenzar con los datos originales
+    // Iniciar la edición
+    user.value = { ...originalUser.value };
   }
-  isEditing.value = !isEditing.value; // Alternar el modo de edición
+  isEditing.value = !isEditing.value;
 }
 
-function saveChanges() {
-  // Guardar cambios en los datos originales
-  originalUser.value = { ...user.value };
-  isEditing.value = false; // Salir del modo de edición
-}
+const saveChanges = async () => {
+  const token = localStorage.getItem('access_token');  // Asegúrate de tener el token
+
+  try {
+    const response = await fetch('/api/update-profile/', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,  // Aquí envías el token en el header
+      },
+      body: JSON.stringify({
+        fullName: user.value.fullName,
+        email: user.value.email,
+        nickname: user.value.nickname,
+        mobile: user.value.mobile,
+        address: user.value.address,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert('Profile updated successfully!');
+    } else {
+      alert(`Error: ${data.error}`);
+    }
+  } catch (error) {
+    console.error('Error updating profile:', error);
+  }
+};
 
 const fetchUsername = async () => {
   try {
-    const response = await api.get('whoami')
-    username.value = response.username // Reemplazar con la estructura real de tu respuesta
-    console.log("usuario:" + username.value )
+    const response = await api.get('whoami');
+    username.value = response.username; 
+    console.log("Usuario:", username.value);
   } catch (error) {
-    console.error('Error fetching username:', error.response ? error.response.username : error.message)
+    console.error('Error fetching username:', error.response?.username || error.message);
   }
-}
+};
 
 const fetchEmail = async () => {
   try {
-    const response = await api.get('whoami')
-    email.value = response.email // Reemplazar con la estructura real de tu respuesta
-    console.log("email es:" + response.email)
+    const response = await api.get('whoami');
+    email.value = response.email; 
+    console.log("Email:", email.value);
   } catch (error) {
-    console.error('Error fetching email:', error.response ? error.response.email : error.message)
+    console.error('Error fetching email:', error.response?.email || error.message);
   }
-}
+};
 
 const fetchNickname = async () => {
   try {
-    const response = await api.get('whoami')
-    nickname.value = response.nickname // Reemplazar con la estructura real de tu respuesta
-    console.log("nickname:" + response.nickname)
+    const response = await api.get('whoami');
+    nickname.value = response.nickname; 
+    console.log("Nickname:", nickname.value);
   } catch (error) {
-    console.error('Error fetching nickname:', error.response ? error.response.nickname : error.message)
+    console.error('Error fetching nickname:', error.response?.nickname || error.message);
   }
-}
-
+};
 
 onMounted(async () => {
-  await Promise.all([fetchUsername(), fetchEmail(),fetchNickname()]);
+  await Promise.all([fetchUsername(), fetchEmail(), fetchNickname()]);
 });
 </script>
-
 
 
 <style scoped>
