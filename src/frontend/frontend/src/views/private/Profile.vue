@@ -10,9 +10,9 @@
             <div class="card-body">
               <div class="d-flex flex-column align-items-center text-center">
                 <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle" width="150">
-                <button class="btn btn-primary">@click="editImage">Edit image</button>
+                <button class="btn btn-primary"@click="editImage">Edit image</button>
                 <div class="mt-3">
-                  <h4>{{ user.fullName }}</h4>
+                  <h4>{{ username }}</h4>
                   <p class="text-secondary mb-1">Full Stack Developer</p>
                   <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
                   <button class="btn btn-primary">Follow</button>
@@ -89,7 +89,7 @@
               <!-- Save or Edit button -->
               <div class="row">
                 <div class="col-sm-12">
-                  <button class="btn btn-info" @click="isEditing ? saveChanges() : toggleEdit()">
+                  <button class="btn btn-info" @click=saveChanges>
                     {{ isEditing ? 'Save' : 'Edit' }}
                   </button>
                 </div>
@@ -134,6 +134,7 @@
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue';
 import NavHome from './NavHome.vue';
+import userUpdateRequest from '@/models/user/userUpdateRequest';
 
 const api: Api = inject('$api') as Api;
 
@@ -142,13 +143,13 @@ const username = ref('User');
 const email = ref('email');
 const nickname = ref('nickname');
 
-
-const originalUser = ref({
+/*
+const originalUser = ref<userUpdateRequest>({
   fullName: username ? username : '(None)',
   email: email ? email : '(None)',
   nickname:  nickname ? nickname : '(None)',
-  mobile: '(320) 380-4539',
-  address: 'Bay Area, San Francisco, CA',
+  mobile: '',
+  address: '',
 });
 
 
@@ -164,28 +165,20 @@ function toggleEdit() {
   }
   isEditing.value = !isEditing.value;
 }
+*/
+const user = ref<userUpdateRequest>({
+  username: '',
+  password: '',
+  email: '',
+  nickname: '',
+})
 
 const saveChanges = async () => {
-  const token = localStorage.getItem('access_token');  // Asegúrate de tener el token
+
 
   try {
-    const response = await fetch('/api/update-profile/', {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,  // Aquí envías el token en el header
-      },
-      body: JSON.stringify({
-        fullName: user.value.fullName,
-        email: user.value.email,
-        nickname: user.value.nickname,
-        mobile: user.value.mobile,
-        address: user.value.address,
-      }),
-    });
-
-    const data = await response.json();
-
+    //const response: UserResponse = await api.post<UserResponse>('register', form.value)
+    const response = await api.post('/update-profile/', user.value);
     if (response.ok) {
       alert('Profile updated successfully!');
     } else {
