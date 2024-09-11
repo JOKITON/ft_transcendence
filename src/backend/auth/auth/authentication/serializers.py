@@ -7,7 +7,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 class UserSerializerRegister(serializers.ModelSerializer):
     username: serializers.CharField = serializers.CharField(required=True)
     password: serializers.CharField = serializers.CharField(required=True)

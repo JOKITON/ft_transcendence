@@ -167,6 +167,32 @@ class UpdateUserProfileView(APIView):
 
         return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
 
+class UploadImage(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None) -> Response:
+        serializer = AvatarSerializer(
+            data=request.data, context={"request": request}
+        )
+        if serializer.is_valid():
+            # Save the form and store the image
+            user = serializer.save()
+            if user:
+                response: Dict = {
+                    "message": "Avatar uploaded successfully",
+                    "status": status.HTTP_201_CREATED,
+                }
+                return Response(response, status=status.HTTP_201_CREATED)
+        return Response(
+            {
+                "message": "Avatar not uploaded",
+                "status": status.HTTP_400_BAD_REQUEST,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
 """ class ChangeUser(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]

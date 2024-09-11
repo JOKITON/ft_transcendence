@@ -1,7 +1,7 @@
 <template>
   <NavHome></NavHome>
   <main class="px-3">
-    <h1>Hello helloooo {{ username }},</h1>
+    <h1>Hello {{ username }},</h1>
     <p class="lead">
       Cover is a one-page template for building simple and beautiful home pages. Download, edit the
       text, and add your own fullscreen background photo to make it your own.
@@ -48,8 +48,8 @@ const logoutUser = async () => {
 // Función para obtener el nombre de usuario
 const fetchUsername = async () => {
   try {
-    const response = await api.get('user/whoami/', { withCredentials: true })
-    username.value = response.data.username // Reemplazar con la estructura real de tu respuesta
+    const response = await api.get('whoami')
+    username.value = response.username // Reemplazar con la estructura real de tu respuesta
   } catch (error) {
     console.error('Error fetching username:', error.response ? error.response.data : error.message)
   }
@@ -63,10 +63,6 @@ const toggleDropdown = () => {
 // Funciones de manejo de perfil y configuración
 const openSettings = () => {
   alert('Settings clicked')
-}
-
-const openProfile = () => {
-  alert('Profile clicked')
 }
 
 // Lifecycle hook similar a `created` en Options API
