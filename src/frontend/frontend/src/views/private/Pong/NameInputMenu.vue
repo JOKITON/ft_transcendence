@@ -66,7 +66,7 @@
 		</form>
   
 		<!-- Leaderboard Section -->
-		<div class="leaderboard mt-5">
+		<div class="leaderboard mt-10000">
 		  <h6 class="d-flex align-items-center mb-3">Leaderboard</h6>
 		  <ul class="list-group">
 			<li v-for="user in leaderboard" :key="user.id" class="list-group-item d-flex justify-content-between align-items-center">

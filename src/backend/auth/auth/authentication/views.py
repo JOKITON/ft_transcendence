@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from typing import Dict
+from .models import User
 import logging
 
 
@@ -134,28 +135,33 @@ class WhoAmIView(APIView):
             }
             return Response(user_data, status=status.HTTP_200_OK)
 class UpdateUserProfileView(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def patch(self, request):
+    def post(self, request):
         user = request.user
         data = request.data
 
         # Obtener los campos que se van a actualizar
         new_email = data.get('email', None)
-        new_full_name = data.get('fullName', None)
+        new_full_name = data.get('username', None)
         new_nickname = data.get('nickname', None)
         new_mobile = data.get('mobile', None)
         new_address = data.get('address', None)
 
+        print("llega aqui")
         # Validar si el email ya existe
         if new_email and User.objects.filter(email=new_email).exclude(id=user.id).exists():
             return Response({"error": "Email already in use"}, status=status.HTTP_400_BAD_REQUEST)
 
+        print("llega aqui2")
+        print(new_full_name)
+        print("aaaaa")
         # Actualizar los campos del usuario si están presentes en la petición
         if new_email:
             user.email = new_email
         if new_full_name:
-            user.full_name = new_full_name
+            user.username = new_full_name
         if new_nickname:
             user.nickname = new_nickname
         if new_mobile:

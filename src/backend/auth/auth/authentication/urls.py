@@ -15,7 +15,7 @@ urlpatterns = [
     path("login", LoginUserView.as_view(), name="login"),
     path("logout", LogoutView.as_view(), name="logout"),
     path("whoami", WhoAmIView.as_view(), name="whoami"),
-    path('api/update-profile/', UpdateUserProfileView.as_view(), name='update_profile'),
+    path('update-profile', UpdateUserProfileView.as_view(), name='update_profile'),
     path("token/refresh", TokenRefreshView.as_view(), name="tokenRefresh"),
     path("token/verify", TokenVerifyView.as_view(), name="tokenVerify"),
 ]
