@@ -8,12 +8,18 @@ if [ "$DATABASE" = "postgres" ]; then
   done
 fi
 
-KEY_DIR="/friendship/secrets"
+KEY_DIR="/auth/secrets"
 mkdir -p "$KEY_DIR"
 
-curl -o /friendship/secrets/public.pem http://keys/api/v1/keys/public
-if ! openssl rsa -pubin -in /friendship/secrets/public.pem -text -noout >/dev/null 2>&1; then
+curl -o /auth/secrets/public.pem http://keys/api/v1/keys/public
+if ! openssl rsa -pubin -in /auth/secrets/public.pem -text -noout >/dev/null 2>&1; then
   echo "Error: Fetched public key is not valid."
+  exit 1
+fi
+
+curl -o /auth/secrets/private.pem http://keys/api/v1/keys/private
+if ! openssl rsa -in /auth/secrets/private.pem -check >/dev/null 2>&1; then
+  echo "Error: Fetched private key is not valid."
   exit 1
 fi
 
@@ -21,7 +27,7 @@ sleep 2
 
 # Apply database migrations first time
 echo "Applying database migrations..."
-if ! python manage.py makemigrations --noinput; then
+if ! python manage.py showmigrations; then
   echo "Migrations failed"
   exit 1
 fi

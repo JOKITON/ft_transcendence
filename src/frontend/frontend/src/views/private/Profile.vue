@@ -1,172 +1,392 @@
 <template>
   <NavHome></NavHome>
-  <main class="px-3">
-    <h1>Hello {{ username }},</h1>
-    <p class="lead">
-      Cover is a one-page template for building simple and beautiful home pages. Download, edit the
-      text, and add your own fullscreen background photo to make it your own.
-    </p>
-    <p class="lead">
-      <a href="" class="btn btn-lg btn-light fw-bold border-white bg-white">Learn more</a>
-    </p>
-  </main>
+
+  <!-- ---------------------------------------------------------------- -->
+  <div class="container">
+    <div class="main-body">
+
+
+      <!-- /Breadcrumb -->
+
+      <div class="row gutters-sm">
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex flex-column align-items-center text-center">
+                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle"
+                  width="150">
+                <div class="mt-3">
+                  <h4>{{ username }}</h4>
+                  <p class="text-secondary mb-1">Full Stack Developer</p>
+                  <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
+                  <button class="btn btn-primary">Follow</button>
+                  <button class="btn btn-outline-primary">Message</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-8">
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">Fullname</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  <span v-if="!isEditing">{{ username }}</span>
+                  <input v-else type="text" class="form-control" v-model="user.fullName">
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">Email</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  <span v-if="!isEditing">fip@jukmuh.al</span>
+                  <input v-else type="email" class="form-control" v-model="user.email">
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">Phone</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  <span v-if="!isEditing">(239) 816-9029</span>
+                  <input v-else type="text" class="form-control" v-model="user.phone">
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">Mobile</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  <span v-if="!isEditing">(320) 380-4539</span>
+                  <input v-else type="text" class="form-control" v-model="user.mobile">
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">Address</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  <span v-if="!isEditing">Bay Area, San Francisco, CA</span>
+                  <input v-else type="text" class="form-control" v-model="user.address">
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-12">
+                  <button class="btn btn-info" @click="isEditing ? saveChanges() : toggleEdit()">
+                    {{ isEditing ? 'Save' : 'Edit' }}
+                  </button>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row gutters-sm">
+            <div class="col-sm-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h6 class="d-flex align-items-center mb-3">Users List</h6>
+
+                  <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>
+                        <span class="status-indicator bg-success"></span>
+                        Jane Smith
+                      </span>
+                      <span class="badge bg-success">Online</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>
+                        <span class="status-indicator bg-danger"></span>
+                        Mike Johnson
+                      </span>
+                      <span class="badge bg-danger">Offline</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>
+                        <span class="status-indicator bg-success"></span>
+                        Emily Davis
+                      </span>
+                      <span class="badge bg-success">Online</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>
+                        <span class="status-indicator bg-danger"></span>
+                        David Brown
+                      </span>
+                      <span class="badge bg-danger">Offline</span>
+                    </li>
+                  </ul>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h6 class="d-flex align-items-center mb-3">Friends List</h6>
+
+                  <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>
+                        <span class="status-indicator bg-success"></span>
+                        Jane Smith
+                      </span>
+                      <span class="badge bg-success">Online</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>
+                        <span class="status-indicator bg-danger"></span>
+                        Mike Johnson
+                      </span>
+                      <span class="badge bg-danger">Offline</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>
+                        <span class="status-indicator bg-success"></span>
+                        Emily Davis
+                      </span>
+                      <span class="badge bg-success">Online</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>
+                        <span class="status-indicator bg-danger"></span>
+                        David Brown
+                      </span>
+                      <span class="badge bg-danger">Offline</span>
+                    </li>
+                  </ul>
+
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body card-body2">
+                  <h6 class="d-flex align-items-center mb-3">Player Stats</h6>
+                  <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between mb-3">
+                      <span>Victories:</span>
+                      <span>123</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                      <span>Losses:</span>
+                      <span>45</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                      <span>Games Played:</span>
+                      <span>168</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                      <span>Total Points:</span>
+                      <span>9876</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- ---------------------------------------------------------------- -->
+
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue'
-import { useRouter } from 'vue-router'
 import NavHome from './NavHome.vue'
-import auth from '../../services/user/services/auth/auth.ts'
-import type Api from '@/utils/Api/Api'
-import type { ApiResponse } from '@/utils/Api/ApiResponse'
-// Variables reactivas
-const isProfileVisible = ref(false)
-const isDropdownVisible = ref(false)
-const username = ref('User') // Valor por defecto, será actualizado más adelante
-const api: Api = inject('$api') as Api
-const Auth: auth = new auth(api)
-const router = useRouter()
+import { ref, onMounted, inject } from 'vue'
+const api: Api = inject('$api') as Api;
 
-// Función para cerrar sesión
-const logoutUser = async () => {
-  try {
-    const response = await Auth.logout()
-    if (response.status === 200) {
-      console.log('Logout successful:', response.data)
-      Auth.removeAccessToken()
-      router.push('/login')
-    } else {
-      console.error('Logout failed:', response.data)
-      alert('Logout failed. ' + response.data.message)
-      Auth.removeAccessToken()
-    }
-  } catch (error) {
-    console.error('Logout error:', error.response ? error.response.data : error.message)
-    alert('Logout failed. ' + (error.response ? error.response.data.message : error.message))
-  }
-}
-
-// Función para obtener el nombre de usuario
-/*const fetchUsername = async () => {
-  try {
-    const response = await api.get('user/whoami/', { withCredentials: true })
-    username.value = response.data.username // Reemplazar con la estructura real de tu respuesta
-  } catch (error) {
-    console.error('Error fetching username:', error.response ? error.response.data : error.message)
-  }
-}*/
-
-api.setAccessToken()
-const response: ApiResponse<Record<string, any>> = await api.post<Record<string, any>>('pong/users')
-
-// Función para alternar el menú desplegable
-const toggleDropdown = () => {
-  isDropdownVisible.value = !isDropdownVisible.value
-}
-
-// Funciones de manejo de perfil y configuración
-const openSettings = () => {
-  alert('Settings clicked')
-}
-
-const openProfile = () => {
-  alert('Profile clicked')
-}
+const isEditing = ref(false);
+const username = ref('User')
 
 // Lifecycle hook similar a `created` en Options API
 onMounted(async () => {
-  await response.data.map((user) => new User(user.id, user.username, user.email))
+  await fetchUsername()
 })
-</script>
-<style>
-@import url('https://cdn.jsdelivr.net/npm/@docsearch/css@3');
 
-header {
-  background-color: white;
+// Datos originales del usuario (inmutables)
+const originalUser = ref({
+  fullName: username ? username : '(None)',
+  email: 'fip@jukmuh.al',
+  phone: '(239) 816-9029',
+  mobile: '(320) 380-4539',
+  address: 'Bay Area, San Francisco, CA',
+});
+
+// Datos editables del usuario
+const user = ref({ ...originalUser.value });
+
+function toggleEdit() {
+  if (isEditing.value) {
+    // Si se estaba en modo edición y se cancela (sin guardar), se restauran los valores originales
+    user.value = { ...originalUser.value };
+  } else {
+    // Si se hace clic en "Edit", se comienza la edición
+    user.value = { ...originalUser.value }; // Asegurarse de comenzar con los datos originales
+  }
+  isEditing.value = !isEditing.value; // Alternar el modo de edición
 }
 
-main {
-  background-color: #343a40;
-  color: whitesmoke;
+function saveChanges() {
+  // Guardar cambios en los datos originales
+  originalUser.value = { ...user.value };
+  isEditing.value = false; // Salir del modo de edición
 }
 
-.bd-placeholder-img {
-  font-size: 1.125rem;
-  text-anchor: middle;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-}
-
-@media (min-width: 768px) {
-  .bd-placeholder-img-lg {
-    font-size: 3.5rem;
+const fetchUsername = async () => {
+  try {
+    const response = await api.get('whoami')
+    username.value = response.username // Reemplazar con la estructura real de tu respuesta
+  } catch (error) {
+    console.error('Error fetching username:', error.response ? error.response.username : error.message)
   }
 }
+</script>
 
-.b-example-divider {
-  width: 100%;
-  height: 3rem;
-  background-color: rgba(0, 0, 0, 0.1);
-  border: solid rgba(0, 0, 0, 0.15);
-  border-width: 1px 0;
-  box-shadow:
-    inset 0 0.5em 1.5em rgba(0, 0, 0, 0.1),
-    inset 0 0.125em 0.5em rgba(0, 0, 0, 0.15);
+
+<style scoped>
+body {
+  margin-top: 20px;
+  color: #1a202c;
+  text-align: left;
+  background-color: #e2e8f0;
 }
 
-.b-example-vr {
-  flex-shrink: 0;
-  width: 1.5rem;
-  height: 100vh;
+.main-body {
+  padding: 15px;
 }
 
-.bi {
-  vertical-align: -0.125em;
-  fill: currentColor;
+.card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
 }
 
-.nav-scroller {
+.card {
   position: relative;
-  z-index: 2;
-  height: 2.75rem;
-  overflow-y: hidden;
-}
-
-.nav-scroller .nav {
   display: flex;
-  flex-wrap: nowrap;
-  padding-bottom: 1rem;
-  margin-top: -1px;
-  overflow-x: auto;
-  text-align: center;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 0 solid rgba(0, 0, 0, .125);
+  border-radius: .25rem;
 }
 
-.btn-bd-primary {
-  --bd-violet-bg: #712cf9;
-  --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
-
-  --bs-btn-font-weight: 600;
-  --bs-btn-color: var(--bs-white);
-  --bs-btn-bg: var(--bd-violet-bg);
-  --bs-btn-border-color: var(--bd-violet-bg);
-  --bs-btn-hover-color: var(--bs-white);
-  --bs-btn-hover-bg: #6528e0;
-  --bs-btn-hover-border-color: #6528e0;
-  --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
-  --bs-btn-active-color: var(--bs-btn-hover-color);
-  --bs-btn-active-bg: #5a23c8;
-  --bs-btn-active-border-color: #5a23c8;
+.card-h {
+  height: 40em;
 }
 
-.bd-mode-toggle {
-  z-index: 1500;
+.card-body {
+  flex: 1 1 auto;
+  min-height: 1px;
+  padding: 1rem;
 }
 
-.bd-mode-toggle .dropdown-menu .active .bi {
-  display: block !important;
+.gutters-sm {
+  margin-right: -8px;
+  margin-left: -8px;
+}
+
+.gutters-sm>.col,
+.gutters-sm>[class*=col-] {
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+.mb-3,
+.my-3 {
+  margin-bottom: 1rem !important;
+}
+
+.bg-gray-300 {
+  background-color: #e2e8f0;
+}
+
+.h-100 {
+  height: 100% !important;
+}
+
+.shadow-none {
+  box-shadow: none !important;
+}
+
+
+
+
+.friends-section {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.friends-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.friend-item:last-child {
+  border-bottom: none;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+.online {
+  background-color: green;
+}
+
+.offline {
+  background-color: red;
+}
+
+.card-body2 {
+  padding: 20px;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+
+.form-control {
+  width: 100%;
+  margin-bottom: 10px;
 }
 </style>
-

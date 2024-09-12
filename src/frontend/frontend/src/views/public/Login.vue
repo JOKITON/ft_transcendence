@@ -62,7 +62,6 @@ const handleSubmit: () => Promise<void> = async () => {
     const response: boolean = await Auth.login<userResponse>(form.value)
     if (response === true) {
       router.push('/pong')
-      api?.setAccessToken()
     }
     console.log('Login successful ', response)
   } catch (error: any) {
