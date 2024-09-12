@@ -4,19 +4,29 @@
   <!-- ---------------------------------------------------------------- -->
   <div class="container">
     <div class="main-body">
-      <div class="row gutters-sm">
-        <div class="col-md-4 mb-3">
+      <div class="row gutters-sm d-flex align-items-stretch">
+        <div class="col-md-4 my-auto">
           <div class="card">
-            <div class="card-body">
+            <div class="card-body h-100">
               <div class="d-flex flex-column align-items-center text-center">
                 <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle" width="150">
                 <button class="btn btn-primary m-3" @click="editImage">Edit image</button>
                 <div class="mt-3">
                   <h4>{{ user.username }}</h4>
-                  <p class="text-secondary mb-1">Full Stack Developer</p>
-                  <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
-                  <button class="btn btn-primary m-1">Follow</button>
-                  <button class="btn btn-outline-primary m-1">Message</button>
+                  <div class="d-flex justify-content-center w-100 my-3">
+                    <div class="text-center mx-2 text-success">
+                      <div class="fs-4">Win</div>
+                      <div class="fs-5">10</div>
+                    </div>
+                    <div class="text-center">
+                      <span class="fs-4">/</span>
+                    </div>
+                    <div class="text-center mx-2 text-danger">
+                      <div class="fs-4">Losses</div>
+                      <div class="fs-5">567</div>
+                    </div>
+                  </div>
+                  <button class="btn btn-primary">Change Password</button>
                 </div>
               </div>
             </div>
@@ -29,7 +39,7 @@
                 <!-- Fullname -->
                 <div class="row">
                   <div class="col-sm-3">
-                    <h6 class="mb-0">User Name</h6>
+                    <h6 class="mb-0"> Name</h6>
                   </div>
                   <div class="col-sm-9 text-secondary">
                     <span v-if="!isEditing">{{ user.username }}</span>
