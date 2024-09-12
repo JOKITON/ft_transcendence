@@ -10,19 +10,18 @@
             <div class="card-body">
               <div class="d-flex flex-column align-items-center text-center">
                 <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle" width="150">
-                <button class="btn btn-primary" @click="editImage">Edit image</button>
+                <button class="btn btn-primary m-3" @click="editImage">Edit image</button>
                 <div class="mt-3">
                   <h4>{{ user.username }}</h4>
                   <p class="text-secondary mb-1">Full Stack Developer</p>
                   <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
-                  <button class="btn btn-primary">Follow</button>
-                  <button class="btn btn-outline-primary">Message</button>
+                  <button class="btn btn-primary m-1">Follow</button>
+                  <button class="btn btn-outline-primary m-1">Message</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
         <div class="col-md-8">
           <div class="card mb-3">
             <div class="card-body">
@@ -30,7 +29,7 @@
                 <!-- Fullname -->
                 <div class="row">
                   <div class="col-sm-3">
-                    <h6 class="mb-0">Fullname</h6>
+                    <h6 class="mb-0">User Name</h6>
                   </div>
                   <div class="col-sm-9 text-secondary">
                     <span v-if="!isEditing">{{ user.username }}</span>
@@ -61,16 +60,40 @@
                     <input v-else type="text" class="form-control" v-model="form.nickname">
                   </div>
                 </div>
-
                 <hr>
               </form>
-
               <!-- Save or Edit button -->
               <div class="row">
                 <div class="col-sm-12">
                   <button class="btn btn-info" @click="isEditing ? saveChanges() : toggleEdit()">
                     {{ isEditing ? 'Save' : 'Edit' }}
                   </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Player Stats -->
+          <div class="card-md-3">
+            <div class="card h-100">
+              <div class="card-body card-body2">
+                <h6 class="d-flex align-items-center mb-3">Player Stats</h6>
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Victories:</span>
+                    <span>123</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Losses:</span>
+                    <span>45</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Games Played:</span>
+                    <span>168</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Total Points:</span>
+                    <span>9876</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -113,6 +136,7 @@ const saveChanges: () => Promise<void> = async () => {
   try {
     const response = await api.post("update-profile",form.value)
     console.log('saved successful ', response)
+    window.location.reload();
   } catch (error: any) {
     window.alert('An error occurred while submitting the form')
     console.error('An error occurred while submitting the form:', error)
