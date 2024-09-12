@@ -40,64 +40,38 @@
   </div>
 </template>
 
-<!-- <script setup lang="ts">
-import NavIndex from './NavIndex.vue'
-import type userRequest from '@/models/user/userRequest'
-import type userResponse from '@/models/user/userResponse'
-import { useRouter } from 'vue-router'
-import { ref, inject } from 'vue'
-import type Api from '@/utils/Api/Api'
-import auth from '../../services/user/services/auth/auth.ts'
-
-const api: Api = inject('$api') as Api
-const Auth: auth = new auth(api)
-const router = useRouter()
-
-const form: Ref<userRequest> = ref<userRequest>({
-  username: '',
-  password: ''
-})
-
-const handleSubmit: () => Promise<void> = async () => {
-  try {
-    const response: boolean = await Auth.login<userResponse>(form.value)
-    if (response === true) {
-      router.push('/pong')
-    }
-    console.log('Login successful ', response)
-  } catch (error: any) {
-    window.alert('An error occurred while submitting the form')
-    console.error('An error occurred while submitting the form:', error)
-  }
-}
-</script> -->
-
-
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import NavHome from './NavHome.vue';
+import { useRouter } from 'vue-router'
+import type { passwdRequest, passwdResponse} from '@/models/user/passwdRequest'
 
+
+const api: Api = inject('$api') as Api;
+const router = useRouter()
 // Form data
-const form = ref({
+const form = ref<passwdRequest>({
   currentPassword: '',
   newPassword: '',
   confirmPassword: ''
 });
 
 // Function to handle password update
-const updatePassword = async () => {
-  if (form.value.newPassword !== form.value.confirmPassword) {
-    alert("New passwords do not match.");
-    return;
-  }
-
+const updatePassword: () => Promise<void> = async () => {
   try {
-    // Simulated API call
-    console.log('Password updated successfully');
-    alert('Password updated successfully!');
+    console.log(form.value)
+    const response = await api.post<passwdResponse>("change-password",form.value)
+    console.log('saved successful ', response)
+    if (response.status == 400) {
+      window.alert('An error occurred while submitting the form')
+      router.push('/profile')
+    } else if (response.status == 200) {
+      router.push('/pong')
+    }
+    //window.location.reload();
   } catch (error: any) {
-    console.error('Error updating password:', error);
-    alert('An error occurred while updating the password.');
+    window.alert('An error occurred while submitting the form')
+    console.error('An error occurred while submitting the form:', error)
   }
 };
 </script>

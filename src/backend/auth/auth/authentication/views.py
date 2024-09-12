@@ -7,6 +7,7 @@ from .serializers import (
     UserSerializerRegister,
     UserSerializer,
     TokenVerifySerializer,
+    PasswdSerializer,
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -20,6 +21,7 @@ import logging
 
 
 logger: logging.Logger = logging.getLogger(__name__)
+
 
 
 class RegisterUserView(APIView):
@@ -134,6 +136,31 @@ class WhoAmIView(APIView):
                 # Agrega aquí otros campos que desees mostrar
             }
             return Response(user_data, status=status.HTTP_200_OK)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+class UpdateUserPasswordView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # Pasar los datos de la solicitud al serializador
+        serializer = PasswdSerializer(data=request.data, context={"request": request})
+
+        # Validar los datos
+        if serializer.is_valid():
+            # Guardar la nueva contraseña
+            serializer.save()
+            return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
+        else:
+            # Devolver errores de validación
+            return Response({"message":"Error al actualizar la contraseña"}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class UpdateUserProfileView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]

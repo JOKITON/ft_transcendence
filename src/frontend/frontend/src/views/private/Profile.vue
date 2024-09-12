@@ -150,7 +150,6 @@ const saveChanges: () => Promise<void> = async () => {
   try {
     const response = await api.post("update-profile",form.value)
     console.log('saved successful ', response)
-    window.location.reload();
   } catch (error: any) {
     window.alert('An error occurred while submitting the form')
     console.error('An error occurred while submitting the form:', error)

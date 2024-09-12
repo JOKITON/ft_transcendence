@@ -5,6 +5,7 @@ from .views import (
     LoginUserView,
     LogoutView,
     UpdateUserProfileView,
+    UpdateUserPasswordView,
     # TokenRefreshView,
     WhoAmIView,
     # TokenVerifyView,
@@ -15,7 +16,10 @@ urlpatterns = [
     path("login", LoginUserView.as_view(), name="login"),
     path("logout", LogoutView.as_view(), name="logout"),
     path("whoami", WhoAmIView.as_view(), name="whoami"),
-    path('update-profile', UpdateUserProfileView.as_view(), name='update_profile'),
     path("token/refresh", TokenRefreshView.as_view(), name="tokenRefresh"),
     path("token/verify", TokenVerifyView.as_view(), name="tokenVerify"),
+
+    # MOVIDAS DE USUARIOS
+    path('update-profile', UpdateUserProfileView.as_view(), name='update_profile'),
+    path('change-password', UpdateUserPasswordView.as_view(), name='update_password'),
 ]
