@@ -13,6 +13,7 @@
                 <button class="btn btn-primary m-3" @click="editImage">Edit image</button>
                 <div class="mt-3">
                   <h4>{{ user.username }}</h4>
+                  <p>0 friends</p>
                   <div class="d-flex justify-content-center w-100 my-3">
                     <div class="text-center mx-2 text-success">
                       <div class="fs-4">Win</div>
@@ -26,7 +27,7 @@
                       <div class="fs-5">567</div>
                     </div>
                   </div>
-                  <button class="btn btn-primary">Change Password</button>
+                  <button class="btn btn-primary" @click="goToChangePassword">Change Password</button>
                 </div>
               </div>
             </div>
@@ -117,9 +118,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue';
+import { useRouter } from 'vue-router'
 import NavHome from './NavHome.vue';
 
 const api: Api = inject('$api') as Api;
+
+const router = useRouter()
 
 const isEditing = ref(false);
 const user = ref({
@@ -170,6 +174,10 @@ async function fetchUserData() {
 onMounted(async () => {
   await fetchUserData();
 });
+
+const goToChangePassword = () => {
+  router.push('/change-password')
+}
 </script>
 
 

@@ -52,7 +52,7 @@ const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 const router = useRouter()
 
-const form: Ref<userRequest> = ref<userRequset>({
+const form: Ref<userRequest> = ref<userRequest>({
   username: '',
   password: ''
 })
