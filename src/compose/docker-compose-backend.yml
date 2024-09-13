@@ -35,6 +35,7 @@ services:
       - ft_transcendence
     depends_on:
       - keys
+      - pong
 
   friendship:
     container_name: friendship
@@ -47,6 +48,8 @@ services:
       - ft_transcendence
     depends_on:
       - keys
+      - pong
+      - authentication
 
 networks:
   ft_transcendence:

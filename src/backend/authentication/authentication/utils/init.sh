@@ -23,6 +23,8 @@ if ! openssl rsa -in /authentication/secrets/private.pem -check >/dev/null 2>&1;
   exit 1
 fi
 
+sleep 2
+
 # Apply database migrations first time
 echo "Applying database migrations..."
 if ! python manage.py makemigrations --noinput; then
