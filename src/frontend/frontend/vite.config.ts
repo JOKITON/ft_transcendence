@@ -10,6 +10,11 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 80,
     proxy: {
+      '/api/v1': {
+        target: 'http://auth:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/auth/, '/api/auth'),
+      },
       '/api/pong/': {
         target: 'http://pong:8000',
         changeOrigin: true,

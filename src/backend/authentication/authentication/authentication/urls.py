@@ -4,9 +4,7 @@ from .views import (
     RegisterUserView,
     LoginUserView,
     LogoutView,
-    # TokenRefreshView,
     WhoAmIView,
-    # TokenVerifyView,
 )
 
 urlpatterns = [

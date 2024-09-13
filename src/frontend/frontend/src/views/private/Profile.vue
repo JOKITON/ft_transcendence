@@ -1,172 +1,311 @@
 <template>
   <NavHome></NavHome>
-  <main class="px-3">
-    <h1>Hello {{ username }},</h1>
-    <p class="lead">
-      Cover is a one-page template for building simple and beautiful home pages. Download, edit the
-      text, and add your own fullscreen background photo to make it your own.
-    </p>
-    <p class="lead">
-      <a href="" class="btn btn-lg btn-light fw-bold border-white bg-white">Learn more</a>
-    </p>
-  </main>
+
+  <!-- ---------------------------------------------------------------- -->
+  <div class="container">
+    <div class="main-body">
+      <div class="row gutters-sm d-flex align-items-stretch">
+        <div class="col-md-4 my-auto">
+          <div class="card">
+            <div class="card-body h-100">
+              <div class="d-flex flex-column align-items-center text-center">
+                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle" width="150">
+                <button class="btn btn-primary m-3" @click="editImage">Edit image</button>
+                <div class="mt-3">
+                  <h4>{{ user.username }}</h4>
+                  <p>0 friends</p>
+                  <div class="d-flex justify-content-center w-100 my-3">
+                    <div class="text-center mx-2 text-success">
+                      <div class="fs-4">Win</div>
+                      <div class="fs-5">10</div>
+                    </div>
+                    <div class="text-center">
+                      <span class="fs-4">/</span>
+                    </div>
+                    <div class="text-center mx-2 text-danger">
+                      <div class="fs-4">Losses</div>
+                      <div class="fs-5">567</div>
+                    </div>
+                  </div>
+                  <button class="btn btn-primary" @click="goToChangePassword">Change Password</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="card mb-3">
+            <div class="card-body">
+              <form id="profileUpdate" @submit.prevent="saveChanges">
+                <!-- Fullname -->
+                <div class="row">
+                  <div class="col-sm-3">
+                    <h6 class="mb-0"> Name</h6>
+                  </div>
+                  <div class="col-sm-9 text-secondary">
+                    <span v-if="!isEditing">{{ user.username }}</span>
+                    <input v-else type="text" class="form-control" v-model="form.username">
+                  </div>
+                </div>
+                <hr>
+
+                <!-- Email -->
+                <div class="row">
+                  <div class="col-sm-3">
+                    <h6 class="mb-0">Email</h6>
+                  </div>
+                  <div class="col-sm-9 text-secondary">
+                    <span v-if="!isEditing">{{ user.email }}</span>
+                    <input v-else type="email" class="form-control" v-model="form.email">
+                  </div>
+                </div>
+                <hr>
+
+                <!-- Nickname -->
+                <div class="row">
+                  <div class="col-sm-3">
+                    <h6 class="mb-0">Nickname</h6>
+                  </div>
+                  <div class="col-sm-9 text-secondary">
+                    <span v-if="!isEditing">{{ user.nickname }}</span>
+                    <input v-else type="text" class="form-control" v-model="form.nickname">
+                  </div>
+                </div>
+                <hr>
+              </form>
+              <!-- Save or Edit button -->
+              <div class="row">
+                <div class="col-sm-12">
+                  <button class="btn btn-info" @click="isEditing ? saveChanges() : toggleEdit()">
+                    {{ isEditing ? 'Save' : 'Edit' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Player Stats -->
+          <div class="card-md-3">
+            <div class="card h-100">
+              <div class="card-body card-body2">
+                <h6 class="d-flex align-items-center mb-3">Player Stats</h6>
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Victories:</span>
+                    <span>123</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Losses:</span>
+                    <span>45</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Games Played:</span>
+                    <span>168</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Total Points:</span>
+                    <span>9876</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ---------------------------------------------------------------- -->
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router'
-import NavHome from './NavHome.vue'
-import auth from '../../services/user/services/auth/auth.ts'
-import type Api from '@/utils/Api/Api'
-import type { ApiResponse } from '@/utils/Api/ApiResponse'
-// Variables reactivas
-const isProfileVisible = ref(false)
-const isDropdownVisible = ref(false)
-const username = ref('User') // Valor por defecto, será actualizado más adelante
-const api: Api = inject('$api') as Api
-const Auth: auth = new auth(api)
+import NavHome from './NavHome.vue';
+
+const api: Api = inject('$api') as Api;
+
 const router = useRouter()
 
-// Función para cerrar sesión
-const logoutUser = async () => {
+const isEditing = ref(false);
+const user = ref({
+  username: 'User',
+  email: 'email',
+  nickname: 'nickname',
+});
+
+const form = ref({
+  username: user.value.username,
+  email: user.value.email,
+  nickname: user.value.nickname,
+});
+
+function toggleEdit() {
+  if (isEditing.value) {
+    // Restores the original values when edit mode is canceled
+    form.value = { ...user.value };
+  }
+  isEditing.value = !isEditing.value;
+}
+
+const saveChanges: () => Promise<void> = async () => {
   try {
-    const response = await Auth.logout()
-    if (response.status === 200) {
-      console.log('Logout successful:', response.data)
-      Auth.removeAccessToken()
-      router.push('/login')
-    } else {
-      console.error('Logout failed:', response.data)
-      alert('Logout failed. ' + response.data.message)
-      Auth.removeAccessToken()
-    }
-  } catch (error) {
-    console.error('Logout error:', error.response ? error.response.data : error.message)
-    alert('Logout failed. ' + (error.response ? error.response.data.message : error.message))
+    const response = await api.post("update-profile",form.value)
+    console.log('saved successful ', response)
+    window.location.reload();
+  } catch (error: any) {
+    window.alert('An error occurred while submitting the form')
+    console.error('An error occurred while submitting the form:', error)
   }
 }
 
-// Función para obtener el nombre de usuario
-/*const fetchUsername = async () => {
+async function fetchUserData() {
   try {
-    const response = await api.get('user/whoami/', { withCredentials: true })
-    username.value = response.data.username // Reemplazar con la estructura real de tu respuesta
-  } catch (error) {
-    console.error('Error fetching username:', error.response ? error.response.data : error.message)
+    const response = await api.get('whoami');
+    user.value = {
+      username: response.username,
+      email: response.email,
+      nickname: response.nickname,
+    };
+    form.value = { ...user.value };
+  } catch (error: any) {
+    console.error('Error fetching user data:', error.message);
   }
-}*/
-
-api.setAccessToken()
-const response: ApiResponse<Record<string, any>> = await api.post<Record<string, any>>('pong/users')
-
-// Función para alternar el menú desplegable
-const toggleDropdown = () => {
-  isDropdownVisible.value = !isDropdownVisible.value
 }
 
-// Funciones de manejo de perfil y configuración
-const openSettings = () => {
-  alert('Settings clicked')
-}
-
-const openProfile = () => {
-  alert('Profile clicked')
-}
-
-// Lifecycle hook similar a `created` en Options API
 onMounted(async () => {
-  await response.data.map((user) => new User(user.id, user.username, user.email))
-})
+  await fetchUserData();
+});
+
+const goToChangePassword = () => {
+  router.push('/change-password')
+}
 </script>
-<style>
-@import url('https://cdn.jsdelivr.net/npm/@docsearch/css@3');
 
-header {
-  background-color: white;
+
+<style scoped>
+body {
+  margin-top: 20px;
+  color: #1a202c;
+  text-align: left;
+  background-color: #e2e8f0;
 }
 
-main {
-  background-color: #343a40;
-  color: whitesmoke;
+.main-body {
+  padding: 15px;
 }
 
-.bd-placeholder-img {
-  font-size: 1.125rem;
-  text-anchor: middle;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
+.card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
 }
 
-@media (min-width: 768px) {
-  .bd-placeholder-img-lg {
-    font-size: 3.5rem;
-  }
-}
-
-.b-example-divider {
-  width: 100%;
-  height: 3rem;
-  background-color: rgba(0, 0, 0, 0.1);
-  border: solid rgba(0, 0, 0, 0.15);
-  border-width: 1px 0;
-  box-shadow:
-    inset 0 0.5em 1.5em rgba(0, 0, 0, 0.1),
-    inset 0 0.125em 0.5em rgba(0, 0, 0, 0.15);
-}
-
-.b-example-vr {
-  flex-shrink: 0;
-  width: 1.5rem;
-  height: 100vh;
-}
-
-.bi {
-  vertical-align: -0.125em;
-  fill: currentColor;
-}
-
-.nav-scroller {
+.card {
   position: relative;
-  z-index: 2;
-  height: 2.75rem;
-  overflow-y: hidden;
-}
-
-.nav-scroller .nav {
   display: flex;
-  flex-wrap: nowrap;
-  padding-bottom: 1rem;
-  margin-top: -1px;
-  overflow-x: auto;
-  text-align: center;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 0 solid rgba(0, 0, 0, .125);
+  border-radius: .25rem;
 }
 
-.btn-bd-primary {
-  --bd-violet-bg: #712cf9;
-  --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
-
-  --bs-btn-font-weight: 600;
-  --bs-btn-color: var(--bs-white);
-  --bs-btn-bg: var(--bd-violet-bg);
-  --bs-btn-border-color: var(--bd-violet-bg);
-  --bs-btn-hover-color: var(--bs-white);
-  --bs-btn-hover-bg: #6528e0;
-  --bs-btn-hover-border-color: #6528e0;
-  --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
-  --bs-btn-active-color: var(--bs-btn-hover-color);
-  --bs-btn-active-bg: #5a23c8;
-  --bs-btn-active-border-color: #5a23c8;
+.card-h {
+  height: 40em;
 }
 
-.bd-mode-toggle {
-  z-index: 1500;
+.card-body {
+  flex: 1 1 auto;
+  min-height: 1px;
+  padding: 1rem;
 }
 
-.bd-mode-toggle .dropdown-menu .active .bi {
-  display: block !important;
+.gutters-sm {
+  margin-right: -8px;
+  margin-left: -8px;
+}
+
+.gutters-sm>.col,
+.gutters-sm>[class*=col-] {
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+.mb-3,
+.my-3 {
+  margin-bottom: 1rem !important;
+}
+
+.bg-gray-300 {
+  background-color: #e2e8f0;
+}
+
+.h-100 {
+  height: 100% !important;
+}
+
+.shadow-none {
+  box-shadow: none !important;
+}
+
+
+
+
+.friends-section {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.friends-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.friend-item:last-child {
+  border-bottom: none;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+.online {
+  background-color: green;
+}
+
+.offline {
+  background-color: red;
+}
+
+.card-body2 {
+  padding: 20px;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+
+.form-control {
+  width: 100%;
+  margin-bottom: 10px;
 }
 </style>
-

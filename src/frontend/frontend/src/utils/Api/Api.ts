@@ -21,8 +21,8 @@ export default class Api implements IApi {
     })
   }
 
-  public setAccessToken(token: string | null = localStorage.getItem('access')): void {
-    if (token) this.api.defaults.headers.Authorization = `Bearer ${token}`
+  public setAccessToken(token: string | null = localStorage.getItem('access_token')): void {
+    if (token) this.api.defaults.headers['Authorization'] = `Bearer ${token}`
   }
 
   public removeAccessToken(): void {
@@ -34,6 +34,8 @@ export default class Api implements IApi {
     request: ResponseKey[] = ['data', 'status'],
     headers?: { [key: string]: string } | Record<string, any>
   ): Promise<ApiResponse<TResponse>> {
+    const accessToken = localStorage.getItem('access_token');
+    this.setAccessToken(accessToken);
     return await this.api
       .get<TResponse>(url, { headers: headers })
       .then((response) => this.formatResponse(response, request))
