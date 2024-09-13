@@ -12,19 +12,39 @@
                 <!-- Current Password -->
                 <div class="form-group mb-3">
                   <label for="currentPassword">Current Password</label>
-                  <input type="password" id="currentPassword" v-model="form.currentPassword" class="form-control" required>
+                  <input 
+                    type="password" 
+                    id="currentPassword" 
+                    v-model="form.currentPassword" 
+                    class="form-control custom-placeholder" 
+                    placeholder="Enter your current password" 
+                    required>
                 </div>
 
                 <!-- New Password -->
                 <div class="form-group mb-3">
                   <label for="newPassword">New Password</label>
-                  <input type="password" id="newPassword" v-model="form.newPassword" class="form-control" required>
+                  <input 
+                    type="password" 
+                    id="newPassword" 
+                    v-model="form.newPassword" 
+                    class="form-control custom-placeholder" 
+                    placeholder="Enter your new password" 
+                    required
+                  />
                 </div>
 
                 <!-- Confirm New Password -->
                 <div class="form-group mb-4">
                   <label for="confirmPassword">Confirm New Password</label>
-                  <input type="password" id="confirmPassword" v-model="form.confirmPassword" class="form-control" required>
+                  <input 
+                    type="password" 
+                    id="confirmPassword" 
+                    v-model="form.confirmPassword" 
+                    class="form-control custom-placeholder" 
+                    placeholder="Enter your new password" 
+                    required
+                    /> 
                 </div>
 
                 <!-- Update Button -->
@@ -59,20 +79,27 @@ const form = ref<passwdRequest>({
 // Function to handle password update
 const updatePassword: () => Promise<void> = async () => {
   try {
-    console.log(form.value)
     const response = await api.post<passwdResponse>("change-password",form.value)
-    console.log('saved successful ', response)
     if (response.status == 400) {
       window.alert('An error occurred while submitting the form')
-      router.push('/profile')
+      resetForm()
     } else if (response.status == 200) {
-      router.push('/pong')
+      router.push('/profile')
     }
     //window.location.reload();
   } catch (error: any) {
     window.alert('An error occurred while submitting the form')
     console.error('An error occurred while submitting the form:', error)
+    resetForm()
   }
+};
+
+const resetForm = () => {
+  form.value = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  };
 };
 </script>
 
@@ -99,5 +126,11 @@ body {
 
 h4 {
   color: #333;
+}
+
+.custom-placeholder::placeholder {
+  font-size: 0.85rem; /* Tamaño de fuente más pequeño */
+  color: #6c757d; /* Color más claro */
+  opacity: 0.7; /* Ajusta la opacidad para hacer el texto más claro */
 }
 </style>
