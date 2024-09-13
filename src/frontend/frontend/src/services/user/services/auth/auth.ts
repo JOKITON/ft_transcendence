@@ -16,8 +16,9 @@ export default class auth implements IAuth {
     try {
       const response: ApiResponse<userResponse> = await this.api.post<userResponse>('login', data)
       if (response && response?.status === 200) {
-        this.setToken(response?.token as token)
-        this.api.setAccessToken(response.token?.access)
+        this.setRefreshToken(response.token.refresh)
+        this.setAccessToken(response.token.access)
+        this.setAuthHeader()
         return true
       } else {
         window.alert('An error occurred while submitting the form login')
@@ -34,11 +35,11 @@ export default class auth implements IAuth {
       const response: ApiResponse<Record<string, any>> = await this.api.post<Record<string, any>>(
         'logout',
         {
-          token: localStorage.getItem('refresh') as string
+          token: localStorage.getItem('refresh_token') as string
         },
         ['status'],
         {
-          Authorization: `Bearer ${localStorage.getItem('access') as string}`
+          Authorization: `Bearer ${localStorage.getItem('access_token') as string}`
         }
       )
 
@@ -75,68 +76,88 @@ export default class auth implements IAuth {
 
   public async checkAndRefreshToken(): Promise<boolean> {
     try {
-      const response: boolean = await this.verifyToken()
-      if (response === true) return true
-      else {
-        const refresh: string | null = localStorage.getItem('refresh')
-        if (!refresh) return false
-        const response: ApiResponse<token> = await this.api.post<token>('token/refresh', {
-          refresh: refresh
-        })
+      const accessToken: string | null = localStorage.getItem('access_token')
+      if (accessToken) {
+        this.setAuthHeader()
+        const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
+          'token/verify',
+          {
+            token: accessToken as string
+          }
+        )
 
-        this.setToken(response as token)
-        this.api.setAccessToken(response?.refresh)
-        if (response && response.status === 200) {
-          if (true === (await this.verifyToken())) return true
-        } else {
-          this.removeToken()
-          console.error('Error refreshing token:', refresh)
+        if (response.status === 200) return true // Token is still valid
+      } else console.log('No token found. Redirecting to login.')
+      return false
+    } catch (error) {
+      const response = error.response
+      switch (response.data.code) {
+        case 'expired':
+          console.log('Token expired. Attempting to refresh.')
+          return await this.refreshAuthToken()
+
+        case 'token_not_valid':
+          console.log('Token invalid. Redirecting to login.')
+          this.removeAccessToken()
           return false
-        }
+
+        case 'missing':
+          console.log('Token missing. Redirecting to login.')
+          this.removeAccessToken()
+          return false
+
+        default:
+          console.error('Unexpected token status:', response.data.status)
+          this.removeAccessToken()
+          return false
       }
-      return false
-    } catch (error: any) {
-      this.removeToken()
-      console.error('Error checking token:', error)
-      return false
     }
   }
 
-  private async verifyToken(): Promise<boolean> {
+  public async refreshAuthToken() {
     try {
+      const refreshToken = localStorage.getItem('refresh_token')
       const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
-        'token/verify',
+        'token/refresh',
         {
-          token: localStorage.getItem('access') as string
-        },
-        ['status'],
-        {
-          Authorization: `Bearer ${localStorage.getItem('access') as string}`
+          token: refreshToken
         }
       )
 
-      if (response && response?.status === 200) return true
-      else return false
-    } catch (error: any) {
-      this.removeToken()
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
-          console.error('Token expired:', error)
-          return false
-        }
+      const newAccessToken = response.data.access
+      const newRefreshToken = response.data.refresh
+      if (newAccessToken) {
+        this.setAccessToken(newAccessToken)
       }
-      console.error('Error checking token:', error)
+      if (newRefreshToken) this.setRefreshToken(newRefreshToken)
+
+      return true
+    } catch (error) {
+      console.error('Refresh token error:', error.response ? error.response.data : error.message)
+      alert('Session expired. Please log in again.')
       return false
     }
   }
 
-  public setToken(token: token): void {
-    localStorage.setItem('access', token?.access)
-    localStorage.setItem('refresh', token?.refresh)
+  public setAuthHeader() {
+    const accessToken = localStorage.getItem('access_token')
+    if (accessToken) {
+      this.api.setAccessToken(accessToken)
+    }
   }
 
-  public removeToken(): void {
-    localStorage.removeItem('access')
-    localStorage.removeItem('refresh')
+  public setAccessToken(accessToken) {
+    localStorage.setItem('access_token', accessToken)
+    this.setAuthHeader() // Update headers with the new token
+  }
+
+  public setRefreshToken(refreshToken) {
+    localStorage.setItem('refresh_token', refreshToken)
+  }
+
+  public removeAccessToken() {
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
+    this.api.removeAccessToken()
   }
 }

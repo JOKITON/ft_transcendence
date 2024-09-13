@@ -60,8 +60,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "csp.middleware.CSPMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "authentication.middleware.UpdateLastRequestMiddleware",
-    "authentication.middleware.RateLimitMiddleware",
+    # "authentication.middleware.UpdateLastRequestMiddleware",
+    # "authentication.middleware.RateLimitMiddleware",
 ]
 
 CACHES = {
