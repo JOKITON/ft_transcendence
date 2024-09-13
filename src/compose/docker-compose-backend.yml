@@ -14,19 +14,6 @@ services:
     networks:
       - backend
 
-  migrations:
-    container_name: migrations
-    build: ../backend/migrations/
-    env_file: ../backend/.env-django
-    networks:
-      - backend
-    depends_on:
-      - db
-    volumes:
-      - auth:/auth
-      - pong:/pong
-      - friendship:/friendship
-
   keys:
     container_name: keys
     build: ../backend/keys/
@@ -38,7 +25,21 @@ services:
       - backend
     depends_on:
       - db
-      - migrations
+
+  migrations:
+    container_name: migrations
+    build: ../backend/migrations/
+    env_file: ../backend/.env-django
+    restart: always
+    volumes:
+      - auth:/usr/src/app/auth
+      - pong:/usr/src/app/pong
+      - friendship:/usr/src/app/friendship
+    networks:
+      - backend
+    depends_on:
+      - db
+      - keys
 
   auth:
     container_name: auth
@@ -53,6 +54,7 @@ services:
     depends_on:
       - db
       - keys
+      - migrations
 
   pong:
     container_name: pong
@@ -68,6 +70,7 @@ services:
       - db
       - keys
       - auth
+      - migrations
 
   friendship:
     container_name: friendship
@@ -84,6 +87,7 @@ services:
       - keys
       - auth
       - pong
+      - migrations
 
 networks:
   frontend:

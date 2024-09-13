@@ -8,23 +8,7 @@ if [ "$DATABASE" = "postgres" ]; then
   done
 fi
 
-KEY_DIR="/friendship/secrets"
-mkdir -p "$KEY_DIR"
-
-curl -o /friendship/secrets/public.pem http://keys/api/v1/keys/public
-if ! openssl rsa -pubin -in /friendship/secrets/public.pem -text -noout >/dev/null 2>&1; then
-  echo "Error: Fetched public key is not valid."
-  exit 1
-fi
-
-sleep 2
-
-# Apply database migrations first time
-echo "Applying database migrations..."
-if ! python manage.py makemigrations --noinput; then
-  echo "Migrations failed"
-  exit 1
-fi
+sh utils/get_keys.sh
 
 # Collect static files
 echo "Collecting static files..."
@@ -35,4 +19,4 @@ fi
 
 # Start the Django development server
 echo "Starting Django development server..."
-gunicorn --bind 0.0.0.0:80 --workers=3 config.wsgi:application --reload --timeout 120
+gunicorn --bind 0.0.0.0:8000 --workers=3 config.wsgi:application --reload --timeout 120

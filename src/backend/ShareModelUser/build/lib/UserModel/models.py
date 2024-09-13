@@ -1,11 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 
-
 class User(AbstractUser):
     nickname: models.CharField = models.CharField(max_length=50, blank=True, null=True)
 
     ip: models.CharField = models.GenericIPAddressField(
+        blank=True, null=True, editable=False
+    )
+    
+    ip_last_login: models.CharField = models.GenericIPAddressField(
         blank=True, null=True, editable=False
     )
 
@@ -21,11 +24,11 @@ class User(AbstractUser):
         auto_now=True, editable=False
     )
 
-    created_at: models.DataField = models.DateTimeField(
+    created_at: models.DateField = models.DateTimeField(
         auto_now_add=True, editable=False
     )
 
-    profile: models.ImagenField = models.ImageField(
+    profile: models.ImageField = models.ImageField(
         upload_to="profile/", blank=True, null=True
     )
 

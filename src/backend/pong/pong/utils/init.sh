@@ -9,16 +9,7 @@ if [ "$DATABASE" = "postgres" ]; then
   done
 fi
 
-# Generate RSA keys if they don't exist
-KEY_DIR="/pong/secrets"
-mkdir -p "$KEY_DIR"
-
-# Fetch public key from JWT Key Management Service
-curl -o /pong/secrets/public.pem http://keys/api/v1/keys/public
-if ! openssl rsa -pubin -in /pong/secrets/public.pem -text -noout >/dev/null 2>&1; then
-  echo "Error: Fetched public key is not valid."
-  exit 1
-fi
+sh utils/get_keys.sh
 
 # Apply database migrations first time
 echo "Applying database migrations..."
@@ -36,4 +27,4 @@ fi
 
 # Start the Django development server
 echo "Starting Django development server..."
-exec gunicorn --bind 0.0.0.0:80 --workers=3 config.wsgi:application --reload --timeout 120
+exec gunicorn --bind 0.0.0.0:8000 --workers=3 config.wsgi:application --reload --timeout 120
