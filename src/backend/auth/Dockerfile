@@ -5,25 +5,31 @@
 #                                                     +:+ +:+         +:+      #
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/06 16:49:35 by jaizpuru         ###   ########.fr        #
+#    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
+#    Updated: 2024/09/14 17:46:55 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM node:alpine3.20
+FROM alpine:3.20
 
 LABEL traefik.enable=true
-LABEL traefik.http.routers.frontend.rule="Host(`localhost`) && PathPrefix(`/`)"
-LABEL traefik.http.services.frontend.loadbalancer.server.port=80
+LABEL traefik.http.routers.auth.rule="Host(`localhost`) && PathPrefix(`/api/v1`)"
+LABEL traefik.http.services.auth.loadbalancer.server.port=80
 
-WORKDIR /frontend
+RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3
 
-COPY frontend/package*.json ./
-RUN npm install
+RUN cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 
-COPY frontend .
-RUN npm update vite
+WORKDIR /auth
 
-EXPOSE 80
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-CMD ["npm", "run", "dev", "--", "--host", "--port", "80"]
+COPY auth .
+
+RUN python -m venv /opt/venv && source /opt/venv/bin/activate \
+  && pip install --no-cache-dir -r utils/requirements.txt
+
+ENV PATH="/opt/venv/bin:$PATH"
+
+CMD ["zsh", "utils/init.sh"]

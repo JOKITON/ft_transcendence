@@ -1,6 +1,5 @@
 setup.py
 UserModel/__init__.py
-UserModel/admin.py
 UserModel/apps.py
 UserModel/models.py
 UserModel/tests.py

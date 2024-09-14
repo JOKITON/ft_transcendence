@@ -6,17 +6,17 @@ services:
     build: ../monitoring/prometheus
     restart: always
     networks:
-      - ft_transcendence
+      - metrics
 
   grafana:
     container_name: grafana
     build: ../monitoring/grafana
     restart: always
     networks:
-      - ft_transcendence
+      - metrics
 
 networks:
-  ft_transcendence:
+  metrics:
     external: true
 
 volumes:

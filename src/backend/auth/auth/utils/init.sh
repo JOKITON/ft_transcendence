@@ -1,5 +1,4 @@
 #!/bin/sh
-
 set -e
 
 if [ "$DATABASE" = "postgres" ]; then
@@ -13,7 +12,21 @@ sh utils/get_keys.sh
 
 # Apply database migrations first time
 echo "Applying database migrations..."
-if ! python manage.py makemigrations --noinput; then
+if ! python manage.py makemigrations; then
+  echo "Migrations failed"
+  exit 1
+fi
+
+# Apply database migrations first time
+echo "Applying database migrations..."
+if ! python manage.py migrate; then
+  echo "Migrations failed"
+  exit 1
+fi
+
+# Apply database migrations first time
+echo "Applying database migrations..."
+if ! python manage.py showmigrations; then
   echo "Migrations failed"
   exit 1
 fi
@@ -27,4 +40,4 @@ fi
 
 # Start the Django development server
 echo "Starting Django development server..."
-exec gunicorn --bind 0.0.0.0:8000 --workers=3 config.wsgi:application --reload --timeout 120
+gunicorn --bind 0.0.0.0:80 --workers=3 config.wsgi:application --reload --timeout 120

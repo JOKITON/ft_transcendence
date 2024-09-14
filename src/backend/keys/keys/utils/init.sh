@@ -12,11 +12,7 @@ mkdir -p /keys/secrets
 
 openssl genrsa -out /keys/secrets/private.pem 2048
 
-sleep 1
 openssl rsa -in /keys/secrets/private.pem -pubout -out /keys/secrets/public.pem
-
-echo "Applying database migrations..."
-python manage.py migrate --noinput
 
 # Start the Django development server
 echo "Starting Django development server..."
