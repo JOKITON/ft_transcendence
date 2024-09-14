@@ -19,17 +19,11 @@
                   class="list-group-item d-flex justify-content-between align-items-center"
                 >
                   <div class="d-flex align-items-center">
-                    <span
-                      class="status-indicator me-2"
-                      :class="{ 'bg-success': user.status, 'bg-danger': !user.status }"
-                    ></span>
+                    <span class="status-indicator me-2" :class="getStatusClass(user.status)"></span>
                     <span class="me-2">{{ user.username }}</span>
                   </div>
-                  <span
-                    class="badge"
-                    :class="{ 'bg-success': user.status, 'bg-danger': !user.status }"
-                  >
-                    {{ user.status ? 'Online' : 'Offline' }}
+                  <span class="badge" :class="getBadgeClass(user.status)">
+                    {{ getStatusText(user.status) }}
                   </span>
                 </li>
               </ul>
@@ -148,6 +142,27 @@ const fetchUserList = async () => {
   } catch (error) {
     console.error('Error fetching users:', error.response ? error.response.data : error.message)
   }
+}
+
+// Define your methods
+const getStatusClass = (status) => {
+  return {
+    'bg-success': status === 'Online',
+    'bg-danger': status === 'Offline',
+    'bg-warning': status === 'Absent'
+  }
+}
+
+const getBadgeClass = (status) => {
+  return {
+    'bg-success': status === 'Online',
+    'bg-danger': status === 'Offline',
+    'bg-warning': status === 'Absent'
+  }
+}
+
+const getStatusText = (status) => {
+  return status === 'Online' ? 'Online' : status === 'Offline' ? 'Offline' : 'Absent'
 }
 </script>
 

@@ -1,8 +1,19 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.db import models
+from typing import Tuple
 
 
 class User(AbstractUser):
+    Online: str = "Online"
+    Offline: str = "Offline"
+    Absent: str = "Absent"
+
+    STATUS_CHOICES: list[Tuple[str, str]] = [
+        (Online, "Online"),
+        (Offline, "Offline"),
+        (Absent, "Absent"),
+    ]
+
     nickname = models.CharField(max_length=50)
     ip = models.GenericIPAddressField(editable=True)
     ip_last_login = models.GenericIPAddressField(editable=True)
@@ -11,7 +22,8 @@ class User(AbstractUser):
     last_update = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     profile = models.ImageField(upload_to="profile/", blank=True, null=True)
-    status = models.BooleanField(default=False, editable=True)
+    status = models.CharField(
+        max_length=8, choices=STATUS_CHOICES, default=Offline)
 
     groups = models.ManyToManyField(
         Group,

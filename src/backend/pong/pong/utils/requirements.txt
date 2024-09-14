@@ -20,5 +20,5 @@ django[argon2]==5.0.7
 cryptography==42.0.8
 django-csp==3.8
 requests
-UserModel==0.0.2
+UserModel==0.0.3
 pillow==10.4.0

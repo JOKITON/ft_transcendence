@@ -8,15 +8,12 @@ from .serializers import (
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView, Request
 from django.contrib.auth import login, logout
 from rest_framework.response import Response
-from rest_framework.views import APIView, Request
 from rest_framework import status
-from typing import Dict
-import logging
-
-
-logger: logging.Logger = logging.getLogger(__name__)
+from UserModel.models import User
+from typing import Dict, Any
 
 
 class RegisterUserView(APIView):
@@ -27,7 +24,7 @@ class RegisterUserView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             if user:
-                response: Dict = {
+                response: Dict[str, Any] = {
                     "message": "User created successfully",
                     "status": status.HTTP_201_CREATED,
                 }
@@ -47,12 +44,12 @@ class LoginUserView(APIView):
         serializer = UserSerializer(
             data=request.data, context={"request": request})
         if serializer.is_valid():
-            user = serializer.validated_data
+            user: User = serializer.validated_data
             login(request, user)
             refresh_token: Token = RefreshToken.for_user(user)
             access: str = str(refresh_token.access_token)
             refresh: str = str(refresh_token)
-            response: Dict = {
+            response: Dict[str, Any] = {
                 "message": f"User {user.username} logged in successfully",
                 "status": status.HTTP_200_OK,
                 "token": {
@@ -78,23 +75,20 @@ class LogoutView(APIView):
 
     def post(self, request: Request) -> Response:
         try:
-            user = request.user
+            user: User = request.user
             user.status = False
             user.save()
             refresh_token = request.data.get("refresh")
             if refresh_token:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
-                logger.info(f"Refresh token {
-                            refresh_token} blacklisted successfully.")
             logout(request)
             return Response(
                 {"detail": "Successfully logged out."}, status=status.HTTP_200_OK
             )
         except Exception as e:
-            logger.error(f"Error blacklisting token: {e}")
             return Response(
-                {"detail": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+                {"detail": f"Invalid token {e}"}, status=status.HTTP_400_BAD_REQUEST
             )
 
 
@@ -103,7 +97,7 @@ class WhoAmIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request: Request) -> Response:
-        user = request.user
+        user: User = request.user
 
         if not user.is_authenticated:
             return Response(
@@ -119,10 +113,9 @@ class ChangePassword(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request: Request) -> Response:
-        data = request.data
-        username = data.get("user")
-        old_password = data.get("old_password")
-        new_password = data.get("new_password")
+        username: str = request.data.get("user")
+        old_password: str = request.data.get("old_password")
+        new_password: str = request.data.get("new_password")
 
         if not username or not old_password or not new_password:
             return Response(
