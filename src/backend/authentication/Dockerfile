@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20 as builder
+FROM alpine:3.20 as Builder
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.authentication.rule="Host(`localhost`) && PathPrefix(`/api/v1`)"

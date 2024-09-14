@@ -45,6 +45,8 @@ logs-metrics:
 clean: down
 	@sudo rm -rf $(VOLUMES)
 
+fclean: clean
+	sudo docker system prune --all --volumes --force
 re: down up
 
 curl: 

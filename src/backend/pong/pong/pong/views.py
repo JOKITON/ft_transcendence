@@ -1,3 +1,4 @@
+from requests.sessions import Request
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
@@ -13,7 +14,7 @@ class allUsers(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request: Request):
         users: Dict = User.objects.values(
             "username",
         )

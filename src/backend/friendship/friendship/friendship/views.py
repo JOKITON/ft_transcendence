@@ -1,18 +1,18 @@
+from .serializers import InviteFriendSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from requests.sessions import Request
 from rest_framework import status
-from typing import Dict, Any
-from .serializers import InviteFriendSerializer
 
 
 class AllUsers(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request: Dict[str, Any]) -> Response:
+    def get(self, request: Request) -> Response:
         users = get_user_model().objects.values(
             "id",
             "username",
@@ -31,7 +31,7 @@ class InviteFriendView(APIView):
     tenemos al usuario que lo solicita y el usuario que va a ser invitado
     """
 
-    def post(self, request: Dict[str, Any]) -> Response:
+    def post(self, request: Request) -> Response:
         serializer = InviteFriendSerializer(
             data=request.data, context={"request": request}
         )

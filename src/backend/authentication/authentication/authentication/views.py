@@ -10,7 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import login, logout
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.views import APIView, Request
 from rest_framework import status
 from typing import Dict
 import logging
@@ -20,7 +20,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 class RegisterUserView(APIView):
-    def post(self, request) -> Response:
+    def post(self, request: Request) -> Response:
         serializer = UserSerializerRegister(
             data=request.data, context={"request": request}
         )
@@ -32,6 +32,7 @@ class RegisterUserView(APIView):
                     "status": status.HTTP_201_CREATED,
                 }
                 return Response(response, status=status.HTTP_201_CREATED)
+
         return Response(
             {
                 "message": "User not created",
@@ -42,7 +43,7 @@ class RegisterUserView(APIView):
 
 
 class LoginUserView(APIView):
-    def post(self, request) -> Response:
+    def post(self, request: Request) -> Response:
         serializer = UserSerializer(
             data=request.data, context={"request": request})
         if serializer.is_valid():
@@ -60,22 +61,22 @@ class LoginUserView(APIView):
                 },
             }
             return Response(response, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {
-                    "message": "Invalid credentials",
-                    "status": status.HTTP_400_BAD_REQUEST,
-                    "token": None,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+
+        return Response(
+            {
+                "message": "Invalid credentials",
+                "status": status.HTTP_400_BAD_REQUEST,
+                "token": None,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 class LogoutView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         try:
             user = request.user
             user.status = False
@@ -86,34 +87,22 @@ class LogoutView(APIView):
                 token.blacklist()
                 logger.info(f"Refresh token {
                             refresh_token} blacklisted successfully.")
+            logout(request)
+            return Response(
+                {"detail": "Successfully logged out."}, status=status.HTTP_200_OK
+            )
         except Exception as e:
             logger.error(f"Error blacklisting token: {e}")
             return Response(
                 {"detail": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Perform the logout
-        logout(request)
-        response = Response(
-            {"detail": "Successfully logged out."}, status=status.HTTP_200_OK
-        )
-
-        return response
-
-
-class SessionView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, format=None):
-        return Response({"isAuthenticated": True}, status=status.HTTP_200_OK)
-
 
 class WhoAmIView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, format=None) -> Response:
+    def get(self, request: Request) -> Response:
         user = request.user
 
         if not user.is_authenticated:
@@ -129,7 +118,7 @@ class ChangePassword(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         data = request.data
         username = data.get("user")
         old_password = data.get("old_password")
@@ -175,13 +164,13 @@ class ChangePassword(APIView):
 
 
 class PublicKeyView(APIView):
-    def get(self, request) -> Response:
+    def get(self, request: Request) -> Response:
         try:
             with open("/authentication/secrets/public.pem", "r") as f:
                 public_key: str = f.read()
             return Response({"public": public_key}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
-                {"Error": f"retrieving public key{e}"},
+                {"Error": f"retrieving public key {e}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
