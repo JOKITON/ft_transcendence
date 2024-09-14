@@ -13,10 +13,14 @@ class AllUsers(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request: Request) -> Response:
-        users = get_user_model().objects.values(
-            "id",
-            "username",
-            "status",
+        users = (
+            get_user_model()
+            .objects.values(
+                "id",
+                "username",
+                "status",
+            )
+            .exclude(id=request.user.id)
         )
 
         return Response(users, status=status.HTTP_200_OK)

@@ -46,7 +46,7 @@ export default class auth implements IAuth {
       )
 
       if (response && response?.status === 200) {
-        this.removeToken()
+        this.removeAccessToken()
         return true
       } else {
         console.error('Error logging out:', response)
@@ -61,10 +61,10 @@ export default class auth implements IAuth {
   public async register(data: Record<string, any>): Promise<boolean> {
     try {
       const response: ApiResponse<userResponse> = await this.api.post<userResponse>(
-        'register',
+        'auth/register',
         data
       )
-      if (response.status === 200) {
+      if (response.status === 201) {
         return true
       } else {
         console.error('error de registro')

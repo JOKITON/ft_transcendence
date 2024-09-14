@@ -41,8 +41,7 @@ class RegisterUserView(APIView):
 
 class LoginUserView(APIView):
     def post(self, request: Request) -> Response:
-        serializer = UserSerializer(
-            data=request.data, context={"request": request})
+        serializer = UserSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             user: User = serializer.validated_data
             login(request, user)
@@ -98,13 +97,13 @@ class WhoAmIView(APIView):
 
     def get(self, request: Request) -> Response:
         user: User = request.user
-        if user.is_authenticated:
-            return Response({"username": user.username}, status=status.HTTP_200_OK)
 
-        return Response(
-            {"error": "User is not authenticated"},
-            status=status.HTTP_401_UNAUTHORIZED,
-        )
+        if not user.is_authenticated:
+            return Response(
+                {"error": "User is not authenticated"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        return Response({"username": user.username}, status=status.HTTP_200_OK)
 
 
 class ChangePassword(APIView):
