@@ -13,7 +13,7 @@ fi
 KEY_DIR="/pong/secrets"
 mkdir -p "$KEY_DIR"
 
-curl -s http://authentication/api/v1/public | jq -r '.public' >"$KEY_DIR/public.pem"
+curl -s http://authentication/api/v1/auth/public | jq -r '.public' >"$KEY_DIR/public.pem"
 # Fetch public key from JWT Key Management Service
 if ! openssl rsa -pubin -in /pong/secrets/public.pem -text -noout >/dev/null 2>&1; then
   echo "Error: Fetched public key is not valid."

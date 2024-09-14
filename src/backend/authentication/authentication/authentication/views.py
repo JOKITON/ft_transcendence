@@ -22,8 +22,8 @@ class RegisterUserView(APIView):
             data=request.data, context={"request": request}
         )
         if serializer.is_valid():
-            user = serializer.save()
-            if user:
+            valid = serializer.save()
+            if valid:
                 response: Dict[str, Any] = {
                     "message": "User created successfully",
                     "status": status.HTTP_201_CREATED,
@@ -98,14 +98,13 @@ class WhoAmIView(APIView):
 
     def get(self, request: Request) -> Response:
         user: User = request.user
-
-        if not user.is_authenticated:
-            return Response(
-                {"error": "User is not authenticated"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-        else:
+        if user.is_authenticated:
             return Response({"username": user.username}, status=status.HTTP_200_OK)
+
+        return Response(
+            {"error": "User is not authenticated"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
 
 
 class ChangePassword(APIView):
