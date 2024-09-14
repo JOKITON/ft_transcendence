@@ -52,7 +52,7 @@ const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 const router = useRouter()
 
-const form: Ref<userRequest> = ref<userRequset>({
+const form: Ref<userRequest> = ref<userRequest>({
   username: '',
   password: ''
 })
@@ -63,6 +63,7 @@ const handleSubmit: () => Promise<void> = async () => {
     if (response === true) {
       router.push('/pong')
     }
+    //Auth.removeAccessToken()
     console.log('Login successful ', response)
   } catch (error: any) {
     window.alert('An error occurred while submitting the form')

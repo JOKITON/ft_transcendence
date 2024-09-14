@@ -4,260 +4,179 @@
   <!-- ---------------------------------------------------------------- -->
   <div class="container">
     <div class="main-body">
-
-
-      <!-- /Breadcrumb -->
-
-      <div class="row gutters-sm">
-        <div class="col-md-4 mb-3">
+      <div class="row gutters-sm d-flex align-items-stretch">
+        <div class="col-md-4 my-auto">
           <div class="card">
-            <div class="card-body">
+            <div class="card-body h-100">
               <div class="d-flex flex-column align-items-center text-center">
-                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle"
-                  width="150">
+                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle" width="150">
+                <button class="btn btn-primary m-3" @click="editImage">Edit image</button>
                 <div class="mt-3">
-                  <h4>{{ username }}</h4>
-                  <p class="text-secondary mb-1">Full Stack Developer</p>
-                  <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
-                  <button class="btn btn-primary">Follow</button>
-                  <button class="btn btn-outline-primary">Message</button>
+                  <h4>{{ user.username }}</h4>
+                  <p>0 friends</p>
+                  <div class="d-flex justify-content-center w-100 my-3">
+                    <div class="text-center mx-2 text-success">
+                      <div class="fs-4">Win</div>
+                      <div class="fs-5">10</div>
+                    </div>
+                    <div class="text-center">
+                      <span class="fs-4">/</span>
+                    </div>
+                    <div class="text-center mx-2 text-danger">
+                      <div class="fs-4">Losses</div>
+                      <div class="fs-5">567</div>
+                    </div>
+                  </div>
+                  <button class="btn btn-primary" @click="goToChangePassword">Change Password</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
         <div class="col-md-8">
           <div class="card mb-3">
             <div class="card-body">
-              <div class="row">
-                <div class="col-sm-3">
-                  <h6 class="mb-0">Fullname</h6>
+              <form id="profileUpdate" @submit.prevent="saveChanges">
+                <!-- Fullname -->
+                <div class="row">
+                  <div class="col-sm-3">
+                    <h6 class="mb-0"> Name</h6>
+                  </div>
+                  <div class="col-sm-9 text-secondary">
+                    <span v-if="!isEditing">{{ user.username }}</span>
+                    <input v-else type="text" class="form-control" v-model="form.username">
+                  </div>
                 </div>
-                <div class="col-sm-9 text-secondary">
-                  <span v-if="!isEditing">{{ username }}</span>
-                  <input v-else type="text" class="form-control" v-model="user.fullName">
+                <hr>
+
+                <!-- Email -->
+                <div class="row">
+                  <div class="col-sm-3">
+                    <h6 class="mb-0">Email</h6>
+                  </div>
+                  <div class="col-sm-9 text-secondary">
+                    <span v-if="!isEditing">{{ user.email }}</span>
+                    <input v-else type="email" class="form-control" v-model="form.email">
+                  </div>
                 </div>
-              </div>
-              <hr>
-              <div class="row">
-                <div class="col-sm-3">
-                  <h6 class="mb-0">Email</h6>
+                <hr>
+
+                <!-- Nickname -->
+                <div class="row">
+                  <div class="col-sm-3">
+                    <h6 class="mb-0">Nickname</h6>
+                  </div>
+                  <div class="col-sm-9 text-secondary">
+                    <span v-if="!isEditing">{{ user.nickname }}</span>
+                    <input v-else type="text" class="form-control" v-model="form.nickname">
+                  </div>
                 </div>
-                <div class="col-sm-9 text-secondary">
-                  <span v-if="!isEditing">fip@jukmuh.al</span>
-                  <input v-else type="email" class="form-control" v-model="user.email">
-                </div>
-              </div>
-              <hr>
-              <div class="row">
-                <div class="col-sm-3">
-                  <h6 class="mb-0">Phone</h6>
-                </div>
-                <div class="col-sm-9 text-secondary">
-                  <span v-if="!isEditing">(239) 816-9029</span>
-                  <input v-else type="text" class="form-control" v-model="user.phone">
-                </div>
-              </div>
-              <hr>
-              <div class="row">
-                <div class="col-sm-3">
-                  <h6 class="mb-0">Mobile</h6>
-                </div>
-                <div class="col-sm-9 text-secondary">
-                  <span v-if="!isEditing">(320) 380-4539</span>
-                  <input v-else type="text" class="form-control" v-model="user.mobile">
-                </div>
-              </div>
-              <hr>
-              <div class="row">
-                <div class="col-sm-3">
-                  <h6 class="mb-0">Address</h6>
-                </div>
-                <div class="col-sm-9 text-secondary">
-                  <span v-if="!isEditing">Bay Area, San Francisco, CA</span>
-                  <input v-else type="text" class="form-control" v-model="user.address">
-                </div>
-              </div>
-              <hr>
+                <hr>
+              </form>
+              <!-- Save or Edit button -->
               <div class="row">
                 <div class="col-sm-12">
                   <button class="btn btn-info" @click="isEditing ? saveChanges() : toggleEdit()">
                     {{ isEditing ? 'Save' : 'Edit' }}
                   </button>
-
                 </div>
               </div>
             </div>
           </div>
-
-          <div class="row gutters-sm">
-            <div class="col-sm-6 mb-3">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h6 class="d-flex align-items-center mb-3">Users List</h6>
-
-                  <ul class="list-group">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>
-                        <span class="status-indicator bg-success"></span>
-                        Jane Smith
-                      </span>
-                      <span class="badge bg-success">Online</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>
-                        <span class="status-indicator bg-danger"></span>
-                        Mike Johnson
-                      </span>
-                      <span class="badge bg-danger">Offline</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>
-                        <span class="status-indicator bg-success"></span>
-                        Emily Davis
-                      </span>
-                      <span class="badge bg-success">Online</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>
-                        <span class="status-indicator bg-danger"></span>
-                        David Brown
-                      </span>
-                      <span class="badge bg-danger">Offline</span>
-                    </li>
-                  </ul>
-
-                </div>
-              </div>
-            </div>
-
-            <div class="col-sm-6 mb-3">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h6 class="d-flex align-items-center mb-3">Friends List</h6>
-
-                  <ul class="list-group">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>
-                        <span class="status-indicator bg-success"></span>
-                        Jane Smith
-                      </span>
-                      <span class="badge bg-success">Online</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>
-                        <span class="status-indicator bg-danger"></span>
-                        Mike Johnson
-                      </span>
-                      <span class="badge bg-danger">Offline</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>
-                        <span class="status-indicator bg-success"></span>
-                        Emily Davis
-                      </span>
-                      <span class="badge bg-success">Online</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>
-                        <span class="status-indicator bg-danger"></span>
-                        David Brown
-                      </span>
-                      <span class="badge bg-danger">Offline</span>
-                    </li>
-                  </ul>
-
-                </div>
-              </div>
-            </div>
-            <div class="col-sm-6 mb-3">
-              <div class="card h-100">
-                <div class="card-body card-body2">
-                  <h6 class="d-flex align-items-center mb-3">Player Stats</h6>
-                  <div class="d-flex flex-column">
-                    <div class="d-flex justify-content-between mb-3">
-                      <span>Victories:</span>
-                      <span>123</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3">
-                      <span>Losses:</span>
-                      <span>45</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3">
-                      <span>Games Played:</span>
-                      <span>168</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3">
-                      <span>Total Points:</span>
-                      <span>9876</span>
-                    </div>
+          <!-- Player Stats -->
+          <div class="card-md-3">
+            <div class="card h-100">
+              <div class="card-body card-body2">
+                <h6 class="d-flex align-items-center mb-3">Player Stats</h6>
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Victories:</span>
+                    <span>123</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Losses:</span>
+                    <span>45</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Games Played:</span>
+                    <span>168</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-3">
+                    <span>Total Points:</span>
+                    <span>9876</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-
-
         </div>
       </div>
-
     </div>
   </div>
   <!-- ---------------------------------------------------------------- -->
-
 </template>
 
 <script setup lang="ts">
-import NavHome from './NavHome.vue'
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject } from 'vue';
+import { useRouter } from 'vue-router'
+import NavHome from './NavHome.vue';
+
 const api: Api = inject('$api') as Api;
 
+const router = useRouter()
+
 const isEditing = ref(false);
-const username = ref('User')
-
-// Lifecycle hook similar a `created` en Options API
-onMounted(async () => {
-  await fetchUsername()
-})
-
-// Datos originales del usuario (inmutables)
-const originalUser = ref({
-  fullName: username ? username : '(None)',
-  email: 'fip@jukmuh.al',
-  phone: '(239) 816-9029',
-  mobile: '(320) 380-4539',
-  address: 'Bay Area, San Francisco, CA',
+const user = ref({
+  username: 'User',
+  email: 'email',
+  nickname: 'nickname',
 });
 
-// Datos editables del usuario
-const user = ref({ ...originalUser.value });
+const form = ref({
+  username: user.value.username,
+  email: user.value.email,
+  nickname: user.value.nickname,
+});
 
 function toggleEdit() {
   if (isEditing.value) {
-    // Si se estaba en modo edición y se cancela (sin guardar), se restauran los valores originales
-    user.value = { ...originalUser.value };
-  } else {
-    // Si se hace clic en "Edit", se comienza la edición
-    user.value = { ...originalUser.value }; // Asegurarse de comenzar con los datos originales
+    // Restores the original values when edit mode is canceled
+    form.value = { ...user.value };
   }
-  isEditing.value = !isEditing.value; // Alternar el modo de edición
+  isEditing.value = !isEditing.value;
 }
 
-function saveChanges() {
-  // Guardar cambios en los datos originales
-  originalUser.value = { ...user.value };
-  isEditing.value = false; // Salir del modo de edición
-}
-
-const fetchUsername = async () => {
+const saveChanges: () => Promise<void> = async () => {
   try {
-    const response = await api.get('whoami')
-    username.value = response.username // Reemplazar con la estructura real de tu respuesta
-  } catch (error) {
-    console.error('Error fetching username:', error.response ? error.response.username : error.message)
+    const response = await api.post("update-profile",form.value)
+    console.log('saved successful ', response)
+    window.location.reload();
+  } catch (error: any) {
+    window.alert('An error occurred while submitting the form')
+    console.error('An error occurred while submitting the form:', error)
   }
+}
+
+async function fetchUserData() {
+  try {
+    const response = await api.get('whoami');
+    user.value = {
+      username: response.username,
+      email: response.email,
+      nickname: response.nickname,
+    };
+    form.value = { ...user.value };
+  } catch (error: any) {
+    console.error('Error fetching user data:', error.message);
+  }
+}
+
+onMounted(async () => {
+  await fetchUserData();
+});
+
+const goToChangePassword = () => {
+  router.push('/change-password')
 }
 </script>
 
