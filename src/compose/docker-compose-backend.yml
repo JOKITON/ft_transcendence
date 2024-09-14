@@ -1,17 +1,6 @@
 name: ft_transcendence_backend
 
 services:
-  keys:
-    container_name: keys
-    build: ../backend/keys
-    restart: always
-    volumes:
-      - keys:/keys
-    networks:
-      - ft_transcendence
-    ports:
-      - 8000
-
   pong:
     container_name: pong
     build: ../backend/pong
@@ -22,7 +11,7 @@ services:
     networks:
       - ft_transcendence
     depends_on:
-      - keys
+      - authentication
 
   authentication:
     container_name: autentication
@@ -33,8 +22,6 @@ services:
       - authentication:/authentication
     networks:
       - ft_transcendence
-    depends_on:
-      - keys
 
   friendship:
     container_name: friendship
@@ -46,19 +33,13 @@ services:
     networks:
       - ft_transcendence
     depends_on:
-      - keys
+      - authentication
 
 networks:
   ft_transcendence:
     external: true
 
 volumes:
-  keys:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../backend/keys/keys/
   pong:
     driver: local
     driver_opts:

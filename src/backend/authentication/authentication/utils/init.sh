@@ -11,17 +11,10 @@ fi
 KEY_DIR="/authentication/secrets"
 mkdir -p "$KEY_DIR"
 
-curl -o /authentication/secrets/public.pem http://keys/api/v1/keys/public
-if ! openssl rsa -pubin -in /authentication/secrets/public.pem -text -noout >/dev/null 2>&1; then
-  echo "Error: Fetched public key is not valid."
-  exit 1
-fi
+openssl genrsa -out $KEY_DIR/private.pem 2048
 
-curl -o /authentication/secrets/private.pem http://keys/api/v1/keys/private
-if ! openssl rsa -in /authentication/secrets/private.pem -check >/dev/null 2>&1; then
-  echo "Error: Fetched private key is not valid."
-  exit 1
-fi
+sleep 1
+openssl rsa -in $KEY_DIR/private.pem -pubout -out $KEY_DIR/public.pem
 
 # Apply database migrations first time
 echo "Applying database migrations..."

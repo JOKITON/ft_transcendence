@@ -1,7 +1,7 @@
 from django.db.models.base import ModelBase
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from typing import List
+from typing import List, Any, Dict
 from UserModel.models import User
 import logging
 
@@ -40,6 +40,7 @@ class UserSerializer(serializers.Serializer):
         )
         if user is not None and user.is_active:
             user.ip_last_login = self.context["request"].META.get("REMOTE_ADDR")
+            user.status = True
             user.save()
             return user
         raise serializers.ValidationError("Incorrect Credentials")

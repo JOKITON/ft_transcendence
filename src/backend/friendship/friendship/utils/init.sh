@@ -11,7 +11,7 @@ fi
 KEY_DIR="/friendship/secrets"
 mkdir -p "$KEY_DIR"
 
-curl -o /friendship/secrets/public.pem http://keys/api/v1/keys/public
+curl -s http://authentication/api/v1/public | jq -r '.public' >"$KEY_DIR/public.pem"
 if ! openssl rsa -pubin -in /friendship/secrets/public.pem -text -noout >/dev/null 2>&1; then
   echo "Error: Fetched public key is not valid."
   exit 1

@@ -1,12 +1,10 @@
 from rest_framework_simplejwt.tokens import (
-    AccessToken,
     RefreshToken,
     Token,
 )
 from .serializers import (
     UserSerializerRegister,
     UserSerializer,
-    TokenVerifySerializer,
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -45,7 +43,8 @@ class RegisterUserView(APIView):
 
 class LoginUserView(APIView):
     def post(self, request) -> Response:
-        serializer = UserSerializer(data=request.data, context={"request": request})
+        serializer = UserSerializer(
+            data=request.data, context={"request": request})
         if serializer.is_valid():
             user = serializer.validated_data
             login(request, user)
@@ -77,17 +76,16 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        if not request.user.is_authenticated:
-            return Response(
-                {"detail": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED
-            )
-
         try:
+            user = request.user
+            user.status = False
+            user.save()
             refresh_token = request.data.get("refresh")
             if refresh_token:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
-                logger.info(f"Refresh token {refresh_token} blacklisted successfully.")
+                logger.info(f"Refresh token {
+                            refresh_token} blacklisted successfully.")
         except Exception as e:
             logger.error(f"Error blacklisting token: {e}")
             return Response(
@@ -176,67 +174,14 @@ class ChangePassword(APIView):
         )
 
 
-class TokenVerifyView(APIView):
-    def post(self, request) -> Response:
-        print(str(request.data) + " <-request.data")
-        serializer = TokenVerifySerializer(data=request.data)
-
-        if not serializer.is_valid():
-            return Response(
-                {
-                    "message": "request no valid",
-                    "status": status.HTTP_400_BAD_REQUEST,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+class PublicKeyView(APIView):
+    def get(self, request) -> Response:
         try:
-            token = serializer.validated_data.get("token")
-            AccessToken(token)
-            return Response(
-                {"message": "Token is valid", "status": status.HTTP_200_OK},
-                status=status.HTTP_200_OK,
-            )
-
+            with open("/authentication/secrets/public.pem", "r") as f:
+                public_key: str = f.read()
+            return Response({"public": public_key}, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error(f"Error verifying token: {e}")
             return Response(
-                {
-                    "message": "Token not invalid",
-                    "status": status.HTTP_400_BAD_REQUEST,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
+                {"Error": f"retrieving public key{e}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-
-"""
-class TokenRefreshView(APIView):
-    def post(self, request):
-        try:
-            refresh_token = request.data.get("refreshToken")
-            if not refresh_token:
-                return Response(
-                    {
-                        "detail": "Refresh token is required",
-                        status: status.HTTP_400_BAD_REQUEST,
-                        "permitid": 0,
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            token = RefreshToken(refresh_token)
-            new_token = token.access_token
-            return Response(
-                {"accessToken": str(new_token), "refreshToken": str(new_token)},
-                status=status.HTTP_200_OK,
-            )
-        except Exception as e:
-            logger.error(f"Error refreshing token: {e}")
-            return Response(
-                {
-                    "detail": "Refresh token is required",
-                    status: status.HTTP_400_BAD_REQUEST,
-                    "permitid": 0,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-"""

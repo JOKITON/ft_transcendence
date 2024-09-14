@@ -14,8 +14,11 @@ class AllUsers(APIView):
 
     def get(self, request: Dict[str, Any]) -> Response:
         users = get_user_model().objects.values(
+            "id",
             "username",
+            "status",
         )
+
         return Response(users, status=status.HTTP_200_OK)
 
 
@@ -35,8 +38,10 @@ class InviteFriendView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(
-                {"message": f"Invitacion enviada a {
-                    serializer.data.get('friend')}"},
+                {
+                    "message": f"Invitacion enviada a {
+                        serializer.data.get('friend')}"
+                },
                 status=status.HTTP_201_CREATED,
             )
         return Response(
