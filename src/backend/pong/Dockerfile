@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/07 22:37:01 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/09/15 20:01:08 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,8 +27,7 @@ ENV PYTHONUNBUFFERED 1
 
 COPY pong .
 
-RUN python -m venv /opt/venv && source /opt/venv/bin/activate \
-  && pip3 install --no-cache-dir -r utils/requirements.txt
+RUN python -m venv /opt/venv
 
 ENV PATH="/opt/venv/bin:$PATH"
 

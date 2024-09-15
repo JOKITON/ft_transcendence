@@ -11,7 +11,7 @@ DOCKER_IMAGES_BACKEND = $(addprefix ft_transcendence_backend-,$(IMAGES_BACKEND))
 DOCKER_IMAGES_METRICS = $(addprefix ft_transcendence_metrics-,$(IMAGES_METRICS))
 # Add here the container names
 IMAGES = frontend reverse-proxy
-IMAGES_BACKEND = keys admin pong db auth migrations friendship
+IMAGES_BACKEND = keys admin pong db auth migration friendship
 IMAGES_METRICS = grafana prometheus
 
 # Check if docker-compose exists
@@ -32,7 +32,7 @@ COMPOSE_BACKEND = src/compose/docker-compose-backend.yml
 
 NETWORKS = networks/frontend networks/metrics
 
-VOLUMES = src/database/db
+VOLUMES = volumes/db volumes/dependencies
 
 .PHONY: all build down clean
 
@@ -45,7 +45,7 @@ $(NETWORKS) :
 	touch $(NETWORKS)
 
 $(VOLUMES) :
-	@mkdir src/database/db
+	@mkdir -p $(VOLUMES)
 
 up : $(NETWORKS) $(VOLUMES)
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
@@ -62,6 +62,7 @@ down:
 	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) down --volumes
 	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) down --volumes
 	rm -rf networks
+	sudo rm -rf volumes/
 	@$(DOCKER) network rm metrics frontend
 clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES)

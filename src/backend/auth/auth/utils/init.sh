@@ -10,27 +10,6 @@ fi
 
 sh utils/get_keys.sh
 
-# Apply database migrations first time
-echo "Applying database migrations..."
-if ! python manage.py makemigrations; then
-  echo "Migrations failed"
-  exit 1
-fi
-
-# Apply database migrations first time
-echo "Applying database migrations..."
-if ! python manage.py migrate; then
-  echo "Migrations failed"
-  exit 1
-fi
-
-# Apply database migrations first time
-echo "Applying database migrations..."
-if ! python manage.py showmigrations; then
-  echo "Migrations failed"
-  exit 1
-fi
-
 # Collect static files
 echo "Collecting static files..."
 if ! python manage.py collectstatic --no-input; then

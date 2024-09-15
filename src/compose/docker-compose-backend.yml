@@ -21,20 +21,22 @@ services:
     restart: always
     volumes:
       - jwt_auth_keys:/keys
+      - dependencies:/opt/venv/
     networks:
       - backend
     depends_on:
       - db
 
-  migrations:
-    container_name: migrations
-    build: ../backend/migrations/
+  migration:
+    container_name: migration
+    build: ../backend/migration/
     env_file: ../backend/.env-django
     restart: always
     volumes:
       - auth:/usr/src/app/auth
       - pong:/usr/src/app/pong
       - friendship:/usr/src/app/friendship
+      - dependencies:/opt/venv/
     networks:
       - backend
     depends_on:
@@ -48,13 +50,14 @@ services:
     restart: always
     volumes:
       - auth:/auth
+      - dependencies:/opt/venv/
     networks:
       - frontend
       - backend
     depends_on:
       - db
       - keys
-      - migrations
+      - migration
 
   pong:
     container_name: pong
@@ -63,6 +66,7 @@ services:
     restart: always
     volumes:
       - pong:/pong
+      - dependencies:/opt/venv/
     networks:
       - frontend
       - backend
@@ -70,7 +74,7 @@ services:
       - db
       - keys
       - auth
-      - migrations
+      - migration
 
   friendship:
     container_name: friendship
@@ -79,6 +83,7 @@ services:
     restart: always
     volumes:
       - friendship:/friendship
+      - dependencies:/opt/venv/
     networks:
       - frontend
       - backend
@@ -87,7 +92,7 @@ services:
       - keys
       - auth
       - pong
-      - migrations
+      - migration
 
 networks:
   frontend:
@@ -97,6 +102,18 @@ networks:
     driver: bridge
 
 volumes:
+  db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../../volumes/db
+  dependencies:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../../volumes/dependencies
   jwt_auth_keys:
     driver: local
     driver_opts:
@@ -115,12 +132,6 @@ volumes:
       type: none
       o: bind
       device: ../backend/auth/auth/
-  db-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../database/db
   friendship:
     driver: local
     driver_opts:
