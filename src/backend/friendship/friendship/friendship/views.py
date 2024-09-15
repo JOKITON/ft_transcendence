@@ -1,4 +1,5 @@
-from .serializers import InviteFriendSerializer
+from os import stat
+from .serializers import InviteFriendSerializer, InviteStatusSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
@@ -30,11 +31,6 @@ class InviteFriendView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    """
-    entonces tenemos que recibir el nombre del usuario que queremos invitar,
-    tenemos al usuario que lo solicita y el usuario que va a ser invitado
-    """
-
     def post(self, request: Request) -> Response:
         serializer = InviteFriendSerializer(
             data=request.data, context={"request": request}
@@ -52,3 +48,19 @@ class InviteFriendView(APIView):
             {"message": "error al enviar la invitacion"},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+class InviteStatusView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request: Request) -> Response:
+        serializer = InviteStatusSerializer(
+            data=request.data, context={"request": request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "status friend update"}, status.HTTP_201_CREATED
+            )
+        return Response({"message": "error"}, status=status.HTTP_400_BAD_REQUEST)
