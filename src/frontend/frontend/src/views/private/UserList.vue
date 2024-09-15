@@ -126,6 +126,8 @@ onMounted(async () => {
 const fetchUsername = async () => {
   try {
     const response = await api.get('whoami')
+
+    console.log(response)
     username.value = response.username // Reemplazar con la estructura real de tu respuesta
   } catch (error) {
     console.error(
