@@ -20,7 +20,7 @@ mkdir -p "$KEY_DIR"
 PONG_PUBLIC_KEY_PATH="$KEY_DIR/public.pem"
 
 # Fetch public key from JWT Key Management Service
-curl -o $PONG_PUBLIC_KEY_PATH http://keys/api/v1/keys/public
+curl -o $PONG_PUBLIC_KEY_PATH http://auth/api/v1/auth/public
 if ! openssl rsa -pubin -in $PONG_PUBLIC_KEY_PATH -text -noout >/dev/null 2>&1; then
   echo "Error: Fetched public key is not valid."
   exit 1

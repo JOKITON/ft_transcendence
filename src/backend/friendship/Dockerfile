@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/08 13:24:14 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/16 12:41:30 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/16 17:30:48 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,8 +22,8 @@ RUN cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 
 WORKDIR /friendship
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 COPY friendship .
 

@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from UserModel.models import User
 from typing import Dict, Any
+from django.http import HttpResponse
 
 
 class RegisterUserView(APIView):
@@ -163,7 +164,7 @@ class PublicKeyView(APIView):
         try:
             with open("/auth/secrets/public.pem", "r") as f:
                 public_key: str = f.read()
-            return Response({"public": public_key}, status=status.HTTP_200_OK)
+            return HttpResponse(public_key, content_type="text/plain")
         except Exception as e:
             return Response(
                 {"Error": f"retrieving public key {e}"},
