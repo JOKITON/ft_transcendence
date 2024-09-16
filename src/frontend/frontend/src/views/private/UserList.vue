@@ -111,7 +111,11 @@
 <script setup lang="ts">
 import NavHome from './NavHome.vue'
 import { ref, onMounted, inject } from 'vue'
+import type Api from '@/utils/Api/Api'
+import auth from '../../services/user/services/auth/auth.ts'
+
 const api: Api = inject('$api') as Api
+const Auth: auth = new auth(api)
 
 const isEditing = ref(false)
 const username = ref('User')
@@ -125,7 +129,7 @@ onMounted(async () => {
 
 const fetchUsername = async () => {
   try {
-    const response = await api.get('whoami')
+    const response = await Auth.whoami('whoami')
 
     console.log(response)
     username.value = response.username // Reemplazar con la estructura real de tu respuesta

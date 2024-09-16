@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Dockerfile                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
+#    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/08 13:24:14 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/14 13:08:56 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/09/16 12:31:54 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,8 +27,7 @@ ENV PYTHONUNBUFFERED 1
 
 COPY friendship .
 
-RUN python -m venv /opt/venv && source /opt/venv/bin/activate \
-  && pip install --no-cache-dir -r utils/requirements.txt
+RUN python -m venv /opt/venv
 
 ENV PATH="/opt/venv/bin:$PATH"
 

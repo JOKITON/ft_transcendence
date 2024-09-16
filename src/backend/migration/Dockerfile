@@ -5,30 +5,27 @@
 #                                                     +:+ +:+         +:+      #
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/15 21:01:37 by jaizpuru         ###   ########.fr        #
+#    Created: 2024/09/14 23:02:29 by jaizpuru          #+#    #+#              #
+#    Updated: 2024/09/15 19:55:53 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM alpine:3.20
 
-LABEL traefik.enable=true
-LABEL traefik.http.routers.pong.rule="Host(`localhost`) && PathPrefix(`/api/v1/pong`)"
-LABEL traefik.http.services.pong.loadbalancer.server.port=80 
+RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3
 
-RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3 py3-pip jq
-
-RUN cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
-
-WORKDIR /pong
+WORKDIR /usr/src/app
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY pong .
+# Copy the migration script
+COPY run_migrations.sh run_migrations.sh
 
-RUN python -m venv /opt/venv
+# Set execute permissions for the migration script
+RUN chmod +x run_migrations.sh
 
 ENV PATH="/opt/venv/bin:$PATH"
 
-CMD ["zsh", "utils/init.sh"]
+# CMD ["sleep", "infinity"]
+CMD ["sh", "run_migrations.sh"]

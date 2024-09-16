@@ -23,6 +23,9 @@ export default class auth implements IAuth {
         this.setAuthHeader()
         return true
       } else {
+        console.error('Error logging in:',
+          response ? response.message : response.data.message
+        )
         window.alert('An error occurred while submitting the form login')
         return false
       }
@@ -67,11 +70,32 @@ export default class auth implements IAuth {
       if (response.status === 201) {
         return true
       } else {
-        console.error('error de registro')
+        console.error(
+          'Error fetching username:',
+          response ? response.message : response.data.message
+        )
         return false
       }
     } catch (error: any) {
       console.error('Error registering user:', error)
+      return false
+    }
+  }
+
+  public async whoami(): Promise<boolean> {
+    try {
+      const response: ApiResponse<Record<string, any>> = await this.api.get(
+        'auth/whoami'
+      )
+
+      if (response && response?.status === 200) {
+        return (response)
+      } else {
+        console.error('Error getting username:', response)
+        return false
+      }
+    } catch (error: any) {
+      console.error('Error getting username:', error)
       return false
     }
   }
@@ -88,12 +112,16 @@ export default class auth implements IAuth {
           }
         )
 
-        if (response.status === 200) return true // Token is still valid
-      } else console.log('No token found. Redirecting to login.')
-      return false
-    } catch (error) {
-      const response = error.response
-      switch (response.data.code) {
+        if (response.status === 200) {
+          return true // Token is still valid
+        } else {
+          throw(response);
+        }
+      }
+    }
+    catch (error) {
+      const response = error
+      switch (response.code) {
         case 'expired':
           console.log('Token expired. Attempting to refresh.')
           return await this.refreshAuthToken()
@@ -109,10 +137,10 @@ export default class auth implements IAuth {
           return false
 
         default:
-          console.error('Unexpected token status:', response.data.status)
+          console.error('Unexpected token status:', response.status)
           this.removeAccessToken()
           return false
-      }
+        }
     }
   }
 

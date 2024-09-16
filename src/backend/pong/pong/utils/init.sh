@@ -9,27 +9,11 @@ if [ "$DATABASE" = "postgres" ]; then
   done
 fi
 
-# Generate RSA keys if they don't exist
-KEY_DIR="/pong/secrets"
-mkdir -p "$KEY_DIR"
-
-curl -s http://authentication/api/v1/auth/public | jq -r '.public' >"$KEY_DIR/public.pem"
-# Fetch public key from JWT Key Management Service
-if ! openssl rsa -pubin -in /pong/secrets/public.pem -text -noout >/dev/null 2>&1; then
-  echo "Error: Fetched public key is not valid."
-  exit 1
-fi
+sh utils/get_keys.sh
 
 # Apply database migrations first time
 echo "Applying database migrations..."
 if ! python manage.py makemigrations --noinput; then
-  echo "Migrations failed"
-  exit 1
-fi
-
-# Apply database migrations
-echo "Applying database migrations..."
-if ! python manage.py migrate --noinput; then
   echo "Migrations failed"
   exit 1
 fi

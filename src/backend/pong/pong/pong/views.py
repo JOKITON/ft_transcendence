@@ -14,7 +14,7 @@ class allUsers(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request: Request):
+    def get(self, request, Request):
         users: Dict = User.objects.values(
             "username",
         )

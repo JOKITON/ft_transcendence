@@ -87,9 +87,7 @@ const form: Ref<UserRequest> = ref<UserRequest>({
 const handleSubmit = async (): Promise<void> => {
   try {
     const response: boolean = await Auth.register<UserResponse>(form.value)
-    if (response === false) {
-      console.error('error de registro')
-    } else {
+    if (response === true) {
       console.log('Form submitted successfully:', response)
       router.push('/login')
     }

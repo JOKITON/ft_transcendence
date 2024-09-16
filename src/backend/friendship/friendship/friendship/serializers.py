@@ -78,7 +78,7 @@ class InviteStatusSerializer(serializers.Serializer):
         return Friendship.objects.get(user=user, friend=friend)
 
 
-class FriendshipDeleteSerializers(serializers.ModelSerializer):
+class DeleteFriendSerializer(serializers.ModelSerializer):
     friend = serializers.CharField(
         max_length=50,
         min_length=3,
