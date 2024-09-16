@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/14 23:02:29 by jaizpuru          #+#    #+#              #
-#    Updated: 2024/09/16 17:30:49 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/16 19:19:01 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,10 +25,7 @@ COPY run_migrations.sh run_migrations.sh
 # Set execute permissions for the migration script
 RUN chmod +x run_migrations.sh
 
-COPY requirements.txt utils/requirements.txt
-
-RUN python -m venv /opt/venv && source /opt/venv/bin/activate \
-  && pip install --no-cache-dir -r utils/requirements.txt
+RUN python -m venv /opt/venv
 
 ENV PATH="/opt/venv/bin:$PATH"
 

@@ -164,6 +164,7 @@ class PublicKeyView(APIView):
         try:
             with open("/auth/secrets/public.pem", "r") as f:
                 public_key: str = f.read()
+                print(public_key)
             return HttpResponse(public_key, content_type="text/plain")
         except Exception as e:
             return Response(

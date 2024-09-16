@@ -171,7 +171,7 @@ export default class auth implements IAuth {
       const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
         'auth/token/refresh',
         {
-          token: refreshToken
+          refresh: refreshToken
         }
       )
 

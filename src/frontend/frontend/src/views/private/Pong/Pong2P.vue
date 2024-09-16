@@ -168,6 +168,14 @@ const endGame = (winningPlayer: string) => {
   setTimeout(() => {
     winner.value = winningPlayer;
     isGameOver.value = true;
+    // Emit the tournament data to the parent component
+    emit('gameOver', {
+      winner: winningPlayer,
+      player1Score: numScorePlayerOne,
+      player2Score: numScorePlayerTwo,
+      tournamentType: '2P'
+    });
+
     returnToMenu();
   }, 5000);
 };
