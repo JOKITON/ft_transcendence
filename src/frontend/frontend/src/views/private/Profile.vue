@@ -120,8 +120,11 @@
 import { ref, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router'
 import NavHome from './NavHome.vue';
+import type Api from '@/utils/Api/Api'
+import auth from '../../services/user/services/auth/auth.ts'
 
 const api: Api = inject('$api') as Api;
+const Auth: auth = new auth(api)
 
 const router = useRouter()
 
@@ -159,7 +162,7 @@ const saveChanges: () => Promise<void> = async () => {
 
 async function fetchUserData() {
   try {
-    const response = await api.get('whoami');
+    const response = await Auth.whoami();
     user.value = {
       username: response.username,
       email: response.email,

@@ -1,35 +1,41 @@
 from rest_framework_simplejwt.tokens import (
-    AccessToken,
     RefreshToken,
     Token,
 )
 from .serializers import (
     UserSerializerRegister,
     UserSerializer,
-    TokenVerifySerializer,
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView, Request
 from django.contrib.auth import login, logout
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework import status
-from typing import Dict
-import logging
-
-
-logger: logging.Logger = logging.getLogger(__name__)
+from UserModel.models import User
+from typing import Dict, Any
+from django.http import HttpResponse
 
 
 class RegisterUserView(APIView):
-    def post(self, request) -> Response:
+    def post(self, request: Request) -> Response:
         serializer = UserSerializerRegister(
             data=request.data, context={"request": request}
         )
         if serializer.is_valid():
-            user = serializer.save()
-            if user:
-                response: Dict = {
+            # Check if the user already exists
+            user_data = serializer.validated_data
+            if User.objects.filter(username=user_data['username']).exists():  # Check based on unique field
+                return Response(
+                    {
+                        "message": "User already exists",
+                        "status": status.HTTP_400_BAD_REQUEST,
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            valid = serializer.save()
+            if valid:
+                response: Dict[str, Any] = {
                     "message": "User created successfully",
                     "status": status.HTTP_201_CREATED,
                 }
@@ -44,15 +50,15 @@ class RegisterUserView(APIView):
 
 
 class LoginUserView(APIView):
-    def post(self, request) -> Response:
+    def post(self, request: Request) -> Response:
         serializer = UserSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
-            user = serializer.validated_data
+            user: User = serializer.validated_data
             login(request, user)
             refresh_token: Token = RefreshToken.for_user(user)
             access: str = str(refresh_token.access_token)
             refresh: str = str(refresh_token)
-            response: Dict = {
+            response: Dict[str, Any] = {
                 "message": f"User {user.username} logged in successfully",
                 "status": status.HTTP_200_OK,
                 "token": {
@@ -61,81 +67,58 @@ class LoginUserView(APIView):
                 },
             }
             return Response(response, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {
-                    "message": "Invalid credentials",
-                    "status": status.HTTP_400_BAD_REQUEST,
-                    "token": None,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+
+        return Response(
+            {
+                "message": "Invalid credentials",
+                "status": status.HTTP_400_BAD_REQUEST,
+                "token": None,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 class LogoutView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        if not request.user.is_authenticated:
-            return Response(
-                {"detail": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED
-            )
-
+    def post(self, request: Request) -> Response:
         try:
+            user: User = request.user
+            user.status = False
+            user.save()
             refresh_token = request.data.get("refresh")
             if refresh_token:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
-                logger.info(f"Refresh token {refresh_token} blacklisted successfully.")
-        except Exception as e:
-            logger.error(f"Error blacklisting token: {e}")
+            logout(request)
             return Response(
-                {"detail": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+                {"detail": "Successfully logged out."}, status=status.HTTP_200_OK
             )
-
-        # Perform the logout
-        logout(request)
-        response = Response(
-            {"detail": "Successfully logged out."}, status=status.HTTP_200_OK
-        )
-
-        return response
-
-
-class SessionView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, format=None):
-        return Response({"isAuthenticated": True}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"detail": f"Invalid token {e}"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class WhoAmIView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, format=None) -> Response:
-        user = request.user
+    def get(self, request: Request) -> Response:
+        user: User = request.user
 
-        if not user.is_authenticated:
-            return Response(
-                {"error": "User is not authenticated"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-        else:
-            return Response({"username": user.username}, status=status.HTTP_200_OK)
+        return Response({"username": user.username}, status=status.HTTP_200_OK)
 
 
 class ChangePassword(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        data = request.data
-        username = data.get("user")
-        old_password = data.get("old_password")
-        new_password = data.get("new_password")
+    def post(self, request: Request) -> Response:
+        username: str = request.data.get("user")
+        old_password: str = request.data.get("old_password")
+        new_password: str = request.data.get("new_password")
 
         if not username or not old_password or not new_password:
             return Response(
@@ -176,67 +159,14 @@ class ChangePassword(APIView):
         )
 
 
-class TokenVerifyView(APIView):
-    def post(self, request) -> Response:
-        print(str(request.data) + " <-request.data")
-        serializer = TokenVerifySerializer(data=request.data)
-
-        if not serializer.is_valid():
-            return Response(
-                {
-                    "message": "request no valid",
-                    "status": status.HTTP_400_BAD_REQUEST,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+class PublicKeyView(APIView):
+    def get(self, request: Request) -> Response:
         try:
-            token = serializer.validated_data.get("token")
-            AccessToken(token)
-            return Response(
-                {"message": "Token is valid", "status": status.HTTP_200_OK},
-                status=status.HTTP_200_OK,
-            )
-
+            with open("/auth/secrets/public.pem", "r") as f:
+                public_key: str = f.read()
+            return HttpResponse(public_key, content_type="text/plain")
         except Exception as e:
-            logger.error(f"Error verifying token: {e}")
             return Response(
-                {
-                    "message": "Token not invalid",
-                    "status": status.HTTP_400_BAD_REQUEST,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
+                {"Error": f"retrieving public key {e}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-
-"""
-class TokenRefreshView(APIView):
-    def post(self, request):
-        try:
-            refresh_token = request.data.get("refreshToken")
-            if not refresh_token:
-                return Response(
-                    {
-                        "detail": "Refresh token is required",
-                        status: status.HTTP_400_BAD_REQUEST,
-                        "permitid": 0,
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            token = RefreshToken(refresh_token)
-            new_token = token.access_token
-            return Response(
-                {"accessToken": str(new_token), "refreshToken": str(new_token)},
-                status=status.HTTP_200_OK,
-            )
-        except Exception as e:
-            logger.error(f"Error refreshing token: {e}")
-            return Response(
-                {
-                    "detail": "Refresh token is required",
-                    status: status.HTTP_400_BAD_REQUEST,
-                    "permitid": 0,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-"""

@@ -10,10 +10,6 @@ fi
 
 mkdir -p /authentication/keys
 
-#openssl genrsa -out /authentication/keys/private.pem 2048
-
-#openssl rsa -in /authentication/keys/private.pem -pubout -out /authentication/keys/public.pem
-
 # Apply database migrations first time
 echo "Applying database migrations..."
 if ! python3 manage.py makemigrations authentication --noinput; then
@@ -37,4 +33,4 @@ fi
 
 # Start the Django development server
 echo "Starting Django development server..."
-gunicorn --bind 0.0.0.0:8000 --workers=3 config.wsgi:application --reload --timeout 120
+gunicorn --bind 0.0.0.0:80 --workers=3 config.wsgi:application --reload --timeout 120

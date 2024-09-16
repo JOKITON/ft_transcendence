@@ -6,15 +6,15 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/15 20:00:13 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/16 17:30:48 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20
+FROM alpine:3.20 as Builder
 
 LABEL traefik.enable=true
-LABEL traefik.http.routers.auth.rule="Host(`localhost`) && PathPrefix(`/api/v1`)"
-LABEL traefik.http.services.auth.loadbalancer.server.port=80
+LABEL traefik.http.routers.authentication.rule="Host(`localhost`) && PathPrefix(`/api/v1/auth`)"
+LABEL traefik.http.services.authentication.loadbalancer.server.port=80
 
 RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3
 
@@ -22,8 +22,8 @@ RUN cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 
 WORKDIR /auth
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 COPY auth .
 

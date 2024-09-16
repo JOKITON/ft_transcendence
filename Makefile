@@ -61,16 +61,16 @@ down:
 	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) down --volumes
 	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) down --volumes
 	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) down --volumes
-	rm -rf networks
-	sudo rm -rf volumes/
-	@$(DOCKER) network rm metrics frontend
 clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES)
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES_BACKEND)
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES_METRICS)
+	@$(DOCKER) network rm metrics frontend
+	rm -rf networks
+	sudo rm -rf volumes/
 	@$(DOCKER) network prune --force
 	@$(DOCKER) image prune --force
-fclean:
+fclean: down clean
 	@$(DOCKER) system prune --force
 	@$(DOCKER) volume rm $(sudo docker volume ls -q)
 	@$(DOCKER) rmi $(sudo docker images -q)

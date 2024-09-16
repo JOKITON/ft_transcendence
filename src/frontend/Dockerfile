@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/06 16:49:35 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/16 12:42:22 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,6 +24,6 @@ RUN npm install
 COPY frontend .
 RUN npm update vite
 
-EXPOSE 80
-
-CMD ["npm", "run", "dev", "--", "--host", "--port", "80"]
+RUN npm i && npm update
+ 
+CMD npm  run dev -- --host

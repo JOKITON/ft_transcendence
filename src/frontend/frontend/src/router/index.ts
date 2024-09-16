@@ -17,7 +17,6 @@ const router = createRouter({
     { path: '/', name: 'index', component: Index },
     { path: '/register', name: 'register', component: Register },
     { path: '/login', name: 'login', component: Login },
-
     { path: '/home', name: 'home', component: Home, meta: { requiresAuth: true } },
     { path: '/pong', name: 'pong', component: PongIndex, meta: { requiresAuth: true } },
     { path: '/user-list', name: 'UserList', component: UserList, meta: { requiresAuth: true } },
@@ -39,7 +38,6 @@ router.beforeEach(async (to, from, next): Promise<void> => {
   try {
     if (to.matched.some((record) => record.meta.requiresAuth)) {
       const hasRefreshToken: boolean = await Auth.checkAndRefreshToken()
-      console.log('debug: hasRefreshToken:', hasRefreshToken)
       if (!hasRefreshToken) {
         next('/login')
         return

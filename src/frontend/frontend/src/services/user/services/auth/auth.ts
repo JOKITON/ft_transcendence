@@ -3,7 +3,6 @@ import type { userResponse } from '@/models/user/userResponse'
 import type { ApiResponse } from '@/utils/Api/IApi'
 import Api from '../../../../utils/Api/Api'
 import type IAuth from './IAuth'
-import axios from 'axios'
 
 export default class auth implements IAuth {
   private api: Api = new Api()
@@ -14,13 +13,19 @@ export default class auth implements IAuth {
 
   public async login(data: Record<string, any>): Promise<boolean> {
     try {
-      const response: ApiResponse<userResponse> = await this.api.post<userResponse>('login', data)
+      const response: ApiResponse<userResponse> = await this.api.post<userResponse>(
+        'auth/login',
+        data
+      )
       if (response && response?.status === 200) {
         this.setRefreshToken(response.token.refresh)
         this.setAccessToken(response.token.access)
         this.setAuthHeader()
         return true
       } else {
+        console.error('Error logging in:',
+          response ? response.message : response.data.message
+        )
         window.alert('An error occurred while submitting the form login')
         return false
       }
@@ -33,7 +38,7 @@ export default class auth implements IAuth {
   public async logout(): Promise<boolean> {
     try {
       const response: ApiResponse<Record<string, any>> = await this.api.post<Record<string, any>>(
-        'logout',
+        'auth/logout',
         {
           token: localStorage.getItem('refresh_token') as string
         },
@@ -44,7 +49,7 @@ export default class auth implements IAuth {
       )
 
       if (response && response?.status === 200) {
-        this.removeToken()
+        this.removeAccessToken()
         return true
       } else {
         console.error('Error logging out:', response)
@@ -59,17 +64,38 @@ export default class auth implements IAuth {
   public async register(data: Record<string, any>): Promise<boolean> {
     try {
       const response: ApiResponse<userResponse> = await this.api.post<userResponse>(
-        'register',
+        'auth/register',
         data
       )
-      if (response.status === 200) {
+      if (response.status === 201) {
         return true
       } else {
-        console.error('error de registro')
+        console.error(
+          'Error fetching username:',
+          response ? response.message : response.data.message
+        )
         return false
       }
     } catch (error: any) {
       console.error('Error registering user:', error)
+      return false
+    }
+  }
+
+  public async whoami(): Promise<boolean> {
+    try {
+      const response: ApiResponse<Record<string, any>> = await this.api.get(
+        'auth/whoami'
+      )
+
+      if (response && response?.status === 200) {
+        return (response)
+      } else {
+        console.error('Error getting username:', response)
+        return false
+      }
+    } catch (error: any) {
+      console.error('Error getting username:', error)
       return false
     }
   }
@@ -80,18 +106,22 @@ export default class auth implements IAuth {
       if (accessToken) {
         this.setAuthHeader()
         const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
-          'token/verify',
+          'auth/token/verify',
           {
             token: accessToken as string
           }
         )
 
-        if (response.status === 200) return true // Token is still valid
-      } else console.log('No token found. Redirecting to login.')
-      return false
-    } catch (error) {
-      const response = error.response
-      switch (response.data.code) {
+        if (response.status === 200) {
+          return true // Token is still valid
+        } else {
+          throw(response);
+        }
+      }
+    }
+    catch (error) {
+      const response = error
+      switch (response.code) {
         case 'expired':
           console.log('Token expired. Attempting to refresh.')
           return await this.refreshAuthToken()
@@ -107,10 +137,10 @@ export default class auth implements IAuth {
           return false
 
         default:
-          console.error('Unexpected token status:', response.data.status)
+          console.error('Unexpected token status:', response.status)
           this.removeAccessToken()
           return false
-      }
+        }
     }
   }
 
@@ -118,7 +148,7 @@ export default class auth implements IAuth {
     try {
       const refreshToken = localStorage.getItem('refresh_token')
       const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
-        'token/refresh',
+        'auth/token/refresh',
         {
           token: refreshToken
         }
