@@ -26,6 +26,10 @@ class AllUsers(APIView):
             )
             .exclude(id=request.user.id)
         )
+        
+        # Check if the queryset is empty
+        if not users.exists():
+            users = []  # You can return an empty list if no users are found
 
         return Response(users, status=status.HTTP_200_OK)
 

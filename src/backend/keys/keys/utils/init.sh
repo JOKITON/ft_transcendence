@@ -8,11 +8,42 @@ if [ "$DATABASE" = "postgres" ]; then
   done
 fi
 
-mkdir -p /keys/secrets
+# Check if the directory for keys exists, if not, create it
+if [ ! -d /keys/secrets ]; then
+  echo "Creating /keys/secrets directory..."
+  mkdir -p /keys/secrets
+fi
+# Check if the private key exists, if not, generate it
+if [ ! -f /keys/secrets/private.pem ]; then
+  echo "Generating private key..."
+  openssl genrsa -out /keys/secrets/private.pem 2048
 
-openssl genrsa -out /keys/secrets/private.pem 2048
+  # Verify if the private key was successfully created
+  if [ -f /keys/secrets/private.pem ]; then
+    echo "Private key generated successfully"
+  else
+    echo "Failed to generate private key"
+    exit 1
+  fi
+else
+  echo "Private key already exists"
+fi
 
-openssl rsa -in /keys/secrets/private.pem -pubout -out /keys/secrets/public.pem
+# Check if the public key exists, if not, generate it
+if [ ! -f /keys/secrets/public.pem ]; then
+  echo "Generating public key..."
+  openssl rsa -in /keys/secrets/private.pem -pubout -out /keys/secrets/public.pem
+
+  # Verify if the public key was successfully created
+  if [ -f /keys/secrets/public.pem ]; then
+    echo "Public key generated successfully"
+  else
+    echo "Failed to generate public key"
+    exit 1
+  fi
+else
+  echo "Public key already exists"
+fi
 
 # Start the Django development server
 echo "Starting Django development server..."
