@@ -7,7 +7,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-h5^lj8m2p!h2qj(rjfywpm=5dnzg1mggheg35*lev$vg$(p9m&"
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -15,7 +15,6 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",

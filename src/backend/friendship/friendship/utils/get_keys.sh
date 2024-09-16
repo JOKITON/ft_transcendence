@@ -18,18 +18,10 @@ fi
 mkdir -p "$KEY_DIR"
 
 FRIENDSHIP_PUBLIC_KEY_PATH="$KEY_DIR/public.pem"
-FRIENDSHIP_PRIVATE_KEY_PATH="$KEY_DIR/private.pem"
 
 # Fetch public key from JWT Key Management Service
 curl -o $FRIENDSHIP_PUBLIC_KEY_PATH http://keys/api/v1/keys/public
 if ! openssl rsa -pubin -in $FRIENDSHIP_PUBLIC_KEY_PATH -text -noout >/dev/null 2>&1; then
   echo "Error: Fetched public key is not valid."
-  exit 1
-fi
-
-# Fetch private key from JWT Key Management Service
-curl -o $FRIENDSHIP_PRIVATE_KEY_PATH http://keys/api/v1/keys/private
-if ! openssl rsa -in $FRIENDSHIP_PRIVATE_KEY_PATH -check >/dev/null 2>&1; then
-  echo "Error: Fetched private key is not valid."
   exit 1
 fi

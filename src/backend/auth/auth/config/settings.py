@@ -18,7 +18,7 @@ ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    # "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -27,8 +27,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
-    "UserModel",
     "authentication",
+    "UserModel",
 ]
 
 SESSION_COOKIE_SECURE = True

@@ -53,9 +53,9 @@ class UserSerializerRegister(serializers.ModelSerializer):
             username=validated_data["username"],
             email=validated_data["email"],
             password=validated_data["password"],
+            nickname=validated_data.get("nickname"),
             ip=self.context["request"].META.get("REMOTE_ADDR"),
             ip_last_login=self.context["request"].META.get("REMOTE_ADDR"),
-            nickname=validated_data.get("nickname"),
         )
         return user
 

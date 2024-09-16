@@ -39,7 +39,6 @@ class RegisterUserView(APIView):
                     "status": status.HTTP_201_CREATED,
                 }
                 return Response(response, status=status.HTTP_201_CREATED)
-
         return Response(
             {
                 "message": "User not created",
