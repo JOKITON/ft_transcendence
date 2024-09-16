@@ -6,11 +6,11 @@
 #    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/08 13:24:14 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/14 13:08:56 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/09/16 16:29:42 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20 as Builder
+FROM alpine:3.20 as builder
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.friendship.rule="Host(`localhost`) && PathPrefix(`/api/v1/friendship`)"

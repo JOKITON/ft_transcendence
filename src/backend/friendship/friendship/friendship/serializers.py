@@ -28,7 +28,7 @@ class InviteFriendSerializer(serializers.Serializer):
         fields: List[str] = ["friend"]
 
     def create(self, validated_data: Dict[str, Any]) -> Friendship:
-        user = self.context["request"].user
+        user = validated_data.get("request").user
         friend = User.objects.get(username=validated_data.get("friend"))
         return Friendship.objects.create(user=user, friend=friend)
 
@@ -72,10 +72,10 @@ class InviteStatusSerializer(serializers.Serializer):
             )
         return attrs
 
-    def create(self, validated_data: Dict[str, Any]) -> Friendship:
-        user = self.context["request"].user
-        friend = User.objects.get(username=validated_data.get("friend"))
-        return Friendship.objects.get(user=user, friend=friend)
+    def update(self, instance, validated_data: Dict[str, Any]) -> Friendship:
+        instance.status = validated_data.get("status", instance.status)
+        instance.save()
+        return instance
 
 
 class FriendshipDeleteSerializers(serializers.ModelSerializer):

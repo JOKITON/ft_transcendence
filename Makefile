@@ -12,29 +12,19 @@ COMPOSE_METRICS = src/compose/docker-compose-metrics.yml
 
 COMPOSE_BACKEND = src/compose/docker-compose-backend.yml
 
-VOLUMES = src/database/db  volumes/backend/jwt_auth_keys
-
 .PHONY: all build down clean
 
-all : up
-
-$(VOLUMES) :
-	@mkdir -p $(VOLUMES)
-
-up : $(VOLUMES)
-	# esto se puede definir con yaml mucho mejor
+all: 
 	$(DOCKER) -f $(COMPOSE) up --build -d  --remove-orphans
 	$(DOCKER) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
 	#$(DOCKER) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
 
-	
 down:
-	$(DOCKER) -f $(COMPOSE) down --volumes --remove-orphans --rmi all --remove-orphans
 	$(DOCKER) -f $(COMPOSE_BACKEND) down --volumes --remove-orphans --rmi all --remove-orphans
+	$(DOCKER) -f $(COMPOSE) down --volumes --remove-orphans --rmi all --remove-orphans
 
 logs:
 	$(DOCKER) -f $(COMPOSE) logs
-
 
 logs-backend:
 	$(DOCKER) -f $(COMPOSE_BACKEND) logs
@@ -47,7 +37,7 @@ clean: down
 
 fclean: clean
 	sudo docker system prune --all --volumes --force
-re: down up
+re: down all
 
 curl: 
 	curl -X POST \

@@ -6,11 +6,12 @@
 #    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/05 20:54:09 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/07 23:55:19 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/09/16 16:31:57 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3:20 as Builder
+FROM alpine:3:20 as builder 
+# mas adelante con el builder podriamos en una imagen posterior compilar el codigo para distribuirlo
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.LiveGameSession.rule="Host(`localhost`) && PathPrefix(`/api/v1/live`)"
