@@ -28,7 +28,7 @@ class InviteFriendSerializer(serializers.Serializer):
         fields: List[str] = ["friend"]
 
     def create(self, validated_data: Dict[str, Any]) -> Friendship:
-        user = validated_data.get("request").user
+        user = self.context["request"].user
         friend = User.objects.get(username=validated_data.get("friend"))
         return Friendship.objects.create(user=user, friend=friend)
 
@@ -50,8 +50,7 @@ class InviteStatusSerializer(serializers.Serializer):
         trim_whitespace=True,
     )
 
-    status = serializers.ChoiceField(
-        choices=Friendship.STATUS_CHOICES, required=True)
+    status = serializers.ChoiceField(choices=Friendship.STATUS_CHOICES, required=True)
 
     class Meta:
         model: Type[ModelBase] = Friendship
@@ -107,6 +106,7 @@ class FriendshipDeleteSerializers(serializers.ModelSerializer):
             )
         return attrs
 
+    # delete friendship
     def delete(self, validated_data: Dict[str, Any]) -> Friendship:
         user = self.context["request"].user
         friend = User.objects.get(username=validated_data.get("friend"))

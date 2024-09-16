@@ -1,6 +1,7 @@
 from .serializers import (
     InviteFriendSerializer,
     InviteStatusSerializer,
+    FriendshipDeleteSerializers,
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -83,3 +84,19 @@ class InviteStatusView(APIView):
             {"message": "error al actualizar el estado de la invitacion"},
             status.HTTP_400_BAD_REQUEST,
         )
+
+
+class DeleteFriendView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request: Request) -> Response:
+        serializer = FriendshipDeleteSerializers(
+            data=request.data, context={"request": request}
+        )
+        if serializer.is_valid():
+            serializer.delete(serializer.validated_data)
+            return Response(
+                {"message": "friend deleted"}, status=status.HTTP_204_NO_CONTENT
+            )
+        return Response({"message": "error"}, status=status.HTTP_400_BAD_REQUEST)
