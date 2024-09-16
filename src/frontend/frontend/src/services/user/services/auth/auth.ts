@@ -3,6 +3,7 @@ import type { userResponse } from '@/models/user/userResponse'
 import type { ApiResponse } from '@/utils/Api/IApi'
 import Api from '../../../../utils/Api/Api'
 import type IAuth from './IAuth'
+import { jwtDecode } from "jwt-decode";
 
 export default class auth implements IAuth {
   private api: Api = new Api()
@@ -104,18 +105,22 @@ export default class auth implements IAuth {
     try {
       const accessToken: string | null = localStorage.getItem('access_token')
       if (accessToken) {
-        this.setAuthHeader()
-        const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
-          'auth/token/verify',
-          {
-            token: accessToken as string
-          }
-        )
-
-        if (response.status === 200) {
-          return true // Token is still valid
+        if (this.isTokenValid(accessToken) == false) {
+            this.refreshAuthToken()
         } else {
-          throw(response);
+          this.setAuthHeader()
+          const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
+            'auth/token/verify',
+            {
+              token: accessToken as string
+            }
+          )
+
+          if (response.status === 200) {
+            return true // Token is still valid
+          } else {
+            throw(response);
+          }
         }
       }
     }
@@ -143,6 +148,22 @@ export default class auth implements IAuth {
         }
     }
   }
+
+  public isTokenValid(token) {
+    if (!token) return false;
+    try {
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000; // tiempo actual en segundos
+        // Verifica si el token ha expirado
+        if (decoded.exp && decoded.exp < currentTime) {
+            return false; // Token ha expirado
+        }
+        return true; // Token es válido
+    } catch (error) {
+        console.error("Error decodificando el token:", error);
+        return false;
+    }
+}
 
   public async refreshAuthToken() {
     try {
