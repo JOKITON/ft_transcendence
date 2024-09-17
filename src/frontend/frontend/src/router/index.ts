@@ -23,12 +23,7 @@ const router = createRouter({
     // { path: '/friend-list', name: 'FriendList', component: FriendList, meta: { requiresAuth: true } },
     { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
     { path: '/friends', name: 'Friends', component: Friends, meta: { requiresAuth: true } },
-    {
-      path: '/change-password',
-      name: 'ChangePassword',
-      component: ChangePassword,
-      meta: { requiresAuth: true }
-    }
+    { path: '/change-password', name: 'ChangePassword', component: ChangePassword, meta: { requiresAuth: true } },
   ]
 })
 
@@ -38,7 +33,6 @@ router.beforeEach(async (to, from, next): Promise<void> => {
   try {
     if (to.matched.some((record) => record.meta.requiresAuth)) {
       const hasRefreshToken: boolean = await Auth.checkAndRefreshToken()
-      console.log('hasRefreshToken:', hasRefreshToken)
       if (!hasRefreshToken) {
         next('/login')
         return

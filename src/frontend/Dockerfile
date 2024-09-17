@@ -3,25 +3,27 @@
 #                                                         :::      ::::::::    #
 #    Dockerfile                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
+#    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/08/04 14:59:12 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/09/06 16:49:35 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20 AS builder
+FROM node:alpine3.20
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.frontend.rule="Host(`localhost`) && PathPrefix(`/`)"
 LABEL traefik.http.services.frontend.loadbalancer.server.port=80
 
-RUN apk add --no-cache npm=10.8.0-r0 nodejs=20.15.1-r0
-
 WORKDIR /frontend
 
+COPY frontend/package*.json ./
+RUN npm install
+
 COPY frontend .
+RUN npm update vite
 
-RUN npm update vite && npm i
+EXPOSE 80
 
-CMD npm  run dev -- --host
+CMD ["npm", "run", "dev", "--", "--host", "--port", "80"]

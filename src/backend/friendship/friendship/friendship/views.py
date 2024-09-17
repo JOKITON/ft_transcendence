@@ -34,6 +34,20 @@ class AllUsers(APIView):
         return Response(users, status=status.HTTP_200_OK)
 
 
+class FriendsView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request: Request) -> Response:
+        user = request.user
+        friends = Friendship.objects.filter(user=user)
+        if not friends:
+            return Response(
+                {"message": "no tienes amigos"}, status=status.HTTP_404_NOT_FOUND
+            )
+        return Response({"friends": friends}, status=status.HTTP_200_OK)
+
+
 class InviteFriendView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]

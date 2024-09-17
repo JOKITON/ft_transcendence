@@ -71,23 +71,22 @@ import type UserResponse from '@/Models/User/UserResponse'
 import type Api from '@/utils/Api/Api'
 import { useRouter } from 'vue-router'
 import { ref, inject } from 'vue'
-import auth from '../../services/user/services/auth/auth'
 
 const api: Api = inject('$api') as Api
 const router = useRouter()
-const Auth: auth = new auth(api)
 
-const form: Ref<UserRequest> = ref<UserRequest>({
+const form = ref<UserRequest>({
   username: '',
   password: '',
   email: '',
-  nickname: ''
+  nickname: '',
+  p_image: ''
 })
 
 const handleSubmit = async (): Promise<void> => {
   try {
-    const response: boolean = await Auth.register<UserResponse>(form.value)
-    if (response === false) {
+    const response: UserResponse = await api.post<UserResponse>('register', form.value)
+    if (response.status != 201) {
       console.error('error de registro')
     } else {
       console.log('Form submitted successfully:', response)
