@@ -42,7 +42,7 @@
                     id="confirmPassword" 
                     v-model="form.confirmPassword" 
                     class="form-control custom-placeholder" 
-                    placeholder="Enter your new password" 
+                    placeholder="Confirm your new password" 
                     required
                     /> 
                 </div>
@@ -86,7 +86,6 @@ const updatePassword: () => Promise<void> = async () => {
     } else if (response.status == 200) {
       router.push('/profile')
     }
-    //window.location.reload();
   } catch (error: any) {
     window.alert('An error occurred while submitting the form')
     console.error('An error occurred while submitting the form:', error)

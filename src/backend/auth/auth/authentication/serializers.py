@@ -26,6 +26,7 @@ class UserSerializerRegister(serializers.ModelSerializer):
             ip=self.context["request"].META.get("REMOTE_ADDR"),
             ip_last_login=self.context["request"].META.get("REMOTE_ADDR"),
             nickname=validated_data.get("nickname"),
+            # avatar='avatars/pepe.png',
         )
         return user
 
@@ -51,6 +52,11 @@ class TokenVerifySerializer(serializers.Serializer):
     def validate(self, attrs) -> dict:
         return attrs
 
+""" class AvatarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['avatar'] """
+
 class PasswdSerializer(serializers.Serializer):
     currentPassword: serializers.CharField = serializers.CharField(required=True)
     newPassword: serializers.CharField = serializers.CharField(required=True)
@@ -73,15 +79,15 @@ class PasswdSerializer(serializers.Serializer):
 
         # Validar que todos los campos estén presentes
         if not current_password or not new_password or not confirm_password:
-            raise serializers.ValidationError({"currentPassword": "Current password is incorrect."})
+            raise serializers.ValidationError({"error": "All fields need to be validate."})
 
         # Verificar que la contraseña actual sea correcta
         if not check_password(current_password, user.password):
-            raise serializers.ValidationError({"confirmPassword": "New passwords do not match."})
+            raise serializers.ValidationError({"currentPassword": "Current password is incorrect."})
 
         # Verificar que la nueva contraseña y su confirmación coincidan
         if new_password != confirm_password:
-            raise serializers.ValidationError({"newPassword": "New password must be at least 8 characters long."})
+            raise serializers.ValidationError({"confirmPassword": "The two password fields didn’t match."})
 
         return attrs
 

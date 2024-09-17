@@ -8,6 +8,7 @@ from .serializers import (
     UserSerializer,
     TokenVerifySerializer,
     PasswdSerializer,
+    #AvatarSerializer,
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -18,11 +19,11 @@ from rest_framework import status
 from typing import Dict
 from .models import User
 import logging
-
+import os
+from django.conf import settings
+from django.http import FileResponse
 
 logger: logging.Logger = logging.getLogger(__name__)
-
-
 
 class RegisterUserView(APIView):
     def post(self, request) -> Response:
@@ -113,9 +114,6 @@ class SessionView(APIView):
     def get(self, request, format=None):
         return Response({"isAuthenticated": True}, status=status.HTTP_200_OK)
 
-
-
-
 class WhoAmIView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -129,20 +127,64 @@ class WhoAmIView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         else:
+            """ print('Avatar url: ')
+            print(user.avatar.url)
+            print(user.avatar) """
+            #avatar_url = request.build_absolute_uri(user.avatar.url) if user.avatar else None
+            #avatar_url = user.avatar.url if user.avatar else f'{settings.MEDIA_URL}avatars/default_avatar.png'
             user_data = {
                 "username": user.username,
                 "email": user.email,
                 "nickname": user.nickname,
+                #"avatar": str(avatar_url),
                 # Agrega aquí otros campos que desees mostrar
             }
             return Response(user_data, status=status.HTTP_200_OK)
+
+""" class ImageView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    print('Pasando por la vista de la imagen')
+    def get(self, request, format=None) -> Response:
+        user = request.user
+        print(user.avatar)
+        file_path = os.path.join(settings.MEDIA_ROOT, str(user.avatar))
+        print(file_path)
+        if not os.path.exists(file_path):
+            return Response(
+               {"detail": "Imagen no carga"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        print('Pasando por la vista de la imagen2')
+        # Devuelve la respuesta con el archivo
+        response = FileResponse(open(file_path, 'rb'))
+        
+        return response """
+    
+        
+
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.core.files.storage import default_storage
 
+""" class UpdateUserAvatarView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        file = request.FILES.get('avatar')
+
+        if file:
+            filename = default_storage.save(f'avatars/{user.id}/{file.name}', file)
+            user.avatar = filename
+            user.save()
+            return Response({"message": "Avatar updated successfully"}, status=status.HTTP_200_OK)
+        return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
+ """
 class UpdateUserPasswordView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -200,7 +242,7 @@ class UpdateUserProfileView(APIView):
 
         return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
 
-class UploadImage(APIView):
+""" class UploadImage(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -224,7 +266,7 @@ class UploadImage(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
-
+ """
 
 """ class ChangeUser(APIView):
     authentication_classes = [JWTAuthentication]
@@ -233,55 +275,6 @@ class UploadImage(APIView):
     def post(self, requst):
         data = request.data
         username = data.get("user") """
-
-class ChangePassword(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        data = request.data
-        username = data.get("user")
-        old_password = data.get("old_password")
-        new_password = data.get("new_password")
-
-        if not username or not old_password or not new_password:
-            return Response(
-                {
-                    "message": "Username, old password, and new password are required",
-                    "status": status.HTTP_400_BAD_REQUEST,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        elif request.user.username != username:
-            return Response(
-                {"message": "You can only change your own password", "status": "error"},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
-        elif new_password == old_password:
-            return Response(
-                {
-                    "message": "The new password cannot be the same as the old password",
-                    "status": "error",
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        elif not request.user.check_password(old_password):
-            return Response(
-                {"message": "Old password is incorrect", "status": "error"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        request.user.set_password(new_password)
-        request.user.save()
-
-        return Response(
-            {"message": "Password changed successfully", "status": "success"},
-            status=status.HTTP_200_OK,
-        )
-
 
 class TokenVerifyView(APIView):
     def post(self, request) -> Response:
