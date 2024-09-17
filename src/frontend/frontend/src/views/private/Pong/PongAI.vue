@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { Vector3, Color, Mesh } from 'three';
-import { onMounted, onBeforeUnmount, ref, defineProps } from 'vue';
+import { onMounted, onBeforeUnmount, ref, defineProps, defineEmits } from 'vue';
 import ThreeService from '../../../services/pong/ThreeService';
 import Player from '../../../services/pong/Player';
 import Sphere from '../../../services/pong/Objects/Sphere';
@@ -17,17 +17,13 @@ const props = defineProps({
   aiDifficulty: Number,
 });
 
-const emit = defineEmits(['returnToMenu']);
+const emit = defineEmits(['gameOver']);
 
 // Extract initial players for the current game
 let player1Name = ref(props.players[0].player1Name);
 console.log('Player:', props.players[0].player1Name);
 
 console.log('AI Difficulty: ', props.aiDifficulty);
-
-const returnToMenu = () => {
-  emit('gameOver');
-};
 
 const songElement = ref(null); // Reference to the audio element
 let three;
@@ -184,12 +180,10 @@ const endGame = (winningPlayer: string) => {
       winner: winningPlayer,
       player1: player1Name.value,
       player2: 'AI',
-      player1Score: numScorePlayerOne,
-      player2Score: numScorePlayerTwo,
-      tournamentType: 'AI'
+      score_player1: numScorePlayerOne,
+      score_player2: numScorePlayerTwo,
+      tournament_type: 'AI'
     });
-
-    returnToMenu();
   }, 5000);
 };
 

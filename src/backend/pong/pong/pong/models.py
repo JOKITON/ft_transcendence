@@ -1,52 +1,56 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
-class Round(models.Model):
-    Winner = models.CharField(max_length=255)
-    Player1 = models.CharField(max_length=255)
-    Player2 = models.CharField(max_length=255)
-    scorePlayer1 = models.IntegerField()
-    scorePlayer2 = models.IntegerField()
-    
-class TournamentRound(models.Model):
-    Winner = models.CharField(max_length=255)
-    Player1 = models.CharField(max_length=255)
-    Player2 = models.CharField(max_length=255)
-    scorePlayer1 = models.IntegerField()
-    scorePlayer2 = models.IntegerField()
+class Tournament(models.Model):
+    tournament_type_choices = [
+        ('AI', '2P'),
+    ]
 
+    winner = models.CharField(max_length=100)
+    player1 = models.CharField(max_length=100)
+    player2 = models.CharField(max_length=100)
+    score_player1 = models.IntegerField()
+    score_player2 = models.IntegerField()
+    tournament_type = models.CharField(max_length=2, choices=tournament_type_choices, default='2P')
+
+    def __str__(self):
+        return f"{self.tournament_type} - {self.winner}"
+
+# 8 Player Tournament
 
 class Player(models.Model):
-    username = models.CharField(max_length=25, unique=True)
-    email = models.EmailField(unique=True)
-    date_joined = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=255)
+    score = models.IntegerField()
+    position = models.IntegerField()
 
     def __str__(self):
-        return self.username
+        return f"{self.name} (Position: {self.position}, Score: {self.score})"
 
-
-class GameSession(models.Model):
-    player1 = models.ForeignKey(
-        Player, related_name="player1_sessions", on_delete=models.CASCADE
-    )
-    player2 = models.ForeignKey(
-        Player, related_name="player2_sessions", on_delete=models.CASCADE
-    )
-    start_time = models.DateTimeField(auto_now_add=True)
-    end_time = models.DateTimeField(null=True, blank=True)
+class FinalRound(models.Model):
+    player_one = models.ForeignKey(Player, related_name='final_player_one', on_delete=models.CASCADE)
+    player_two = models.ForeignKey(Player, related_name='final_player_two', on_delete=models.CASCADE)
+    winner = models.ForeignKey(Player, related_name='final_winner', on_delete=models.CASCADE)
+    loser = models.ForeignKey(Player, related_name='final_loser', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Game between {self.player1} and {self.player2} on {self.start_time}"
+        return f"Final Round: {self.winner.name} vs {self.loser.name}"
 
-
-class Score(models.Model):
-    game_session = models.ForeignKey(
-        GameSession, related_name="scores", on_delete=models.CASCADE
-    )
-    player = models.ForeignKey(Player, on_delete=models.CASCADE)
-    points = models.IntegerField()
+class SemiFinal(models.Model):
+    semi_one = models.ForeignKey(Player, related_name='semi_one', on_delete=models.CASCADE)
+    semi_two = models.ForeignKey(Player, related_name='semi_two', on_delete=models.CASCADE)
+    semi_three = models.ForeignKey(Player, related_name='semi_three', on_delete=models.CASCADE)
+    semi_four = models.ForeignKey(Player, related_name='semi_four', on_delete=models.CASCADE)
 
     def __str__(self):
-        return (
-            f"{self.player} scored {self.points} points in game {self.game_session.id}"
-        )
+        return "Semi Final Round"
+
+class Tournament8P(models.Model):
+    players = models.ManyToManyField(Player)
+    final_round = models.OneToOneField(FinalRound, on_delete=models.CASCADE)
+    semi_finals = models.OneToOneField(SemiFinal, on_delete=models.CASCADE)
+    tournament_type = models.CharField(max_length=3, default='8P')
+
+    def __str__(self):
+        return f"Tournament {self.tournament_type} with {self.players.count()} players"

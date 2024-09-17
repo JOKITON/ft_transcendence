@@ -95,7 +95,7 @@ const send2PData = async (tournamentResults) => {
 // Send tournament data to backend
 const sendTournamentData = async (tournamentResults) => {
   try {
-    const response = await api.post("pong/tournament", tournamentResults);
+    const response = await api.post("pong/8p", tournamentResults);
     console.log('Data sent successfully:', response.data);
   } catch (error) {
     console.error('Error sending data:', error);
@@ -123,13 +123,16 @@ const handleGameOver = (tournamentResults) => {
   console.log('Tournament Results:', tournamentResults);
 
   // Send tournament results to backend
-  switch (tournamentResults.tournamentType) {
+  switch (tournamentResults.tournament_type) {
     case '8P':
       sendTournamentData(tournamentResults);
+      break ;
     case '2P':
       send2PData(tournamentResults);
+      break ;
     case 'AI':
       sendAIData(tournamentResults);
+      break ;
   }
 
   // Reset the state to return to the menu

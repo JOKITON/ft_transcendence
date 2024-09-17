@@ -16,7 +16,7 @@ const props = defineProps({
   players: Array<Object>,
 });
 
-const emit = defineEmits(['returnToMenu']);
+const emit = defineEmits(['gameOver']);
 
 // Index to track the current game in the tournament
 let indexGame = 0;
@@ -31,14 +31,6 @@ props.players.forEach(({ player1Name, player2Name }) => {
   console.log(player2Name);
 });
 
-const returnToMenu = (winningPlayer: string, losingPlayer: string, semiOne: string, semiTwo: string, semiThree: string, semiFour: string) => {
-  emit('returnToMenu', {
-    winner: winningPlayer,
-    runnerUp: losingPlayer,
-    semiFinalists: [semiOne, semiTwo, semiThree, semiFour],
-  });
-};
-
 const three = new ThreeService(window.innerWidth, window.innerHeight);
 
 // Define bounds of the Pong game
@@ -46,7 +38,7 @@ const bounds = { minX: -16.2, maxX: 16.2, minY: -9.2, maxY: 9.2, minZ: 0, maxZ: 
 
 // Ball object
 const ballVectorY = Math.random() * 0.2 - 0.1;
-const ballVelocity = new Vector3(0.05, ballVectorY, 0);
+const ballVelocity = new Vector3(0.5, ballVectorY, 0);
 const ballGeometry = [0.5, 10, 10];
 const ball = new Sphere(ballGeometry, new Color('white'), new Vector3(0, 0, 0), ballVelocity, bounds);
 
@@ -111,7 +103,7 @@ function setHelpText() {
     three.removeScene(helpTextPlayerOne.get());
     three.removeScene(helpTextPlayerTwo.get());
     three.removeScene(helpTextSpace.get());
-  }, 4000);
+  }, 3000);
 }
 
 function update() {
@@ -174,6 +166,11 @@ function returnObjectsToPlace() {
 }
 
 function toggleAnimation(event: KeyboardEvent) {
+  // Prevent toggling animation if the game is over
+  if (isGameOver.value) {
+    return;
+  }
+
   if (event.code === 'Space') {
     isAnimating.value = !isAnimating.value;
     console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`);
@@ -215,50 +212,57 @@ function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: n
     player1Name.value = props.players[1].player1Name;
     player2Name.value = props.players[1].player2Name;
   } else if (matchIndex === 2) {
-    numScorePlayer3.push(variableScoreOne);
-    numScorePlayer4.push(variableScoreTwo);
+    numScorePlayer3.push(variableScoreOne.toString());
+    numScorePlayer4.push(variableScoreTwo.toString());
     semiTwo = winPlayer;
     player1Name.value = props.players[2].player1Name;
     player2Name.value = props.players[2].player2Name;
   } else if (matchIndex === 3) {
-    numScorePlayer5.push(variableScoreOne);
-    numScorePlayer6.push(variableScoreTwo);
+    numScorePlayer5.push(variableScoreOne.toString());
+    numScorePlayer6.push(variableScoreTwo.toString());
     semiThree = winPlayer;
     player1Name.value = props.players[3].player1Name;
     player2Name.value = props.players[3].player2Name;
   } else if (matchIndex === 4) {
-    numScorePlayer7.push(variableScoreOne);
-    numScorePlayer8.push(variableScoreTwo);
+    numScorePlayer7.push(variableScoreOne.toString());
+    numScorePlayer8.push(variableScoreTwo.toString());
     semiFour = winPlayer;
     player1Name.value = semiOne;
     player2Name.value = semiTwo;
   } else if (matchIndex === 5) {
-    if (winningPlayer == props.players[0].player1Name || losingPlayer == props.players[0].player1Name)
-      numScorePlayer1.push(variableScoreOne);
-    else
-      numScorePlayer2.push(variableScoreOne);
+    if (winPlayer == props.players[0].player1Name || losingPlayer == props.players[0].player1Name) {
+      numScorePlayer1.push(variableScoreOne.toString());
+      finalOne = props.players[0].player1Name;
+    } else {
+      numScorePlayer2.push(variableScoreOne.toString());
+      finalOne = props.players[0].player2Name;
+    }
 
-    if (winningPlayer == props.players[1].player1Name || losingPlayer == props.players[1].player1Name)
-      numScorePlayer3.push(variableScoreTwo);
-    else
-      numScorePlayer4.push(variableScoreTwo);
-    finalOne = winPlayer;
+    if (winPlayer == props.players[1].player1Name || losingPlayer == props.players[1].player1Name) {
+      numScorePlayer3.push(variableScoreTwo.toString());
+      finalOne = props.players[1].player1Name;
+    } else {
+      numScorePlayer4.push(variableScoreTwo.toString());
+      finalOne = props.players[1].player2Name;
+    }
     player1Name.value = semiThree;
     player2Name.value = semiFour;
   } else if (matchIndex === 6) {
-    if (winningPlayer == props.players[2].player1Name || losingPlayer == props.players[2].player1Name)
-      numScorePlayer5.push(variableScoreOne);
-    else
-      numScorePlayer6.push(variableScoreOne);
+    if (winPlayer == props.players[2].player1Name || losingPlayer == props.players[2].player1Name) {
+      numScorePlayer5.push(variableScoreOne.toString());
+      finalOne = props.players[2].player1Name;
+    } else {
+      numScorePlayer6.push(variableScoreOne.toString());
+      finalOne = props.players[2].player2Name;
+    }
 
-    if (winningPlayer == props.players[3].player1Name || losingPlayer == props.players[3].player1Name)
-      numScorePlayer7.push(variableScoreTwo);
-    else
-      numScorePlayer8.push(variableScoreTwo);
-
-    numScorePlayer1 = variableScoreOne;
-    numScorePlayer2 = variableScoreTwo;
-    finalTwo = winPlayer;
+    if (winPlayer == props.players[3].player1Name || losingPlayer == props.players[3].player1Name) {
+      numScorePlayer7.push(variableScoreTwo.toString());
+      finalOne = props.players[3].player1Name;
+    } else {
+      numScorePlayer8.push(variableScoreTwo.toString());
+      finalOne = props.players[3].player2Name;
+    }
     player1Name.value = finalOne;
     player2Name.value = finalTwo;
   }
@@ -274,13 +278,16 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
   blinkObject(finalScore.get());
   indexGame += 1;
 
+  window.removeEventListener("keydown", toggleAnimation);
   if (indexGame < 7) {
+    isAnimating.value = false;
     setTimeout(() => {
       three.removeScene(finalScore.get());
       resetScores();
       manageTournament(winningPlayer, losingPlayer, indexGame);
       setHelpText();
-    }, 5000);
+      window.addEventListener("keydown", toggleAnimation);
+    }, 3000);
   } else if (indexGame === 7) {
 
     if (winningPlayer == props.players[0].player1Name || losingPlayer == props.players[0].player1Name)
@@ -302,45 +309,37 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
 
     setTimeout(() => {
       finalScore.updateScore("Returning to home...");
-    }, 2000);
-    setTimeout(() => {
       winner.value = winningPlayer;
       isGameOver.value = true;
-      
+
       // Emit the tournament data to the parent component
       emit('gameOver', {
-        player1: props.players[0].player1Name,
-        player2: props.players[0].player2Name,
-        player3: props.players[1].player1Name,
-        player4: props.players[1].player2Name,
-        player5: props.players[2].player1Name,
-        player6: props.players[2].player2Name,
-        player7: props.players[3].player1Name,
-        player8: props.players[3].player2Name,
-
-        player1Score: numScorePlayer1,
-        player2Score: numScorePlayer2,
-        player3Score: numScorePlayer3,
-        player4Score: numScorePlayer4,
-        player5Score: numScorePlayer5,
-        player6Score: numScorePlayer6,
-        player7Score: numScorePlayer7,
-        player8Score: numScorePlayer8,
-
-        winner: winningPlayer,
-        loser: losingPlayer,
-        finalOne: finalOne,
-        finalTwo: finalTwo,
-        semiOne: semiOne,
-        semiTwo: semiTwo,
-        semiThree: semiThree,
-        semiFour: semiFour,
-
-        tournamentType: '8P',
+        players: [
+          { name: props.players[0].player1Name, score: numScorePlayer1, position: 1 },
+          { name: props.players[0].player2Name, score: numScorePlayer2, position: 2 },
+          { name: props.players[1].player1Name, score: numScorePlayer3, position: 3 },
+          { name: props.players[1].player2Name, score: numScorePlayer4, position: 4 },
+          { name: props.players[2].player1Name, score: numScorePlayer5, position: 5 },
+          { name: props.players[2].player2Name, score: numScorePlayer6, position: 6 },
+          { name: props.players[3].player1Name, score: numScorePlayer7, position: 7 },
+          { name: props.players[3].player2Name, score: numScorePlayer8, position: 8 },
+        ],
+        finalRound: {
+          playerOne: finalOne,
+          playerTwo: finalTwo,
+          winner: winningPlayer,
+          loser: losingPlayer,
+        },
+        semiFinals: {
+          semiOne: semiOne,
+          semiTwo: semiTwo,
+          semiThree: semiThree,
+          semiFour: semiFour,
+        },
+        tournament_type: '8P',
       });
-
-      returnToMenu(winningPlayer, losingPlayer, semiOne, semiTwo, semiThree, semiFour);
-    }, 5000);
+      window.addEventListener("keydown", toggleAnimation);
+    }, 3000);
   }
 };
 
