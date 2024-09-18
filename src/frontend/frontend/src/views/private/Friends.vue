@@ -10,12 +10,13 @@
               <span>
                 <span :class="['status-indicator', friend.isOnline ? 'bg-success' : 'bg-danger']"></span>
                 {{ friend.username }}
-                <span v-if="friend.is_blocked" class="text-danger">(Bloqueado)</span>
+                <span v-if="friend.is_blocked_by_user" class="text-danger">(Bloqueado por ti)</span>
+                <span v-if="friend.is_blocked_by_friend" class="text-warning">(Te ha bloqueado)</span>
               </span>
               <div class="btn-group">
-                <button class="btn btn-primary btn-sm" @click="sendMessage(friend.username)">Mensaje</button>
+                <button class="btn btn-primary btn-sm" @click="sendMessage(friend.username)" :disabled="friend.is_blocked_by_friend">Mensaje</button>
                 <button
-                  v-if="friend.is_blocked"
+                  v-if="friend.is_blocked_by_user"
                   class="btn btn-warning btn-sm"
                   @click="unblockUser(friend.username)"
                 >
@@ -25,10 +26,11 @@
                   v-else
                   class="btn btn-danger btn-sm"
                   @click="blockUser(friend.username)"
+                  :disabled="friend.is_blocked_by_friend"
                 >
                   Bloquear
                 </button>
-                <button class="btn btn-success btn-sm" @click="inviteUser(friend.username)">Invitar</button>
+                <button class="btn btn-success btn-sm" @click="inviteUser(friend.username)" :disabled="friend.is_blocked_by_friend">Invitar</button>
               </div>
             </li>
           </ul>
@@ -83,7 +85,8 @@ interface Friend {
   id: number;
   username: string;
   isOnline?: boolean;
-  is_blocked: boolean;
+  is_blocked_by_user: boolean;
+  is_blocked_by_friend: boolean;
 }
 
 interface FriendRequest {
@@ -113,7 +116,7 @@ onMounted(async () => {
       api.get<{ username: string, email: string, nickname: string }>('auth/whoami'),
     ]);
 
-    // Asigna el estado correctamente, incluyendo si están bloqueados
+    // Asigna el estado correctamente, incluyendo los nuevos campos de bloqueo
     friends.value = fetchFriendsResponse.friends || [];
     form.value = { ...userResponse.data };
 
@@ -139,7 +142,7 @@ const blockUser = async (username: string) => {
     await api.post('friendship/blockFriend', { friend_username: username });
     console.log(`User ${username} blocked successfully`);
     friends.value = friends.value.map(friend =>
-      friend.username === username ? { ...friend, is_blocked: true } : friend
+      friend.username === username ? { ...friend, is_blocked_by_user: true } : friend
     );
   } catch (error) {
     console.error('Error blocking user', error);
@@ -151,7 +154,7 @@ const unblockUser = async (username: string) => {
     await api.post('friendship/unblockFriend', { friend_username: username });
     console.log(`User ${username} unblocked successfully`);
     friends.value = friends.value.map(friend =>
-      friend.username === username ? { ...friend, is_blocked: false } : friend
+      friend.username === username ? { ...friend, is_blocked_by_user: false } : friend
     );
   } catch (error) {
     console.error('Error unblocking user', error);

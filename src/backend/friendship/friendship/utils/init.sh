@@ -17,6 +17,11 @@ if ! openssl rsa -pubin -in /friendship/secrets/public.pem -text -noout >/dev/nu
   exit 1
 fi
 
+echo "Applying database migrations..."
+if ! python manage.py makemigrations friendship --noinput; then
+  echo "Migrations failed"
+  exit 1
+fi
 # Apply database migrations first time
 echo "Applying database migrations..."
 if ! python manage.py makemigrations --noinput; then

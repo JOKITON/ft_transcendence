@@ -193,21 +193,139 @@ class GetFriendsView(APIView):
 
     def get(self, request):
         user = request.user
+
+        # Filtrar amistades aceptadas o bloqueadas
         friendships = Friendship.objects.filter(
             models.Q(user=user) | models.Q(friend=user),
-            status=Friendship.ACCEPTED
+            models.Q(status=Friendship.ACCEPTED) | models.Q(status=Friendship.BLOCKED)
         )
-        friends = [
-            friendship.friend if friendship.user == user else friendship.user
-            for friendship in friendships
-        ]
-        serializer = FriendSerializer(friends, many=True, context={'request': request})
 
-        return Response({"friends": serializer.data}, status=status.HTTP_200_OK)
+        friends = []
+        for friendship in friendships:
+            # Determina quién es el amigo en función del usuario actual
+            if friendship.user == user:
+                friend = friendship.friend
+                is_blocked_by_user = friendship.is_blocked_user
+                is_blocked_by_friend = friendship.is_blocked_friend
+            else:
+                friend = friendship.user
+                is_blocked_by_user = friendship.is_blocked_friend
+                is_blocked_by_friend = friendship.is_blocked_user
+
+            friends.append({
+                "id": friend.id,
+                "username": friend.username,
+                "email": friend.email,
+                "is_blocked_by_user": is_blocked_by_user,  # Si el usuario actual bloqueó al amigo
+                "is_blocked_by_friend": is_blocked_by_friend  # Si el amigo bloqueó al usuario actual
+            })
+
+        return Response({"friends": friends}, status=status.HTTP_200_OK)
+    
+#class GetFriendsView(APIView):
+ #   authentication_classes = [JWTAuthentication]
+ #   permission_classes = [IsAuthenticated]
+
+#    def get(self, request):
+ #       user = request.user
+  #      friendships = Friendship.objects.filter(
+   #         models.Q(user=user) | models.Q(friend=user),
+    #        status=Friendship.ACCEPTED
+     #   )
+      #  friends = [
+       #     friendship.friend if friendship.user == user else friendship.user
+        #    for friendship in friendships
+       # #]
+       # serializer = FriendSerializer( context={'request': request})
+       # return Response({"friends": serializer.data}, status=status.HTTP_200_OK#)
 
 class BlockUserView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user
+        user = request.user
+        friend_username = request.data.get("friend_username")
+
+        if not friend_username:
+            return Response(
+                {"error": "Friend username is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            friend = User.objects.get(username=friend_username)
+            # Buscar la amistad en ambas direcciones
+            friendship = Friendship.objects.filter(
+                models.Q(user=user, friend=friend) | models.Q(user=friend, friend=user)
+            ).first()
+
+            if not friendship:
+                return Response(
+                    {"error": "Friendship not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Bloquear al usuario (pasando el bloqueador)
+            friendship.block(user)
+
+            return Response(
+                {"message": f"User {friend_username} has been blocked by {user.username}"},
+                status=status.HTTP_200_OK
+            )
+
+        except User.DoesNotExist:
+            return Response(
+                {"error": "Friend not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+class UnlockUserView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        friend_username = request.data.get("friend_username")
+
+        if not friend_username:
+            return Response(
+                {"error": "Friend username is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            friend = User.objects.get(username=friend_username)
+            # Buscar la amistad en ambas direcciones
+            friendship = Friendship.objects.filter(
+                models.Q(user=user, friend=friend) | models.Q(user=friend, friend=user)
+            ).first()
+
+            if not friendship:
+                return Response(
+                    {"error": "Friendship not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Desbloquear al usuario (pasando el desbloqueador)
+            friendship.unblock(user)
+
+            return Response(
+                {"message": f"User {friend_username} has been unblocked by {user.username}"},
+                status=status.HTTP_200_OK
+            )
+
+        except User.DoesNotExist:
+            return Response(
+                {"error": "Friend not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
