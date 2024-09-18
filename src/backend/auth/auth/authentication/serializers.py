@@ -26,7 +26,7 @@ class UserSerializerRegister(serializers.ModelSerializer):
             ip=self.context["request"].META.get("REMOTE_ADDR"),
             ip_last_login=self.context["request"].META.get("REMOTE_ADDR"),
             nickname=validated_data.get("nickname"),
-            # avatar='avatars/pepe.png',
+            avatar='avatars/pepe.png',
         )
         return user
 
@@ -51,11 +51,6 @@ class TokenVerifySerializer(serializers.Serializer):
 
     def validate(self, attrs) -> dict:
         return attrs
-
-""" class AvatarSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['avatar'] """
 
 class PasswdSerializer(serializers.Serializer):
     currentPassword: serializers.CharField = serializers.CharField(required=True)

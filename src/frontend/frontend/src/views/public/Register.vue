@@ -80,7 +80,6 @@ const form = ref<UserRequest>({
   password: '',
   email: '',
   nickname: '',
-  p_image: ''
 })
 
 const handleSubmit = async (): Promise<void> => {

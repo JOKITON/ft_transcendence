@@ -170,20 +170,22 @@ const saveChanges: () => Promise<void> = async () => {
   }
 }
 
+import avatar from './pepe.png'
+
 async function fetchUserData() {
   try {
     const response = await api.get('whoami');
     //const response2 = await api.get('avatars');
-    //console.log(response)
+    console.log(response)
     //console.log(response.avatarUrl)
     //console.log(response2)
     user.value = {
       username: response.username,
       email: response.email,
       nickname: response.nickname,
-      avatarUrl: 'https://bootdey.com/img/Content/avatar/avatar7.png',
+      avatarUrl: response.avatar,
     };
-    console.log(user.avatarUrl)
+    console.log(user.value.avatarUrl)
     form.value = { ...user.value };
   } catch (error: any) {
     console.error('Error fetching user data:', error.message);
