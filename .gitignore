@@ -1,10 +1,15 @@
+# Docker
 .vscode/
-node_modules/
-package-lock.json
 volumes/
+networks/
+
+# BackEnd
 venv/
-db/
+migrations/
 __pycache__/
 *.pem
+
+# FrontEnd
 staticfiles/
-networks/
+node_modules/
+package-lock.json

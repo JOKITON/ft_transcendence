@@ -20,6 +20,5 @@ from django.urls import path, include
 from pong_app.urls import urlpatterns as urlspatterns_pong
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("api/pong/", include(urlspatterns_pong)),
+    path("api/v1/pong/", include("pong.urls")),
 ]

@@ -5,6 +5,6 @@ export default interface IAuth {
   login(data: Record<string, any>): Promise<boolean>
   logout(): Promise<boolean>
   register(data: Record<string, any>): Promise<boolean>
-  setToken(token: token): void
-  removeToken(): void
+  setRefreshToken(token: token): void
+  removeAccessToken(): void
 }

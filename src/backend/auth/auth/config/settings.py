@@ -7,7 +7,7 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-esm3z+!uw)&bx()%+s=)(ura#ze9bmgul19+64go)+j2((oa-p"
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "authentication",
+    "UserModel",
 ]
 
 SESSION_COOKIE_SECURE = True
@@ -60,11 +61,20 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "csp.middleware.CSPMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    # "authentication.middleware.UpdateLastRequestMiddleware",
+    # "authentication.middleware.RateLimitMiddleware",
 ]
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",  # O cualquier otro backend
+        "LOCATION": "rate-limit-cache",
+    }
+}
 
 ROOT_URLCONF = "config.urls"
 
-AUTH_USER_MODEL = "authentication.User"
+AUTH_USER_MODEL = "UserModel.User"
 
 TEMPLATES = [
     {

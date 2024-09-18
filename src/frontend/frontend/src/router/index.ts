@@ -16,9 +16,9 @@ const router = createRouter({
 
   routes: [
     { path: '/', name: 'index', component: Index },
-    { path: '/home', name: 'home', component: Home },
     { path: '/register', name: 'register', component: Register },
     { path: '/login', name: 'login', component: Login },
+    { path: '/home', name: 'home', component: Home, meta: { requiresAuth: true } },
     { path: '/pong', name: 'pong', component: PongIndex, meta: { requiresAuth: true } },
     { path: '/user-list', name: 'UserList', component: UserList, meta: { requiresAuth: true } },
     // { path: '/friend-list', name: 'FriendList', component: FriendList, meta: { requiresAuth: true } },

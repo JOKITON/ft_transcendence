@@ -63,7 +63,6 @@ const handleSubmit: () => Promise<void> = async () => {
     if (response === true) {
       router.push('/pong')
     }
-    console.log('Login successful ', response)
   } catch (error: any) {
     window.alert('An error occurred while submitting the form')
     console.error('An error occurred while submitting the form:', error)

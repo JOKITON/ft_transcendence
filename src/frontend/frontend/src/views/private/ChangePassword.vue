@@ -12,7 +12,7 @@
                 <!-- Current Password -->
                 <div class="form-group mb-3">
                   <label for="currentPassword">Current Password</label>
-                  <input 
+                  <input
                     type="password" 
                     id="currentPassword" 
                     v-model="form.currentPassword" 

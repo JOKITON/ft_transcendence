@@ -4,39 +4,45 @@ services:
   db:
     container_name: db
     build: ../database/
-    env_file: ../database/.env-postgres
+    env_file: ../backend/.env-django
+    ports:
+      - 5432
     volumes:
-      - db-data:/var/lib/postgresql/_dataTrascendence
+      - db-data:/var/lib/postgresql/data
     restart: always
     shm_size: 128mb
     networks:
       - backend
 
-  keys:
-    container_name: keys
-    build: ../backend/keys/
-    env_file: ../backend/.env-dev
-    restart: always
-    volumes:
-      - jwt_auth_keys:/keys
-    networks:
-      - backend
-    depends_on:
-      - db
-
   auth:
     container_name: auth
     build: ../backend/auth/
-    env_file: ../backend/.env-dev
+    env_file: ../backend/.env-django
     restart: always
     volumes:
       - auth:/auth
+      - dependencies:/opt/venv/
     networks:
       - frontend
       - backend
     depends_on:
       - db
-      - keys
+
+  migration:
+    container_name: migration
+    build: ../backend/migration/
+    env_file: ../backend/.env-django
+    restart: always
+    volumes:
+      - auth:/usr/src/app/auth
+      - pong:/usr/src/app/pong
+      - friendship:/usr/src/app/friendship
+      - dependencies:/opt/venv/
+    networks:
+      - backend
+    depends_on:
+      - db
+      - auth
 
   pong:
     container_name: pong
@@ -45,27 +51,31 @@ services:
     restart: always
     volumes:
       - pong:/pong
+      - dependencies:/opt/venv/
     networks:
       - frontend
       - backend
     depends_on:
       - db
-      - keys
       - auth
+      - migration
 
-  admin:
-    container_name: admin
-    build: ../backend/admin/
-    env_file: ../backend/.env-dev
+  friendship:
+    container_name: friendship
+    build: ../backend/friendship/
+    env_file: ../backend/.env-django
     restart: always
+    volumes:
+      - friendship:/friendship
+      - dependencies:/opt/venv/
     networks:
       - frontend
       - backend
     depends_on:
       - db
-      - keys
-      - pong
       - auth
+      - pong
+      - migration
 
 networks:
   frontend:
@@ -75,27 +85,33 @@ networks:
     driver: bridge
 
 volumes:
-  jwt_auth_keys:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../backend/keys/keys
-  pong:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../backend/pong/pong
   db-data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../database/db
+      device: ../../volumes/db
+  dependencies:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../../volumes/dependencies
+  pong:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/pong/pong/
   auth:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: ../backend/auth/auth/
+  friendship:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/friendship/friendship/

@@ -122,9 +122,14 @@
 import { ref, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router'
 import NavHome from './NavHome.vue';
+import type Api from '@/utils/Api/Api'
+import auth from '../../services/user/services/auth/auth.ts'
 
 const api: Api = inject('$api') as Api;
-const router = useRouter();
+const Auth: auth = new auth(api)
+
+const router = useRouter()
+
 const isEditing = ref(false);
 const user = ref({
   username: 'User',
@@ -172,11 +177,7 @@ const saveChanges: () => Promise<void> = async () => {
 
 async function fetchUserData() {
   try {
-    const response = await api.get('whoami');
-    //const response2 = await api.get('avatars');
-    //console.log(response)
-    //console.log(response.avatarUrl)
-    //console.log(response2)
+    const response = await Auth.whoami();
     user.value = {
       username: response.username,
       email: response.email,
@@ -214,6 +215,10 @@ body {
 
 .main-body {
   padding: 15px;
+}
+
+.card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
 }
 
 .card {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { Vector3, Color, Mesh } from 'three';
-import { onMounted, onBeforeUnmount, ref, defineProps } from 'vue';
+import { onMounted, onBeforeUnmount, ref, defineProps, defineEmits } from 'vue';
 import ThreeService from '../../../services/pong/ThreeService';
 import Player from '../../../services/pong/Player';
 import Sphere from '../../../services/pong/Objects/Sphere';
@@ -17,17 +17,13 @@ const props = defineProps({
   aiDifficulty: Number,
 });
 
-const emit = defineEmits(['returnToMenu']);
+const emit = defineEmits(['gameOver']);
 
 // Extract initial players for the current game
 let player1Name = ref(props.players[0].player1Name);
 console.log('Player:', props.players[0].player1Name);
 
 console.log('AI Difficulty: ', props.aiDifficulty);
-
-const returnToMenu = () => {
-  emit('returnToMenu');
-};
 
 const songElement = ref(null); // Reference to the audio element
 let three;
@@ -37,7 +33,7 @@ const bounds = { minX: -16.2, maxX: 16.2, minY: -9.2, maxY: 9.2, minZ: 0, maxZ: 
 
 // Ball object
 const ballVectorY = Math.random() * 0.2 - 0.1;
-const ballVelocity = new Vector3(0.05, ballVectorY, 0);
+const ballVelocity = new Vector3(0.5, ballVectorY, 0);
 const ballGeometry = [0.33, 10, 10];
 const ball = new Sphere(ballGeometry, new Color('white'), new Vector3(0, 0, 0), ballVelocity, bounds);
 
@@ -117,7 +113,7 @@ function update() {
       numScorePlayerOne += 1;
       scorePlayer1.updateScore(numScorePlayerOne);
       blinkObject(scorePlayer1.get());
-      if (numScorePlayerOne == 5) {
+      if (numScorePlayerOne == 1) {
         console.log(`${playerAI.getName()} lost!`);
         endGame(player.getName());
       }
@@ -178,7 +174,16 @@ const endGame = (winningPlayer: string) => {
   setTimeout(() => {
     winner.value = winningPlayer;
     isGameOver.value = true;
-    returnToMenu();
+
+    // Emit the tournament data to the parent component
+    emit('gameOver', {
+      winner: winningPlayer,
+      player1: player1Name.value,
+      player2: 'AI',
+      score_player1: numScorePlayerOne,
+      score_player2: numScorePlayerTwo,
+      tournament_type: 'AI'
+    });
   }, 5000);
 };
 

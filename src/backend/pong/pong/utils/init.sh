@@ -8,37 +8,14 @@ if [ "$DATABASE" = "postgres" ]; then
   done
 fi
 
-# Generate RSA keys if they don't exist
-KEY_DIR="/usr/src/app/secrets"
-mkdir -p "$KEY_DIR"
+sh utils/get_keys.sh
 
-# Fetch public key from JWT Key Management Service
-if [ ! -f /usr/src/app/secrets/jwt_auth_public.pem ]; then
-  mkdir -p /usr/src/app/secrets
-  curl -o /usr/src/app/secrets/jwt_auth_public.pem http://keys:8000/api/key/public-key/
-  # Validate the fetched key (optional check)
-  if ! openssl rsa -pubin -in /usr/src/app/secrets/jwt_auth_public.pem -text -noout >/dev/null 2>&1; then
-    echo "Error: Fetched public key is not valid."
-    exit 1
-  fi
+# Apply database migrations first time
+echo "Applying database migrations..."
+if ! python manage.py makemigrations --noinput; then
+  echo "Migrations failed"
+  exit 1
 fi
-
-# Fetch private key from JWT Key Management Service
-if [ ! -f /usr/src/app/secrets/jwt_auth_private.pem ]; then
-  curl -o /usr/src/app/secrets/jwt_auth_private.pem http://keys:8000/api/key/private-key/
-  # Validate the fetched key (optional check)
-  if ! openssl rsa -in /usr/src/app/secrets/jwt_auth_private.pem -check >/dev/null 2>&1; then
-    echo "Error: Fetched private key is not valid."
-    exit 1
-  fi
-fi
-
-# Apply database migrations
-# echo "Applying database migrations..."
-# if ! python manage.py migrate --noinput; then
-#  echo "Migrations failed"
-#  exit 1
-# fi
 
 # Collect static files
 echo "Collecting static files..."
@@ -49,4 +26,4 @@ fi
 
 # Start the Django development server
 echo "Starting Django development server..."
-exec gunicorn --bind 0.0.0.0:8000 config.wsgi:application --reload --timeout 120
+exec gunicorn --bind 0.0.0.0:80 --workers=3 config.wsgi:application --reload --timeout 120

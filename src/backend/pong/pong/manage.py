@@ -3,9 +3,6 @@
 import os
 import sys
 
-# Add the path to the shared_models directory
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'shared_models')))
-
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
