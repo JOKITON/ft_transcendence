@@ -35,6 +35,18 @@ services:
     depends_on:
       - authentication
 
+  livechat:
+    container_name: livechat
+    build: ../backend/livechat/
+    env_file: ../.env.dev
+    restart: always
+    volumes:
+      - livechat:/livechat
+    networks:
+      - ft_transcendence
+    depends_on:
+      - authentication
+
 networks:
   ft_transcendence:
     external: true
@@ -58,3 +70,9 @@ volumes:
       type: none
       o: bind
       device: ../backend/friendship/friendship/
+  livechat:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/livechat/livechat
