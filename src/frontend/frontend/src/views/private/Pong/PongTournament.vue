@@ -55,14 +55,14 @@ const wallMid = new DashedWall(vecWallMid, new Color('green'), dashedLine);
 // Scores
 let variableScoreOne = 0;
 let variableScoreTwo = 0;
-let numScorePlayer1: string[] = [];
-let numScorePlayer2: string[] = [];
-let numScorePlayer3: string[] = [];
-let numScorePlayer4: string[] = [];
-let numScorePlayer5: string[] = [];
-let numScorePlayer6: string[] = [];
-let numScorePlayer7: string[] = [];
-let numScorePlayer8: string[] = [];
+let numScorePlayer1: Array<Number> = [];
+let numScorePlayer2: Array<Number> = [];
+let numScorePlayer3: Array<Number> = [];
+let numScorePlayer4: Array<Number> = [];
+let numScorePlayer5: Array<Number> = [];
+let numScorePlayer6: Array<Number> = [];
+let numScorePlayer7: Array<Number> = [];
+let numScorePlayer8: Array<Number> = [];
 const scorePlayer1 = new Score(variableScoreOne, new Color('white'), new Vector3(-2, 7.5, 0));
 const scorePlayer2 = new Score(variableScoreTwo, new Color('white'), new Vector3(2, 7.5, 0));
 
@@ -205,6 +205,8 @@ let finalTwo = '';
 */
 
 function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: number): void {
+  console.log('{',variableScoreOne ,'}');
+  console.log('{',variableScoreTwo ,'}');
   if (matchIndex === 1) {
     numScorePlayer1.push(variableScoreOne);
     numScorePlayer2.push(variableScoreTwo);
@@ -212,56 +214,56 @@ function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: n
     player1Name.value = props.players[1].player1Name;
     player2Name.value = props.players[1].player2Name;
   } else if (matchIndex === 2) {
-    numScorePlayer3.push(variableScoreOne.toString());
-    numScorePlayer4.push(variableScoreTwo.toString());
+    numScorePlayer3.push(variableScoreOne);
+    numScorePlayer4.push(variableScoreTwo);
     semiTwo = winPlayer;
     player1Name.value = props.players[2].player1Name;
     player2Name.value = props.players[2].player2Name;
   } else if (matchIndex === 3) {
-    numScorePlayer5.push(variableScoreOne.toString());
-    numScorePlayer6.push(variableScoreTwo.toString());
+    numScorePlayer5.push(variableScoreOne);
+    numScorePlayer6.push(variableScoreTwo);
     semiThree = winPlayer;
     player1Name.value = props.players[3].player1Name;
     player2Name.value = props.players[3].player2Name;
   } else if (matchIndex === 4) {
-    numScorePlayer7.push(variableScoreOne.toString());
-    numScorePlayer8.push(variableScoreTwo.toString());
+    numScorePlayer7.push(variableScoreOne);
+    numScorePlayer8.push(variableScoreTwo);
     semiFour = winPlayer;
     player1Name.value = semiOne;
     player2Name.value = semiTwo;
   } else if (matchIndex === 5) {
     if (winPlayer == props.players[0].player1Name || losingPlayer == props.players[0].player1Name) {
-      numScorePlayer1.push(variableScoreOne.toString());
+      numScorePlayer1.push(variableScoreOne);
       finalOne = props.players[0].player1Name;
     } else {
-      numScorePlayer2.push(variableScoreOne.toString());
+      numScorePlayer2.push(variableScoreOne);
       finalOne = props.players[0].player2Name;
     }
 
     if (winPlayer == props.players[1].player1Name || losingPlayer == props.players[1].player1Name) {
-      numScorePlayer3.push(variableScoreTwo.toString());
+      numScorePlayer3.push(variableScoreTwo);
       finalOne = props.players[1].player1Name;
     } else {
-      numScorePlayer4.push(variableScoreTwo.toString());
+      numScorePlayer4.push(variableScoreTwo);
       finalOne = props.players[1].player2Name;
     }
     player1Name.value = semiThree;
     player2Name.value = semiFour;
   } else if (matchIndex === 6) {
     if (winPlayer == props.players[2].player1Name || losingPlayer == props.players[2].player1Name) {
-      numScorePlayer5.push(variableScoreOne.toString());
-      finalOne = props.players[2].player1Name;
+      numScorePlayer5.push(variableScoreOne);
+      finalTwo = props.players[2].player1Name;
     } else {
-      numScorePlayer6.push(variableScoreOne.toString());
-      finalOne = props.players[2].player2Name;
+      numScorePlayer6.push(variableScoreOne);
+      finalTwo = props.players[2].player2Name;
     }
 
     if (winPlayer == props.players[3].player1Name || losingPlayer == props.players[3].player1Name) {
-      numScorePlayer7.push(variableScoreTwo.toString());
-      finalOne = props.players[3].player1Name;
+      numScorePlayer7.push(variableScoreTwo);
+      finalTwo = props.players[3].player1Name;
     } else {
-      numScorePlayer8.push(variableScoreTwo.toString());
-      finalOne = props.players[3].player2Name;
+      numScorePlayer8.push(variableScoreTwo);
+      finalTwo = props.players[3].player2Name;
     }
     player1Name.value = finalOne;
     player2Name.value = finalTwo;
@@ -283,28 +285,45 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
     isAnimating.value = false;
     setTimeout(() => {
       three.removeScene(finalScore.get());
-      resetScores();
       manageTournament(winningPlayer, losingPlayer, indexGame);
+      resetScores();
       setHelpText();
       window.addEventListener("keydown", toggleAnimation);
     }, 3000);
   } else if (indexGame === 7) {
 
-    if (winningPlayer == props.players[0].player1Name || losingPlayer == props.players[0].player1Name)
+    if (winningPlayer == props.players[0].player1Name )
       numScorePlayer1.push(variableScoreOne);
-    else if (winningPlayer == props.players[0].player2Name || losingPlayer == props.players[0].player2Name)
+    else if (winningPlayer == props.players[0].player2Name)
       numScorePlayer2.push(variableScoreOne);
-    else if (winningPlayer == props.players[1].player1Name || losingPlayer == props.players[1].player1Name)
-      numScorePlayer3.push(variableScoreTwo);
-    else if (winningPlayer == props.players[1].player2Name || losingPlayer == props.players[1].player2Name)
-      numScorePlayer4.push(variableScoreTwo);
-    else if (winningPlayer == props.players[2].player1Name || losingPlayer == props.players[2].player1Name)
+    else if (winningPlayer == props.players[1].player1Name)
+      numScorePlayer3.push(variableScoreOne);
+    else if (winningPlayer == props.players[1].player2Name)
+      numScorePlayer4.push(variableScoreOne);
+    else if (winningPlayer == props.players[2].player1Name)
       numScorePlayer5.push(variableScoreOne);
-    else if (winningPlayer == props.players[2].player2Name || losingPlayer == props.players[2].player2Name)
+    else if (winningPlayer == props.players[2].player2Name)
       numScorePlayer6.push(variableScoreOne);
-    else if (winningPlayer == props.players[3].player1Name || losingPlayer == props.players[3].player1Name)
+    else if (winningPlayer == props.players[3].player1Name)
+      numScorePlayer7.push(variableScoreOne);
+    else if (winningPlayer == props.players[3].player2Name)
+      numScorePlayer8.push(variableScoreOne);
+
+      if (losingPlayer == props.players[0].player1Name)
+      numScorePlayer1.push(variableScoreTwo);
+    else if (losingPlayer == props.players[0].player2Name)
+      numScorePlayer2.push(variableScoreTwo);
+    else if (losingPlayer == props.players[1].player1Name)
+      numScorePlayer3.push(variableScoreTwo);
+    else if (losingPlayer == props.players[1].player2Name)
+      numScorePlayer4.push(variableScoreTwo);
+    else if (losingPlayer == props.players[2].player1Name)
+      numScorePlayer5.push(variableScoreOne);
+    else if (losingPlayer == props.players[2].player2Name)
+      numScorePlayer6.push(variableScoreOne);
+    else if (losingPlayer == props.players[3].player1Name)
       numScorePlayer7.push(variableScoreTwo);
-    else if (winningPlayer == props.players[3].player2Name || losingPlayer == props.players[3].player2Name)
+    else if (losingPlayer == props.players[3].player2Name)
       numScorePlayer8.push(variableScoreTwo);
 
     setTimeout(() => {

@@ -5,7 +5,7 @@ User = get_user_model()
 
 class Tournament(models.Model):
     tournament_type_choices = [
-        ('AI', '2P'),
+        ('AI', 'AI Tournament'), ('2P', '2P Tournament')
     ]
 
     winner = models.CharField(max_length=100)
