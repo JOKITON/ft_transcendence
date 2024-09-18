@@ -21,6 +21,7 @@ class RegisterUserView(APIView):
         serializer = UserSerializerRegister(
             data=request.data, context={"request": request}
         )
+        print("entra aqui")
         if serializer.is_valid():
             valid = serializer.save()
             if valid:

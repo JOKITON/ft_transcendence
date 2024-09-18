@@ -148,7 +148,7 @@ function toggleEdit() {
 
 const saveChanges: () => Promise<void> = async () => {
   try {
-    const response = await api.post("update-profile",form.value)
+    const response = await api.post("auth/update-profile",form.value)
     console.log('saved successful ', response)
     window.location.reload();
   } catch (error: any) {
@@ -159,7 +159,7 @@ const saveChanges: () => Promise<void> = async () => {
 
 async function fetchUserData() {
   try {
-    const response = await api.get('whoami');
+    const response = await api.get('auth/whoami');
     user.value = {
       username: response.username,
       email: response.email,
