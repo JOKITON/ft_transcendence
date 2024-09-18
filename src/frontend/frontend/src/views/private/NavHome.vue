@@ -132,7 +132,7 @@ const toggleDropdownAdmin = () => {
 
 // Funciones de manejo de perfil y configuración
 const openSettings = () => {
-  alert('Settings clicked')
+  router.push('/other-profile')
 }
 
 const openProfile = () => {

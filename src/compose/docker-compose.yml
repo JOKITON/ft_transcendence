@@ -12,13 +12,13 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: always
     networks:
-      - frontend
+      - traefik
 
   frontend:
     container_name: frontend
     build: ../frontend/
     networks:
-      - frontend
+      - traefik
     volumes:
       - node_modules:/frontend/node_modules
       - frontend:/frontend
@@ -30,9 +30,9 @@ services:
 #  auth_traefik:
 
 networks:
-  frontend:
-    external: true
-
+  traefik:
+    name: traefik
+    driver: bridge
 volumes:
   frontend:
     driver: local

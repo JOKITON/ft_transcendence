@@ -135,7 +135,7 @@ const user = ref({
   username: 'User',
   email: 'email',
   nickname: 'nickname',
-  avatarUrl: 'avatar_url',
+  // avatarUrl: 'avatar_url',
 });
 const form = ref({
   username: user.value.username,
@@ -156,7 +156,6 @@ function onFileChange(event: Event) {
   }
 } */
 
-
 function toggleEdit() {
   if (isEditing.value) {
     // Restores the original values when edit mode is canceled
@@ -175,6 +174,8 @@ const saveChanges: () => Promise<void> = async () => {
   }
 }
 
+import avatar from './pepe.png'
+
 async function fetchUserData() {
   try {
     const response = await Auth.whoami();
@@ -182,9 +183,9 @@ async function fetchUserData() {
       username: response.username,
       email: response.email,
       nickname: response.nickname,
-      avatarUrl: 'https://bootdey.com/img/Content/avatar/avatar7.png',
+      // avatarUrl: response.avatar,
     };
-    console.log(user.avatarUrl)
+    // console.log(user.value.avatarUrl)
     form.value = { ...user.value };
   } catch (error: any) {
     console.error('Error fetching user data:', error.message);

@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from pong_app.urls import urlpatterns as urlspatterns_pong
+from pong.urls import urlpatterns as urlspatterns_pong
 
 urlpatterns = [
     path("api/v1/pong/", include("pong.urls")),

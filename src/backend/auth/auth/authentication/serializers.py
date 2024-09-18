@@ -1,14 +1,13 @@
 from django.db.models.base import ModelBase
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from typing import List
-from .models import User
 from django.contrib.auth.hashers import check_password, make_password
 from UserModel.models import User
+from typing import List
 import logging
+from django.contrib.auth import get_user_model
 
 logger = logging.getLogger(__name__)
-
 
 class UserSerializerRegister(serializers.ModelSerializer):
     username: serializers.CharField = serializers.CharField(
@@ -55,9 +54,10 @@ class UserSerializerRegister(serializers.ModelSerializer):
             username=validated_data["username"],
             email=validated_data["email"],
             password=validated_data["password"],
-            nickname=validated_data.get("nickname"),
             ip=self.context["request"].META.get("REMOTE_ADDR"),
             ip_last_login=self.context["request"].META.get("REMOTE_ADDR"),
+            nickname=validated_data.get("nickname"),
+            # avatar='avatars/pepe.png',
         )
         return user
 
@@ -88,16 +88,11 @@ class UserSerializer(serializers.Serializer):
         raise serializers.ValidationError("Incorrect Credentials")
 
 
-class TokenVerifySerializer(serializers.Serializer):
+""" class TokenVerifySerializer(serializers.Serializer):
     token: serializers.CharField = serializers.CharField(required=True)
 
     def validate(self, attrs) -> dict:
-        return attrs
-
-""" class AvatarSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['avatar'] """
+        return attrs """
 
 class PasswdSerializer(serializers.Serializer):
     currentPassword: serializers.CharField = serializers.CharField(required=True)

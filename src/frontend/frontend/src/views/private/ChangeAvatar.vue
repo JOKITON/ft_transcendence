@@ -27,11 +27,12 @@
   <script setup lang="ts">
   import { ref, onMounted, inject } from 'vue';
   import { useRouter } from 'vue-router';
+  import avatar from './pepe.png';
   
   const api: Api = inject('$api') as Api;
   const router = useRouter();
   // Imagen de previsualización por defecto o avatar actual del usuario
-  const avatarPreview = ref('https://bootdey.com/img/Content/avatar/avatar7.png'); 
+  const avatarPreview = ref(avatar); 
   const selectedFile = ref<File | null>(null);
   
   // Manejo del cambio de archivo seleccionado
@@ -45,7 +46,7 @@
   }
   
   // Subir el avatar al servidor
-  const uploadAvatar = async () => {
+/*   const uploadAvatar = async () => {
     if (selectedFile.value) {
       const formData = new FormData();
       formData.append('avatar', selectedFile.value);
@@ -65,7 +66,7 @@
     } else {
       alert('Please select a file before uploading.');
     }
-  }
+  } */
   
   // Cancelar la subida y redirigir al perfil del usuario
   const cancelUpload = () => {

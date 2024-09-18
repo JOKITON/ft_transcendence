@@ -22,26 +22,26 @@ class Tournament(models.Model):
 
 class Player(models.Model):
     name = models.CharField(max_length=255)
-    score = models.IntegerField()
+    score = models.JSONField()
     position = models.IntegerField()
 
     def __str__(self):
         return f"{self.name} (Position: {self.position}, Score: {self.score})"
 
 class FinalRound(models.Model):
-    player_one = models.ForeignKey(Player, related_name='final_player_one', on_delete=models.CASCADE)
-    player_two = models.ForeignKey(Player, related_name='final_player_two', on_delete=models.CASCADE)
-    winner = models.ForeignKey(Player, related_name='final_winner', on_delete=models.CASCADE)
-    loser = models.ForeignKey(Player, related_name='final_loser', on_delete=models.CASCADE)
+    player_one = models.CharField(max_length=255)
+    player_two = models.CharField(max_length=255)
+    winner = models.CharField(max_length=255)
+    loser = models.CharField(max_length=255)
 
     def __str__(self):
         return f"Final Round: {self.winner.name} vs {self.loser.name}"
 
 class SemiFinal(models.Model):
-    semi_one = models.ForeignKey(Player, related_name='semi_one', on_delete=models.CASCADE)
-    semi_two = models.ForeignKey(Player, related_name='semi_two', on_delete=models.CASCADE)
-    semi_three = models.ForeignKey(Player, related_name='semi_three', on_delete=models.CASCADE)
-    semi_four = models.ForeignKey(Player, related_name='semi_four', on_delete=models.CASCADE)
+    semi_one = models.CharField(max_length=255)
+    semi_two = models.CharField(max_length=255)
+    semi_three = models.CharField(max_length=255)
+    semi_four = models.CharField(max_length=255)
 
     def __str__(self):
         return "Semi Final Round"

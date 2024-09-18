@@ -343,17 +343,17 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
           { name: props.players[3].player1Name, score: numScorePlayer7, position: 7 },
           { name: props.players[3].player2Name, score: numScorePlayer8, position: 8 },
         ],
-        finalRound: {
-          playerOne: finalOne,
-          playerTwo: finalTwo,
+        final_round: {
+          player_one: finalOne,
+          player_two: finalTwo,
           winner: winningPlayer,
           loser: losingPlayer,
         },
-        semiFinals: {
-          semiOne: semiOne,
-          semiTwo: semiTwo,
-          semiThree: semiThree,
-          semiFour: semiFour,
+        semi_finals: {
+          semi_one: semiOne,
+          semi_two: semiTwo,
+          semi_three: semiThree,
+          semi_four: semiFour,
         },
         tournament_type: '8P',
       });

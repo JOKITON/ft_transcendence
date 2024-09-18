@@ -85,46 +85,85 @@ export default class auth implements IAuth {
 
   public async whoami(): Promise<boolean> {
     try {
-      const accessToken = localStorage.getItem('access_token');
-      if (accessToken) {
-        this.setAuthHeader();
-        const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
-        'token/verify',
-        {
-          token: accessToken as string
-        });
-  
-        if (response.status === 200) {
-          return true; // Token is still valid
-        }
+      const response: ApiResponse<Record<string, any>> = await this.api.get(
+        'auth/whoami'
+      )
+
+      if (response && response?.status === 200) {
+        return (response)
+      } else {
+        console.error('Error getting username:', response)
+        return false
       }
-      else
-        console.log('No token found. Redirecting to login.');
-        return false;
-    } catch (error) {
-      const response = error.response;
-      switch (response.data.code) {
-        case 'expired':
-          console.log('Token expired. Attempting to refresh.');
-          return (await this.refreshAuthToken());
-  
-        case 'token_not_valid':
-          console.log('Token invalid. Redirecting to login.');
-          this.removeAccessToken();
-          return false;
-  
-        case 'missing':
-          console.log('Token missing. Redirecting to login.');
-          this.removeAccessToken();
-          return false;
-  
-        default:
-          console.error('Unexpected token status:', response.data.status);
-          this.removeAccessToken();
-          return false;
-      }
+    } catch (error: any) {
+      console.error('Error getting username:', error)
+      return false
     }
   }
+
+  public async checkAndRefreshToken(): Promise<boolean> {
+    try {
+      const accessToken: string | null = localStorage.getItem('access_token')
+      if (accessToken) {
+        if (this.isTokenValid(accessToken) == false) {
+            this.refreshAuthToken()
+        } else {
+          this.setAuthHeader()
+          const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
+            'auth/token/verify',
+            {
+              token: accessToken as string
+            }
+          )
+
+          if (response.status === 200) {
+            return true // Token is still valid
+          } else {
+            throw(response);
+          }
+        }
+      }
+    }
+    catch (error) {
+      const response = error
+      switch (response.code) {
+        case 'expired':
+          console.log('Token expired. Attempting to refresh.')
+          return await this.refreshAuthToken()
+
+        case 'token_not_valid':
+          console.log('Token invalid. Redirecting to login.')
+          this.removeAccessToken()
+          return false
+
+        case 'missing':
+          console.log('Token missing. Redirecting to login.')
+          this.removeAccessToken()
+          return false
+
+        default:
+          console.error('Unexpected token status:', response.status)
+          this.removeAccessToken()
+          return false
+        }
+    }
+  }
+
+  public isTokenValid(token) {
+    if (!token) return false;
+    try {
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000; // tiempo actual en segundos
+        // Verifica si el token ha expirado
+        if (decoded.exp && decoded.exp < currentTime) {
+            return false; // Token ha expirado
+        }
+        return true; // Token es válido
+    } catch (error) {
+        console.error("Error decodificando el token:", error);
+        return false;
+    }
+}
 
   public async refreshAuthToken() {
     try {

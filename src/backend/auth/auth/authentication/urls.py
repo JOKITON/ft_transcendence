@@ -6,14 +6,9 @@ from .views import (
     LogoutView,
     UpdateUserProfileView,
     UpdateUserPasswordView,
-    #ImageView,
-    #UpdateUserAvatarView,
-    # TokenRefreshView,
     WhoAmIView,
     PublicKeyView,
 )
-from django.conf import settings
-from django.conf.urls.static import static
 
 urlpatterns = [
     path("register", RegisterUserView.as_view(), name="register"),
@@ -31,3 +26,9 @@ urlpatterns = [
     path("token/refresh", TokenRefreshView.as_view(), name="tokenRefresh"),
     path("public", PublicKeyView.as_view(), name="public"),
 ]
+
+""" from django.conf import settings
+from django.conf.urls.static import static
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) """
