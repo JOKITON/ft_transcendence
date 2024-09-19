@@ -12,9 +12,8 @@ from rest_framework.views import APIView, Request
 from django.contrib.auth import login, logout
 from rest_framework.response import Response
 from rest_framework import status
-from UserModel.models import User
 from typing import Dict, Any
-
+from django.db import models  
 
 class RegisterUserView(APIView):
     def post(self, request: Request) -> Response:
@@ -166,3 +165,29 @@ class PublicKeyView(APIView):
                 {"Error": f"retrieving public key {e}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+
+from django.contrib.auth import get_user_model
+from typing import Type
+from django.db.models.base import ModelBase
+
+User: Type[ModelBase] = get_user_model()
+class GetUsers(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    print("Txoinas mi amor")
+    def get(self, request: Request) -> Response:
+        print("Txoinas mi nuevo amor")
+        query = request.GET.get('q', '')
+        print(query)
+        users = User.objects.filter(username__icontains=query)  # Busca usuarios que coincidan
+        print(users)
+        user_list = []
+        for user in users:
+            user_list.append({
+                "id": user.id,
+                "username": user.username
+            })
+        print(user_list)
+        return Response({"user_list": user_list}, status=status.HTTP_200_OK)

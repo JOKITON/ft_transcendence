@@ -6,6 +6,7 @@ from .views import (
     LogoutView,
     WhoAmIView,
     PublicKeyView,
+    GetUsers,
 )
 
 urlpatterns = [
@@ -16,4 +17,5 @@ urlpatterns = [
     path("token/refresh", TokenRefreshView.as_view(), name="tokenRefresh"),
     path("token/verify", TokenVerifyView.as_view(), name="tokenVerify"),
     path("public", PublicKeyView.as_view(), name="public"),
+    path("search-users", GetUsers.as_view(), name="users"),
 ]

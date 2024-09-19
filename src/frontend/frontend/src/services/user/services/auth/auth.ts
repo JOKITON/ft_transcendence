@@ -33,7 +33,7 @@ export default class auth implements IAuth {
   public async logout(): Promise<boolean> {
     try {
       const response: ApiResponse<Record<string, any>> = await this.api.post<Record<string, any>>(
-        'logout',
+        'auth/logout',
         {
           token: localStorage.getItem('refresh_token') as string
         },
