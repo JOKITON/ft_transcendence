@@ -126,17 +126,16 @@ class WhoAmIView(APIView):
             )
         else:
             print('Avatar url: ')
-            print(request)
             # print(user.avatar.url)
             # print(user.avatar)
             # avatar_url = request.build_absolute_uri(user.avatar.url) if user.avatar else None
-            #avatar_url = user.avatar.url if user.avatar else f'{settings.MEDIA_URL}avatars/default_avatar.png'
+            avatar_url = user.avatar if user.avatar else f'{settings.MEDIA_URL}avatars/default_avatar.png'
             # print(avatar_url)
             user_data = {
                 "username": user.username,
                 "email": user.email,
                 "nickname": user.nickname,
-                # "avatar": str(avatar_url),
+                "avatar": str(avatar_url),
                 # Agrega aquí otros campos que desees mostrar
             }
             return Response(user_data, status=status.HTTP_200_OK)

@@ -124,6 +124,7 @@ import { useRouter } from 'vue-router'
 import NavHome from './NavHome.vue';
 import type Api from '@/utils/Api/Api'
 import auth from '../../services/user/services/auth/auth.ts'
+import avatar from '/src/assets/avatars/pepe.png'
 
 const api: Api = inject('$api') as Api;
 const Auth: auth = new auth(api)
@@ -135,7 +136,7 @@ const user = ref({
   username: 'User',
   email: 'email',
   nickname: 'nickname',
-  // avatarUrl: 'avatar_url',
+  avatarUrl: avatar,
 });
 const form = ref({
   username: user.value.username,
@@ -174,7 +175,6 @@ const saveChanges: () => Promise<void> = async () => {
   }
 }
 
-import avatar from './pepe.png'
 
 async function fetchUserData() {
   try {
@@ -183,8 +183,10 @@ async function fetchUserData() {
       username: response.username,
       email: response.email,
       nickname: response.nickname,
-      // avatarUrl: response.avatar,
+      avatarUrl: response.avatar ? response.avatar : avatar,
     };
+    user.value.avatarUrl = '/src/assets/' + user.value.avatarUrl;
+    console.log(user.value.avatarUrl )
     // console.log(user.value.avatarUrl)
     form.value = { ...user.value };
   } catch (error: any) {

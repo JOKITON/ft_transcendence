@@ -8,6 +8,7 @@ venv/
 migrations/
 __pycache__/
 *.pem
+dist/
 
 # FrontEnd
 staticfiles/

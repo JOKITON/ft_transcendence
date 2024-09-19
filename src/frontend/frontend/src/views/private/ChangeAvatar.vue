@@ -27,7 +27,7 @@
   <script setup lang="ts">
   import { ref, onMounted, inject } from 'vue';
   import { useRouter } from 'vue-router';
-  import avatar from './pepe.png';
+  import avatar from '/src/assets/avatars/pepe.png'
   
   const api: Api = inject('$api') as Api;
   const router = useRouter();

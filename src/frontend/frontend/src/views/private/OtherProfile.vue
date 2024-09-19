@@ -10,7 +10,7 @@
                       <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
                           <img :src="user.avatarUrl" alt="User Avatar" class="rounded-circle" width="150">
                           <div class="mt-3">
-                              <h4>User Name{{ user.username }}</h4>
+                              <h4>User Name {{ user.username }}</h4>
                               <p>Alias</p>
                               <p>{{ user.friendsCount }} friends</p>
                               <div class="d-flex justify-content-center w-100 my-3">
@@ -55,7 +55,7 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import NavHome from './NavHome.vue';
-import avatar from './pepe.png';
+ import avatar from '/src/assets/avatars/pepe.png'
 import { Carousel, Navigation, Slide } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
 
@@ -72,7 +72,7 @@ setup() {
   const router = useRouter();
   const user = ref({
     username: '',
-    avatarUrl: ref(avatar),
+    avatarUrl: avatar, // Set the avatar URL directly
     friendsCount: 0,
     wins: 0,
     losses: 0,
@@ -102,6 +102,7 @@ setup() {
 }
 });
 </script>
+
 
 <style scoped>
 body {

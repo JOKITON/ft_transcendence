@@ -37,13 +37,12 @@ VOLUMES = volumes/db volumes/dependencies
 all : up
 
 $(NETWORKS) :
-	@$(DOCKER) network inspect metrics >/dev/null 2>&1 || $(DOCKER) network create metrics && echo "Created metrics network."
-	@$(DOCKER) network inspect frontend >/dev/null 2>&1 || $(DOCKER) network create frontend && echo "Created frontend network."
+	@$(DOCKER) network inspect traefik >/dev/null 2>&1 || $(DOCKER) network create traefik && echo "Created metrics network."
 
 $(VOLUMES) :
 	@mkdir -p $(VOLUMES)
 
-up : $(VOLUMES)
+up : $(NETWORKS) $(VOLUMES)
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) up --build -d  --remove-orphans
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
 	# $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans

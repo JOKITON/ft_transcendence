@@ -44,14 +44,14 @@
           <input type="search" class="form-control" placeholder="Search..." aria-label="Search" />
         </form>
 
-        <p class="d-block link-body-emphasis text-decoration-none">{{ username }}</p>
+        <p class="d-block link-body-emphasis text-decoration-none">{{ user.username }}</p>
         <div class="dropdown text-end">
           <a
             @click="toggleDropdownSettings"
             class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
           >
             <img
-              src="https://avatars.githubusercontent.com/u/99480973?v=4"
+              :src="user.avatarUrl"
               alt="mdo"
               class="rounded-circle"
               width="32"
@@ -78,6 +78,7 @@ import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import type Api from '../../services/Api/api'
 import auth from '../../services/user/services/auth/auth'
+import avatar from '/src/assets/avatars/pepe.png'
 
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
@@ -85,9 +86,12 @@ const Auth: auth = new auth(api)
 const isProfileVisible = ref(false)
 const isDropdownSettingsVisible = ref(false)
 const isDropdownAdminVisible = ref(false)
-const username = ref('User') // Valor por defecto, será actualizado más adelante
-
 const router = useRouter()
+
+const user = ref({
+  username: 'User',
+  avatarUrl: avatar,
+});
 
 // Función para cerrar sesión
 const logoutUser = async () => {
@@ -101,13 +105,18 @@ const logoutUser = async () => {
   }
 }
 
-// Función para obtener el nombre de usuario
 const fetchUsername = async () => {
   try {
-    const response = await Auth.whoami()
-    username.value = response.username // Reemplazar con la estructura real de tu respuesta
-  } catch (error) {
-    console.error('Error fetching username:', error.response ? error.response.data : error.message)
+    const response = await Auth.whoami();
+    user.value = {
+      username: response.username,
+      avatarUrl: response.avatar ? response.avatar : avatar,
+    };
+    user.value.avatarUrl = '/src/assets/' + user.value.avatarUrl;
+    console.log(user.value.avatarUrl )
+    // console.log(user.value.avatarUrl)
+  } catch (error: any) {
+    console.error('Error fetching user data:', error.message);
   }
 }
 
