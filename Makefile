@@ -30,26 +30,21 @@ COMPOSE_METRICS = src/compose/docker-compose-metrics.yml
 
 COMPOSE_BACKEND = src/compose/docker-compose-backend.yml
 
-NETWORKS = networks/frontend networks/metrics
-
 VOLUMES = volumes/db volumes/dependencies
 
-.PHONY: all build down clean
+.PHONY: all build down clean $(NETWORKS)
 
 all : up
 
 $(NETWORKS) :
-	@$(DOCKER) network create metrics
-	@$(DOCKER) network create frontend
-	mkdir networks
-	touch $(NETWORKS)
+	@$(DOCKER) network inspect traefik >/dev/null 2>&1 || $(DOCKER) network create traefik && echo "Created metrics network."
 
 $(VOLUMES) :
 	@mkdir -p $(VOLUMES)
 
 up : $(NETWORKS) $(VOLUMES)
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) up --build -d  --remove-orphans
+	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
 	# $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
 logs:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) logs
@@ -65,7 +60,6 @@ clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES)
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES_BACKEND)
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES_METRICS)
-	@$(DOCKER) network rm metrics frontend
 	rm -rf networks
 	sudo rm -rf volumes/
 	@$(DOCKER) network prune --force
@@ -80,9 +74,9 @@ re: down clean up
 
 curl: 
 	curl -X POST \
-		http://localhost/api/login \
+		http://localhost/api/pong/rounds/ \
 	 -H 'Content-Type: application/json' \
-	 -d '{ "username": "admin", "password": "admin"}'
+  -d '{ "player1": "1", "player2": "2", "score1": 10, "score2": 8 }'
 
 info:
 	@sudo docker ps

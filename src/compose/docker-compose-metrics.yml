@@ -17,7 +17,8 @@ services:
 
 networks:
   metrics:
-    external: true
+    name: backend
+    driver: bridge
 
 volumes:
   prometheus-data:

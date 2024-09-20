@@ -9,8 +9,10 @@
           <div class="card">
             <div class="card-body h-100">
               <div class="d-flex flex-column align-items-center text-center">
-                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle" width="150">
-                <button class="btn btn-primary m-3" @click="editImage">Edit image</button>
+                <img :src="user.avatarUrl" alt="User Avatar" class="rounded-circle" width="150">
+                <button class="btn btn-primary m-3" @click="goToChangeAvatar">Edit image</button>
+                <!-- File Input for Avatar Upload -->
+                <!--<input type="file" @change="onFileChange" class="form-control-file" accept="image/*" />-->
                 <div class="mt-3">
                   <h4>{{ user.username }}</h4>
                   <p>0 friends</p>
@@ -122,6 +124,7 @@ import { useRouter } from 'vue-router'
 import NavHome from './NavHome.vue';
 import type Api from '@/utils/Api/Api'
 import auth from '../../services/user/services/auth/auth.ts'
+import avatar from '/src/assets/avatars/pepe.png'
 
 const api: Api = inject('$api') as Api;
 const Auth: auth = new auth(api)
@@ -133,13 +136,26 @@ const user = ref({
   username: 'User',
   email: 'email',
   nickname: 'nickname',
+  avatarUrl: avatar,
 });
-
 const form = ref({
   username: user.value.username,
   email: user.value.email,
   nickname: user.value.nickname,
 });
+
+// Avatar Management
+//const avatarUrl = ref('https://bootdey.com/img/Content/avatar/avatar7.png'); // URL de ejemplo de avatar
+/* const selectedFile = ref<File | null>(null);
+
+function onFileChange(event: Event) {
+  const target = event.target as HTMLInputElement;
+  const file = target.files ? target.files[0] : null;
+  if (file) {
+    selectedFile.value = file;
+    avatarUrl.value = URL.createObjectURL(file); // Mostrar vista previa de la imagen seleccionada
+  }
+} */
 
 function toggleEdit() {
   if (isEditing.value) {
@@ -153,7 +169,6 @@ const saveChanges: () => Promise<void> = async () => {
   try {
     const response = await api.post("update-profile",form.value)
     console.log('saved successful ', response)
-    window.location.reload();
   } catch (error: any) {
     window.alert('An error occurred while submitting the form')
     console.error('An error occurred while submitting the form:', error)
@@ -165,18 +180,45 @@ async function fetchUserData() {
     const response = await Auth.whoami();
     user.value = {
       username: response.username,
-      email: response.email,
-      nickname: response.nickname,
+      avatarUrl: response.avatar ? response.avatar : avatar,
     };
-    form.value = { ...user.value };
+    user.value.avatarUrl = '/src/assets/' + user.value.avatarUrl;
+    // console.log(user.value.avatarUrl )
+
+    // Check if avatarUrl is set to the default '/src/assets/avatars/pepe.png'
+    if (user.value.avatarUrl === '/src/assets/avatars/pepe.png') {
+      // Use the default local avatar
+      console.log("Using default avatar");
+    } else {
+      // Retrieve avatar from the backend
+      await fetchUserAvatar();   
+    }
   } catch (error: any) {
     console.error('Error fetching user data:', error.message);
+  }
+}
+
+async function fetchUserAvatar() {
+  try {
+    const response = await api.get('auth/get-avatar');
+    if (response.status === 200) {
+      const avatarBase64 = response.avatar_base64;
+      user.value.avatarUrl = `data:image/jpeg;base64,${avatarBase64}`; // Set the Base64 image as the src
+    } else {
+      console.error('Failed to fetch avatar:', response.data);
+    }
+  } catch (error) {
+    console.error('Error fetching user avatar:', error.message);
   }
 }
 
 onMounted(async () => {
   await fetchUserData();
 });
+
+const goToChangeAvatar = () => {
+  router.push('/change-avatar')
+}
 
 const goToChangePassword = () => {
   router.push('/change-password')
@@ -210,6 +252,7 @@ body {
   background-clip: border-box;
   border: 0 solid rgba(0, 0, 0, .125);
   border-radius: .25rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
 }
 
 .card-h {

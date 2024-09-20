@@ -1,6 +1,7 @@
 from datetime import timedelta
 from pathlib import Path
 import os
+from .utils import load_key
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,10 +38,10 @@ SESSION_COOKIE_HTTPONLY = True
 
 SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(minutes=30),
-    "SIGNING_KEY": open("/auth/secrets/private.pem").read(),
-    "VERIFYING_KEY": open("/auth/secrets/public.pem").read(),
+    'SIGNING_KEY': load_key(Path('/auth/secrets/private.pem')),
+    'VERIFYING_KEY': load_key(Path('/auth/secrets/public.pem')),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
@@ -166,6 +167,11 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "media/"
+
+MEDIA_ROOT = BASE_DIR / "media"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 

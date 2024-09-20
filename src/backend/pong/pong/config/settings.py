@@ -1,5 +1,7 @@
 from pathlib import Path
 from datetime import timedelta
+# import dj_database_url
+from .utils import load_key
 import os
 import dj_database_url
 
@@ -9,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG")
+DEBUG = os.environ.get("DEBUG");
 
 ALLOWED_HOSTS = ["*"]
 
@@ -19,7 +21,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "corsheaders",
+    
+    'corsheaders',
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
@@ -31,10 +34,10 @@ INSTALLED_APPS = [
 
 # CORS
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:80",
-    "https://localhost:443",
-    "http://localhost",
-    "https://localhost",
+    'http://localhost:80',
+    'https://localhost:443',
+    'http://localhost',
+    'https://localhost',
 ]
 
 SIMPLE_JWT = {
@@ -106,12 +109,14 @@ DATABASES = {
 }
 
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny",
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+        # Adjust permissions as per your API needs
     ],
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "rest_framework.authentication.BasicAuthentication",
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+		'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        # Add other authentication classes as needed
     ],
 }
 

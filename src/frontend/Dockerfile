@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/16 12:42:22 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/19 00:09:53 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,6 @@ COPY frontend/package*.json ./
 RUN npm install
 
 COPY frontend .
-RUN npm update vite
 
 RUN npm i && npm update
  

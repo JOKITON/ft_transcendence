@@ -71,15 +71,31 @@ export default class auth implements IAuth {
       if (response.status === 201) {
         return true
       } else {
-        console.error(
-          'Error fetching username:',
-          response ? response.message : response.data.message
-        )
-        return false
+        throw (response.code);
       }
     } catch (error: any) {
-      console.error('Error registering user:', error)
-      return false
+      const response = error;
+      switch (response) {
+        case 'user_exists':
+          console.log('Username is not available. Try again with a different one.')
+          alert('Username is not available. Try again with a different one or log in.')
+          return true;
+        
+        case 'nickname_exists':
+          console.log('Nickname is not available. Try again with a different one.')
+          alert('Nickname is not available. Try again with a different one.')
+          return false
+
+        case 'token_not_valid':
+          console.log('Token invalid. Redirecting to login.')
+          this.removeAccessToken()
+          return false
+
+        default:
+          console.error('Unexpected token status:', response)
+          this.removeAccessToken()
+          return false
+        }
     }
   }
 
@@ -106,7 +122,8 @@ export default class auth implements IAuth {
       const accessToken: string | null = localStorage.getItem('access_token')
       if (accessToken) {
         if (this.isTokenValid(accessToken) == false) {
-            this.refreshAuthToken()
+          console.log('Token expired. Attempting to refresh.')
+          return (await this.refreshAuthToken())
         } else {
           this.setAuthHeader()
           const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
@@ -129,7 +146,8 @@ export default class auth implements IAuth {
       switch (response.code) {
         case 'expired':
           console.log('Token expired. Attempting to refresh.')
-          return await this.refreshAuthToken()
+          console.log(await this.refreshAuthToken())
+          return true;
 
         case 'token_not_valid':
           console.log('Token invalid. Redirecting to login.')
@@ -167,48 +185,67 @@ export default class auth implements IAuth {
 
   public async refreshAuthToken() {
     try {
-      const refreshToken = localStorage.getItem('refresh_token')
+      const refreshToken = localStorage.getItem('refresh_token');
       const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
         'auth/token/refresh',
-        {
-          token: refreshToken
-        }
-      )
+        { 
+          refresh: refreshToken
+        });
 
-      const newAccessToken = response.data.access
-      const newRefreshToken = response.data.refresh
-      if (newAccessToken) {
-        this.setAccessToken(newAccessToken)
+      if (response.status === 200) {
+        const newAccessToken = response.access;
+        const newRefreshToken = response.refresh;
+        this.setAccessToken(newAccessToken);
+        this.setRefreshToken(newRefreshToken);
+        return true;
       }
-      if (newRefreshToken) this.setRefreshToken(newRefreshToken)
-
-      return true
+      else
+        throw new Error(response);
     } catch (error) {
-      console.error('Refresh token error:', error.response ? error.response.data : error.message)
-      alert('Session expired. Please log in again.')
-      return false
+      const response = error
+      switch (response.code) {
+        case 'expired':
+          console.log('Token expired. Removed tokens...')
+          this.removeAccessToken()
+          return false;
+
+        case 'token_not_valid':
+          console.log('Token invalid. Redirecting to login.')
+          this.removeAccessToken()
+          return false
+
+        case 'missing':
+          console.log('Token missing. Redirecting to login.')
+          this.removeAccessToken()
+          return false
+
+        default:
+          console.error('Unexpected token status:', response.status)
+          this.removeAccessToken()
+          return false
+        }
     }
   }
 
   public setAuthHeader() {
-    const accessToken = localStorage.getItem('access_token')
+    const accessToken = localStorage.getItem('access_token');
     if (accessToken) {
-      this.api.setAccessToken(accessToken)
+      this.api.setAccessToken(accessToken);
     }
   }
 
   public setAccessToken(accessToken) {
-    localStorage.setItem('access_token', accessToken)
-    this.setAuthHeader() // Update headers with the new token
+    localStorage.setItem('access_token', accessToken);
+    this.setAuthHeader(); // Update headers with the new token
   }
-
+  
   public setRefreshToken(refreshToken) {
-    localStorage.setItem('refresh_token', refreshToken)
+    localStorage.setItem('refresh_token', refreshToken);
   }
-
+  
   public removeAccessToken() {
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
-    this.api.removeAccessToken()
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    this.api.removeAccessToken();
   }
 }

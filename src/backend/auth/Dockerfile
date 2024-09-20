@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/16 17:30:48 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/18 11:17:12 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,8 +27,10 @@ ENV PYTHONUNBUFFERED=1
 
 COPY auth .
 
-RUN python -m venv /opt/venv
-
 ENV PATH="/opt/venv/bin:$PATH"
 
+RUN python -m venv /opt/venv && source /opt/venv/bin/activate \
+  && pip install --no-cache-dir -r utils/requirements.txt
+
 CMD ["zsh", "utils/init.sh"]
+# CMD ["sleep", "infinity"]

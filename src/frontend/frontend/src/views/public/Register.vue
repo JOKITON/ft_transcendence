@@ -81,7 +81,7 @@ const form: Ref<UserRequest> = ref<UserRequest>({
   username: '',
   password: '',
   email: '',
-  nickname: ''
+  nickname: '',
 })
 
 const handleSubmit = async (): Promise<void> => {

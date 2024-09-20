@@ -4,7 +4,7 @@ services:
   db:
     container_name: db
     build: ../database/
-    env_file: ../backend/.env-django
+    env_file: ../backend/.env-dev
     ports:
       - 5432
     volumes:
@@ -12,12 +12,25 @@ services:
     restart: always
     shm_size: 128mb
     networks:
-      - backend
+      - traefik
+
+  auth:
+    container_name: auth
+    build: ../backend/auth/
+    env_file: ../backend/.env-dev
+    restart: always
+    volumes:
+      - auth:/auth
+      - dependencies:/opt/venv/
+    networks:
+      - traefik
+    depends_on:
+      - db
 
   migration:
     container_name: migration
     build: ../backend/migration/
-    env_file: ../backend/.env-django
+    env_file: ../backend/.env-dev
     restart: always
     volumes:
       - auth:/usr/src/app/auth
@@ -25,36 +38,21 @@ services:
       - friendship:/usr/src/app/friendship
       - dependencies:/opt/venv/
     networks:
-      - backend
+      - traefik
     depends_on:
       - db
-
-  auth:
-    container_name: auth
-    build: ../backend/auth/
-    env_file: ../backend/.env-django
-    restart: always
-    volumes:
-      - auth:/auth
-      - dependencies:/opt/venv/
-    networks:
-      - frontend
-      - backend
-    depends_on:
-      - db
-      - migration
+      - auth
 
   pong:
     container_name: pong
     build: ../backend/pong
-    env_file: ../backend/.env-django
+    env_file: ../backend/.env-dev
     restart: always
     volumes:
       - pong:/pong
       - dependencies:/opt/venv/
     networks:
-      - frontend
-      - backend
+      - traefik
     depends_on:
       - db
       - auth
@@ -63,14 +61,13 @@ services:
   friendship:
     container_name: friendship
     build: ../backend/friendship/
-    env_file: ../backend/.env-django
+    env_file: ../backend/.env-dev
     restart: always
     volumes:
       - friendship:/friendship
       - dependencies:/opt/venv/
     networks:
-      - frontend
-      - backend
+      - traefik
     depends_on:
       - db
       - auth
@@ -78,11 +75,8 @@ services:
       - migration
 
 networks:
-  frontend:
+  traefik:
     external: true
-  backend:
-    name: ft_transcendence-backend
-    driver: bridge
 
 volumes:
   db-data:
