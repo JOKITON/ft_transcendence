@@ -69,19 +69,20 @@ import NavIndex from './NavIndex.vue'
 import type UserRequest from '@/Models/User/UserRequst'
 import type UserResponse from '@/Models/User/UserResponse'
 import type Api from '@/utils/Api/Api'
+import auth from '../../services/user/services/auth/auth.ts'
 import { useRouter } from 'vue-router'
 import { ref, inject } from 'vue'
-import auth from '../../services/user/services/auth/auth'
 
 const api: Api = inject('$api') as Api
-const router = useRouter()
 const Auth: auth = new auth(api)
+const router = useRouter()
 
-const form: Ref<UserRequest> = ref<UserRequest>({
+const form = ref<UserRequest>({
   username: '',
   password: '',
   email: '',
   nickname: '',
+  p_image: ''
 })
 
 const handleSubmit = async (): Promise<void> => {

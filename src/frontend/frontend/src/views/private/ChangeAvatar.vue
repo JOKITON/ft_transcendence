@@ -97,7 +97,7 @@ const cancelUpload = () => {
 // Cargar el avatar actual del usuario al montar el componente (opcional)
 /*   async function fetchAvatar() {
     try {
-      const response = await api.get('get-avatar');
+      const response = await api.get('auth/get-avatar');
       avatarPreview.value = response.avatarUrl || avatarPreview.value; // Usar el avatar actual o mantener la imagen por defecto
     } catch (error: any) {
       console.error('Error fetching avatar:', error.message);

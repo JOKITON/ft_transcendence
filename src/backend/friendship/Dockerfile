@@ -6,11 +6,11 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/08 13:24:14 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/16 17:30:48 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/20 13:36:08 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20 as Builder
+FROM alpine:3.20 as builder
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.friendship.rule="Host(`localhost`) && PathPrefix(`/api/v1/friendship`)"

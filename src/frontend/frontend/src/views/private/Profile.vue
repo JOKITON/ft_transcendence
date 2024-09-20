@@ -167,7 +167,7 @@ function toggleEdit() {
 
 const saveChanges: () => Promise<void> = async () => {
   try {
-    const response = await api.post("update-profile",form.value)
+    const response = await api.post("auth/update-profile",form.value)
     console.log('saved successful ', response)
   } catch (error: any) {
     window.alert('An error occurred while submitting the form')

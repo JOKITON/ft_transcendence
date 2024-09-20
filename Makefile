@@ -65,10 +65,7 @@ clean:
 	@$(DOCKER) network prune --force
 	@$(DOCKER) image prune --force
 fclean: down clean
-	@$(DOCKER) system prune --force
-	@$(DOCKER) volume rm $(sudo docker volume ls -q)
-	@$(DOCKER) rmi $(sudo docker images -q)
-	@$(DOCKER) rm $(sudo docker ps -qa)
+	@$(DOCKER) system prune --all --volumes --force
 
 re: down clean up
 

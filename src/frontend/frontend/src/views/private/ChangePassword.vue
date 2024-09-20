@@ -79,7 +79,7 @@ const form = ref<passwdRequest>({
 // Function to handle password update
 const updatePassword: () => Promise<void> = async () => {
   try {
-    const response = await api.post<passwdResponse>("change-password",form.value)
+    const response = await api.post<passwdResponse>("auth/change-password",form.value)
     if (response.status == 400) {
       window.alert('An error occurred while submitting the form')
       resetForm()

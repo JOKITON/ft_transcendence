@@ -14,14 +14,11 @@ export default class auth implements IAuth {
 
   public async login(data: Record<string, any>): Promise<boolean> {
     try {
-      const response: ApiResponse<userResponse> = await this.api.post<userResponse>(
-        'auth/login',
-        data
-      )
+      const response: ApiResponse<userResponse> = await this.api.post<userResponse>('auth/login', data)
       if (response && response?.status === 200) {
-        this.setRefreshToken(response.token.refresh)
+        this.setRefreshToken(response.token.refresh);
         this.setAccessToken(response.token.access)
-        this.setAuthHeader()
+        this.setAuthHeader();
         return true
       } else {
         console.error('Error logging in:',
@@ -119,7 +116,7 @@ export default class auth implements IAuth {
 
   public async checkAndRefreshToken(): Promise<boolean> {
     try {
-      const accessToken: string | null = localStorage.getItem('access_token')
+      const accessToken = localStorage.getItem('access_token');
       if (accessToken) {
         if (this.isTokenValid(accessToken) == false) {
           console.log('Token expired. Attempting to refresh.')
@@ -150,15 +147,15 @@ export default class auth implements IAuth {
           return true;
 
         case 'token_not_valid':
-          console.log('Token invalid. Redirecting to login.')
-          this.removeAccessToken()
-          return false
-
+          console.log('Token invalid. Redirecting to login.');
+          this.removeAccessToken();
+          return false;
+  
         case 'missing':
-          console.log('Token missing. Redirecting to login.')
-          this.removeAccessToken()
-          return false
-
+          console.log('Token missing. Redirecting to login.');
+          this.removeAccessToken();
+          return false;
+  
         default:
           console.error('Unexpected token status:', response.status)
           this.removeAccessToken()

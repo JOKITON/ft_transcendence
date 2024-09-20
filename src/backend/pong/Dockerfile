@@ -6,11 +6,11 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/18 18:09:43 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/20 13:36:57 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20
+FROM alpine:3.20 as builder
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.pong.rule="Host(`localhost`) && PathPrefix(`/api/v1/pong`)"

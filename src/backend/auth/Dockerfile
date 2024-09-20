@@ -6,11 +6,11 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/18 11:17:12 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/20 13:15:45 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20 as Builder
+FROM alpine:3.20 as builder
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.authentication.rule="Host(`localhost`) && PathPrefix(`/api/v1/auth`)"

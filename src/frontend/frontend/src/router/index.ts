@@ -11,6 +11,7 @@ import Friends from '../views/private/Friends.vue'
 import ChangePassword from '../views/private/ChangePassword.vue'
 import ChangeAvatar from '../views/private/ChangeAvatar.vue'
 import OtherProfile from '../views/private/OtherProfile.vue'
+import UserProfile from '../views/private/UserProfile.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +29,7 @@ const router = createRouter({
     { path: '/change-password', name: 'ChangePassword', component: ChangePassword, meta: { requiresAuth: true } },
     { path: '/change-avatar', name: 'ChangeAvatar', component: ChangeAvatar, meta: { requiresAuth: true } },
     { path: '/other-profile', name: 'OtherProfile', component: OtherProfile, meta: { requiresAuth: true } },
+    { path: '/user-profile/:id', name: 'UserProfile', component: UserProfile, props: true, meta: { requiresAuth: true } },
   ]
 })
 
