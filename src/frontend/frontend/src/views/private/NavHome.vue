@@ -186,19 +186,14 @@ const openFriends = () => {
   router.push('/friends')
 }
 
-const fetchUser = async () => {
-  try {
-    const response = await api.get('friendship/users')
-    console.log(response) // Reemplazar con la estructura real de tu respuesta
-  } catch (error) {
-    console.error('Error fetching username:', error.response ? error.response.data : error.message)
-  }
+const goToUserProfile = (userId: number) => {
+  searchResults.value = []  // Limpiar la lista de resultados
+  router.push(`/user-profile/${userId}`)
 }
 
 // Lifecycle hook similar a `created` en Options API
 onMounted(async () => {
   await fetchUsername()
-  await fetchUser()
 })
 </script>
 <style></style>

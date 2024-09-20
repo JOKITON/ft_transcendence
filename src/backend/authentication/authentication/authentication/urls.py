@@ -7,6 +7,7 @@ from .views import (
     WhoAmIView,
     PublicKeyView,
     GetUsers,
+    GetUsersId,
 )
 
 urlpatterns = [
@@ -18,4 +19,5 @@ urlpatterns = [
     path("token/verify", TokenVerifyView.as_view(), name="tokenVerify"),
     path("public", PublicKeyView.as_view(), name="public"),
     path("search-users", GetUsers.as_view(), name="users"),
+    path("search-users-id/<int:user_id>/", GetUsersId.as_view(), name="getUserById")
 ]

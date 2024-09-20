@@ -176,13 +176,9 @@ class GetUsers(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    print("Txoinas mi amor")
     def get(self, request: Request) -> Response:
-        print("Txoinas mi nuevo amor")
         query = request.GET.get('q', '')
-        print(query)
         users = User.objects.filter(username__icontains=query)  # Busca usuarios que coincidan
-        print(users)
         user_list = []
         for user in users:
             user_list.append({
@@ -191,3 +187,21 @@ class GetUsers(APIView):
             })
         print(user_list)
         return Response({"user_list": user_list}, status=status.HTTP_200_OK)
+
+class GetUsersId(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id: int) -> Response:
+        try:
+            # Busca el usuario por su ID
+            user = User.objects.get(id=user_id)
+            # Crea el diccionario con los datos del usuario
+            user_data = {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,  # Añade más información si es necesario
+            }
+            return Response({"user_data": user_data}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
