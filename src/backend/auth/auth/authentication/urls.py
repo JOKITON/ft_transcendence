@@ -6,6 +6,8 @@ from .views import (
     LogoutView,
     UpdateUserProfileView,
     UpdateUserPasswordView,
+    UpdateUserAvatarView,
+    GetUserAvatarView,
     WhoAmIView,
     PublicKeyView,
 )
@@ -19,8 +21,9 @@ urlpatterns = [
     # MOVIDAS DE USUARIOS
     path('update-profile', UpdateUserProfileView.as_view(), name='update_profile'),
     path('change-password', UpdateUserPasswordView.as_view(), name='update_password'),
-    #path('avatars2', ImageView.as_view(), name='image_view')
-    #path('change-avatar', UpdateUserAvatarView.as_view(), name='update_avatar'), #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # path('avatars2', ImageView.as_view(), name='image_view')
+    path('change-avatar', UpdateUserAvatarView.as_view(), name='update_avatar'), #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('get-avatar', GetUserAvatarView.as_view(), name='update_avatar'),
     
     path("token/verify", TokenVerifyView.as_view(), name="tokenVerify"),
     path("token/refresh", TokenRefreshView.as_view(), name="tokenRefresh"),

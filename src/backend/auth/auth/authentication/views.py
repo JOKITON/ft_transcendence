@@ -11,14 +11,15 @@ from .serializers import (
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Request
-from django.contrib.auth import login, logout
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth import login, logout
+from django.http import HttpResponse, FileResponse
+from django.conf import settings
+from django.core.files.base import ContentFile
 from typing import Dict, Any
-from django.http import HttpResponse
-from typing import Dict
 from UserModel.models import User
-import logging
+import logging, os, base64
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -33,7 +34,17 @@ class RegisterUserView(APIView):
             if User.objects.filter(username=user_data['username']).exists():  # Check based on unique field
                 return Response(
                     {
-                        "message": "User already exists",
+                        "message": "Username is not available.",
+                        "code": "user_exists",
+                        "status": status.HTTP_400_BAD_REQUEST,
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if User.objects.filter(nickname=user_data['nickname']).exists():  # Check based on unique field
+                return Response(
+                    {
+                        "message": "Nickname is not available.",
+                        "code": "nickname_exists",
                         "status": status.HTTP_400_BAD_REQUEST,
                     },
                     status=status.HTTP_400_BAD_REQUEST,
@@ -48,6 +59,7 @@ class RegisterUserView(APIView):
         return Response(
             {
                 "message": "User not created",
+                "code": "unexpected",
                 "status": status.HTTP_400_BAD_REQUEST,
             },
             status=status.HTTP_400_BAD_REQUEST,
@@ -125,7 +137,7 @@ class WhoAmIView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         else:
-            print('Avatar url: ')
+            # print('Avatar url: ')
             # print(user.avatar.url)
             # print(user.avatar)
             # avatar_url = request.build_absolute_uri(user.avatar.url) if user.avatar else None
@@ -140,6 +152,24 @@ class WhoAmIView(APIView):
             }
             return Response(user_data, status=status.HTTP_200_OK)
 
+class GetUserAvatarView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        user = request.user
+
+        # Check if the user has an avatar
+        if user.avatar:
+            avatar_path = user.avatar.path
+            if os.path.exists(avatar_path):
+                with open(avatar_path, 'rb') as avatar_file:
+                    encoded_image = base64.b64encode(avatar_file.read()).decode('utf-8')
+                    return Response({"avatar_base64": encoded_image}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Avatar file does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"error": "User has no avatar"}, status=status.HTTP_404_NOT_FOUND)
 
 class PublicKeyView(APIView):
     def get(self, request: Request) -> Response:
@@ -230,22 +260,42 @@ class UpdateUserProfileView(APIView):
         
         return response """
 
+from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 
-""" class UpdateUserAvatarView(APIView):
+def validate_file(file):
+    valid_mime_types = ['image/jpeg', 'image/png', 'image/jpg']
+    if file.content_type not in valid_mime_types:
+        raise ValidationError('Unsupported file type.')
+    if file.size > 5 * 1024 * 1024:  # 5 MB limit
+        raise ValidationError('File too large. Size should not exceed 5 MB.')
+
+class UpdateUserAvatarView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        print(request.FILES)
         user = request.user
-        file = request.FILES.get('avatar')
+        file = request.FILES.get('image')
 
-        if file:
-            filename = default_storage.save(f'avatars/{user.id}/{file.name}', file)
+        if not file:
+            return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            validate_file(file)
+            if os.path.exists(f'avatars/{file.name}'):
+                return Response({"error": 'Avatar already exists in our database'}, status=status.HTTP_400_BAD_REQUEST);
+            filename = default_storage.save(f'avatars/{file.name}', file)
             user.avatar = filename
             user.save()
             return Response({"message": "Avatar updated successfully"}, status=status.HTTP_200_OK)
-        return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
- """
+        except ValidationError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 """ class UploadImage(APIView):
     authentication_classes = [JWTAuthentication]

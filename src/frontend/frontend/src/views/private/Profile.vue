@@ -175,22 +175,40 @@ const saveChanges: () => Promise<void> = async () => {
   }
 }
 
-
 async function fetchUserData() {
   try {
     const response = await Auth.whoami();
     user.value = {
       username: response.username,
-      email: response.email,
-      nickname: response.nickname,
       avatarUrl: response.avatar ? response.avatar : avatar,
     };
     user.value.avatarUrl = '/src/assets/' + user.value.avatarUrl;
-    console.log(user.value.avatarUrl )
-    // console.log(user.value.avatarUrl)
-    form.value = { ...user.value };
+    // console.log(user.value.avatarUrl )
+
+    // Check if avatarUrl is set to the default '/src/assets/avatars/pepe.png'
+    if (user.value.avatarUrl === '/src/assets/avatars/pepe.png') {
+      // Use the default local avatar
+      console.log("Using default avatar");
+    } else {
+      // Retrieve avatar from the backend
+      await fetchUserAvatar();   
+    }
   } catch (error: any) {
     console.error('Error fetching user data:', error.message);
+  }
+}
+
+async function fetchUserAvatar() {
+  try {
+    const response = await api.get('auth/get-avatar');
+    if (response.status === 200) {
+      const avatarBase64 = response.avatar_base64;
+      user.value.avatarUrl = `data:image/jpeg;base64,${avatarBase64}`; // Set the Base64 image as the src
+    } else {
+      console.error('Failed to fetch avatar:', response.data);
+    }
+  } catch (error) {
+    console.error('Error fetching user avatar:', error.message);
   }
 }
 

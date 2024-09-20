@@ -9,6 +9,7 @@ migrations/
 __pycache__/
 *.pem
 dist/
+src/backend/auth/auth/media/avatars/*
 
 # FrontEnd
 staticfiles/
