@@ -1,57 +1,108 @@
 name: ft_transcendence_backend
 
 services:
+  db:
+    container_name: db
+    build: ../database/
+    env_file: ../backend/.env-dev
+    ports:
+      - 5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: always
+    shm_size: 128mb
+    networks:
+      - traefik
+
+  auth:
+    container_name: auth
+    build: ../backend/auth/
+    env_file: ../backend/.env-dev
+    restart: always
+    volumes:
+      - auth:/auth
+      - dependencies:/opt/venv/
+    networks:
+      - traefik
+    depends_on:
+      - db
+
+  migration:
+    container_name: migration
+    build: ../backend/migration/
+    env_file: ../backend/.env-dev
+    restart: always
+    volumes:
+      - auth:/usr/src/app/auth
+      - pong:/usr/src/app/pong
+      - friendship:/usr/src/app/friendship
+      - dependencies:/opt/venv/
+    networks:
+      - traefik
+    depends_on:
+      - db
+      - auth
+
   pong:
     container_name: pong
     build: ../backend/pong
-    env_file: ../.env.dev
+    env_file: ../backend/.env-dev
     restart: always
     volumes:
       - pong:/pong
+      - dependencies:/opt/venv/
     networks:
-      - ft_transcendence
+      - traefik
     depends_on:
-      - authentication
-
-  authentication:
-    container_name: autentication
-    build: ../backend/authentication/
-    env_file: ../.env.dev
-    restart: always
-    volumes:
-      - authentication:/authentication
-    networks:
-      - ft_transcendence
+      - db
+      - auth
+      - migration
 
   friendship:
     container_name: friendship
     build: ../backend/friendship/
-    env_file: ../.env.dev
+    env_file: ../backend/.env-dev
     restart: always
     volumes:
       - friendship:/friendship
+      - dependencies:/opt/venv/
     networks:
-      - ft_transcendence
+      - traefik
     depends_on:
-      - authentication
+      - db
+      - auth
+      - pong
+      - migration
 
 networks:
-  ft_transcendence:
+  traefik:
     external: true
 
 volumes:
+  db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../../volumes/db
+  dependencies:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../../volumes/dependencies
   pong:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: ../backend/pong/pong/
-  authentication:
+  auth:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../backend/authentication/authentication/
+      device: ../backend/auth/auth/
   friendship:
     driver: local
     driver_opts:

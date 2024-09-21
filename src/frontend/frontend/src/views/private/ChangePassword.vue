@@ -12,19 +12,39 @@
                 <!-- Current Password -->
                 <div class="form-group mb-3">
                   <label for="currentPassword">Current Password</label>
-                  <input type="password" id="currentPassword" v-model="form.currentPassword" class="form-control" required>
+                  <input
+                    type="password" 
+                    id="currentPassword" 
+                    v-model="form.currentPassword" 
+                    class="form-control custom-placeholder" 
+                    placeholder="Enter your current password" 
+                    required>
                 </div>
 
                 <!-- New Password -->
                 <div class="form-group mb-3">
                   <label for="newPassword">New Password</label>
-                  <input type="password" id="newPassword" v-model="form.newPassword" class="form-control" required>
+                  <input 
+                    type="password" 
+                    id="newPassword" 
+                    v-model="form.newPassword" 
+                    class="form-control custom-placeholder" 
+                    placeholder="Enter your new password" 
+                    required
+                  />
                 </div>
 
                 <!-- Confirm New Password -->
                 <div class="form-group mb-4">
                   <label for="confirmPassword">Confirm New Password</label>
-                  <input type="password" id="confirmPassword" v-model="form.confirmPassword" class="form-control" required>
+                  <input 
+                    type="password" 
+                    id="confirmPassword" 
+                    v-model="form.confirmPassword" 
+                    class="form-control custom-placeholder" 
+                    placeholder="Confirm your new password" 
+                    required
+                    /> 
                 </div>
 
                 <!-- Update Button -->
@@ -40,65 +60,45 @@
   </div>
 </template>
 
-<!-- <script setup lang="ts">
-import NavIndex from './NavIndex.vue'
-import type userRequest from '@/models/user/userRequest'
-import type userResponse from '@/models/user/userResponse'
-import { useRouter } from 'vue-router'
-import { ref, inject } from 'vue'
-import type Api from '@/utils/Api/Api'
-import auth from '../../services/user/services/auth/auth.ts'
-
-const api: Api = inject('$api') as Api
-const Auth: auth = new auth(api)
-const router = useRouter()
-
-const form: Ref<userRequest> = ref<userRequest>({
-  username: '',
-  password: ''
-})
-
-const handleSubmit: () => Promise<void> = async () => {
-  try {
-    const response: boolean = await Auth.login<userResponse>(form.value)
-    if (response === true) {
-      router.push('/pong')
-    }
-    console.log('Login successful ', response)
-  } catch (error: any) {
-    window.alert('An error occurred while submitting the form')
-    console.error('An error occurred while submitting the form:', error)
-  }
-}
-</script> -->
-
-
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import NavHome from './NavHome.vue';
+import { useRouter } from 'vue-router'
+import type { passwdRequest, passwdResponse} from '@/models/user/passwdRequest'
 
+
+const api: Api = inject('$api') as Api;
+const router = useRouter()
 // Form data
-const form = ref({
+const form = ref<passwdRequest>({
   currentPassword: '',
   newPassword: '',
   confirmPassword: ''
 });
 
 // Function to handle password update
-const updatePassword = async () => {
-  if (form.value.newPassword !== form.value.confirmPassword) {
-    alert("New passwords do not match.");
-    return;
-  }
-
+const updatePassword: () => Promise<void> = async () => {
   try {
-    // Simulated API call
-    console.log('Password updated successfully');
-    alert('Password updated successfully!');
+    const response = await api.post<passwdResponse>("auth/change-password",form.value)
+    if (response.status == 400) {
+      window.alert('An error occurred while submitting the form')
+      resetForm()
+    } else if (response.status == 200) {
+      router.push('/profile')
+    }
   } catch (error: any) {
-    console.error('Error updating password:', error);
-    alert('An error occurred while updating the password.');
+    window.alert('An error occurred while submitting the form')
+    console.error('An error occurred while submitting the form:', error)
+    resetForm()
   }
+};
+
+const resetForm = () => {
+  form.value = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  };
 };
 </script>
 
@@ -125,5 +125,11 @@ body {
 
 h4 {
   color: #333;
+}
+
+.custom-placeholder::placeholder {
+  font-size: 0.85rem; /* Tamaño de fuente más pequeño */
+  color: #6c757d; /* Color más claro */
+  opacity: 0.7; /* Ajusta la opacidad para hacer el texto más claro */
 }
 </style>

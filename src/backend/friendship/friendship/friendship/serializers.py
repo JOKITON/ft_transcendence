@@ -59,7 +59,7 @@ class InviteStatusSerializer(serializers.Serializer):
         instance.save()
         return instance
 
-class FriendshipDeleteSerializers(serializers.ModelSerializer):
+class DeleteFriendSerializer(serializers.ModelSerializer):
     friend = serializers.CharField(
         max_length=50,
         min_length=3,

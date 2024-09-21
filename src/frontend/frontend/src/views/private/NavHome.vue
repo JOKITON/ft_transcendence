@@ -73,14 +73,14 @@
           </ul>
         </form>
 
-        <p class="d-block link-body-emphasis text-decoration-none">{{ username }}</p>
+        <p class="d-block link-body-emphasis text-decoration-none">{{ user.username }}</p>
         <div class="dropdown text-end">
           <a
             @click="toggleDropdownSettings"
             class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
           >
             <img
-              src="https://avatars.githubusercontent.com/u/99480973?v=4"
+              :src="user.avatarUrl"
               alt="mdo"
               class="rounded-circle"
               width="32"
@@ -108,6 +108,7 @@ import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import type Api from '../../services/Api/api'
 import auth from '../../services/user/services/auth/auth'
+import avatar from '/src/assets/avatars/pepe.png'
 
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
@@ -115,9 +116,12 @@ const Auth: auth = new auth(api)
 const isProfileVisible = ref(false)
 const isDropdownSettingsVisible = ref(false)
 const isDropdownAdminVisible = ref(false)
-const username = ref('User') // Valor por defecto, será actualizado más adelante
-
 const router = useRouter()
+
+const user = ref({
+  username: 'User',
+  avatarUrl: avatar,
+});
 
 interface User {
   id: number
@@ -154,10 +158,47 @@ const logoutUser = async () => {
   }
 }
 
-// Función para obtener el nombre de usuario
-const fetchUsername = async () => {
+async function fetchUsername() {
   try {
-    const response = await api.get('auth/whoami')
+    const response = await Auth.whoami();
+    user.value = {
+      username: response.username,
+      avatarUrl: response.avatar ? response.avatar : avatar,
+    };
+    user.value.avatarUrl = '/src/assets/' + user.value.avatarUrl;
+    // console.log(user.value.avatarUrl )
+
+    // Check if avatarUrl is set to the default '/src/assets/avatars/pepe.png'
+    if (user.value.avatarUrl === '/src/assets/avatars/pepe.png') {
+      // Use the default local avatar
+      console.log("Using default avatar");
+    } else {
+      // Retrieve avatar from the backend
+      await fetchUserAvatar();   
+    }
+  } catch (error: any) {
+    console.error('Error fetching user data:', error.message);
+  }
+}
+
+async function fetchUserAvatar() {
+  try {
+    const response = await api.get('auth/get-avatar');
+    if (response.status === 200) {
+      const avatarBase64 = response.avatar_base64;
+      user.value.avatarUrl = `data:image/jpeg;base64,${avatarBase64}`; // Set the Base64 image as the src
+    } else {
+      console.error('Failed to fetch avatar:', response.data);
+    }
+  } catch (error) {
+    console.error('Error fetching user avatar:', error.message);
+  }
+}
+
+// Función para obtener el nombre de usuario
+const fetchFriendList = async () => {
+  try {
+    const response = await api.get('friend-list')
     username.value = response.username // Reemplazar con la estructura real de tu respuesta
   } catch (error) {
     console.error('Error fetching username:', error.response ? error.response.data : error.message)
@@ -175,7 +216,7 @@ const toggleDropdownAdmin = () => {
 
 // Funciones de manejo de perfil y configuración
 const openSettings = () => {
-  alert('Settings clicked')
+  router.push('/other-profile')
 }
 
 const openProfile = () => {

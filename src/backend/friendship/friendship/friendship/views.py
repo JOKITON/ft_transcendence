@@ -1,7 +1,8 @@
 from .serializers import (
     InviteFriendSerializer,
     InviteStatusSerializer,
-    FriendshipDeleteSerializers,
+    DeleteFriendSerializer,
+    FriendRequestSerializer,
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -30,11 +31,13 @@ class AllUsers(APIView):
             .objects.values(
                 "id",
                 "username",
-                "status",
+                "status",  # Assuming status is a field on your User model
             )
-            .exclude(id=request.user.id)
+            .exclude(id=request.user.id)  # Exclude the current user
         )
-        return Response(users, status=status.HTTP_200_OK)
+        
+        return Response(data=users, status=status.HTTP_200_OK)
+
 
 
 class FriendsView(APIView):
@@ -109,7 +112,7 @@ class DeleteFriendView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request: Request) -> Response:
-        serializer = FriendshipDeleteSerializers(
+        serializer = DeleteFriendSerializer(
             data=request.data, context={"request": request}
         )
         if serializer.is_valid():

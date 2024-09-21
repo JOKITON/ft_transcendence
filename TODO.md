@@ -31,27 +31,27 @@ IV.1 Overview
     (Optional) - Major module: Store the score of a tournament in the Blockchain.
 - User Management
   - Major module: Standard user management, authentication, users across
-    tournaments. [2/3 Done]
+    tournaments. [Done]
   - Major module: Implementing a remote authentication.
 - Gameplay and user experience
   - Major module: Remote players
-  - Major module: Multiplayers (more than 2 in the same game).
+  - Major module: Multiplayers (more than 2 in the same game). [To-Do]
     (Optional) - Major module: Add Another Game with User History and Matchmaking.
     (Optional) - Minor module: Game Customization Options.
   - Major module: Live chat.
 - AI-Algo
-  - Major module: Introduce an AI Opponent.
-  - Minor module: User and Game Stats Dashboards
+  - Major module: Introduce an AI Opponent. [Done]
+  - Minor module: User and Game Stats Dashboards [Done]
 - Cybersecurity
   (Optional) - Major module: Implement WAF/ModSecurity with Hardened Configuration and HashiCorp Vault for Secrets Management.
   (Optional) - Minor module: GDPR Compliance Options with User Anonymization, Local Data Management, and Account Deletion.
   - Major module: Implement Two-Factor Authentication (2FA) and JWT. -> [https://developers.google.com/google-ads/api/docs/client-libs/python/oauth-web]
 - Devops
   - Major module: Infrastructure Setup for Log Management.
-  - Minor module: Monitoring system.
+  - Minor module: Monitoring system. [To-Do][Easy]
   - Major module: Designing the Backend as Microservices.
 - Graphics
-  (Optional) - Major module: Use of advanced 3D techniques. -> [https://threejs.org/examples/]
+  (Optional) - Major module: Use of advanced 3D techniques. -> [https://threejs.org/examples/] [Done]
 - Accessibility
   (Optional) - Minor module: Support on all devices.
   (Optional) - Minor module: Expanding Browser Compatibility.

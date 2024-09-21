@@ -69,10 +69,12 @@ import NavIndex from './NavIndex.vue'
 import type UserRequest from '@/Models/User/UserRequst'
 import type UserResponse from '@/Models/User/UserResponse'
 import type Api from '@/utils/Api/Api'
+import auth from '../../services/user/services/auth/auth.ts'
 import { useRouter } from 'vue-router'
 import { ref, inject } from 'vue'
 
 const api: Api = inject('$api') as Api
+const Auth: auth = new auth(api)
 const router = useRouter()
 
 const form = ref<UserRequest>({
@@ -85,10 +87,8 @@ const form = ref<UserRequest>({
 
 const handleSubmit = async (): Promise<void> => {
   try {
-    const response: UserResponse = await api.post<UserResponse>('auth/register', form.value)
-    if (response.status != 201) {
-      console.error('error de registro')
-    } else {
+    const response: boolean = await Auth.register<UserResponse>(form.value)
+    if (response === true) {
       console.log('Form submitted successfully:', response)
       router.push('/login')
     }
