@@ -15,7 +15,7 @@ from .models import Friendship
 from typing import Type
 from .serializers import FriendRequestSerializer
 from .serializers import FriendSerializer
-from django.db import models  
+from django.db import models
 
 User: Type[ModelBase] = get_user_model()
 
@@ -119,46 +119,53 @@ class DeleteFriendView(APIView):
             )
         return Response({"message": "error"}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class PendingFriendRequestsView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        pending_requests = Friendship.objects.filter(friend=user, status=Friendship.PENDING)
+        pending_requests = Friendship.objects.filter(
+            friend=user, status=Friendship.PENDING
+        )
 
         serializer = FriendRequestSerializer(pending_requests, many=True)
-        return Response({"pending_requests": serializer.data}, status=status.HTTP_200_OK)
-    
+        return Response(
+            {"pending_requests": serializer.data}, status=status.HTTP_200_OK
+        )
+
+
 class AcceptFriendRequestView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         user = request.user
-        print("holaaaaa")
         request_id = request.data.get("request_id")
 
         if not request_id:
             return Response(
-                {"error": "Request ID is required"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Request ID is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
-            friendship = Friendship.objects.get(id=request_id, friend=user, status=Friendship.PENDING)
+            friendship = Friendship.objects.get(
+                id=request_id, friend=user, status=Friendship.PENDING
+            )
             friendship.status = Friendship.ACCEPTED
             friendship.save()
 
             return Response(
-                {"message": "Friend request accepted"},
-                status=status.HTTP_200_OK
+                {"message": "Friend request accepted"}, status=status.HTTP_200_OK
             )
         except Friendship.DoesNotExist:
             return Response(
                 {"error": "Friend request not found or already processed"},
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_404_NOT_FOUND,
             )
+
+
 class RejectFriendRequestView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -169,24 +176,26 @@ class RejectFriendRequestView(APIView):
 
         if not request_id:
             return Response(
-                {"error": "Request ID is required"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Request ID is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
-            friendship = Friendship.objects.get(id=request_id, friend=user, status=Friendship.PENDING)
+            friendship = Friendship.objects.get(
+                id=request_id, friend=user, status=Friendship.PENDING
+            )
             friendship.status = Friendship.DENIED
             friendship.save()
 
             return Response(
-                {"message": "Friend request denied"},
-                status=status.HTTP_200_OK
+                {"message": "Friend request denied"}, status=status.HTTP_200_OK
             )
         except Friendship.DoesNotExist:
             return Response(
                 {"error": "Friend request not found or already processed"},
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_404_NOT_FOUND,
             )
+
+
 class GetFriendsView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -194,20 +203,39 @@ class GetFriendsView(APIView):
     def get(self, request):
         user = request.user
         friendships = Friendship.objects.filter(
-            models.Q(user=user) | models.Q(friend=user),
-            status=Friendship.ACCEPTED
+            models.Q(user=user) | models.Q(friend=user), status=Friendship.ACCEPTED
         )
         friends = [
             friendship.friend if friendship.user == user else friendship.user
             for friendship in friendships
         ]
-        serializer = FriendSerializer(friends, many=True, context={'request': request})
+        serializer = FriendSerializer(friends, many=True, context={"request": request})
 
         return Response({"friends": serializer.data}, status=status.HTTP_200_OK)
+
 
 class BlockUserView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user
+        user = request.user
+        blocked_user = User.objects.get(username=request.data.get("username"))
+
+        if blocked_user == user:
+            return Response(
+                {"error": "You cannot block yourself"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            friendship = Friendship.objects.get(user=user, friend=blocked_user)
+            friendship.status = Friendship.BLOCKED
+            friendship.save()
+
+            return Response({"message": "User blocked"}, status=status.HTTP_200_OK)
+        except Friendship.DoesNotExist:
+            return Response(
+                {"error": "Friendship not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
