@@ -5,6 +5,7 @@ node_modules/
 package-lock.json
 volumes/
 venv/
+.venv/
 db/
 __pycache__/
 *.pem

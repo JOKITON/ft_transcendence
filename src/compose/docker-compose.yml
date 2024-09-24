@@ -40,9 +40,20 @@ services:
     depends_on:
       - reverse-proxy
       - database
+  redis:
+    container_name: redis
+    build: ../backend/redis/
+    env_file: ../.env.dev
+    restart: always
+    #volumes:
+    #  - redis:/redis
+    networks:
+      - ft_transcendence
+    ports:
+      - 6379
 
   #secrets:
-#  auth_traefik:
+  #  auth_traefik:
 
 networks:
   ft_transcendence:
@@ -63,3 +74,9 @@ volumes:
       type: none
       o: bind
       device: ../database/db
+  redis:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/redis/redis

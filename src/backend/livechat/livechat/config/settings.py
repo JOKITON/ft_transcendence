@@ -1,3 +1,5 @@
+from .consumers import ChatConsumer
+from django.urls import re_path
 from datetime import timedelta
 from pathlib import Path
 import dj_database_url
@@ -64,13 +66,22 @@ SIMPLE_JWT = {
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_HTTPONLY = True
-
+CORS_ALLOW_CREDENTIALS = True
 
 AUTH_USER_MODEL = "UserModel.User"
-CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "config.urls"
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                ("127.0.0.1", 6379)
+            ],  # Asegúrate de que Redis esté ejecutándose en esta dirección
+        },
+    },
+}
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -90,7 +101,8 @@ TEMPLATES = [
 ASGI_APPLICATION = "config.asgi.application"
 
 
-DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
+DATABASES = {"default": dj_database_url.config(
+    default=os.environ.get("DATABASE_URL"))}
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
@@ -102,6 +114,10 @@ REST_FRAMEWORK = {
     ],
 }
 
+
+websocket_urlpatterns = [
+    re_path(r"ws/chat/(?P<room_name>\w+)/$", ChatConsumer.as_asgi()),
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -119,9 +135,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
@@ -131,13 +144,8 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = "static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
