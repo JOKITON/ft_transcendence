@@ -1,5 +1,3 @@
-from .consumers import ChatConsumer
-from django.urls import re_path
 from datetime import timedelta
 from pathlib import Path
 import dj_database_url
@@ -102,8 +100,7 @@ TEMPLATES = [
 ASGI_APPLICATION = "config.asgi.application"
 
 
-DATABASES = {"default": dj_database_url.config(
-    default=os.environ.get("DATABASE_URL"))}
+DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
@@ -114,11 +111,6 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
     ],
 }
-
-
-websocket_urlpatterns = [
-    re_path(r"ws/chat/(?P<room_name>\w+)/$", ChatConsumer.as_asgi()),
-]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -135,7 +127,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
@@ -143,7 +134,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
 
 STATIC_URL = "static/"
 

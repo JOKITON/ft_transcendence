@@ -17,7 +17,6 @@ if ! openssl rsa -pubin -in /livechat/secrets/public.pem -text -noout >/dev/null
   exit 1
 fi
 
-# Apply database migrations first time
 echo "Applying database migrations..."
 if ! python manage.py makemigrations --noinput; then
   echo "Migrations failed"
