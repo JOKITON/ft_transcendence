@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/20 13:37:05 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/22 22:33:22 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,11 +19,11 @@ LABEL traefik.http.services.frontend.loadbalancer.server.port=80
 WORKDIR /frontend
 
 COPY frontend/package*.json ./
+
 RUN npm install
+RUN npm update
 
 COPY frontend .
-RUN npm update vite
 
-RUN npm i && npm update
  
 CMD npm  run dev -- --host

@@ -40,9 +40,7 @@ const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('whi
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
 
 // Vertical dashed wall
-const vecWallMid = [new Vector3(0, -9, 0), new Vector3(0, 9, 0)];
-const dashedLine = [10, 0.66, 0.5];
-const wallMid = new DashedWall(vecWallMid, new Color('green'), dashedLine);
+const wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1));
 
 // Player objects (to be initialized later)
 let player: Player;
@@ -84,13 +82,11 @@ function setupScene() {
 }
 
 function update() {
-  setTimeout(() => {
-    three.removeScene(helpTextPlayerOne.get());
-    three.removeScene(helpTextPlayerTwo.get());
-    three.removeScene(helpTextSpace.get());
-  }, 4000);
   if (!isAnimating.value) return;
-
+  
+  player.update();
+  player2.update();
+  handleCollisions(ball, player, player2);
   let check = ball.update();
   if (check) {
     if (check === 1) {
@@ -120,9 +116,6 @@ function update() {
     return;
   }
 
-  player.update();
-  player2.update();
-  handleCollisions(ball, player, player2);
 }
 
 // Blinking effect for the score when a player loses
@@ -147,11 +140,25 @@ function returnObjectsToPlace() {
   player2.returnToPlace();
 }
 
+let debounceTimeout: number | undefined;
+
 function toggleAnimation(event: KeyboardEvent) {
+  if (isGameOver.value) {
+    return;
+  }
+
   if (event.code === 'Space') {
-    isAnimating.value = !isAnimating.value;
-    console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`);
-  } 
+    // Clear the previous timeout if the event is fired repeatedly
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+
+    // Set a delay before executing the function to avoid multiple triggers
+    debounceTimeout = window.setTimeout(() => {
+      isAnimating.value = !isAnimating.value;
+      console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`);
+    }, 100); // Adjust the timeout as needed (100ms here)
+  }
 }
 
 const endGame = (winningPlayer: string) => {
@@ -178,11 +185,16 @@ const endGame = (winningPlayer: string) => {
 
 onMounted(() => {
   setupScene()
-  three.startAnimation(update)
+  setTimeout(() => {
+    three.removeScene(helpTextPlayerOne.get());
+    three.removeScene(helpTextPlayerTwo.get());
+    three.removeScene(helpTextSpace.get());
+  }, 4000);
   window.addEventListener('resize', () => {
     three.resize(window.innerWidth, window.innerHeight);
   });
   window.addEventListener('keydown', toggleAnimation);
+  three.startAnimation(update)
 });
 
 onBeforeUnmount(() => {

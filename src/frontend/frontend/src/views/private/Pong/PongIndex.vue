@@ -22,9 +22,7 @@ const handleStartGame = (data) => {
   const { aiDifficulty, gameMode, players } = data;
 
   // Store player names and optionally AI difficulty
-  if (data.aiDifficulty) {
-    aiDif.value = aiDifficulty;
-  }
+  aiDif.value = Number(aiDifficulty);
   arPlayers.value = players;
 
   // Select appropriate game component
@@ -44,7 +42,7 @@ const handleStartGame = (data) => {
 const sendAIData = async (tournamentResults) => {
   try {
     const response = await api.post("pong/ai", tournamentResults);
-    console.log('Data sent successfully:', response.data);
+    // console.log('Data sent successfully:', response.data);
   } catch (error) {
     console.error('Error sending data:', error);
 

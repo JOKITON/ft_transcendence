@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { Vector3, Color, Mesh } from 'three';
+import { Vector2, Vector3, Color, Mesh } from 'three';
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import ThreeService from '../../services/pong/ThreeService';
 import Player from '../../services/pong/Player';
@@ -29,9 +29,7 @@ const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('whi
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
 
 // Vertical dashed wall
-const vecWallMid = [new Vector3(0, -9, 0), new Vector3(0, 9, 0)];
-const dashedLine = [1, 0.66, 0.5];
-const wallMid = new DashedWall(vecWallMid, new Color('green'), dashedLine);
+const wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1));
 
 // Player objects (to be initialized later)
 let playerAIOne: Player;
@@ -119,8 +117,8 @@ function update() {
     return;
   }
 
-  playerAIOne.updateAI(ball, 10);
-  playerAITwo.updateAI(ball, 10);
+  playerAIOne.updateAI(ball);
+  playerAITwo.updateAI(ball);
   handleCollisions(ball, playerAIOne, playerAITwo);
 }
 

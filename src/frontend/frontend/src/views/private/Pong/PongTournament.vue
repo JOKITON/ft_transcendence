@@ -48,9 +48,7 @@ const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('whi
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
 
 // Vertical dashed wall
-const vecWallMid = [new Vector3(0, -9, 0), new Vector3(0, 9, 0)];
-const dashedLine = [10, 0.66, 0.5];
-const wallMid = new DashedWall(vecWallMid, new Color('green'), dashedLine);
+const wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1));
 
 // Scores
 let variableScoreOne = 0;
@@ -165,15 +163,24 @@ function returnObjectsToPlace() {
   player2.returnToPlace();
 }
 
+let debounceTimeout: number | undefined;
+
 function toggleAnimation(event: KeyboardEvent) {
-  // Prevent toggling animation if the game is over
   if (isGameOver.value) {
     return;
   }
 
   if (event.code === 'Space') {
-    isAnimating.value = !isAnimating.value;
-    console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`);
+    // Clear the previous timeout if the event is fired repeatedly
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+
+    // Set a delay before executing the function to avoid multiple triggers
+    debounceTimeout = window.setTimeout(() => {
+      isAnimating.value = !isAnimating.value;
+      console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`);
+    }, 100); // Adjust the timeout as needed (100ms here)
   }
 }
 
