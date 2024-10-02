@@ -219,6 +219,7 @@ class GetFriendsView(APIView):
                 "id": friend.id,
                 "username": friend.username,
                 "email": friend.email,
+                "isOnline": friend.status,
                 "is_blocked_by_user": is_blocked_by_user,  # Si el usuario actual bloqueó al amigo
                 "is_blocked_by_friend": is_blocked_by_friend  # Si el amigo bloqueó al usuario actual
             })
