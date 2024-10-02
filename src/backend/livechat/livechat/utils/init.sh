@@ -37,6 +37,8 @@ if ! python manage.py collectstatic --no-input; then
   exit 1
 fi
 
+export DJANGO_SETTINGS_MODULE=config.settings
 # Start the Django development server
 echo "Starting Django development server..."
+#uvicorn config.asgi:application --host 0.0.0.0 --port 800
 daphne -b 0.0.0.0 -p 80 config.asgi:application

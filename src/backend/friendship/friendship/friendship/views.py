@@ -59,7 +59,6 @@ class InviteFriendView(APIView):
         serializer = InviteFriendSerializer(
             data=request.data, context={"request": request}
         )
-        print("holaa")
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -209,7 +208,8 @@ class GetFriendsView(APIView):
             friendship.friend if friendship.user == user else friendship.user
             for friendship in friendships
         ]
-        serializer = FriendSerializer(friends, many=True, context={"request": request})
+        serializer = FriendSerializer(
+            friends, many=True, context={"request": request})
 
         return Response({"friends": serializer.data}, status=status.HTTP_200_OK)
 
@@ -238,4 +238,3 @@ class BlockUserView(APIView):
             return Response(
                 {"error": "Friendship not found"}, status=status.HTTP_404_NOT_FOUND
             )
-

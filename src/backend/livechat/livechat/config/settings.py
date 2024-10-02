@@ -24,8 +24,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
-    "channels",
     "UserModel",
+    "channels",
     "livechat",
 ]
 
@@ -61,6 +61,8 @@ SIMPLE_JWT = {
     "USER_ID_CLAIM": "user_id",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
+
+ASGI_APPLICATION = "livechat.asgi.application"
 
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "Lax"
@@ -100,7 +102,8 @@ TEMPLATES = [
 ASGI_APPLICATION = "config.asgi.application"
 
 
-DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
+DATABASES = {"default": dj_database_url.config(
+    default=os.environ.get("DATABASE_URL"))}
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [

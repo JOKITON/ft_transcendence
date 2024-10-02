@@ -18,11 +18,15 @@ openssl rsa -in $KEY_DIR/private.pem -pubout -out $KEY_DIR/public.pem
 
 # Apply database migrations first time
 echo "Applying database migrations..."
-if ! python manage.py makemigrations --noinput; then
+if ! python manage.py makemigrations authentication --noinput; then
   echo "Migrations failed"
   exit 1
 fi
 
+if ! python manage.py makemigrations --noinput; then
+  echo "Migrations failed"
+  exit 1
+fi
 # Apply database migrations
 echo "Applying database migrations..."
 if ! python manage.py migrate --noinput; then
