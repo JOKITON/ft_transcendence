@@ -6,7 +6,7 @@
 #    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/05 20:54:09 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/18 19:51:12 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/09/18 22:27:26 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ FROM alpine:3.20
 
 LABEL traefik.enable=true
 LABEL traefik.http.routers.livechat.rule="Host(`localhost`) && PathPrefix(`/api/v1/livechat`)"
-LABEL traefik.http.service.livechat.loadbalancer.server.port=80
+LABEL traefik.http.services.livechat.loadbalancer.server.port=80
 
 RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3 jq
 
