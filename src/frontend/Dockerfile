@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/22 22:33:22 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/02 19:23:11 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,10 +21,7 @@ WORKDIR /frontend
 COPY frontend/package*.json ./
 
 RUN npm install
-RUN npm install vue3-beautiful-chat --save
-RUN npm update
 
 COPY frontend .
-
  
 CMD npm  run dev -- --host
