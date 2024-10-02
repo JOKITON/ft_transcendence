@@ -23,10 +23,10 @@ class PongGame(models.Model):
 
     tournament_type = models.CharField(max_length=2, choices=tournament_type_choices, default='2P')
     winner = models.CharField(max_length=255)
-    id_player1 = models.ForeignKey(Player, on_delete=models.DO_NOTHING, related_name='player1_data')
-    id_player2 = models.ForeignKey(Player, on_delete=models.DO_NOTHING,  related_name='player2_data')
-    name_player1 = models.CharField(max_length=255)
-    name_player2 = models.CharField(max_length=255)
+    id_player1 = models.ForeignKey(Player, on_delete=models.DO_NOTHING, related_name='player1_data', null=True, blank=True)
+    id_player2 = models.ForeignKey(Player, on_delete=models.DO_NOTHING,  related_name='player2_data', null=True, blank=True)
+    name_player1 = models.CharField(max_length=255, null=True, blank=True)
+    name_player2 = models.CharField(max_length=255, null=True, blank=True)
     score_player1 = models.IntegerField()
     score_player2 = models.IntegerField()
 

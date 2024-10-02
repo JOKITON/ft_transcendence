@@ -68,8 +68,6 @@ class PongGameSerializer(serializers.ModelSerializer):
         )
         return tournament
 
-
-
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
