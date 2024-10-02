@@ -174,8 +174,8 @@ const endGame = (winningPlayer: string) => {
     // Emit the tournament data to the parent component
     emit('gameOver', {
       winner: winningPlayer,
-      player1: player1Name.value,
-      player2: player2Name.value,
+      name_player1: player1Name.value,
+      name_player2: player2Name.value,
       score_player1: numScorePlayerOne,
       score_player2: numScorePlayerTwo,
       tournament_type: '2P'

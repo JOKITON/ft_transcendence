@@ -4,33 +4,31 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class Player(models.Model):
+    id = models.IntegerField(primary_key=True, blank=False, null=False)
     name = models.CharField(max_length=255)
-    score = models.JSONField()
-    position = models.IntegerField()
+    score = models.IntegerField(default=0)
+    position = models.IntegerField(blank=True)
 
-    def __str__(self):
-        return f"{self.name} (Position: {self.position}, Score: {self.score})"
-
-class PlayerStats(models.Model):
-    player = models.OneToOneField(Player, on_delete=models.CASCADE, related_name='stats')
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)
     total_games = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.player.name} Stats"
+        return f"{self.name} (Position: {self.position}, Score: {self.score})"
 
-class Tournament(models.Model):
+class PongGame(models.Model):
     tournament_type_choices = [
         ('AI', 'AI Tournament'), ('2P', '2P Tournament')
     ]
 
-    winner = models.CharField(Player, on_delete=models.CASCADE, related_name='won_tournaments')
-    player1 = models.CharField(Player, on_delete=models.CASCADE, related_name='player1_tournaments')
-    player2 = models.CharField(Player, on_delete=models.CASCADE, related_name='player2_tournaments')
+    tournament_type = models.CharField(max_length=2, choices=tournament_type_choices, default='2P')
+    winner = models.CharField(max_length=255)
+    id_player1 = models.ForeignKey(Player, on_delete=models.DO_NOTHING, related_name='player1_data', null=True, blank=True)
+    id_player2 = models.ForeignKey(Player, on_delete=models.DO_NOTHING,  related_name='player2_data', null=True, blank=True)
+    name_player1 = models.CharField(max_length=255, null=True, blank=True)
+    name_player2 = models.CharField(max_length=255, null=True, blank=True)
     score_player1 = models.IntegerField()
     score_player2 = models.IntegerField()
-    tournament_type = models.CharField(max_length=2, choices=tournament_type_choices, default='2P')
 
     def __str__(self):
         return f"{self.tournament_type} - {self.winner}"

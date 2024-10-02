@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, markRaw, inject } from 'vue'
-import axios from 'axios'
+import { onMounted, ref, markRaw, inject } from 'vue'
 import NavHome from "../NavHome.vue"
 import PongAI from "./PongAI.vue"
 import Pong2P from "./Pong2P.vue"
@@ -16,6 +15,14 @@ const aiDif = ref(1);
 const arPlayers = ref([]); // Initialize as an array
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
+
+onMounted(async () => {
+  await fetchId();
+});
+
+const user = ref({
+  id: 0,
+});
 
 // Handle game start
 const handleStartGame = (data) => {
@@ -67,6 +74,9 @@ const sendAIData = async (tournamentResults) => {
 // Send tournament data to backend
 const send2PData = async (tournamentResults) => {
   try {
+    // Change player name to ID
+    tournamentResults.id_player1 = 1;
+    tournamentResults.id_player2 = user.value.id;
     const response = await api.post("pong/2p", tournamentResults);
     console.log('Data sent successfully:', response.data);
   } catch (error) {
@@ -115,6 +125,18 @@ const sendTournamentData = async (tournamentResults) => {
     }
   }
 };
+
+async function fetchId() {
+  try {
+    const response = await Auth.whoami();
+    user.value = {
+      id: response.id,
+    };
+    // console.log(user.value.id );
+  } catch (error: any) {
+    console.error('Error fetching user data:', error.message);
+  }
+}
 
 // Handle returning to the main menu
 const handleGameOver = (tournamentResults) => {

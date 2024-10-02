@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/17 18:36:34 by jaizpuru          #+#    #+#              #
-#    Updated: 2024/10/02 13:15:34 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/02 17:31:01 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from .serializers import TournamentSerializer, Tournament8PSerializer
+from .serializers import PongGameSerializer, Tournament8PSerializer
 
 User = get_user_model()
 
@@ -26,7 +26,7 @@ class TournamentAIView(APIView):
     permission_classes = [IsAuthenticated]  # Ensure user is authenticated
 
     def post(self, request: Request) -> Response:
-        serializer = TournamentSerializer(data=request.data)
+        serializer = PongGameSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()  # Save the tournament instance
@@ -51,7 +51,7 @@ class Tournament2PView(APIView):
     permission_classes = [IsAuthenticated]  # Ensure user is authenticated
 
     def post(self, request: Request) -> Response:
-        serializer = TournamentSerializer(data=request.data, context={"request": request})
+        serializer = PongGameSerializer(data=request.data, context={"request": request})
 
         if serializer.is_valid():
             serializer.save()  # Save the tournament instance

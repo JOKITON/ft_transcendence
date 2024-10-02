@@ -55,9 +55,38 @@
             <li><a @click="logoutUser" class="dropdown-item nav-sign-out">Sign out</a></li>
           </ul>
         </div>
+        <div class="position-relative">
+          <a @click="toggleDropdownNotifications" class="d-block text-decoration-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-bell"
+              viewBox="0 0 16 16">
+              <path
+                d="M8 16a2 2 0 0 0 1.985-1.75H6.015A2 2 0 0 0 8 16zm.104-14a5.502 5.502 0 0 1 4.396 8.418c-.319.42-.34.682-.39 1.32a.663.663 0 0 1-.696.662H4.586a.663.663 0 0 1-.696-.662c-.05-.638-.071-.9-.39-1.32A5.502 5.502 0 0 1 8.104 2zm3.9 9.4c.306-.44.601-1.025.601-1.78a4.502 4.502 0 0 0-9.004 0c0 .755.295 1.34.601 1.78H3.9l-.002.001c-.042.062-.098.146-.164.258-.157.259-.376.688-.376 1.44h10c0-.752-.219-1.18-.376-1.439a1.007 1.007 0 0 1-.163-.259L12.004 11.4H12z" />
+            </svg>
+            <!-- Mostrar badge si hay notificaciones nuevas -->
+            <span v-if="unreadNotifications > 0"
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{ unreadNotifications }}
+            </span>
+          </a>
+          <!-- Desplegable de notificaciones -->
+          <ul class="dropdown-menu text-small" :class="{ show: isDropdownNotificationsVisible }">
+            <li v-if="friendRequests.length === 0" class="dropdown-item">No new friend requests</li>
+            <li v-for="request in friendRequests" :key="request.id" class="dropdown-item">
+              <span v-if="request.friend">
+                <strong>{{ request.friend.username }}</strong> has sent you a friend request
+              </span>
+              <span v-else>
+                Unknown user has sent you a friend request
+              </span>
+              <button class="btn btn-success btn-sm ms-2" @click="acceptFriendRequest(request.id)">Accept</button>
+              <button class="btn btn-danger btn-sm ms-2" @click="declineFriendRequest(request.id)">Decline</button>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </header>
+  <ChatDropdown />
 </template>
 
 <script setup lang="ts">
@@ -68,6 +97,7 @@ import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import type Api from '../../services/Api/api'
 import auth from '../../services/user/services/auth/auth'
+import ChatDropdown from './DesplegableChat.vue';
 
 
 /* ----- VARIABLES ----- */
@@ -82,14 +112,16 @@ const user = ref({
   username: '',
   avatarUrl: '',
 });
+const unreadNotifications = ref(0);
+const friendRequests = ref([{ id: 1, username: 'JohnDoe' }, { id: 2, username: 'JaneSmith' }]);
 
 
 /* ----- VARIABLES REACTIVAS ----- */
 
 const isProfileVisible = ref(false)
-const isDropdownSettingsVisible = ref(false)
-const isDropdownAdminVisible = ref(false)
-
+const isDropdownSettingsVisible = ref(false);
+const isDropdownNotificationsVisible = ref(false);
+const isDropdownAdminVisible = ref(false);
 
 /* ----- INTERFACES ----- */
 
@@ -98,7 +130,17 @@ interface User {
   username: string
 }
 
+interface FriendRequest {
+  id: number;
+  friend: {
+    username: string;
+    email: string;
+  };
+}
 
+interface FriendRequestsResponse {
+  pending_requests: FriendRequest[];
+}
 /* ----- BUSCAR USUARIO ----- */
 
 const performSearch = async (): Promise<void> => {
@@ -180,7 +222,11 @@ const toggleDropdownSettings = () => {
 const toggleDropdownAdmin = () => {
   isDropdownAdminVisible.value = !isDropdownAdminVisible.value
 }
-
+const toggleDropdownNotifications = () => {
+  isDropdownNotificationsVisible.value = !isDropdownNotificationsVisible.value;
+  // Marcar notificaciones como leídas
+  unreadNotifications.value = 0;
+}
 
 /* ----- REDIRECCIONES A VISTAS ----- */
 
@@ -213,8 +259,39 @@ const goToUserProfile = (userId: number) => {
 
 onMounted(async () => {
   await fetchUsername()
+  await fetchFriendRequests();
 })
 
+
+const acceptFriendRequest = async (requestId: number) => {
+  try {
+    await api.post('friendship/acceptFriendReq', { request_id: requestId });
+    console.log(`Friend request ${requestId} accepted`);
+    await fetchFriendRequests();
+  } catch (error) {
+    console.error('Error accepting friend request', error);
+  }
+};
+
+const declineFriendRequest = async (requestId: number) => {
+  try {
+    await api.post('friendship/rejectFriendReq', { request_id: requestId });
+    console.log(`Friend request ${requestId} declined`);
+    await fetchFriendRequests();
+  } catch (error) {
+    console.error('Error declining friend request', error);
+  }
+};
+
+const fetchFriendRequests = async () => {
+  try {
+    const response = await api.get<FriendRequestsResponse>('friendship/pendingReq');
+    friendRequests.value = response.pending_requests || [];
+    unreadNotifications.value = friendRequests.value.length;
+  } catch (error: any) {
+    console.error('Error fetching friend requests:', error.message);
+  }
+}
 /* ----- REVISAR ----- */
 
 /* const fetchFriendList = async () => {
