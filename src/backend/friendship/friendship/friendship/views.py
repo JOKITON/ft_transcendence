@@ -1,7 +1,8 @@
 from .serializers import (
     InviteFriendSerializer,
     InviteStatusSerializer,
-    FriendshipDeleteSerializers,
+    DeleteFriendSerializer,
+    FriendRequestSerializer,
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -30,11 +31,13 @@ class AllUsers(APIView):
             .objects.values(
                 "id",
                 "username",
-                "status",
+                "status",  # Assuming status is a field on your User model
             )
-            .exclude(id=request.user.id)
+            .exclude(id=request.user.id)  # Exclude the current user
         )
-        return Response(users, status=status.HTTP_200_OK)
+        
+        return Response(data=users, status=status.HTTP_200_OK)
+
 
 
 class FriendsView(APIView):
@@ -109,7 +112,7 @@ class DeleteFriendView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request: Request) -> Response:
-        serializer = FriendshipDeleteSerializers(
+        serializer = DeleteFriendSerializer(
             data=request.data, context={"request": request}
         )
         if serializer.is_valid():
@@ -202,14 +205,17 @@ class GetFriendsView(APIView):
 
     def get(self, request):
         user = request.user
+
+        # Filtrar amistades aceptadas o bloqueadas
         friendships = Friendship.objects.filter(
-            models.Q(user=user) | models.Q(friend=user), status=Friendship.ACCEPTED
+            models.Q(user=user) | models.Q(friend=user),
+            status=Friendship.ACCEPTED
         )
         friends = [
             friendship.friend if friendship.user == user else friendship.user
             for friendship in friendships
         ]
-        serializer = FriendSerializer(friends, many=True, context={"request": request})
+        serializer = FriendSerializer(friends, many=True, context={'request': request})
 
         return Response({"friends": serializer.data}, status=status.HTTP_200_OK)
 
@@ -219,23 +225,4 @@ class BlockUserView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user = request.user
-        blocked_user = User.objects.get(username=request.data.get("username"))
-
-        if blocked_user == user:
-            return Response(
-                {"error": "You cannot block yourself"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        try:
-            friendship = Friendship.objects.get(user=user, friend=blocked_user)
-            friendship.status = Friendship.BLOCKED
-            friendship.save()
-
-            return Response({"message": "User blocked"}, status=status.HTTP_200_OK)
-        except Friendship.DoesNotExist:
-            return Response(
-                {"error": "Friendship not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-
+        user

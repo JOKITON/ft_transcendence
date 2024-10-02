@@ -70,12 +70,12 @@ export default class Sphere {
 
   private checkCollisions(): number {
     // Check collisions with the X boundaries
-    if (this.mesh.position.x <= this.minX) {
+    if (this.mesh.position.x < this.minX) {
       this.velocity.x = this.inVelocity;
       this.velocity.x *= -1;
       this.setPosition(new Vector3(0, 0, 0));
       return 1;
-    } else if (this.mesh.position.x >= this.maxX) {
+    } else if (this.mesh.position.x > this.maxX) {
       this.velocity.x = this.inVelocity;
       this.velocity.x *= -1;
       this.setPosition(new Vector3(0, 0, 0));
@@ -89,14 +89,6 @@ export default class Sphere {
       this.velocity.y *= -1;
     }
 
-    // Check collisions with the Z boundaries (if applicable)
-    if (this.mesh.position.z <= this.minZ) {
-      this.mesh.position.z = this.minZ;
-      this.velocity.z *= -1;
-    } else if (this.mesh.position.z >= this.maxZ) {
-      this.mesh.position.z = this.maxZ;
-      this.velocity.z *= -1;
-    }
     return 0;
   }
 

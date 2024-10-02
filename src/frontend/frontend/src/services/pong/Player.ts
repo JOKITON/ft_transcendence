@@ -7,7 +7,7 @@ export default class Player extends Box implements IPlayer {
   private name: string = 'NPC';
   private position: Vector3;
   private score: number = 0;
-  private moveSpeed: number = 0.15;
+  private moveSpeed: number = 0.35;
 
   private aiDifficulty: number = 1;
   private reactionDelay: number = 300;
@@ -16,6 +16,9 @@ export default class Player extends Box implements IPlayer {
   private up: string;
   private down: string;
   private keys: Set<string> = new Set();
+
+  private oldBallPosX: number = 0;
+  private oldBallPosY: number = 0;
 
   constructor(
     geometry: Vector3,
@@ -76,9 +79,10 @@ export default class Player extends Box implements IPlayer {
     }
   }
 
-  setAiDifficulty( difficulty: number ) : void {
+  setAiDifficulty(difficulty: number): void {
     this.aiDifficulty = difficulty;
     this.reactionDelay = (300 / this.aiDifficulty); // Adjust this value to make the AI slower
+    // console.log(this.reactionDelay);
   }
 
   updateAI(ball: Sphere): void {
@@ -88,10 +92,10 @@ export default class Player extends Box implements IPlayer {
 
   update(): void {
     if (this.keys.has(this.up) && this.mesh.position.y < 8) {
-      this.moveUp(0.15);
-    } 
+      this.moveUp(0.35);
+    }
     if (this.keys.has(this.down) && this.mesh.position.y > -8) {
-      this.moveDown(0.15);
+      this.moveDown(0.35);
     }
   }
 
@@ -103,37 +107,33 @@ export default class Player extends Box implements IPlayer {
     const ballPos = ball.get();
     const ballPosX = ballPos.position.x;
     const ballPosY = ballPos.position.y;
-  
+    
     setTimeout(() => {
-      if (ballPosX > 0 && this.mesh.position.x > 0 && ball.getVelocity()) { // Only react when the ball is on the AI's side
-        let randomFactor = 0;
-        if (this.aiDifficulty < 10)
-          randomFactor = (Math.random() * 0.05); // Adjust the randomness factor
+      if (ball.get().position.x != 0) {
+        const velocityX = ballPosX - this.oldBallPosX;
+        const velocityY = ballPosY - this.oldBallPosY;
 
-        if (this.mesh.position.y < 8 && this.mesh.position.y < ballPosY) {
-          this.moveUp(this.moveSpeed - randomFactor);
-        } 
-        
-        if (this.mesh.position.y > -8 && this.mesh.position.y > ballPosY) {
-          this.moveDown(this.moveSpeed - randomFactor);
-        }
-      }
-      else if (ballPosX < 0 && this.mesh.position.x < 0 && !ball.getVelocity()) {
         let randomFactor = 0;
         if (this.aiDifficulty < 10)
-          randomFactor = (Math.random() * 0.05); // Adjust the randomness factor
-  
-        if (this.mesh.position.y < 8 && this.mesh.position.y < ballPosY) {
+          randomFactor = ((Math.random() * 0.05) * (0.01 / this.aiDifficulty)); // Adjust the randomness factor
+        // Assuming 'this.mesh.position.x' is the AI's paddle position on the X-axis
+        const timeToImpact = (this.mesh.position.x - ballPosX) / velocityX; // Time it takes for the ball to reach the AI paddle's X position
+
+        // Predict Y position when the ball reaches the AI
+        const predictedBallPosY = (ballPosY + (velocityY * timeToImpact)) * (1);
+        if (this.mesh.position.y < predictedBallPosY && (this.mesh.position.y < 8)) {
           this.moveUp(this.moveSpeed - randomFactor);
-        } 
-        
-        if (this.mesh.position.y > -8 && this.mesh.position.y > ballPosY) {
+        } else if (this.mesh.position.y > predictedBallPosY && (this.mesh.position.y > -8)) {
           this.moveDown(this.moveSpeed - randomFactor);
         }
       }
+
+      this.oldBallPosX = ballPosX;
+      this.oldBallPosY = ballPosY;
+
     }, this.reactionDelay);
   }
-  
+
 
   dispose(): void {
     // Dispose of geometry and material

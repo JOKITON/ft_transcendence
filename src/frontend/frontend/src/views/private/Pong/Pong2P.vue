@@ -12,9 +12,9 @@ import Wall from '../../../services/pong/Wall'
 import { handleCollisions } from '../../../services/pong/Utils'
 
 const props = defineProps({
-  players: Array<Object>
-})
-const emit = defineEmits(['returnToMenu'])
+  players: Array<Object>,
+});
+const emit = defineEmits(['gameOver']);
 
 // Extract initial players for the current game
 let player1Name = ref(props.players[0].player1Name)
@@ -22,26 +22,16 @@ let player2Name = ref(props.players[0].player2Name)
 
 console.log('Players:', props.players[0].player1Name, props.players[0].player2Name)
 
-const returnToMenu = () => {
-  emit('returnToMenu')
-}
-
-const three = new ThreeService(window.innerWidth, window.innerHeight)
+const three = new ThreeService(window.innerWidth, window.innerHeight);
 
 // Define bounds of the Pong game
 const bounds = { minX: -16.2, maxX: 16.2, minY: -9.2, maxY: 9.2, minZ: 0, maxZ: 0 }
 
 // Ball object
-const ballVectorY = Math.random() * 0.2 - 0.1
-const ballVelocity = new Vector3(0.2, ballVectorY, 0)
-const ballGeometry = [0.5, 10, 10]
-const ball = new Sphere(
-  ballGeometry,
-  new Color('white'),
-  new Vector3(0, 0, 0),
-  ballVelocity,
-  bounds
-)
+const ballVectorY = Math.random() * 0.2 - 0.1;
+const ballVelocity = new Vector3(0.5, ballVectorY, 0);
+const ballGeometry = [0.5, 10, 10];
+const ball = new Sphere(ballGeometry, new Color('white'), new Vector3(0, 0, 0), ballVelocity, bounds);
 
 // Horizontal walls
 const vecHorizWall = new Vector3(33, 0.3, 1)
@@ -49,9 +39,7 @@ const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('whi
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'))
 
 // Vertical dashed wall
-const vecWallMid = [new Vector3(0, -9, 0), new Vector3(0, 9, 0)]
-const dashedLine = [10, 0.66, 0.5]
-const wallMid = new DashedWall(vecWallMid, new Color('green'), dashedLine)
+const wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1));
 
 // Player objects (to be initialized later)
 let player: Player
@@ -119,31 +107,29 @@ function setupScene() {
 }
 
 function update() {
-  setTimeout(() => {
-    three.removeScene(helpTextPlayerOne.get())
-    three.removeScene(helpTextPlayerTwo.get())
-    three.removeScene(helpTextSpace.get())
-  }, 4000)
-  if (!isAnimating.value) return
-
-  let check = ball.update()
+  if (!isAnimating.value) return;
+  
+  player.update();
+  player2.update();
+  handleCollisions(ball, player, player2);
+  let check = ball.update();
   if (check) {
     if (check === 1) {
-      numScorePlayerTwo += 1
-      scorePlayer2.updateScore(numScorePlayerTwo)
-      blinkObject(scorePlayer2.get())
-      if (numScorePlayerTwo == 5) {
-        console.log(`${player.getName()} lost!`)
-        endGame(player2.getName())
+      numScorePlayerTwo += 1;
+      scorePlayer2.updateScore(numScorePlayerTwo);
+      blinkObject(scorePlayer2.get());
+      if (numScorePlayerTwo == 1) {
+        console.log(`${player.getName()} lost!`);
+        endGame(player2.getName());
       }
       ball.invertVelocity()
     } else if (check === 2) {
-      numScorePlayerOne += 1
-      scorePlayer1.updateScore(numScorePlayerOne)
-      blinkObject(scorePlayer1.get())
-      if (numScorePlayerOne == 5) {
-        console.log(`${player2.getName()} lost!`)
-        endGame(player.getName())
+      numScorePlayerOne += 1;
+      scorePlayer1.updateScore(numScorePlayerOne);
+      blinkObject(scorePlayer1.get());
+      if (numScorePlayerOne == 1) {
+        console.log(`${player2.getName()} lost!`);
+        endGame(player.getName());
       }
     } else {
       console.error('Unexpected check value')
@@ -155,9 +141,6 @@ function update() {
     return
   }
 
-  player.update()
-  player2.update()
-  handleCollisions(ball, player, player2)
 }
 
 // Blinking effect for the score when a player loses
@@ -182,10 +165,24 @@ function returnObjectsToPlace() {
   player2.returnToPlace()
 }
 
+let debounceTimeout: number | undefined;
+
 function toggleAnimation(event: KeyboardEvent) {
+  if (isGameOver.value) {
+    return;
+  }
+
   if (event.code === 'Space') {
-    isAnimating.value = !isAnimating.value
-    console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`)
+    // Clear the previous timeout if the event is fired repeatedly
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+
+    // Set a delay before executing the function to avoid multiple triggers
+    debounceTimeout = window.setTimeout(() => {
+      isAnimating.value = !isAnimating.value;
+      console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`);
+    }, 100); // Adjust the timeout as needed (100ms here)
   }
 }
 
@@ -201,20 +198,33 @@ const endGame = (winningPlayer: string) => {
     finalScore.updateScore('Returning to home...')
   }, 2000)
   setTimeout(() => {
-    winner.value = winningPlayer
-    isGameOver.value = true
-    returnToMenu()
-  }, 5000)
-}
+    winner.value = winningPlayer;
+    isGameOver.value = true;
+    // Emit the tournament data to the parent component
+    emit('gameOver', {
+      winner: winningPlayer,
+      name_player1: player1Name.value,
+      name_player2: player2Name.value,
+      score_player1: numScorePlayerOne,
+      score_player2: numScorePlayerTwo,
+      tournament_type: '2P'
+    });
+  }, 5000);
+};
 
 onMounted(() => {
   setupScene()
-  three.startAnimation(update)
+  setTimeout(() => {
+    three.removeScene(helpTextPlayerOne.get());
+    three.removeScene(helpTextPlayerTwo.get());
+    three.removeScene(helpTextSpace.get());
+  }, 4000);
   window.addEventListener('resize', () => {
-    three.resize(window.innerWidth, window.innerHeight)
-  })
-  window.addEventListener('keydown', toggleAnimation)
-})
+    three.resize(window.innerWidth, window.innerHeight);
+  });
+  window.addEventListener('keydown', toggleAnimation);
+  three.startAnimation(update)
+});
 
 onBeforeUnmount(() => {
   three.stopAnimation()

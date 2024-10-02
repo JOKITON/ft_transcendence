@@ -48,7 +48,7 @@ const logoutUser = async () => {
 // Función para obtener el nombre de usuario
 const fetchUsername = async () => {
   try {
-    const response = await api.get('whoami')
+    const response = await Auth.whoami()
     username.value = response.username // Reemplazar con la estructura real de tu respuesta
   } catch (error) {
     console.error('Error fetching username:', error.response ? error.response.data : error.message)

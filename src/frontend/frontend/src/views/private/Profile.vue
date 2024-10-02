@@ -1,311 +1,164 @@
+<!-- ** FALTA AÑADIR LA PARTE DE LA LISTA DE AMIGOS ** -->
 <template>
-  <NavHome></NavHome>
 
-  <!-- ---------------------------------------------------------------- -->
+  <!-- NAV DE LA PAGINA -->
+  <NavHome></NavHome>
   <div class="container">
-    <div class="main-body">
-      <div class="row gutters-sm d-flex align-items-stretch">
-        <div class="col-md-4 my-auto">
-          <div class="card">
-            <div class="card-body h-100">
-              <div class="d-flex flex-column align-items-center text-center">
-                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle" width="150">
-                <button class="btn btn-primary m-3" @click="editImage">Edit image</button>
-                <div class="mt-3">
-                  <h4>{{ user.username }}</h4>
-                  <p>0 friends</p>
-                  <div class="d-flex justify-content-center w-100 my-3">
-                    <div class="text-center mx-2 text-success">
-                      <div class="fs-4">Win</div>
-                      <div class="fs-5">10</div>
-                    </div>
-                    <div class="text-center">
-                      <span class="fs-4">/</span>
-                    </div>
-                    <div class="text-center mx-2 text-danger">
-                      <div class="fs-4">Losses</div>
-                      <div class="fs-5">567</div>
-                    </div>
-                  </div>
-                  <button class="btn btn-primary" @click="goToChangePassword">Change Password</button>
-                </div>
+      <div class="row gutters-sm my-3">
+
+        <!-- CARD DEL USUARIO -->
+        <div class="col-md-4 d-flex align-items-stretch">
+          <div class="user-card w-100 m-3 d-flex justify-content-center">
+            <div class="d-flex flex-column justify-content-center align-items-center text-center">
+              <h2 class="user-name pb-3 px-3">{{ user.username }}</h2>
+              <img :src="user.avatarUrl" alt="User Avatar" class="rounded-circle m-3" width="50%">
+              <p class="user-data pt-3 pb-1">{{ user.nickname }}</p>
+              <p class="user-data pb-3 pt-1">{{ user.email }}</p>
+
+              <!-- BOTONES PARA EDITAR LA INFORMACION O EL AVATAR -->
+              <div>
+                <button class="btn background-button mt-3 mx-2" @click="goToEditAvatar">Edit avatar</button>
+                <button class="btn border-button mt-3 mx-2" @click="goToEditProfile">Edit profile</button>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-md-8">
-          <div class="card mb-3">
-            <div class="card-body">
-              <form id="profileUpdate" @submit.prevent="saveChanges">
-                <!-- Fullname -->
-                <div class="row">
-                  <div class="col-sm-3">
-                    <h6 class="mb-0"> Name</h6>
-                  </div>
-                  <div class="col-sm-9 text-secondary">
-                    <span v-if="!isEditing">{{ user.username }}</span>
-                    <input v-else type="text" class="form-control" v-model="form.username">
-                  </div>
-                </div>
-                <hr>
 
-                <!-- Email -->
-                <div class="row">
-                  <div class="col-sm-3">
-                    <h6 class="mb-0">Email</h6>
-                  </div>
-                  <div class="col-sm-9 text-secondary">
-                    <span v-if="!isEditing">{{ user.email }}</span>
-                    <input v-else type="email" class="form-control" v-model="form.email">
-                  </div>
-                </div>
-                <hr>
-
-                <!-- Nickname -->
-                <div class="row">
-                  <div class="col-sm-3">
-                    <h6 class="mb-0">Nickname</h6>
-                  </div>
-                  <div class="col-sm-9 text-secondary">
-                    <span v-if="!isEditing">{{ user.nickname }}</span>
-                    <input v-else type="text" class="form-control" v-model="form.nickname">
-                  </div>
-                </div>
-                <hr>
-              </form>
-              <!-- Save or Edit button -->
-              <div class="row">
-                <div class="col-sm-12">
-                  <button class="btn btn-info" @click="isEditing ? saveChanges() : toggleEdit()">
-                    {{ isEditing ? 'Save' : 'Edit' }}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Player Stats -->
-          <div class="card-md-3">
-            <div class="card h-100">
-              <div class="card-body card-body2">
-                <h6 class="d-flex align-items-center mb-3">Player Stats</h6>
-                <div class="d-flex flex-column">
-                  <div class="d-flex justify-content-between mb-3">
-                    <span>Victories:</span>
-                    <span>123</span>
-                  </div>
-                  <div class="d-flex justify-content-between mb-3">
-                    <span>Losses:</span>
-                    <span>45</span>
-                  </div>
-                  <div class="d-flex justify-content-between mb-3">
-                    <span>Games Played:</span>
-                    <span>168</span>
-                  </div>
-                  <div class="d-flex justify-content-between mb-3">
-                    <span>Total Points:</span>
-                    <span>9876</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <!-- ESTADISTICAS DEL USUARIO -->
+        <div class="col-md-8 d-flex">
+            <Stats></Stats>
         </div>
       </div>
-    </div>
+      
+    <!-- LISTA DE AMIGOS-->
+    <FiendList></FiendList>
   </div>
-  <!-- ---------------------------------------------------------------- -->
 </template>
 
 <script setup lang="ts">
+
+/* ----- IMPORTS ----- */
+
 import { ref, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router'
+
 import NavHome from './NavHome.vue';
+import Stats from './Stats.vue';
+import FiendList from './FriendList.vue';
+import type Api from '@/utils/Api/Api'
+import auth from '../../services/user/services/auth/auth.ts'
+
+
+/* ----- VARIABLES ----- */
 
 const api: Api = inject('$api') as Api;
-
+const Auth: auth = new auth(api)
 const router = useRouter()
 
-const isEditing = ref(false);
 const user = ref({
-  username: 'User',
-  email: 'email',
-  nickname: 'nickname',
+  username: '',
+  email: '',
+  nickname: '',
+  avatarUrl: '',
+  wins: '0',
+  losses: '0',
 });
 
-const form = ref({
-  username: user.value.username,
-  email: user.value.email,
-  nickname: user.value.nickname,
-});
+/* ----- FETCH INFORMATION ----- */
 
-function toggleEdit() {
-  if (isEditing.value) {
-    // Restores the original values when edit mode is canceled
-    form.value = { ...user.value };
-  }
-  isEditing.value = !isEditing.value;
-}
-
-const saveChanges: () => Promise<void> = async () => {
+async function fetchPongData() {
   try {
-    const response = await api.post("auth/update-profile",form.value)
-    console.log('saved successful ', response)
-    window.location.reload();
-  } catch (error: any) {
-    window.alert('An error occurred while submitting the form')
-    console.error('An error occurred while submitting the form:', error)
+    const response = await api.get("pong/data");
+    // console.log('Data sent successfully:', response.data);
+    console.log(response);
+  } catch (error) {
+    console.error('Error sending data:', error);
+
+    if (error.response) {
+      const message = error.response.data.message || 'An error occurred.';
+      const errors = error.response.data.errors || {};
+
+      let errorMessage = `Request failed. ${message}`;
+      if (Object.keys(errors).length > 0) {
+        errorMessage += '\nErrors:\n';
+        for (const [field, msgs] of Object.entries(errors)) {
+          errorMessage += `${field}: ${msgs.join(', ')}\n`;
+        }
+      }
+      alert(errorMessage);
+    } else {
+      alert('Request to the backend failed. Please try again later.');
+    }
   }
-}
+};
 
 async function fetchUserData() {
   try {
-    const response = await api.get('auth/whoami');
+    const response = await Auth.whoami();
+    console.log(response)
     user.value = {
       username: response.username,
       email: response.email,
       nickname: response.nickname,
+      avatarUrl: response.avatar ? response.avatar : avatar,
     };
-    form.value = { ...user.value };
+    user.value.avatarUrl = '/src/assets/' + user.value.avatarUrl;
+
+    if (user.value.avatarUrl === '/src/assets/avatars/pepe.png') {
+      console.log("Using default avatar");
+    } else {
+      await fetchUserAvatar();
+    }
   } catch (error: any) {
     console.error('Error fetching user data:', error.message);
   }
 }
 
+async function fetchUserAvatar() {
+  try {
+    const response = await api.get('auth/get-avatar');
+    if (response.status === 200) {
+      const avatarBase64 = response.avatar_base64;
+      user.value.avatarUrl = `data:image/jpeg;base64,${avatarBase64}`;
+    } else {
+      console.error('Failed to fetch avatar:', response.data);
+    }
+  } catch (error) {
+    console.error('Error fetching user avatar:', error.message);
+  }
+}
+
 onMounted(async () => {
   await fetchUserData();
+  await fetchPongData();
 });
 
-const goToChangePassword = () => {
-  router.push('/change-password')
+
+/* ----- REDIRECCIONES A VISTAS ----- */
+
+const goToEditAvatar = () => {
+  router.push('/edit-avatar')
 }
+
+const goToEditProfile = () => {
+  router.push('/edit-profile')
+}
+
 </script>
 
-
 <style scoped>
-body {
-  margin-top: 20px;
-  color: #1a202c;
-  text-align: left;
-  background-color: #e2e8f0;
+
+.user-name {
+  font-family: Titulo !important;
+  color:#ebd2ff;
+  margin-bottom: 0px;
 }
 
-.main-body {
-  padding: 15px;
+.user-data {
+  font-family: NunitoBlack !important;
+  color:#ebd2ff;
+  margin-bottom: 0px;
+  font-size: 1.2em;
 }
-
-.card {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
-}
-
-.card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  word-wrap: break-word;
-  background-color: #fff;
-  background-clip: border-box;
-  border: 0 solid rgba(0, 0, 0, .125);
-  border-radius: .25rem;
-}
-
-.card-h {
-  height: 40em;
-}
-
-.card-body {
-  flex: 1 1 auto;
-  min-height: 1px;
-  padding: 1rem;
-}
-
-.gutters-sm {
-  margin-right: -8px;
-  margin-left: -8px;
-}
-
-.gutters-sm>.col,
-.gutters-sm>[class*=col-] {
-  padding-right: 8px;
-  padding-left: 8px;
-}
-
-.mb-3,
-.my-3 {
-  margin-bottom: 1rem !important;
-}
-
-.bg-gray-300 {
-  background-color: #e2e8f0;
-}
-
-.h-100 {
-  height: 100% !important;
-}
-
-.shadow-none {
-  box-shadow: none !important;
-}
-
-
-
-
-.friends-section {
-  background-color: #fff;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.friends-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.friend-item {
-  display: flex;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #ddd;
-}
-
-.friend-item:last-child {
-  border-bottom: none;
-}
-
-.status-indicator {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  margin-right: 10px;
-  border-radius: 50%;
-}
-
-.online {
-  background-color: green;
-}
-
-.offline {
-  background-color: red;
-}
-
-.card-body2 {
-  padding: 20px;
-}
-
-.d-flex {
-  display: flex;
-}
-
-.justify-content-between {
-  justify-content: space-between;
-}
-
-
-.form-control {
-  width: 100%;
-  margin-bottom: 10px;
-}
+  
 </style>

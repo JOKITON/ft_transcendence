@@ -12,30 +12,16 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: always
     networks:
-      - ft_transcendence
-
-  database:
-    container_name: database
-    build: ../database/
-    env_file: ../database/.env-postgres
-    ports:
-      - 5432
-    volumes:
-      - database:/var/lib/postgresql/data
-    restart: always
-    shm_size: 128mb
-    networks:
-      - ft_transcendence
+      - traefik
 
   frontend:
     container_name: frontend
-    image: frontend:0.0.1
     build: ../frontend/
     networks:
-      - ft_transcendence
+      - traefik
     volumes:
-      - frontend:/frontend
       - node_modules:/frontend/node_modules
+      - frontend:/frontend
     restart: always
     depends_on:
       - reverse-proxy
@@ -56,12 +42,10 @@ services:
   #  auth_traefik:
 
 networks:
-  ft_transcendence:
-    name: ft_transcendence
+  traefik:
+    name: traefik
     driver: bridge
-
 volumes:
-  node_modules:
   frontend:
     driver: local
     driver_opts:

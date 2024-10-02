@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/06 16:49:35 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/09/22 22:33:22 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,11 +19,12 @@ LABEL traefik.http.services.frontend.loadbalancer.server.port=80
 WORKDIR /frontend
 
 COPY frontend/package*.json ./
+
 RUN npm install
+RUN npm install vue3-beautiful-chat --save
+RUN npm update
 
 COPY frontend .
-RUN npm update vite
 
-EXPOSE 80
-
-CMD ["npm", "run", "dev", "--", "--host", "--port", "80"]
+ 
+CMD npm  run dev -- --host

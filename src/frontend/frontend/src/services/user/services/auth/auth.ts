@@ -3,7 +3,7 @@ import type { userResponse } from '@/models/user/userResponse'
 import type { ApiResponse } from '@/utils/Api/IApi'
 import Api from '../../../../utils/Api/Api'
 import type IAuth from './IAuth'
-import axios from 'axios'
+import { jwtDecode } from "jwt-decode";
 
 export default class auth implements IAuth {
   private api: Api = new Api()
@@ -21,6 +21,9 @@ export default class auth implements IAuth {
         this.setAuthHeader();
         return true
       } else {
+        console.error('Error logging in:',
+          response ? response.message : response.data.message
+        )
         window.alert('An error occurred while submitting the form login')
         return false
       }
@@ -33,7 +36,7 @@ export default class auth implements IAuth {
   public async logout(): Promise<boolean> {
     try {
       const response: ApiResponse<Record<string, any>> = await this.api.post<Record<string, any>>(
-        'logout',
+        'auth/logout',
         {
           token: localStorage.getItem('refresh_token') as string
         },
@@ -44,7 +47,7 @@ export default class auth implements IAuth {
       )
 
       if (response && response?.status === 200) {
-        this.removeToken()
+        this.removeAccessToken()
         return true
       } else {
         console.error('Error logging out:', response)
@@ -59,17 +62,59 @@ export default class auth implements IAuth {
   public async register(data: Record<string, any>): Promise<boolean> {
     try {
       const response: ApiResponse<userResponse> = await this.api.post<userResponse>(
-        'register',
+        'auth/register',
         data
       )
-      if (response.status === 200) {
+      if (response.status === 201) {
         return true
       } else {
-        console.error('error de registro')
+        throw (response.code);
+      }
+    } catch (error: any) {
+      const response = error;
+      switch (response) {
+        case 'user_exists':
+          console.log('Username is not available. Try again with a different one.')
+          alert('Username is not available. Try again with a different one or log in.')
+          return true;
+        
+        case 'nickname_exists':
+          console.log('Nickname is not available. Try again with a different one.')
+          alert('Nickname is not available. Try again with a different one.')
+          return false
+
+        case 'email_exists':
+          console.log('Email is not available. Try again with a different one.')
+          alert('Email is not available. Try again with a different one.')
+          return false
+
+        case 'token_not_valid':
+          console.log('Token invalid. Redirecting to login.')
+          this.removeAccessToken()
+          return false
+
+        default:
+          console.error('Unexpected token status:', response)
+          this.removeAccessToken()
+          return false
+        }
+    }
+  }
+
+  public async whoami(): Promise<boolean> {
+    try {
+      const response: ApiResponse<Record<string, any>> = await this.api.get(
+        'auth/whoami'
+      )
+
+      if (response && response?.status === 200) {
+        return (response)
+      } else {
+        console.error('Error getting username:', response)
         return false
       }
     } catch (error: any) {
-      console.error('Error registering user:', error)
+      console.error('Error getting username:', error)
       return false
     }
   }
@@ -78,27 +123,34 @@ export default class auth implements IAuth {
     try {
       const accessToken = localStorage.getItem('access_token');
       if (accessToken) {
-        this.setAuthHeader();
-        const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
-        'auth/token/verify',
-        {
-          token: accessToken as string
-        });
-  
-        if (response.status === 200) {
-          return true; // Token is still valid
+        if (this.isTokenValid(accessToken) == false) {
+          console.log('Token expired. Attempting to refresh.')
+          return (await this.refreshAuthToken())
+        } else {
+          this.setAuthHeader()
+          const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
+            'auth/token/verify',
+            {
+              token: accessToken as string
+            }
+          )
+
+          if (response.status === 200) {
+            return true // Token is still valid
+          } else {
+            throw(response);
+          }
         }
       }
-      else
-        console.log('No token found. Redirecting to login.');
-        return false;
-    } catch (error) {
-      const response = error.response;
-      switch (response.data.code) {
+    }
+    catch (error) {
+      const response = error
+      switch (response.code) {
         case 'expired':
-          console.log('Token expired. Attempting to refresh.');
-          return (await this.refreshAuthToken());
-  
+          console.log('Token expired. Attempting to refresh.')
+          console.log(await this.refreshAuthToken())
+          return true;
+
         case 'token_not_valid':
           console.log('Token invalid. Redirecting to login.');
           this.removeAccessToken();
@@ -110,38 +162,70 @@ export default class auth implements IAuth {
           return false;
   
         default:
-          console.error('Unexpected token status:', response.data.status);
-          this.removeAccessToken();
-          return false;
-      }
+          console.error('Unexpected token status:', response.detail)
+          this.removeAccessToken()
+          return false
+        }
     }
   }
+
+  public isTokenValid(token) {
+    if (!token) return false;
+    try {
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000; // tiempo actual en segundos
+        // Verifica si el token ha expirado
+        if (decoded.exp && decoded.exp < currentTime) {
+            return false; // Token ha expirado
+        }
+        return true; // Token es válido
+    } catch (error) {
+        console.error("Error decodificando el token:", error);
+        return false;
+    }
+}
 
   public async refreshAuthToken() {
     try {
       const refreshToken = localStorage.getItem('refresh_token');
       const response: ApiResponse<tokenRequest> = await this.api.post<tokenRequest>(
-        'token/refresh',
-        {
-          token: refreshToken
+        'auth/token/refresh',
+        { 
+          refresh: refreshToken
         });
 
-      const newAccessToken = response.data.access;
-      const newRefreshToken = response.data.refresh;
-      if (newAccessToken) {
+      if (response.status === 200) {
+        const newAccessToken = response.access;
+        const newRefreshToken = response.refresh;
         this.setAccessToken(newAccessToken);
-      }
-      if (newRefreshToken)
         this.setRefreshToken(newRefreshToken);
-
-      return true;
+        return true;
+      }
+      else
+        throw(response);
     } catch (error) {
-      console.error(
-        "Refresh token error:",
-        error.response ? error.response.data : error.message
-      );
-      alert("Session expired. Please log in again.");
-      return false;
+      const response = error
+      switch (response.code) {
+        case 'expired':
+          console.log('Token expired. Removed tokens...')
+          this.removeAccessToken()
+          return false;
+
+        case 'token_not_valid':
+          console.log('Token invalid. Redirecting to login.')
+          this.removeAccessToken()
+          return false
+
+        case 'missing':
+          console.log('Token missing. Redirecting to login.')
+          this.removeAccessToken()
+          return false
+
+        default:
+          console.error('Unexpected token status:', response.detail)
+          this.removeAccessToken()
+          return false
+        }
     }
   }
 
