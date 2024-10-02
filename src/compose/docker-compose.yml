@@ -25,21 +25,19 @@ services:
     restart: always
     depends_on:
       - reverse-proxy
-      - database
   redis:
     container_name: redis
     build: ../backend/redis/
-    env_file: ../.env.dev
+    env_file: ../backend/.env-dev
     restart: always
     #volumes:
     #  - redis:/redis
     networks:
-      - ft_transcendence
+      - traefik
     ports:
       - 6379
-
-  #secrets:
-  #  auth_traefik:
+#secrets:
+#  auth_traefik:
 
 networks:
   traefik:
@@ -51,16 +49,5 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ../frontend/frontend/
-  database:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../database/db
-  redis:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../backend/redis/redis
+      device: ../frontend/frontend
+  node_modules:

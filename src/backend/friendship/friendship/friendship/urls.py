@@ -3,12 +3,15 @@ from .views import (
     InviteFriendView,
     InviteStatusView,
     DeleteFriendView,
+    #FriendsView,
     PendingFriendRequestsView,
     AcceptFriendRequestView,
     GetFriendsView,
+    GetFriendsById,
     RejectFriendRequestView,
     BlockUserView,
     UnlockUserView
+    
 )
 from django.urls import path
 
@@ -19,10 +22,9 @@ urlpatterns = [
     path("edit", InviteStatusView.as_view(), name="edit"),
     path("del", DeleteFriendView.as_view(), name="del"),
     path("friends", GetFriendsView.as_view(), name="friends"),
-    path("acceptFriendReq", AcceptFriendRequestView.as_view(),
-         name="acceptFriendReq"),
-    path("rejectFriendReq", RejectFriendRequestView.as_view(),
-         name="rejectFriendReq"),
+    path("friends-id/<int:user_id>/", GetFriendsById.as_view(), name="friendsId"),
+    path("acceptFriendReq", AcceptFriendRequestView.as_view(), name="acceptFriendReq"),
+    path("rejectFriendReq", RejectFriendRequestView.as_view(), name="rejectFriendReq"),
     path("blockFriend", BlockUserView.as_view(), name="blockFriend"),
     path("unblockFriend", UnlockUserView.as_view(), name="unblockFriend"),
 ]

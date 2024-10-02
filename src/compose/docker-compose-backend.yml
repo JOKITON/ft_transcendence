@@ -77,14 +77,14 @@ services:
   livechat:
     container_name: livechat
     build: ../backend/livechat/
-    env_file: ../.env.dev
+    env_file: ../backend/.env-dev
     restart: always
     volumes:
       - livechat:/livechat
     networks:
-      - ft_transcendence
+      - traefik
     depends_on:
-      - authentication
+      - auth
 
 networks:
   traefik:

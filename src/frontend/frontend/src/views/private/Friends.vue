@@ -86,6 +86,7 @@ const searchQuery = ref('');
 interface Friend {
   id: number;
   username: string;
+  avatar: string;
   isOnline?: boolean;
   is_blocked_by_user: boolean;
   is_blocked_by_friend: boolean;
@@ -124,8 +125,6 @@ onMounted(async () => {
 
     // Asigna el estado correctamente, incluyendo los nuevos campos de bloqueo
     friends.value = fetchFriendsResponse.friends || [];
-    console.log('lista de amigos')
-    console.log(friends.value)
     form.value = { ...userResponse.data };
 
     // Fetch friend requests as part of onMounted
