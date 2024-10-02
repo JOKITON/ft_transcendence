@@ -3,23 +3,6 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-class Tournament(models.Model):
-    tournament_type_choices = [
-        ('AI', 'AI Tournament'), ('2P', '2P Tournament')
-    ]
-
-    winner = models.CharField(max_length=100)
-    player1 = models.CharField(max_length=100)
-    player2 = models.CharField(max_length=100)
-    score_player1 = models.IntegerField()
-    score_player2 = models.IntegerField()
-    tournament_type = models.CharField(max_length=2, choices=tournament_type_choices, default='2P')
-
-    def __str__(self):
-        return f"{self.tournament_type} - {self.winner}"
-
-# 8 Player Tournament
-
 class Player(models.Model):
     name = models.CharField(max_length=255)
     score = models.JSONField()
@@ -28,6 +11,31 @@ class Player(models.Model):
     def __str__(self):
         return f"{self.name} (Position: {self.position}, Score: {self.score})"
 
+class PlayerStats(models.Model):
+    player = models.OneToOneField(Player, on_delete=models.CASCADE, related_name='stats')
+    wins = models.IntegerField(default=0)
+    losses = models.IntegerField(default=0)
+    total_games = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.player.name} Stats"
+
+class Tournament(models.Model):
+    tournament_type_choices = [
+        ('AI', 'AI Tournament'), ('2P', '2P Tournament')
+    ]
+
+    winner = models.CharField(Player, on_delete=models.CASCADE, related_name='won_tournaments')
+    player1 = models.CharField(Player, on_delete=models.CASCADE, related_name='player1_tournaments')
+    player2 = models.CharField(Player, on_delete=models.CASCADE, related_name='player2_tournaments')
+    score_player1 = models.IntegerField()
+    score_player2 = models.IntegerField()
+    tournament_type = models.CharField(max_length=2, choices=tournament_type_choices, default='2P')
+
+    def __str__(self):
+        return f"{self.tournament_type} - {self.winner}"
+
+# 8 Player Tournament
 class FinalRound(models.Model):
     player_one = models.CharField(max_length=255)
     player_two = models.CharField(max_length=255)

@@ -60,10 +60,37 @@ const user = ref({
   email: '',
   nickname: '',
   avatarUrl: '',
+  wins: '0',
+  losses: '0',
 });
 
-
 /* ----- FETCH INFORMATION ----- */
+
+async function fetchPongData() {
+  try {
+    const response = await api.get("pong/data");
+    // console.log('Data sent successfully:', response.data);
+    console.log(response);
+  } catch (error) {
+    console.error('Error sending data:', error);
+
+    if (error.response) {
+      const message = error.response.data.message || 'An error occurred.';
+      const errors = error.response.data.errors || {};
+
+      let errorMessage = `Request failed. ${message}`;
+      if (Object.keys(errors).length > 0) {
+        errorMessage += '\nErrors:\n';
+        for (const [field, msgs] of Object.entries(errors)) {
+          errorMessage += `${field}: ${msgs.join(', ')}\n`;
+        }
+      }
+      alert(errorMessage);
+    } else {
+      alert('Request to the backend failed. Please try again later.');
+    }
+  }
+};
 
 async function fetchUserData() {
   try {
@@ -103,6 +130,7 @@ async function fetchUserAvatar() {
 
 onMounted(async () => {
   await fetchUserData();
+  await fetchPongData();
 });
 
 

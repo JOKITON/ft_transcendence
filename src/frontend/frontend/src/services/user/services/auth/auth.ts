@@ -162,7 +162,7 @@ export default class auth implements IAuth {
           return false;
   
         default:
-          console.error('Unexpected token status:', response.status)
+          console.error('Unexpected token status:', response.detail)
           this.removeAccessToken()
           return false
         }
@@ -202,7 +202,7 @@ export default class auth implements IAuth {
         return true;
       }
       else
-        throw new Error(response);
+        throw(response);
     } catch (error) {
       const response = error
       switch (response.code) {
@@ -222,7 +222,7 @@ export default class auth implements IAuth {
           return false
 
         default:
-          console.error('Unexpected token status:', response.status)
+          console.error('Unexpected token status:', response.detail)
           this.removeAccessToken()
           return false
         }

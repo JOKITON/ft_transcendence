@@ -22,13 +22,11 @@ const emit = defineEmits(['gameOver']);
 let indexGame = 0;
 
 // Extract initial players for the current game
-let player1Name = ref(props.players[indexGame].player1Name);
-let player2Name = ref(props.players[indexGame].player2Name);
+let player1Name = ref(props.players?.[indexGame]?.player1Name || 'Player 1');
+let player2Name = ref(props.players?.[indexGame]?.player2Name || 'Player 2');
 
-console.log('Players:', props.players[indexGame].player1Name);
 props.players.forEach(({ player1Name, player2Name }) => {
-  console.log(player1Name);
-  console.log(player2Name);
+  console.log('{', player1Name, '} vs {', player2Name, '}');
 });
 
 const three = new ThreeService(window.innerWidth, window.innerHeight);
@@ -53,14 +51,17 @@ const wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector
 // Scores
 let variableScoreOne = 0;
 let variableScoreTwo = 0;
-let numScorePlayer1: Array<Number> = [];
-let numScorePlayer2: Array<Number> = [];
-let numScorePlayer3: Array<Number> = [];
-let numScorePlayer4: Array<Number> = [];
-let numScorePlayer5: Array<Number> = [];
-let numScorePlayer6: Array<Number> = [];
-let numScorePlayer7: Array<Number> = [];
-let numScorePlayer8: Array<Number> = [];
+let numScorePlayer1: Array<number> = [];
+let numScorePlayer2: Array<number> = [];
+let numScorePlayer3: Array<number> = [];
+let numScorePlayer4: Array<number> = [];
+let numScorePlayer5: Array<number> = [];
+let numScorePlayer6: Array<number> = [];
+let numScorePlayer7: Array<number> = [];
+let numScorePlayer8: Array<number> = [];
+
+let posPlayers: Array<number> = new Array(8).fill(0);  // Assuming an array of size 8
+
 const scorePlayer1 = new Score(variableScoreOne, new Color('white'), new Vector3(-2, 7.5, 0));
 const scorePlayer2 = new Score(variableScoreTwo, new Color('white'), new Vector3(2, 7.5, 0));
 
@@ -69,8 +70,8 @@ const isGameOver = ref(false);
 const winner = ref('');
 
 // Initialize players with the provided names
-const player = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(16, 0, 0), 'ArrowUp', 'ArrowDown', player1Name.value);
-const player2 = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(-16, 0, 0), 'KeyW', 'KeyS', player2Name.value);
+const playerOne = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(16, 0, 0), 'ArrowUp', 'ArrowDown', player1Name.value);
+const playerTwo = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(-16, 0, 0), 'KeyW', 'KeyS', player2Name.value);
 
 const helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
 
@@ -82,8 +83,8 @@ function setupScene() {
   three.addScene(horizWallUp.get());
   three.addScene(horizWallDown.get());
   three.addScene(wallMid.get());
-  three.addScene(player.get());
-  three.addScene(player2.get());
+  three.addScene(playerOne.get());
+  three.addScene(playerTwo.get());
   three.addScene(ball.get());
   three.addScene(scorePlayer1.get());
   three.addScene(scorePlayer2.get());
@@ -114,8 +115,8 @@ function update() {
       scorePlayer2.updateScore(variableScoreTwo);
       blinkObject(scorePlayer2.get());
       if (variableScoreTwo === 1) {
-        console.log(`${player.getName()} lost!`);
-        endGame(player2.getName(), player.getName());
+        console.log(`${playerOne.getName()} lost!`);
+        endGame(playerTwo.getName(), playerOne.getName());
       }
       ball.invertVelocity();
     } else if (check === 2) {
@@ -123,8 +124,8 @@ function update() {
       scorePlayer1.updateScore(variableScoreOne);
       blinkObject(scorePlayer1.get());
       if (variableScoreOne === 1) {
-        console.log(`${player2.getName()} lost!`);
-        endGame(player.getName(), player2.getName());
+        console.log(`${playerTwo.getName()} lost!`);
+        endGame(playerOne.getName(), playerTwo.getName());
       }
     } else {
       console.error('Unexpected check value');
@@ -136,9 +137,9 @@ function update() {
     return;
   }
 
-  player.update();
-  player2.update();
-  handleCollisions(ball, player, player2);
+  playerOne.update();
+  playerTwo.update();
+  handleCollisions(ball, playerOne, playerTwo);
 }
 
 // Blinking effect for the score when a player loses
@@ -150,17 +151,18 @@ function blinkObject(mesh: Mesh) {
   const intervalId = setInterval(() => {
     visible = !visible;
     mesh.visible = visible;
-
-    setTimeout(() => {
-      clearInterval(intervalId);
-      mesh.visible = true;
-    }, blinkDuration);
   }, blinkInterval);
+
+  setTimeout(() => {
+    clearInterval(intervalId);
+    mesh.visible = true;  // Ensure the mesh is visible after blinking ends
+  }, blinkDuration);
+
 }
 
 function returnObjectsToPlace() {
-  player.returnToPlace();
-  player2.returnToPlace();
+  playerOne.returnToPlace();
+  playerTwo.returnToPlace();
 }
 
 let debounceTimeout: number | undefined;
@@ -177,10 +179,10 @@ function toggleAnimation(event: KeyboardEvent) {
     }
 
     // Set a delay before executing the function to avoid multiple triggers
-    debounceTimeout = window.setTimeout(() => {
+    debounceTimeout = setTimeout(() => {
       isAnimating.value = !isAnimating.value;
       console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`);
-    }, 100); // Adjust the timeout as needed (100ms here)
+    }, 100);
   }
 }
 
@@ -211,75 +213,152 @@ let finalTwo = '';
 [0, 0] -> 7
 */
 
+// Simplified function to update player names
+function setNewTournamentNames(newPlayer1Name: string, newPlayer2Name: string): void {
+  player1Name.value = newPlayer1Name;
+  player2Name.value = newPlayer2Name;
+}
+
+// Function to handle semi-final position updates
+function setSemiPositions(indexPosPlayer: number, indexPlayer: number, indexMatch: number, losingPlayer: string): void {
+  const player1 = props.players[indexPlayer].player1Name;
+  const player2 = props.players[indexPlayer].player2Name;
+
+  if (losingPlayer === player1) {
+    posPlayers[indexPosPlayer - 1] = indexMatch;
+    console.log(`Player: ${player1}, IndexPos: ${indexPosPlayer}, Position: ${indexMatch}`);
+  } else if (losingPlayer === player2) {
+    posPlayers[indexPosPlayer] = indexMatch;
+    console.log(`Player: ${player2}, IndexPos: ${indexPosPlayer + 1}, Position: ${indexMatch}`);
+  }
+}
+
+// Function to handle final match position updates
+function setFinalPositions(losingPlayer: string, indexMatch: number): void {
+  console.log(`Setting final position for: ${losingPlayer}, Match Index: ${indexMatch}`);
+  const playerIndex = props.players.findIndex(player =>
+    player.player1Name === losingPlayer || player.player2Name === losingPlayer
+  );
+
+  console.log(`Player Index Found: ${playerIndex}`);
+  if (playerIndex !== -1) {
+    const finalPlayerIndex = (props.players[playerIndex].player1Name === losingPlayer) ? playerIndex * 2 : playerIndex * 2 + 1;
+    posPlayers[finalPlayerIndex] = indexMatch;
+    console.log(`Player: ${losingPlayer}, IndexPos: ${finalPlayerIndex + 1}, Position: ${indexMatch}`);
+  } else {
+    console.error(`Player ${losingPlayer} not found in the tournament`);
+  }
+}
+
+
+// Main function to manage the tournament flow
 function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: number): void {
-  console.log('{',variableScoreOne ,'}');
-  console.log('{',variableScoreTwo ,'}');
-  if (matchIndex === 1) {
-    numScorePlayer1.push(variableScoreOne);
-    numScorePlayer2.push(variableScoreTwo);
-    semiOne = winPlayer;
-    player1Name.value = props.players[1].player1Name;
-    player2Name.value = props.players[1].player2Name;
-  } else if (matchIndex === 2) {
-    numScorePlayer3.push(variableScoreOne);
-    numScorePlayer4.push(variableScoreTwo);
-    semiTwo = winPlayer;
-    player1Name.value = props.players[2].player1Name;
-    player2Name.value = props.players[2].player2Name;
-  } else if (matchIndex === 3) {
-    numScorePlayer5.push(variableScoreOne);
-    numScorePlayer6.push(variableScoreTwo);
-    semiThree = winPlayer;
-    player1Name.value = props.players[3].player1Name;
-    player2Name.value = props.players[3].player2Name;
-  } else if (matchIndex === 4) {
-    numScorePlayer7.push(variableScoreOne);
-    numScorePlayer8.push(variableScoreTwo);
-    semiFour = winPlayer;
-    player1Name.value = semiOne;
-    player2Name.value = semiTwo;
-  } else if (matchIndex === 5) {
-    if (winPlayer == props.players[0].player1Name || losingPlayer == props.players[0].player1Name) {
-      numScorePlayer1.push(variableScoreOne);
-      finalOne = props.players[0].player1Name;
-    } else {
-      numScorePlayer2.push(variableScoreOne);
-      finalOne = props.players[0].player2Name;
-    }
-
-    if (winPlayer == props.players[1].player1Name || losingPlayer == props.players[1].player1Name) {
-      numScorePlayer3.push(variableScoreTwo);
-      finalOne = props.players[1].player1Name;
-    } else {
-      numScorePlayer4.push(variableScoreTwo);
-      finalOne = props.players[1].player2Name;
-    }
-    player1Name.value = semiThree;
-    player2Name.value = semiFour;
-  } else if (matchIndex === 6) {
-    if (winPlayer == props.players[2].player1Name || losingPlayer == props.players[2].player1Name) {
-      numScorePlayer5.push(variableScoreOne);
-      finalTwo = props.players[2].player1Name;
-    } else {
-      numScorePlayer6.push(variableScoreOne);
-      finalTwo = props.players[2].player2Name;
-    }
-
-    if (winPlayer == props.players[3].player1Name || losingPlayer == props.players[3].player1Name) {
-      numScorePlayer7.push(variableScoreTwo);
-      finalTwo = props.players[3].player1Name;
-    } else {
-      numScorePlayer8.push(variableScoreTwo);
-      finalTwo = props.players[3].player2Name;
-    }
-    player1Name.value = finalOne;
-    player2Name.value = finalTwo;
+  console.log(`Results: {${variableScoreOne}} {${variableScoreTwo}}`);
+  let player1, player2;
+  if (matchIndex < 4 ) {
+    player1 = props.players[matchIndex].player1Name;
+    player2 = props.players[matchIndex].player2Name;
   }
 
+  switch (matchIndex) {
+    case 1:
+      numScorePlayer1.push(variableScoreOne);
+      numScorePlayer2.push(variableScoreTwo);
+      semiOne = winPlayer;
+      setSemiPositions(1, matchIndex - 1, 9 - matchIndex, losingPlayer);
+      // Update player names for the next match
+      setNewTournamentNames(player1, player2);
+      break;
+
+    case 2:
+      numScorePlayer3.push(variableScoreOne);
+      numScorePlayer4.push(variableScoreTwo);
+      semiTwo = winPlayer;
+      setSemiPositions(3, matchIndex - 1, 9 - matchIndex, losingPlayer);
+      setNewTournamentNames(player1, player2);
+      break;
+
+    case 3:
+      numScorePlayer5.push(variableScoreOne);
+      numScorePlayer6.push(variableScoreTwo);
+      semiThree = winPlayer;
+      setSemiPositions(5, matchIndex - 1, 9 - matchIndex, losingPlayer);
+      setNewTournamentNames(player1, player2);
+      break;
+
+    case 4:
+      numScorePlayer7.push(variableScoreOne);
+      numScorePlayer8.push(variableScoreTwo);
+      semiFour = winPlayer;
+      setSemiPositions(7, matchIndex - 1, 9 - matchIndex, losingPlayer);
+      // Ensure the final names are set after semi-finals
+      setNewTournamentNames(semiOne, semiTwo);
+      break;
+
+    case 5:
+      updateFinalScoresAndNames(winPlayer, losingPlayer, 0, 1); // Find & Set players for next Match
+      setNewTournamentNames(semiThree, semiFour); // Set definive names for next Match
+      setFinalPositions(losingPlayer, 9 - matchIndex);
+      break;
+
+    case 6:
+      updateFinalScoresAndNames(winPlayer, losingPlayer, 2, 3);
+      setNewTournamentNames(finalOne, finalTwo);
+      setFinalPositions(losingPlayer, 9 - matchIndex);
+      break;
+
+    default:
+      console.error('Invalid match index');
+      break;
+  }
+
+  // Log player names for debugging
+  // console.log(`Current Players: ${player1Name.value}, ${player2Name.value}`);
   // Update player names for the next match
-  player.setName(player1Name.value);
-  player2.setName(player2Name.value);
+  playerTwo.setName(player2Name.value)
+  playerOne.setName(player1Name.value)
 }
+
+
+// Helper function to update final scores and names
+function updateFinalScoresAndNames(
+  winPlayer: string, 
+  losingPlayer: string, 
+  playerIndex1: number, 
+  playerIndex2: number,
+): void {
+  let tempFinal : string;
+  if (winPlayer === props.players[playerIndex1].player1Name || losingPlayer === props.players[playerIndex1].player1Name) {
+    numScorePlayer1.push(variableScoreOne);
+    tempFinal = props.players[playerIndex1].player1Name;
+  } else {
+    numScorePlayer2.push(variableScoreOne);
+    tempFinal = props.players[playerIndex1].player2Name;
+  }
+  if (tempFinal == winPlayer) {
+    if (playerIndex1 == 2 && playerIndex2 == 3)
+      finalTwo = tempFinal;
+    else
+      finalOne = tempFinal;
+  }
+
+  if (winPlayer === props.players[playerIndex2].player1Name || losingPlayer === props.players[playerIndex2].player1Name) {
+    numScorePlayer3.push(variableScoreTwo);
+    tempFinal = props.players[playerIndex2].player1Name;
+  } else {
+    numScorePlayer4.push(variableScoreTwo);
+    tempFinal = props.players[playerIndex2].player2Name;
+  }
+  if (tempFinal == winPlayer) {
+    if (playerIndex1 == 2 && playerIndex2 == 3)
+      finalTwo = tempFinal;
+    else
+      finalOne = tempFinal;
+  }
+  console.log('FinalOne: ', finalOne);
+  console.log('FinalTwo: ', finalTwo);
+}
+
 
 const endGame = (winningPlayer: string, losingPlayer: string) => {
   const finalScore = new GameOver(winningPlayer + ' won!', new Color('white'), new Vector3(0, 0.5, 0));
@@ -299,7 +378,7 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
     }, 3000);
   } else if (indexGame === 7) {
 
-    if (winningPlayer == props.players[0].player1Name )
+    if (winningPlayer == props.players[0].player1Name)
       numScorePlayer1.push(variableScoreOne);
     else if (winningPlayer == props.players[0].player2Name)
       numScorePlayer2.push(variableScoreOne);
@@ -316,7 +395,7 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
     else if (winningPlayer == props.players[3].player2Name)
       numScorePlayer8.push(variableScoreOne);
 
-      if (losingPlayer == props.players[0].player1Name)
+    if (losingPlayer == props.players[0].player1Name)
       numScorePlayer1.push(variableScoreTwo);
     else if (losingPlayer == props.players[0].player2Name)
       numScorePlayer2.push(variableScoreTwo);
@@ -333,6 +412,8 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
     else if (losingPlayer == props.players[3].player2Name)
       numScorePlayer8.push(variableScoreTwo);
 
+    setFinalPositions(losingPlayer, 2);
+    setFinalPositions(winningPlayer, 1);
     setTimeout(() => {
       finalScore.updateScore("Returning to home...");
       winner.value = winningPlayer;
@@ -341,14 +422,14 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
       // Emit the tournament data to the parent component
       emit('gameOver', {
         players: [
-          { name: props.players[0].player1Name, score: numScorePlayer1, position: 1 },
-          { name: props.players[0].player2Name, score: numScorePlayer2, position: 2 },
-          { name: props.players[1].player1Name, score: numScorePlayer3, position: 3 },
-          { name: props.players[1].player2Name, score: numScorePlayer4, position: 4 },
-          { name: props.players[2].player1Name, score: numScorePlayer5, position: 5 },
-          { name: props.players[2].player2Name, score: numScorePlayer6, position: 6 },
-          { name: props.players[3].player1Name, score: numScorePlayer7, position: 7 },
-          { name: props.players[3].player2Name, score: numScorePlayer8, position: 8 },
+          { name: props.players[0].player1Name, score: numScorePlayer1, position: posPlayers[0] },
+          { name: props.players[0].player2Name, score: numScorePlayer2, position: posPlayers[1] },
+          { name: props.players[1].player1Name, score: numScorePlayer3, position: posPlayers[2] },
+          { name: props.players[1].player2Name, score: numScorePlayer4, position: posPlayers[3] },
+          { name: props.players[2].player1Name, score: numScorePlayer5, position: posPlayers[4] },
+          { name: props.players[2].player2Name, score: numScorePlayer6, position: posPlayers[5] },
+          { name: props.players[3].player1Name, score: numScorePlayer7, position: posPlayers[6] },
+          { name: props.players[3].player2Name, score: numScorePlayer8, position: posPlayers[7] },
         ],
         final_round: {
           player_one: finalOne,
@@ -381,8 +462,8 @@ onMounted(() => {
 onBeforeUnmount(() => {
   three.stopAnimation();
   three.dispose();
-  player?.dispose();
-  player2?.dispose();
+  playerOne?.dispose();
+  playerTwo?.dispose();
   ball.dispose();
   horizWallDown.dispose();
   horizWallUp.dispose();
@@ -391,6 +472,10 @@ onBeforeUnmount(() => {
   scorePlayer2.dispose();
   helpTextPlayerOne.dispose();
   helpTextPlayerTwo.dispose();
+  window.removeEventListener('resize', () => {
+    three.resize(window.innerWidth, window.innerHeight);
+  });
+  window.removeEventListener('keydown', toggleAnimation);
 });
 </script>
 
