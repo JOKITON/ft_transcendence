@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from django.db.models.base import ModelBase
 from rest_framework import serializers
-from UserModel.models import User
+from django.contrib.auth.models import User
 from typing import List, Any, Dict
 from .models import Room
 

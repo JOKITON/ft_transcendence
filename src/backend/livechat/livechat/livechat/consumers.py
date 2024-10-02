@@ -1,7 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.core.mail import message
-from .models import Room, Message
 import json
+from .models import Room, Message
 
 
 class ConsumerLiveChat(AsyncWebsocketConsumer):
@@ -14,8 +14,6 @@ class ConsumerLiveChat(AsyncWebsocketConsumer):
         self.room = None
         self.user = None
         self.user_inbox = None
-
-    """ conecta al usuario al chat y lo agrega al grupo de chat """
 
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]

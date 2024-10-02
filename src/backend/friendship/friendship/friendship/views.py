@@ -62,7 +62,6 @@ class InviteFriendView(APIView):
         serializer = InviteFriendSerializer(
             data=request.data, context={"request": request}
         )
-        print("holaa")
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -215,7 +214,8 @@ class GetFriendsView(APIView):
             friendship.friend if friendship.user == user else friendship.user
             for friendship in friendships
         ]
-        serializer = FriendSerializer(friends, many=True, context={'request': request})
+        serializer = FriendSerializer(
+            friends, many=True, context={"request": request})
 
         return Response({"friends": serializer.data}, status=status.HTTP_200_OK)
 
@@ -225,4 +225,22 @@ class BlockUserView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user
+        user = request.user
+        blocked_user = User.objects.get(username=request.data.get("username"))
+
+        if blocked_user == user:
+            return Response(
+                {"error": "You cannot block yourself"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            friendship = Friendship.objects.get(user=user, friend=blocked_user)
+            friendship.status = Friendship.BLOCKED
+            friendship.save()
+
+            return Response({"message": "User blocked"}, status=status.HTTP_200_OK)
+        except Friendship.DoesNotExist:
+            return Response(
+                {"error": "Friendship not found"}, status=status.HTTP_404_NOT_FOUND
+            )

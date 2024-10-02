@@ -8,21 +8,25 @@ if [ "$DATABASE" = "postgres" ]; then
   done
 fi
 
-KEY_DIR="/livechat/secrets"
+KEY_DIR="/authentication/secrets"
 mkdir -p "$KEY_DIR"
 
-curl -s http://authentication/api/v1/auth/public | jq -r '.public' >"$KEY_DIR/public.pem"
-if ! openssl rsa -pubin -in /livechat/secrets/public.pem -text -noout >/dev/null 2>&1; then
-  echo "Error: Fetched public key is not valid."
-  exit 1
-fi
+openssl genrsa -out $KEY_DIR/private.pem 2048
 
+sleep 1
+openssl rsa -in $KEY_DIR/private.pem -pubout -out $KEY_DIR/public.pem
+
+# Apply database migrations first time
 echo "Applying database migrations..."
-if ! python manage.py makemigrations --noinput; then
+if ! python manage.py makemigrations authentication --noinput; then
   echo "Migrations failed"
   exit 1
 fi
 
+if ! python manage.py makemigrations --noinput; then
+  echo "Migrations failed"
+  exit 1
+fi
 # Apply database migrations
 echo "Applying database migrations..."
 if ! python manage.py migrate --noinput; then
@@ -37,8 +41,6 @@ if ! python manage.py collectstatic --no-input; then
   exit 1
 fi
 
-export DJANGO_SETTINGS_MODULE=config.settings
 # Start the Django development server
 echo "Starting Django development server..."
-#uvicorn config.asgi:application --host 0.0.0.0 --port 800
-daphne -b 0.0.0.0 -p 80 config.asgi:application
+gunicorn --bind 0.0.0.0:80 --workers=3 config.wsgi:application --reload --timeout 120
