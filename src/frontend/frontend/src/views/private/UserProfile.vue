@@ -21,7 +21,7 @@
             <MyCarousel></MyCarousel>
         </div>
       </div>
-    <FiendList></FiendList>
+    <FriendList :userId="userData.id"></FriendList>
   </div>
 </template>
 
@@ -32,7 +32,7 @@ import { onMounted, ref, inject, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import NavHome from './NavHome.vue';
 import MyCarousel from './Stats.vue';
-import FiendList from './FriendList.vue';
+import FriendList from './FriendList.vue';
 import avatar from '../../assets/avatars/pepe.png';
 
 

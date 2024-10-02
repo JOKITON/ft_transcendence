@@ -31,7 +31,7 @@
       </div>
       
     <!-- LISTA DE AMIGOS-->
-    <FiendList></FiendList>
+    <FriendList :userId="user.id"></FriendList>
   </div>
 </template>
 
@@ -44,7 +44,7 @@ import { useRouter } from 'vue-router'
 
 import NavHome from './NavHome.vue';
 import Stats from './Stats.vue';
-import FiendList from './FriendList.vue';
+import FriendList from './FriendList.vue';
 import type Api from '@/utils/Api/Api'
 import auth from '../../services/user/services/auth/auth.ts'
 
@@ -56,6 +56,7 @@ const Auth: auth = new auth(api)
 const router = useRouter()
 
 const user = ref({
+  id: '0',
   username: '',
   email: '',
   nickname: '',
@@ -97,11 +98,14 @@ async function fetchUserData() {
     const response = await Auth.whoami();
     console.log(response)
     user.value = {
+      id: response.id,
       username: response.username,
       email: response.email,
       nickname: response.nickname,
       avatarUrl: response.avatar ? response.avatar : avatar,
     };
+    console.log("agjhsesfejs")
+    console.log(user)
     user.value.avatarUrl = '/src/assets/' + user.value.avatarUrl;
 
     if (user.value.avatarUrl === '/src/assets/avatars/pepe.png') {

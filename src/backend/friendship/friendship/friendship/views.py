@@ -219,6 +219,45 @@ class GetFriendsView(APIView):
                 "id": friend.id,
                 "username": friend.username,
                 "email": friend.email,
+                "avatar": str(friend.avatar),
+                "isOnline": friend.status,
+                "is_blocked_by_user": is_blocked_by_user,  # Si el usuario actual bloqueó al amigo
+                "is_blocked_by_friend": is_blocked_by_friend  # Si el amigo bloqueó al usuario actual
+            })
+
+        return Response({"friends": friends}, status=status.HTTP_200_OK)
+    
+
+class GetFriendsById(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id: int) -> Response:
+        user = User.objects.get(id=user_id)
+
+        # Filtrar amistades aceptadas o bloqueadas
+        friendships = Friendship.objects.filter(
+            models.Q(user=user) | models.Q(friend=user),
+            models.Q(status=Friendship.ACCEPTED) | models.Q(status=Friendship.BLOCKED)
+        )
+
+        friends = []
+        for friendship in friendships:
+            # Determina quién es el amigo en función del usuario actual
+            if friendship.user == user:
+                friend = friendship.friend
+                is_blocked_by_user = friendship.is_blocked_user
+                is_blocked_by_friend = friendship.is_blocked_friend
+            else:
+                friend = friendship.user
+                is_blocked_by_user = friendship.is_blocked_friend
+                is_blocked_by_friend = friendship.is_blocked_user
+
+            friends.append({
+                "id": friend.id,
+                "username": friend.username,
+                "email": friend.email,
+                "avatar": str(friend.avatar),
                 "isOnline": friend.status,
                 "is_blocked_by_user": is_blocked_by_user,  # Si el usuario actual bloqueó al amigo
                 "is_blocked_by_friend": is_blocked_by_friend  # Si el amigo bloqueó al usuario actual
