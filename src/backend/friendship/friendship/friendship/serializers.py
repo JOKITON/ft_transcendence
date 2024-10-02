@@ -59,7 +59,7 @@ class InviteStatusSerializer(serializers.Serializer):
         instance.save()
         return instance
 
-class FriendshipDeleteSerializers(serializers.ModelSerializer):
+class DeleteFriendSerializer(serializers.ModelSerializer):
     friend = serializers.CharField(
         max_length=50,
         min_length=3,
@@ -110,6 +110,7 @@ class FriendRequestSerializer(serializers.ModelSerializer):
 
 class FriendSerializer(serializers.ModelSerializer):
     is_blocked = serializers.SerializerMethodField()
+    print("entraaaa")
 
     class Meta:
         model = User
@@ -117,7 +118,9 @@ class FriendSerializer(serializers.ModelSerializer):
 
     def get_is_blocked(self, obj):
         request_user = self.context['request'].user
-        return Friendship.objects.filter(
+        friendship = Friendship.objects.filter(
             models.Q(user=request_user, friend=obj) | models.Q(user=obj, friend=request_user),
-            status=Friendship.BLOCKED
-        ).exists()
+            status=Friendship.BLOCKED).exists()
+        print("friendship:", friendship)
+
+        return friendship

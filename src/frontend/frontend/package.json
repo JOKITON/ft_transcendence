@@ -25,6 +25,7 @@
     "three": "^0.167.1",
     "vue": "^3.4.29",
     "vue-router": "^4.4.3",
+    "vue3-carousel": "^0.3.4",
     "winston": "^3.13.1"
   },
   "devDependencies": {
@@ -44,6 +45,7 @@
     "eslint-plugin-cypress": "^3.3.0",
     "eslint-plugin-vue": "^9.23.0",
     "jsdom": "^24.1.0",
+    "jwt-decode": "4.0.0",
     "npm-run-all2": "^6.2.0",
     "prettier": "^3.2.5",
     "start-server-and-test": "^2.0.4",

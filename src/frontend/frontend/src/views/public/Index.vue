@@ -24,6 +24,7 @@ import PongReviewAI from "./PongReviewAI.vue";
 </script>
 
 <style>
+
 .block {
   padding: auto;
   margin: auto;
@@ -31,8 +32,4 @@ import PongReviewAI from "./PongReviewAI.vue";
   text-align: center;
 }
 
-html,
-body {
-  background-image: url('../../assets/images/background.jpeg');
-}
 </style>

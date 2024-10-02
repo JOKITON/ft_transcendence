@@ -10,8 +10,6 @@ export default class Api implements IApi {
     withCredentials: boolean = false,
     url: string = 'http://localhost/api/v1',
     headers: { [key: string]: string } = {
-      'Content-Type': 'application/json',
-      Accept: 'application/json'
     }
   ) {
     this.api = axios.create({

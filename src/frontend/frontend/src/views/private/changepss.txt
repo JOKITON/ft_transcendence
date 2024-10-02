@@ -1,0 +1,5 @@
+html-> changePassword
+Peticiones y respuestas -> passwdRequest -> src/models/user/
+redireccion vue -> index.ts ->router/index.ts
+redireccion bakend -> urls.py -> auth/auth/authenticattion/urls.py
+vista del backend -> views.py -> 

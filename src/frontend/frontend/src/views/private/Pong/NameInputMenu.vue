@@ -54,10 +54,10 @@
 			<div v-if="gameMode === 'onePlayer'" class="ai-difficulty">
 			  <select v-model="aiDifficulty" class="form-select" required>
 				<option value="">Choose difficulty...</option>
-				<option value="1">Easy</option>
-				<option value="2">Normal</option>
-				<option value="4">Hard</option>
-				<option value="15">Impossible</option>
+				<option value="0.3">Easy</option>
+				<option value="0.5">Normal</option>
+				<option value="1">Hard</option>
+				<option value="1.5">Impossible</option>
 			  </select>
 			</div>
 		  </div>

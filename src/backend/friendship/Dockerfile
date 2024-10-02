@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Dockerfile                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
+#    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/08 13:24:14 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/16 16:29:42 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/09/20 13:36:08 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,13 +22,12 @@ RUN cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 
 WORKDIR /friendship
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 COPY friendship .
 
-RUN python -m venv /opt/venv && source /opt/venv/bin/activate \
-  && pip install --no-cache-dir -r utils/requirements.txt
+RUN python -m venv /opt/venv
 
 ENV PATH="/opt/venv/bin:$PATH"
 
