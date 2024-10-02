@@ -74,6 +74,18 @@ services:
       - pong
       - migration
 
+  livechat:
+    container_name: livechat
+    build: ../backend/livechat/
+    env_file: ../.env.dev
+    restart: always
+    volumes:
+      - livechat:/livechat
+    networks:
+      - traefik
+    depends_on:
+      - authentication
+
 networks:
   traefik:
     external: true
@@ -109,3 +121,9 @@ volumes:
       type: none
       o: bind
       device: ../backend/friendship/friendship/
+  livechat:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/livechat/livechat

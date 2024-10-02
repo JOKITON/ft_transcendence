@@ -25,7 +25,17 @@ services:
     restart: always
     depends_on:
       - reverse-proxy
-
+  redis:
+    container_name: redis
+    build: ../backend/redis/
+    env_file: ../.env.dev
+    restart: always
+    #volumes:
+    #  - redis:/redis
+    networks:
+      - traefik
+    ports:
+      - 6379
 #secrets:
 #  auth_traefik:
 
