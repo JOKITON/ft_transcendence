@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { Vector3, Color, Mesh } from 'three';
-import { onMounted, onBeforeUnmount, ref, defineProps } from 'vue';
+import { onMounted, onBeforeUnmount, ref, defineProps, defineEmits } from 'vue';
 import ThreeService from '../../../services/pong/ThreeService';
 import Player from '../../../services/pong/Player';
 import Sphere from '../../../services/pong/Objects/Sphere';
@@ -17,27 +17,42 @@ const props = defineProps({
   aiDifficulty: Number,
 });
 
-const emit = defineEmits(['returnToMenu']);
+const emit = defineEmits(['gameOver']);
+
 
 // Extract initial players for the current game
 let player1Name = ref(props.players[0].player1Name);
 console.log('Player:', props.players[0].player1Name);
 
-console.log('AI Difficulty: ', props.aiDifficulty);
-
-const returnToMenu = () => {
-  emit('returnToMenu');
-};
-
 const songElement = ref(null); // Reference to the audio element
-let three;
 
+const three = new ThreeService(window.innerWidth, window.innerHeight);
 // Define bounds of the Pong game
 const bounds = { minX: -16.2, maxX: 16.2, minY: -9.2, maxY: 9.2, minZ: 0, maxZ: 0 };
 
+let ballVelocityX = 0;
+switch (props.aiDifficulty) {
+  case 0.3:
+    ballVelocityX = -0.15;
+    break ;
+  case 0.5:
+    ballVelocityX = -0.20;
+    break ;
+  case 1:
+    ballVelocityX = -0.25;
+    break ;
+  case 1.5:
+    ballVelocityX = -0.30;
+    break ;
+  default:
+    ballVelocityX = -0.25;
+    break ;
+}
+
 // Ball object
 const ballVectorY = Math.random() * 0.2 - 0.1;
-const ballVelocity = new Vector3(0.05, ballVectorY, 0);
+console.log('AI Speed: ', ballVelocityX);
+const ballVelocity = new Vector3(ballVelocityX, ballVectorY, 0);
 const ballGeometry = [0.33, 10, 10];
 const ball = new Sphere(ballGeometry, new Color('white'), new Vector3(0, 0, 0), ballVelocity, bounds);
 
@@ -47,9 +62,7 @@ const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('whi
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
 
 // Vertical dashed wall
-const vecWallMid = [new Vector3(0, -9, 0), new Vector3(0, 9, 0)];
-const dashedLine = [1, 0.66, 0.5];
-const wallMid = new DashedWall(vecWallMid, new Color('green'), dashedLine);
+const wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1));
 
 // Player objects (to be initialized later)
 let player: Player;
@@ -70,7 +83,7 @@ const winner = ref('');
 // Initialize players with the provided names
 player = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(-16, 0, 0), 'ArrowUp', 'ArrowDown', player1Name.value);
 playerAI = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(16, 0, 0), '', '', 'AI');
-playerAI.setAiDifficulty(Number(Number(props.aiDifficulty)));
+playerAI.setAiDifficulty(Number(props.aiDifficulty));
 
 const helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
 
@@ -84,6 +97,7 @@ function setupScene() {
   three.addScene(horizWallUp.get());
   three.addScene(horizWallDown.get());
   three.addScene(wallMid.get());
+  // three.addScene(dashedWall.get());
   three.addScene(player.get());
   three.addScene(playerAI.get());
   three.addScene(ball.get());
@@ -94,13 +108,7 @@ function setupScene() {
 }
 
 function update() {
-  setTimeout(() => {
-    three.removeScene(helpTextPlayerOne.get());
-    three.removeScene(helpTextPlayerTwo.get());
-    three.removeScene(helpTextSpace.get());
-  }, 4000);
   if (!isAnimating.value) return;
-  three.setAudio(songElement.value);
 
   let check = ball.update();
   if (check) {
@@ -117,7 +125,7 @@ function update() {
       numScorePlayerOne += 1;
       scorePlayer1.updateScore(numScorePlayerOne);
       blinkObject(scorePlayer1.get());
-      if (numScorePlayerOne == 5) {
+      if (numScorePlayerOne == 1) {
         console.log(`${playerAI.getName()} lost!`);
         endGame(player.getName());
       }
@@ -135,7 +143,7 @@ function update() {
   }
 
   player.update();
-  playerAI.updateAI(ball, props.aiDifficulty);
+  playerAI.updateAI(ball);
   handleCollisions(ball, player, playerAI);
 }
 
@@ -161,14 +169,29 @@ function returnObjectsToPlace() {
   playerAI.returnToPlace();
 }
 
+let debounceTimeout: number | undefined;
+
 function toggleAnimation(event: KeyboardEvent) {
+  if (isGameOver.value) {
+    return;
+  }
+
   if (event.code === 'Space') {
-    isAnimating.value = !isAnimating.value;
-    console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`);
+    // Clear the previous timeout if the event is fired repeatedly
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+
+    // Set a delay before executing the function to avoid multiple triggers
+    debounceTimeout = window.setTimeout(() => {
+      isAnimating.value = !isAnimating.value;
+      console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`);
+    }, 100); // Adjust the timeout as needed (100ms here)
   }
 }
 
 const endGame = (winningPlayer: string) => {
+  window.removeEventListener("keydown", toggleAnimation);
   const finalScore = new GameOver(winningPlayer + ' won!', new Color('white'), new Vector3(0, 0.5, 0));
   three.addScene(finalScore.get());
   blinkObject(finalScore.get());
@@ -178,20 +201,31 @@ const endGame = (winningPlayer: string) => {
   setTimeout(() => {
     winner.value = winningPlayer;
     isGameOver.value = true;
-    returnToMenu();
+
+    // Emit the tournament data to the parent component
+    emit('gameOver', {
+      winner: winningPlayer,
+      player1: player1Name.value,
+      player2: 'AI',
+      score_player1: numScorePlayerOne,
+      score_player2: numScorePlayerTwo,
+      tournament_type: 'AI'
+    });
   }, 5000);
 };
 
 onMounted(() => {
-  // Initialize ThreeService with the correct reference to the audio element
-  three = new ThreeService(window.innerWidth, window.innerHeight);
-  setupScene();
-  three.startAnimation(update);
-
+  setupScene()
+  setTimeout(() => {
+    three.removeScene(helpTextPlayerOne.get());
+    three.removeScene(helpTextPlayerTwo.get());
+    three.removeScene(helpTextSpace.get());
+  }, 4000);
   window.addEventListener('resize', () => {
     three.resize(window.innerWidth, window.innerHeight);
   });
   window.addEventListener('keydown', toggleAnimation);
+  three.startAnimation(update)
 });
 
 onBeforeUnmount(() => {

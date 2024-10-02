@@ -9,6 +9,7 @@ from .views import (
     GetFriendsView,
     RejectFriendRequestView,
     BlockUserView,
+    UnlockUserView
 )
 from django.urls import path
 
@@ -22,4 +23,6 @@ urlpatterns = [
     path("acceptFriendReq", AcceptFriendRequestView.as_view(), name="acceptFriendReq"),
     path("rejectFriendReq", RejectFriendRequestView.as_view(), name="rejectFriendReq"),
     path("blockFriend", BlockUserView.as_view(), name="blockFriend"),
+    path("unblockFriend", UnlockUserView.as_view(), name="unblockFriend"),
 ]
+
