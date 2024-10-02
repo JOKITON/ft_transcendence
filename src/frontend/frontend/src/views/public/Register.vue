@@ -1,62 +1,70 @@
 <template>
   <NavIndex></NavIndex>
   <div class="container">
-    <div class="login-form">
-      <div class="card">
-        <h2 class="card-header text-center mb-4 oswald-header">Register</h2>
+    <div class="login-form m-5">
+      <div class="data-card py-3 px-4">
+        <h2 class="my-3 text-center data-card-title">Register</h2>
         <form id="registerForm" @submit.prevent="handleSubmit">
+
+          <!-- Enter Username -->
           <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
+            <label for="username" class="data-label">Username</label>
             <input
               id="username"
               v-model="form.username"
               type="text"
               name="username"
-              class="form-control"
+              class="data-control data-placeholder"
               placeholder="Enter your username"
               required
-              autofocus
             />
           </div>
+          
+          <!-- Enter Nickname -->
           <div class="mb-3">
-            <label for="nickname" class="form-label">nickname</label>
+            <label for="nickname" class="data-label">Nickname</label>
             <input
               id="nickname"
               v-model="form.nickname"
               type="text"
               name="nickname"
-              class="form-control"
+              class="data-control data-placeholder"
               placeholder="Enter your nickname"
               required
-              autofocus
             />
           </div>
+
+          <!-- Enter Email -->
           <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
+            <label for="email" class="data-label">Email</label>
             <input
               id="email"
               v-model="form.email"
               type="email"
               name="email"
-              class="form-control"
+              class="data-control data-placeholder"
               placeholder="Enter your email"
               required
             />
           </div>
+
+          <!-- Enter Password -->
           <div class="mb-3">
-            <label for="password" class="form-label">New Password</label>
+            <label for="password" class="data-label">Password</label>
             <input
               id="password"
               v-model="form.password"
               type="password"
               name="password"
-              class="form-control"
+              class="data-control data-placeholder"
               placeholder="Enter your password"
               required
             />
           </div>
+
+          <!-- Submit Button -->
           <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary btn-block">Register</button>
+            <button type="submit" class="btn data-button my-3">Register</button>
           </div>
         </form>
       </div>
@@ -65,13 +73,23 @@
 </template>
 
 <script setup lang="ts">
+
+/* ----- IMPORTS ----- */
+
+import { ref, inject } from 'vue'
+import { useRouter } from 'vue-router'
+
+import type Api from '@/utils/Api/Api'
+
+import auth from '../../services/user/services/auth/auth.ts'
+
 import NavIndex from './NavIndex.vue'
+
 import type UserRequest from '@/Models/User/UserRequst'
 import type UserResponse from '@/Models/User/UserResponse'
-import type Api from '@/utils/Api/Api'
-import auth from '../../services/user/services/auth/auth.ts'
-import { useRouter } from 'vue-router'
-import { ref, inject } from 'vue'
+
+
+/* ----- VARIABLES ----- */
 
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
@@ -85,6 +103,9 @@ const form = ref<UserRequest>({
   p_image: ''
 })
 
+
+/* ----- HANDLE REGISTER ----- */
+
 const handleSubmit = async (): Promise<void> => {
   try {
     const response: boolean = await Auth.register<UserResponse>(form.value)
@@ -97,10 +118,5 @@ const handleSubmit = async (): Promise<void> => {
     error.value = 'An error occurred while submitting the form'
   }
 }
-</script>
 
-<style scoped>
-.error {
-  color: red;
-}
-</style>
+</script>

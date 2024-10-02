@@ -46,6 +46,15 @@ class RegisterUserView(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+            if User.objects.filter(email=user_data['email']).exists():  # Check based on unique field
+                return Response(
+                    {
+                        "message": "Email is not available.",
+                        "code": "email_exists",
+                        "status": status.HTTP_400_BAD_REQUEST,
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             valid = serializer.save()
             if valid:
                 response: Dict[str, Any] = {

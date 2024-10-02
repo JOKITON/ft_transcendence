@@ -8,6 +8,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import api from './plugins/api'
 
 import 'vue3-carousel/dist/carousel.css'
+import './assets/css/styles.css'
 
 const app = createApp(App)
 

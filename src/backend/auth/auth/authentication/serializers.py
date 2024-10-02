@@ -50,6 +50,16 @@ class UserSerializerRegister(serializers.ModelSerializer):
         fields: List = ["username", "password", "email", "nickname", "avatar"]
 
     def create(self, validated_data) -> User | serializers.ValidationError:
+        username = validated_data.get('username')
+        if User.objects.filter(username=username):
+                raise serializers.ValidationError({"username": "Username already in use."})
+        nickname = validated_data.get('nickname')
+        if User.objects.filter(nickname=nickname):
+                raise serializers.ValidationError({"nickname": "nickname already in use."})
+        email = validated_data.get('email')
+        if User.objects.filter(email=email):
+            raise serializers.ValidationError({"email": "email already in use."})
+
         user: User = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
@@ -93,6 +103,41 @@ class UserSerializer(serializers.Serializer):
 
     def validate(self, attrs) -> dict:
         return attrs """
+
+class UserDataSerializer(serializers.Serializer):
+    newUsername: serializers.CharField = serializers.CharField(required=True)
+    newNickname: serializers.CharField = serializers.CharField(required=True)
+    newEmail: serializers.CharField = serializers.CharField(required=True)
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+
+        newUsername = attrs.get('newUsername')
+        if newUsername:
+            if User.objects.filter(username=newUsername).exclude(id=user.id).exists():
+                raise serializers.ValidationError({"username": "Username already in use."})
+
+        newNickname = attrs.get('newNickname')
+        if newNickname:
+            if User.objects.filter(nickname=newNickname).exclude(id=user.id).exists():
+                raise serializers.ValidationError({"nickname": "Nickname already in use."})
+
+        newEmail = attrs.get('newEmail')
+        if newEmail:
+            if User.objects.filter(email=newEmail).exclude(id=user.id).exists():
+                raise serializers.ValidationError({"email": "Email already in use."})
+
+        return attrs
+
+    def save(self, **kwargs):
+        user = self.context['request'].user
+
+        user.username = self.validated_data.get('newUsername', user.username)
+        user.nickname = self.validated_data.get('newNickname', user.nickname)
+        user.email = self.validated_data.get('newEmail', user.email)
+        
+        user.save()
+        return user
 
 class PasswdSerializer(serializers.Serializer):
     currentPassword: serializers.CharField = serializers.CharField(required=True)

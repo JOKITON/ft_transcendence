@@ -10,6 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from UserModel.models import User
 
 from .serializers import PasswdSerializer
+from .serializers import UserDataSerializer
 
 User: Type[ModelBase] = get_user_model()
 class GetUsers(APIView):
@@ -28,7 +29,7 @@ class GetUsers(APIView):
         print(user_list)
         return Response({"user_list": user_list}, status=status.HTTP_200_OK)
 
-class GetUsersId(APIView):
+class GetUserById(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -40,14 +41,15 @@ class GetUsersId(APIView):
             user_data = {
                 "id": user.id,
                 "username": user.username,
-                "email": user.email,  # Añade más información si es necesario
+                "nickname": user.nickname,
+                "email": user.email,
+                "avatar": str(user.avatar),
             }
             return Response({"user_data": user_data}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
-        
-# Santi
-class UpdateUserPasswordView(APIView):
+
+class UpdatePassword(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -63,6 +65,19 @@ class UpdateUserPasswordView(APIView):
         else:
             # Devolver errores de validación
             return Response({"message":"Error al actualizar la contraseña"}, status=status.HTTP_400_BAD_REQUEST)
+
+class UpdateUserData(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = UserDataSerializer(data=request.data, context={"request": request})
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "User data updated successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message":"los datos no pueden repetirse con el de otro usuario"}, status=status.HTTP_400_BAD_REQUEST)
 
 """ class ChangePassword(APIView):
     authentication_classes = [JWTAuthentication]
@@ -110,42 +125,3 @@ class UpdateUserPasswordView(APIView):
             {"message": "Password changed successfully", "status": "success"},
             status=status.HTTP_200_OK,
         ) """
-
-class UpdateUserProfileView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        user = request.user
-        data = request.data
-
-        # Obtener los campos que se van a actualizar
-        new_email = data.get('email', None)
-        new_full_name = data.get('username', None)
-        new_nickname = data.get('nickname', None)
-        new_mobile = data.get('mobile', None)
-        new_address = data.get('address', None)
-
-        print("llega aqui")
-        # Validar si el email ya existe
-        if new_email and User.objects.filter(email=new_email).exclude(id=user.id).exists():
-            return Response({"error": "Email already in use"}, status=status.HTTP_400_BAD_REQUEST)
-
-        print("llega aqui2")
-        print(new_full_name)
-        print("aaaaa")
-        # Actualizar los campos del usuario si están presentes en la petición
-        if new_email:
-            user.email = new_email
-        if new_full_name:
-            user.username = new_full_name
-        if new_nickname:
-            user.nickname = new_nickname
-        if new_mobile:
-            user.mobile = new_mobile
-        if new_address:
-            user.address = new_address
-
-        user.save()
-
-        return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)

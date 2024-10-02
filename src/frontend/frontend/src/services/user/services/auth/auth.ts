@@ -83,6 +83,11 @@ export default class auth implements IAuth {
           alert('Nickname is not available. Try again with a different one.')
           return false
 
+        case 'email_exists':
+          console.log('Email is not available. Try again with a different one.')
+          alert('Email is not available. Try again with a different one.')
+          return false
+
         case 'token_not_valid':
           console.log('Token invalid. Redirecting to login.')
           this.removeAccessToken()

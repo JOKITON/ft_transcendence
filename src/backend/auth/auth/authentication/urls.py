@@ -9,14 +9,15 @@ from .views import (
 )
 from .views_user import (
     GetUsers,
-    GetUsersId,
-    UpdateUserProfileView,
-    UpdateUserPasswordView,
+    GetUserById,
+    UpdateUserData,
+    UpdatePassword,
     # ChangePassword,
 )
 from .views_avatar import (
-    UpdateUserAvatarView,
-    GetUserAvatarView,
+    UpdateAvatar,
+    GetAvatar,
+    GetAvatarById,
 )
 
 urlpatterns = [
@@ -27,15 +28,16 @@ urlpatterns = [
     path("whoami", WhoAmIView.as_view(), name="whoami"),
 
     # User Specific Related
-    path('update-profile', UpdateUserProfileView.as_view(), name='update_profile'),
-    path('change-password', UpdateUserPasswordView.as_view(), name='update_password'),
+    path('update-profile', UpdateUserData.as_view(), name='update_profile'),
+    path('change-password', UpdatePassword.as_view(), name='update_password'),
     # path('change-password', ChangePassword.as_view(), name='update_password'),
-    path('change-avatar', UpdateUserAvatarView.as_view(), name='update_avatar'), #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    path('get-avatar', GetUserAvatarView.as_view(), name='update_avatar'),
+    path('update-avatar', UpdateAvatar.as_view(), name='updateAvatar'), #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('get-avatar', GetAvatar.as_view(), name='getAvatar'),
+    path('get-avatar-id/<int:user_id>/', GetAvatarById.as_view(), name='getAvatarById'),
     # path('avatars2', ImageView.as_view(), name='image_view')
     
-    path("search-users", GetUsers.as_view(), name="users"),
-    path("search-users-id/<int:user_id>/", GetUsersId.as_view(), name="getUserById"),
+    path("search-users", GetUsers.as_view(), name="getUsers"),
+    path("search-user-id/<int:user_id>/", GetUserById.as_view(), name="getUserById"),
 
     # Token & Key Related
     path("token/verify", TokenVerifyView.as_view(), name="tokenVerify"),

@@ -58,12 +58,14 @@
           </div>
           <div class="search-friend mt-4">
             <input type="text" class="form-control" placeholder="Buscar usuario..." v-model="searchQuery">
-            <button class="btn btn-primary mt-2 w-100" @click="sendFriendRequest">Enviar Solicitud</button>
+            <button class="btn btn-primary mt-2 w-100" @click="sendFriendRequest">Enviar</button>
+            <button class="btn btn-primary mt-2 w-100" @click="printFriendsList">Ver lista de amigos</button>
           </div>
         </div>
       </div>
     </div>
   </div>
+  <button @click="printFriendsList">Ver lista de amigos</button>
 </template>
 
 <script setup lang="ts">
@@ -108,6 +110,10 @@ const form = ref({
   nickname: '',
 });
 
+const printFriendsList = async () => {
+  console.log('Lista de amigos:', friends.value);
+}
+
 onMounted(async () => {
   try {
     // Fetch friends and user data
@@ -118,6 +124,8 @@ onMounted(async () => {
 
     // Asigna el estado correctamente, incluyendo los nuevos campos de bloqueo
     friends.value = fetchFriendsResponse.friends || [];
+    console.log('lista de amigos')
+    console.log(friends.value)
     form.value = { ...userResponse.data };
 
     // Fetch friend requests as part of onMounted

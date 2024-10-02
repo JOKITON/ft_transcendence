@@ -1,71 +1,37 @@
 <template>
-  <header class="p-3 mb-3 border-bottom">
+  <header class="p-3 nav-background">
     <div class="container">
-      <div
-        class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
-      >
-        <a
-          href="/"
-          class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none"
-        >
-          <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
-            <use xlink:href="#bootstrap"></use>
-          </svg>
-        </a>
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
 
-        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+        <!-- PAGINAS PRINCIPALES NAV -->
+        <ul class="nav col-lg-auto me-lg-auto mb-md-0 nav-flex">
           <li>
-            <router-link class="nav-link px-2 link-secondary" to="/home">Home</router-link>
+          <img
+            src="../../assets/images/logo.png"
+            width="30"
+            height="30"
+            class="d-inline-block align-top"
+            alt=""
+          />
           </li>
-          <li><router-link class="nav-link px-2 link-secondary" to="/pong">Pong</router-link></li>
-          <li class="nav-link px-2 link-secondary">
-            <a
-              @click="toggleDropdownAdmin"
-              class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
-              >Admin</a
-            >
+          <li><a @click="goToHome" class="nav-link px-4 nav-item">Home</a></li>
+          <li><a @click="goToPong" class="nav-link px-4 nav-item">Pong</a></li>
+          
+          <!-- DROPDOWN MENU ADMIN -->
+          <li class="nav-link px-4">
             <div class="dropdown text-end">
-              <ul class="dropdown-menu text-small" :class="{ show: isDropdownAdminVisible }">
-                <li>
-                  <router-link class="nav-link px-2 link-secondary" to="/user-list"
-                    >User List</router-link
-                  >
-                </li>
-                <li>
-                  <hr class="dropdown-divider" />
-                </li>
-                <li><a class="dropdown-item">Add something here</a></li>
+              <a @click="toggleDropdownAdmin" class="d-block text-decoration-none dropdown-toggle nav-item">Admin</a>
+              <ul class="dropdown-menu text-small nav-drop" :class="{ show: isDropdownAdminVisible }">
+                <li><a @click="openUserList" class="dropdown-item nav-drop-item">User List</a></li>
+                <li><a @click="openUserList" class="dropdown-item nav-drop-item">Otra cosa mas</a></li>
               </ul>
             </div>
           </li>
         </ul>
-        <!-- @submit.prevent con dudas de si hace falta. @submit es un evento de Vue que captura el envío del formulario. prevent evita que el formulario realice un recargo de página (el comportamiento predeterminado en HTML). Esto es importante porque la búsqueda se maneja dinámicamente con JavaScript sin refrescar la página. -->
-        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search" @submit.prevent>
-          <!-- 
-          v-model="searchQuery": v-model vincula el valor del campo de entrada (<input>) a la variable reactiva searchQuery en el componente de Vue. Cada vez que el usuario escribe algo en el campo, searchQuery se actualiza automáticamente con ese valor.
-          @input="performSearch": El evento @input se dispara cada vez que el usuario escribe en el campo. Llama a la función performSearch, que se encargará de realizar la búsqueda en tiempo real
-          -->
-          <input type="search" class="form-control" placeholder="Search..." aria-label="Search" v-model="searchQuery" @input="performSearch"/>
-          <!-- v-if="searchResults.length": Muestra la lista solo si searchResults contiene al menos un elemento. Esto evita que la lista se muestre cuando no hay resultados.
 
-          class="list-group position-absolute":
-
-              list-group: Clase de Bootstrap que agrupa los elementos de la lista para darle un estilo consistente.
-              position-absolute: Posiciona la lista de resultados de manera flotante sobre otros elementos para que aparezca justo debajo del campo de búsqueda.
-
-          v-for="user in searchResults": Un bucle que itera sobre cada usuario dentro de searchResults (los resultados de la búsqueda). Cada usuario se representa con un li.
-
-          :key="user.id": En Vue, es una práctica recomendada asignar un key único a cada elemento cuando usas v-for. En este caso, se usa user.id como clave única.
-
-          @click="goToUserProfile(user.id)": El evento @click se dispara cuando el usuario hace clic en un resultado. Llama a la función goToUserProfile y pasa el id del usuario seleccionado como parámetro, lo que redirigirá al perfil de ese usuario.
-
-          class="list-group-item list-group-item-action":
-
-              list-group-item: Estilo de Bootstrap para cada elemento de la lista.
-              list-group-item-action: Añade un efecto de "clic" al elemento para indicar que es interactivo.
-
-          {{ user.username }}: Muestra el nombre de usuario de cada resultado de búsqueda. 
-          -->
+        <!-- BUSCADOR -->
+        <form class="col-lg-auto mb-lg-0 me-lg-3" role="search" @submit.prevent>
+          <input type="search" class="form-control nav-form" placeholder="¿Hay un amigo en ti?" aria-label="Search" v-model="searchQuery" @input="performSearch"/>
           <ul v-if="searchResults.length" class="list-group position-absolute">
             <li v-for="user in searchResults" :key="user.id" @click="goToUserProfile(user.id)" class="list-group-item list-group-item-action">
               {{ user.username }}
@@ -73,29 +39,20 @@
           </ul>
         </form>
 
-        <p class="d-block link-body-emphasis text-decoration-none">{{ user.username }}</p>
+        <!-- NOMBRE DE USUARIO Y DROPDOWN MENU -->
+        <a @click="goToProfile" class="nav-link px-4 nav-item">{{ user.username }}</a>
         <div class="dropdown text-end">
-          <a
-            @click="toggleDropdownSettings"
-            class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
-          >
-            <img
-              :src="user.avatarUrl"
-              alt="mdo"
-              class="rounded-circle"
-              width="32"
-              height="32"
-            />
+          <a @click="toggleDropdownSettings" class="d-block text-decoration-none dropdown-toggle nav-item">
+            <img :src="user.avatarUrl" alt="mdo" class="rounded-circle mx-1" width="26" height="26"/>
           </a>
-          <ul class="dropdown-menu text-small" :class="{ show: isDropdownSettingsVisible }">
-            <li><a @click="openSettings" class="dropdown-item">Settings</a></li>
-            <li><a @click="openProfile" class="dropdown-item">Profile</a></li>
-            <li><a @click="openFriends" class="dropdown-item">Friends</a></li>
-            <li><a @click="openUsers" class="dropdown-item">Users</a></li>
+          <ul class="dropdown-menu text-small nav-drop" :class="{ show: isDropdownSettingsVisible }">
+            <li><a @click="goToSettings" class="dropdown-item nav-drop-item">Settings</a></li>
+            <li><a @click="goToProfile" class="dropdown-item nav-drop-item">Profile</a></li>
+            <li><a @click="goToFriends" class="dropdown-item nav-drop-item">Friends</a></li>
             <li>
-              <hr class="dropdown-divider" />
+              <hr class="nav-divider" />
             </li>
-            <li><a @click="logoutUser" class="dropdown-item">Sign out</a></li>
+            <li><a @click="logoutUser" class="dropdown-item nav-sign-out">Sign out</a></li>
           </ul>
         </div>
       </div>
@@ -104,34 +61,46 @@
 </template>
 
 <script setup lang="ts">
+
+/* ----- IMPORTS ----- */
+
 import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import type Api from '../../services/Api/api'
 import auth from '../../services/user/services/auth/auth'
-import avatar from '/src/assets/avatars/pepe.png'
+
+
+/* ----- VARIABLES ----- */
 
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
-// Variables reactivas
+const router = useRouter()
+const searchQuery = ref<string>('')  // Definimos el tipo como string
+const searchResults = ref<User[]>([])  // La búsqueda retorna un array de objetos de tipo User
+const username = ref('User') // Valor por defecto, será actualizado más adelante
+const user = ref({
+  username: '',
+  avatarUrl: '',
+});
+
+
+/* ----- VARIABLES REACTIVAS ----- */
+
 const isProfileVisible = ref(false)
 const isDropdownSettingsVisible = ref(false)
 const isDropdownAdminVisible = ref(false)
-const router = useRouter()
 
-const user = ref({
-  username: 'User',
-  avatarUrl: avatar,
-});
+
+/* ----- INTERFACES ----- */
 
 interface User {
   id: number
   username: string
 }
 
-const searchQuery = ref<string>('')  // Definimos el tipo como string
-const searchResults = ref<User[]>([])  // La búsqueda retorna un array de objetos de tipo User
 
-// Función para realizar la búsqueda
+/* ----- BUSCAR USUARIO ----- */
+
 const performSearch = async (): Promise<void> => {
   if (searchQuery.value.length > 0) {
     try {
@@ -146,7 +115,9 @@ const performSearch = async (): Promise<void> => {
   }
 }
 
-// Función para cerrar sesión
+
+/* ----- CERRAR SESION ----- */
+
 const logoutUser = async () => {
   try {
     const response: boolean = await Auth.logout()
@@ -158,12 +129,16 @@ const logoutUser = async () => {
   }
 }
 
+
+/* ----- FETCH INFORMATION ----- */
+
 async function fetchUsername() {
   try {
     const response = await Auth.whoami();
+    console.log(response.username)
     user.value = {
       username: response.username,
-      avatarUrl: response.avatar ? response.avatar : avatar,
+      avatarUrl: response.avatar ? response.avatar : 'avatars/pepe.png',
     };
     user.value.avatarUrl = '/src/assets/' + user.value.avatarUrl;
     // console.log(user.value.avatarUrl )
@@ -195,17 +170,9 @@ async function fetchUserAvatar() {
   }
 }
 
-// Función para obtener el nombre de usuario
-const fetchFriendList = async () => {
-  try {
-    const response = await api.get('friend-list')
-    username.value = response.username // Reemplazar con la estructura real de tu respuesta
-  } catch (error) {
-    console.error('Error fetching username:', error.response ? error.response.data : error.message)
-  }
-}
 
-// Funciones para alternar los menús desplegables
+/* ----- MENUS DESPLEGABLES ----- */
+
 const toggleDropdownSettings = () => {
   isDropdownSettingsVisible.value = !isDropdownSettingsVisible.value
 }
@@ -214,27 +181,109 @@ const toggleDropdownAdmin = () => {
   isDropdownAdminVisible.value = !isDropdownAdminVisible.value
 }
 
-// Funciones de manejo de perfil y configuración
-const openSettings = () => {
-  router.push('/other-profile')
+
+/* ----- REDIRECCIONES A VISTAS ----- */
+
+const goToHome = () => {
+  router.push('/home')
 }
 
-const openProfile = () => {
+const goToPong = () => {
+  router.push('/pong')
+}
+
+const goToSettings = () => {
+  router.push('/edit-profile')
+}
+
+const goToProfile = () => {
   router.push('/profile')
 }
 
-const openFriends = () => {
+const goToFriends = () => {
   router.push('/friends')
 }
-
+const openUserList = () => {
+  router.push('/user-list')
+}
 const goToUserProfile = (userId: number) => {
-  searchResults.value = []  // Limpiar la lista de resultados
+  searchResults.value = []
   router.push(`/user-profile/${userId}`)
 }
 
-// Lifecycle hook similar a `created` en Options API
 onMounted(async () => {
   await fetchUsername()
 })
+
+/* ----- REVISAR ----- */
+
+/* const fetchFriendList = async () => {
+  try {
+    const response = await api.get('friend-list')
+    username.value = response.username // Reemplazar con la estructura real de tu respuesta
+  } catch (error) {
+    console.error('Error fetching username:', error.response ? error.response.data : error.message)
+  }
+} */
+
 </script>
-<style></style>
+
+<style scoped>
+
+.nav-drop {
+  background-color: rgba(19, 14, 43) !important;
+  padding-bottom: 0px !important;
+  padding-top: 5px !important;
+  margin-top: 17px !important;
+}
+
+.nav-drop-item {
+  color: #ebd2ff !important;
+  font-family: 'NunitoBlack' !important;
+  font-size: 1em !important;
+}
+
+.nav-drop-item:hover {
+  background-color: #f92464 !important;
+}
+
+.nav-form {
+  background-color: #ebd2ff !important;
+  border: none !important;
+  outline: none !important;
+  font-family: 'Nunito' !important;
+  color:#4e2a61 !important;
+}
+
+.nav-form:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.nav-form::placeholder {
+  color: #6d3c88 !important;
+  opacity: 0.8;
+  font-family: 'NunitoItalic' !important;
+}
+
+.nav-divider {
+  background-color: rgb(206, 29, 82) !important;
+  height: 3px;
+  margin: 5px 0px;
+  border: none;
+  opacity: 1 !important;
+  box-shadow: 0px 3px 6px rgba(249,36,100,255);
+}
+
+.nav-sign-out {
+  color: #ebd2ff!important;
+  font-family: 'Titulo' !important;
+  font-size: 1.em !important;
+}
+
+.nav-sign-out:hover {
+  background-color: #f92464 !important;
+}
+
+</style>

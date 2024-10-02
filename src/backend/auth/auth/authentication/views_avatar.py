@@ -8,9 +8,28 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from UserModel.models import User
 
+class GetAvatarById(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
-class GetUserAvatarView(APIView):
+    def get(self, request, user_id: int) -> Response:
+        user = User.objects.get(id=user_id)
+
+        # Check if the user has an avatar
+        if user.avatar:
+            avatar_path = user.avatar.path
+            if os.path.exists(avatar_path):
+                with open(avatar_path, 'rb') as avatar_file:
+                    encoded_image = base64.b64encode(avatar_file.read()).decode('utf-8')
+                    return Response({"avatar_base64": encoded_image}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Avatar file does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"error": "User has no avatar"}, status=status.HTTP_404_NOT_FOUND)
+
+class GetAvatar(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -30,18 +49,17 @@ class GetUserAvatarView(APIView):
             return Response({"error": "User has no avatar"}, status=status.HTTP_404_NOT_FOUND)
 
 def validate_file(file):
-    valid_mime_types = ['image/jpeg', 'image/png', 'image/jpg']
-    if file.content_type not in valid_mime_types:
-        raise ValidationError('Unsupported file type.')
-    if file.size > 5 * 1024 * 1024:  # 5 MB limit
-        raise ValidationError('File too large. Size should not exceed 5 MB.')
+        valid_mime_types = ['image/jpeg', 'image/png', 'image/jpg']
+        if file.content_type not in valid_mime_types:
+            raise ValidationError('Unsupported file type.')
+        if file.size > 5 * 1024 * 1024:  # 5 MB limit
+            raise ValidationError('File too large. Size should not exceed 5 MB.')
 
-class UpdateUserAvatarView(APIView):
+class UpdateAvatar(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        print(request.FILES)
         user = request.user
         file = request.FILES.get('image')
 
