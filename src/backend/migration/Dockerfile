@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/14 23:02:29 by jaizpuru          #+#    #+#              #
-#    Updated: 2024/09/18 23:54:59 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/02 17:44:50 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Copy the migration script
-COPY run_migrations.sh run_migrations.sh
+COPY utils/* .
 
 # Set execute permissions for the migration script
 RUN chmod +x run_migrations.sh

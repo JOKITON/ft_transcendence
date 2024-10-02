@@ -1,13 +1,7 @@
 from rest_framework import serializers
-from .models import Tournament, Tournament8P
+from .models import PongGame, Tournament8P
 from .models import Player, FinalRound, SemiFinal, Tournament8P
-from .models import PlayerStats
 
-class TournamentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tournament
-        fields = ['winner', 'player1', 'player2', 'score_player1', 'score_player2', 'tournament_type']
-    
 """     def to_internal_value(self, data):
         # Convert player1, player2, and winner nicknames to Player instances
         data = data.copy()  # Make a mutable copy of the data
@@ -18,39 +12,63 @@ class TournamentSerializer(serializers.ModelSerializer):
 
         return super().to_internal_value(data) """
 
-    def get_player_by_name(self, player_name):
+class PongGameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PongGame
+        fields = ['winner', 'name_player1', 'name_player2', 'id_player1', 'id_player2', 'score_player1', 'score_player2', 'tournament_type']
+
+    def get_player_by_id(self, player_id):
         try:
-            # Fetch the Player instance by nickname
-            return Player.objects.get(name=player_name).pk
+            # Fetch the Player instance by its ID
+            return Player.objects.get(id=player_id)
         except Player.DoesNotExist:
-            raise serializers.ValidationError(f"Player with nickname '{player_name}' does not exist.")
+            raise serializers.ValidationError(f"Player with ID '{player_id}' does not exist.")
     
+    def create_players(self, player_data):
+        player1 = self.get_player_by_id(player_data['id_player1'])
+        player2 = self.get_player_by_id(player_data['id_player2'])
+
+        # Update scores and stats
+        player1.score += player_data['score_player1']
+        player2.score += player_data['score_player2']
+
+        if player_data['winner'] == player_data['name_player1']:
+            player1.wins += 1
+            player2.losses += 1
+        else:
+            player2.wins += 1
+            player1.losses += 1
+
+        player1.total_games += 1
+        player2.total_games += 1
+
+        player1.save()
+        player2.save()
+
+        return player1, player2
+
     def create(self, validated_data):
-        # Create and save the tournament instance
-        tournament = Tournament.objects.create(**validated_data)
-        # self.update_player_stats(tournament)
+        # Extract and remove player info from validated_data
+        player_data = {
+            'id_player1': validated_data.pop('id_player1'),
+            'id_player2': validated_data.pop('id_player2'),
+            'name_player1': validated_data['name_player1'],
+            'name_player2': validated_data['name_player2'],
+            'score_player1': validated_data['score_player1'],
+            'score_player2': validated_data['score_player2'],
+            'winner': validated_data['winner']
+        }
+        
+        # Create or update players
+        p1, p2 = self.create_players(player_data)
+        
+        # Create the PongGame instance with proper Player foreign keys
+        tournament = PongGame.objects.create(
+            id_player1=p1, id_player2=p2, **validated_data
+        )
         return tournament
 
-    def update_player_stats(self, tournament):
-        # Get or create player stats for player1 and player2
-        player1_stats, created = PlayerStats.objects.get_or_create(player=tournament.player1)
-        player2_stats, created = PlayerStats.objects.get_or_create(player=tournament.player2)
 
-        # Update total games for both players
-        player1_stats.total_games += 1
-        player2_stats.total_games += 1
-
-        # Update wins and losses based on the winner
-        if tournament.winner == tournament.player1:
-            player1_stats.wins += 1
-            player2_stats.losses += 1
-        else:
-            player1_stats.losses += 1
-            player2_stats.wins += 1
-
-        # Save the updated stats
-        player1_stats.save()
-        player2_stats.save()
 
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:

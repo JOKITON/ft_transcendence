@@ -154,6 +154,7 @@ class WhoAmIView(APIView):
                 "email": user.email,
                 "nickname": user.nickname,
                 "avatar": str(avatar_url),
+                "id": user.id,
                 # Agrega aquí otros campos que desees mostrar
             }
             return Response(user_data, status=status.HTTP_200_OK)
