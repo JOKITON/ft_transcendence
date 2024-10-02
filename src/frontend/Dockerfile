@@ -21,6 +21,7 @@ WORKDIR /frontend
 COPY frontend/package*.json ./
 
 RUN npm install
+RUN npm install vue3-beautiful-chat --save
 RUN npm update
 
 COPY frontend .
