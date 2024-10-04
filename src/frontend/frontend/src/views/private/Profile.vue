@@ -31,7 +31,7 @@
       </div>
       
     <!-- LISTA DE AMIGOS-->
-    <FriendList :userId="user.id"></FriendList>
+    <FriendList v-if="userLoaded" :userId="user.id"></FriendList>
   </div>
 </template>
 
@@ -56,7 +56,7 @@ const Auth: auth = new auth(api)
 const router = useRouter()
 
 const user = ref({
-  id: '0',
+  id: 2,
   username: '',
   email: '',
   nickname: '',
@@ -65,6 +65,7 @@ const user = ref({
   losses: '0',
 });
 
+const userLoaded = ref(false);
 /* ----- FETCH INFORMATION ----- */
 
 async function fetchPongData() {
@@ -92,11 +93,10 @@ async function fetchPongData() {
     }
   }
 };
-
 async function fetchUserData() {
   try {
     const response = await Auth.whoami();
-    console.log(response)
+    console.log(response);
     user.value = {
       id: response.id,
       username: response.username,
@@ -104,20 +104,21 @@ async function fetchUserData() {
       nickname: response.nickname,
       avatarUrl: response.avatar ? response.avatar : avatar,
     };
-    console.log("agjhsesfejs")
-    console.log(user)
+    console.log('User data loaded:', user.value);
     user.value.avatarUrl = '/src/assets/' + user.value.avatarUrl;
 
     if (user.value.avatarUrl === '/src/assets/avatars/pepe.png') {
-      console.log("Using default avatar");
+      console.log('Using default avatar');
     } else {
       await fetchUserAvatar();
     }
+
+    // Indicar que los datos del usuario han sido cargados
+    userLoaded.value = true;
   } catch (error: any) {
     console.error('Error fetching user data:', error.message);
   }
 }
-
 async function fetchUserAvatar() {
   try {
     const response = await api.get('auth/get-avatar');

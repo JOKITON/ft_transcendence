@@ -6,17 +6,11 @@
         <!-- PAGINAS PRINCIPALES NAV -->
         <ul class="nav col-lg-auto me-lg-auto mb-md-0 nav-flex">
           <li>
-          <img
-            src="../../assets/images/logo.png"
-            width="30"
-            height="30"
-            class="d-inline-block align-top"
-            alt=""
-          />
+            <img src="../../assets/images/logo.png" width="30" height="30" class="d-inline-block align-top" alt="" />
           </li>
           <li><a @click="goToHome" class="nav-link px-4 nav-item">Home</a></li>
           <li><a @click="goToPong" class="nav-link px-4 nav-item">Pong</a></li>
-          
+
           <!-- DROPDOWN MENU ADMIN -->
           <li class="nav-link px-4">
             <div class="dropdown text-end">
@@ -31,9 +25,11 @@
 
         <!-- BUSCADOR -->
         <form class="col-lg-auto mb-lg-0 me-lg-3" role="search" @submit.prevent>
-          <input type="search" class="form-control nav-form" placeholder="¿Hay un amigo en ti?" aria-label="Search" v-model="searchQuery" @input="performSearch"/>
+          <input type="search" class="form-control nav-form" placeholder="¿Hay un amigo en ti?" aria-label="Search"
+            v-model="searchQuery" @input="performSearch" />
           <ul v-if="searchResults.length" class="list-group position-absolute">
-            <li v-for="user in searchResults" :key="user.id" @click="goToUserProfile(user.id)" class="list-group-item list-group-item-action">
+            <li v-for="user in searchResults" :key="user.id" @click="goToUserProfile(user.id)"
+              class="list-group-item list-group-item-action">
               {{ user.username }}
             </li>
           </ul>
@@ -43,7 +39,7 @@
         <a @click="goToProfile" class="nav-link px-4 nav-item">{{ user.username }}</a>
         <div class="dropdown text-end">
           <a @click="toggleDropdownSettings" class="d-block text-decoration-none dropdown-toggle nav-item">
-            <img :src="user.avatarUrl" alt="mdo" class="rounded-circle mx-1" width="26" height="26"/>
+            <img :src="user.avatarUrl" alt="mdo" class="rounded-circle mx-1" width="26" height="26" />
           </a>
           <ul class="dropdown-menu text-small nav-drop" :class="{ show: isDropdownSettingsVisible }">
             <li><a @click="goToSettings" class="dropdown-item nav-drop-item">Settings</a></li>
@@ -71,15 +67,13 @@
           <!-- Desplegable de notificaciones -->
           <ul class="dropdown-menu text-small" :class="{ show: isDropdownNotificationsVisible }">
             <li v-if="friendRequests.length === 0" class="dropdown-item">No new friend requests</li>
-            <li v-for="request in friendRequests" :key="request.id" class="dropdown-item">
+            <li v-for="request in friendRequests" :key="request.id" class="dropdown-item" @click="goToFriends">
               <span v-if="request.friend">
                 <strong>{{ request.friend.username }}</strong> has sent you a friend request
               </span>
               <span v-else>
                 Unknown user has sent you a friend request
               </span>
-              <button class="btn btn-success btn-sm ms-2" @click="acceptFriendRequest(request.id)">Accept</button>
-              <button class="btn btn-danger btn-sm ms-2" @click="declineFriendRequest(request.id)">Decline</button>
             </li>
           </ul>
         </div>
@@ -191,7 +185,7 @@ async function fetchUsername() {
       console.log("Using default avatar");
     } else {
       // Retrieve avatar from the backend
-      await fetchUserAvatar();   
+      await fetchUserAvatar();
     }
   } catch (error: any) {
     console.error('Error fetching user data:', error.message);
@@ -306,9 +300,8 @@ const fetchFriendRequests = async () => {
 </script>
 
 <style scoped>
-
 .nav-drop {
-  background-color: rgba(19, 14, 43) !important;
+  background-color: rgb(19, 14, 43) !important;
   padding-bottom: 0px !important;
   padding-top: 5px !important;
   margin-top: 17px !important;
@@ -329,7 +322,7 @@ const fetchFriendRequests = async () => {
   border: none !important;
   outline: none !important;
   font-family: 'Nunito' !important;
-  color:#4e2a61 !important;
+  color: #4e2a61 !important;
 }
 
 .nav-form:focus {
@@ -350,11 +343,11 @@ const fetchFriendRequests = async () => {
   margin: 5px 0px;
   border: none;
   opacity: 1 !important;
-  box-shadow: 0px 3px 6px rgba(249,36,100,255);
+  box-shadow: 0px 3px 6px rgba(249, 36, 100, 255);
 }
 
 .nav-sign-out {
-  color: #ebd2ff!important;
+  color: #ebd2ff !important;
   font-family: 'Titulo' !important;
   font-size: 1.em !important;
 }
@@ -362,5 +355,4 @@ const fetchFriendRequests = async () => {
 .nav-sign-out:hover {
   background-color: #f92464 !important;
 }
-
 </style>

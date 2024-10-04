@@ -21,7 +21,7 @@
             <MyCarousel></MyCarousel>
         </div>
       </div>
-    <FriendList :userId="userData.id"></FriendList>
+    <FriendList v-if="userLoaded" :userId="userData.id"></FriendList>
   </div>
 </template>
 
@@ -52,6 +52,7 @@ email: '',
 avatar: '',
 });
 
+const userLoaded = ref(false);
 /* ----- CARGAR DATOS USUARIO POR ID ----- */
 
 const fetchUserData = async (id: number) => {
@@ -66,6 +67,7 @@ const fetchUserData = async (id: number) => {
       avatar: response.user_data.avatar,
     };
     userData.value.avatar = '/src/assets/' + userData.value.avatar;
+    userLoaded.value = true;
   } catch (error) {
     console.error('Error fetching user data:', error)
     errorMessage.value = 'Error al cargar los datos del usuario'
