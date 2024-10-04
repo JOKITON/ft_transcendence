@@ -1,48 +1,57 @@
 <template>
   <div class="chat-dropdown">
     <!-- Botón para mostrar/ocultar el dropdown -->
-    <button @click="toggleDropdown" class="dropdown-toggle">
+    <button 
+      @click="toggleDropdown" 
+      class="dropdown-toggle" 
+      :aria-expanded="isDropdownVisible.toString()"
+    >
       Open Chats
     </button>
 
     <!-- Lista de chats desplegable -->
     <div v-if="isDropdownVisible" class="dropdown-list">
-      <ul v-if="friends.length">
-        <li v-for="friend in friends" :key="friend.id">
-          <button 
-            class="friend-button" 
-            @click="openChat(friend)" 
-            :disabled="friend.is_blocked_by_user || friend.is_blocked_by_friend"
-          >
-            {{ friend.username }} 
-            <span v-if="friend.isOnline">(Online)</span>
-            <span v-if="friend.is_blocked_by_user" class="blocked-info">
-              (User blocked)
-            </span>
-            <span v-if="friend.is_blocked_by_friend" class="blocked-info">
-              (You are blocked)
-            </span>
-          </button>
-          <div class="btn-group">
-            <button
-              v-if="friend.is_blocked_by_user"
-              class="btn btn-warning btn-sm"
-              @click="unblockUser(friend.username)"
+      <div class="scrollable-list">
+        <ul v-if="friends.length">
+          <li v-for="friend in friends" :key="friend.id">
+            <button 
+              class="friend-button" 
+              @click="openChat(friend)" 
+              :disabled="friend.is_blocked_by_user || friend.is_blocked_by_friend"
             >
-              Unblock
+              {{ friend.username }} 
+              <!-- Indicador de estado -->
+              <span :class="['status-indicator', friend.isOnline ? 'bg-success' : 'bg-danger']"></span>
+              <span v-if="friend.is_blocked_by_user" class="blocked-info">
+                (User blocked)
+              </span>
+              <span v-if="friend.is_blocked_by_friend" class="blocked-info">
+                (You are blocked)
+              </span>
             </button>
-            <button
-              v-else
-              class="btn btn-danger btn-sm"
-              @click="blockUser(friend.username)"
-              :disabled="friend.is_blocked_by_friend"
-            >
-              Block
-            </button>
-          </div>
-        </li>
-      </ul>
-      <p v-else>No friends available</p>
+
+            <!-- Botones de bloqueo/desbloqueo -->
+            <div class="btn-group">
+              <button
+                v-if="friend.is_blocked_by_user"
+                class="btn btn-warning btn-sm"
+                @click="unblockUser(friend.username)"
+              >
+                Unblock
+              </button>
+              <button
+                v-else
+                class="btn btn-danger btn-sm"
+                @click="blockUser(friend.username)"
+                :disabled="friend.is_blocked_by_friend"
+              >
+                Block
+              </button>
+            </div>
+          </li>
+        </ul>
+        <p v-else>No friends available</p>
+      </div>
     </div>
     
     <!-- Mostrar chats abiertos -->
@@ -66,6 +75,7 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue';
 import Chat from 'vue3-beautiful-chat'; // Importa el componente de chat
@@ -73,7 +83,7 @@ import Chat from 'vue3-beautiful-chat'; // Importa el componente de chat
 interface Friend {
   id: number;
   username: string;
-  isOnline?: boolean;
+  isOnline: boolean;
   is_blocked_by_user: boolean;
   is_blocked_by_friend: boolean;
 }
@@ -102,26 +112,26 @@ const lastOpenedChat = ref<Friend | null>(null);
 
 const colors = {
   header: {
-    bg: '#4e8cff',
-    text: '#ffffff'
+    bg: '#584c66', // Mantener el color azul
+    text: '#ffffff' // Texto blanco
   },
   launcher: {
-    bg: '#4e8cff'
+    bg: '#223d5a' // Color de fondo del lanzador
   },
   messageList: {
-    bg: '#ffffff'
+    bg: '#f4f7f9' // Color de fondo de la lista de mensajes, más claro para contraste
   },
   sentMessage: {
-    bg: '#4e8cff',
-    text: '#ffffff'
+    bg: '#6c7e90', // Color del mensaje enviado
+    text: '#ffffff' // Texto blanco
   },
   receivedMessage: {
-    bg: '#eaeaea',
-    text: '#222222'
+    bg: '#394c60', // Color del mensaje recibido
+    text: '#ffffff' // Texto oscuro
   },
   userInput: {
-    bg: '#f4f7f9',
-    text: '#565867'
+    bg: '#223d5a', // Fondo del campo de entrada
+    text: '#ffffff' // Texto en el campo de entrada
   }
 };
 
@@ -220,7 +230,14 @@ const onMessageWasSent = (chatIndex: number, message: Message) => {
 onMounted(async () => {
   try {
     const response = await api.get<{ friends: Friend[] }>('friendship/friends');
-    friends.value = response.friends || [];
+    
+    // Convertir isOnline a booleano
+    friends.value = (response.friends || []).map(friend => ({
+      ...friend,
+      isOnline: friend.isOnline === 'True'  // Convertir a booleano
+    }));
+    
+    console.log('Friends loaded:', friends.value);
   } catch (error) {
     console.error('Error fetching friends:', error);
   }
@@ -259,67 +276,95 @@ const unblockUser = async (username: string) => {
   bottom: 0;
   width: 100%;
   padding: 10px;
+  font-family: NunitoBlack, sans-serif;
   text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+
+
 .dropdown-toggle {
-  background-color: #007bff;
-  color: white;
+  background-color: #584c66;
+  color: #ffffff;
   padding: 10px;
-  border: none;
-  cursor: pointer;
+  border-radius: 5px;
+  font-family: Titulo, sans-serif;
 }
 
 .dropdown-list {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: white;
-  border: 1px solid #ddd;
-  max-height: 200px;
-  overflow-y: auto;
-  width: 20%;
-  margin-top: 10px;
-  z-index: 1000;
+  display: flex;
+  justify-content: center; 
+  margin-top: 10px; 
 }
 
 .dropdown-list ul {
   list-style: none;
   padding: 0;
+  margin: 0;
+  background-color: #aaa0a3; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 200px; 
 }
 
 .dropdown-list li {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  padding: 8px; 
+  border-bottom: 1px solid #ebd2ff; 
+  color: #fff; 
+  font-family: NunitoBlack, sans-serif;
+  font-size: 14px; 
+}
+
+.dropdown-list li:hover {
+  background-color: hsl(221, 41%, 84%); 
+  cursor: pointer;
 }
 
 .dropdown-list li:last-child {
-  border-bottom: none;
+  border-bottom: none; 
 }
-
 .friend-button {
-  width: 100%;
-  padding: 10px 15px;
-  background-color: #f4f4f4;
+  background: none;
   border: none;
-  text-align: left;
+  color: #6c7580;
   cursor: pointer;
-  display: flex;
-  justify-content: space-between;
+  width: 100%; 
+  text-align: left; 
+  padding: 8px; 
+}
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  border-radius: 50%;
 }
 
-.friend-button:hover {
-  background-color: #eaeaea;
+.bg-success {
+  background-color: green;
 }
 
-.blocked-info {
-  color: red;
-  font-weight: bold;
+.bg-danger {
+  background-color: red;
 }
 
 .btn-group {
   display: flex;
   gap: 5px;
 }
+
+.blocked-info {
+  font-size: 0.8em;
+  color: red;
+}
+.scrollable-list {
+  max-height: none;
+  overflow-y: visible; 
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+
 </style>

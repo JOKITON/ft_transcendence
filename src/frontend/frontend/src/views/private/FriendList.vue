@@ -114,7 +114,7 @@ onMounted(async () => {
     // Fetch friends and user data
         console.log("useridididid")
         console.log(props.userId)
-        const fetchFriendsResponse = await api.get<Friend[]>(`friendship/friends/${props.userId}/`)
+        const fetchFriendsResponse = await api.get<Friend[]>(`friendship/friends-id/${props.userId}/`)
         friends.value = fetchFriendsResponse.friends || [];
         console.log('lista de amigos')
         console.log(friends.value)
