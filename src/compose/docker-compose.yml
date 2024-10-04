@@ -28,7 +28,7 @@ services:
   redis:
     container_name: redis
     build: ../backend/redis/
-    env_file: ../.env.dev
+    #env_file: ../.env.dev
     restart: always
     #volumes:
     #  - redis:/redis
