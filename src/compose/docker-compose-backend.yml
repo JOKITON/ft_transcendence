@@ -77,7 +77,7 @@ services:
   livechat:
     container_name: livechat
     build: ../backend/livechat/
-   # env_file: ../.env.dev
+    env_file: ../backend/.env-dev
     restart: always
     volumes:
       - livechat:/livechat
