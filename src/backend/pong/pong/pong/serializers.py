@@ -15,7 +15,7 @@ from .models import Player, FinalRound, SemiFinal, Tournament8P
 class PongGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = PongGame
-        fields = ['winner', 'name_player1', 'name_player2', 'score_player1', 'score_player2', 'tournament_type']
+        fields = ['winner', 'player1_name', 'player2_name', 'player1_score', 'player2_score', 'tournament_type']
 
     def create_player(self, player_data):
         player, created = Player.objects.get_or_create(
@@ -45,14 +45,14 @@ class PongGameSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Extract player-related data
         player_data1 = {
-            'name_player': validated_data['name_player1'],
-            'score_player': validated_data['score_player1'],
+            'name_player': validated_data['player1_name'],
+            'score_player': validated_data['player1_score'],
             'winner': validated_data['winner']
         }
         
         player_data2 = {
-            'name_player': validated_data['name_player2'],
-            'score_player': validated_data['score_player2'],
+            'name_player': validated_data['player2_name'],
+            'score_player': validated_data['player2_score'],
             'winner': validated_data['winner']
         }
 
@@ -62,12 +62,12 @@ class PongGameSerializer(serializers.ModelSerializer):
 
         # Create the PongGame instance with the Player ForeignKey relations
         tournament = PongGame.objects.create(
-            id_player1=p1,
-            id_player2=p2,
-            name_player1=validated_data['name_player1'],
-            name_player2=validated_data['name_player2'],
-            score_player1=validated_data['score_player1'],
-            score_player2=validated_data['score_player2'],
+            player1=p1,
+            player2=p2,
+            player1_name=validated_data['player1_name'],
+            player2_name=validated_data['player2_name'],
+            player1_score=validated_data['player1_score'],
+            player2_score=validated_data['player2_score'],
             winner=validated_data['winner'],
             tournament_type=validated_data['tournament_type']
         )

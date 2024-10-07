@@ -21,8 +21,8 @@ const emit = defineEmits(['gameOver']);
 
 
 // Extract initial players for the current game
-let player1Name = ref(props.players[0].player1Name);
-console.log('Player:', props.players[0].player1Name);
+let player1Name = ref(props.players[0].player);
+console.log('Player:', props.players[0].player);
 
 const songElement = ref(null); // Reference to the audio element
 
@@ -205,11 +205,13 @@ const endGame = (winningPlayer: string) => {
     // Emit the tournament data to the parent component
     emit('gameOver', {
       winner: winningPlayer,
-      player1: player1Name.value,
-      player2: 'AI',
-      score_player1: numScorePlayerOne,
-      score_player2: numScorePlayerTwo,
-      tournament_type: 'AI'
+      player1_name: player1Name.value,
+      player2_name: 'AI',
+      player1_score: numScorePlayerOne,
+      player2_score: numScorePlayerTwo,
+      tournament_type: 'AI',
+      id_player1: props.players[0].id,
+      id_player2: 0,
     });
   }, 5000);
 };

@@ -16,10 +16,6 @@ const arPlayers = ref([]); // Initialize as an array
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 
-onMounted(async () => {
-  await fetchId();
-});
-
 const user = ref({
   id: 0,
 });
@@ -62,7 +58,6 @@ const handleStartGame = (data) => {
 // Send tournament data to backend
 const sendAIData = async (tournamentResults) => {
   try {
-    tournamentResults.id_player1 = globalIds.value.idPlayerOne;
     const response = await api.post("pong/ai", tournamentResults);
     console.log('Data sent successfully:', response.data);
   } catch (error) {
@@ -148,18 +143,6 @@ const sendTournamentData = async (tournamentResults) => {
     }
   }
 };
-
-async function fetchId() {
-  try {
-    const response = await Auth.whoami();
-    user.value = {
-      id: response.id,
-    };
-    // console.log(user.value.id );
-  } catch (error: any) {
-    console.error('Error fetching user data:', error.message);
-  }
-}
 
 // Handle returning to the main menu
 const handleGameOver = (tournamentResults) => {

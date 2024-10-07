@@ -40,9 +40,18 @@
 					
 					<div v-if="gameMode !== 'onePlayer'" class="player-group">
 						<span class="player-nickname">{{ userOne.nickname }}</span>
-						<span class="vs-text">VS</span>
 						<div v-for="(user, index) in users" :key="index" class="player-group">
 							<div v-if="gameMode === 'twoPlayer' && index < 2">
+								<span class="vs-text">VS</span>
+								<select v-if="index !== 0" v-model="user.nickname" class="form-select" required>
+									<option value="" disabled selected>Select Player {{ index * 2 + 2 }}</option>
+									<option v-for="user in usersGodMode" :key="user.id" :value="user.nickname">
+										{{ user.nickname }}
+									</option>
+								</select>
+							</div>
+							<div v-if="gameMode === 'eightPlayer' && users.length > 2">
+								<span class="vs-text">VS</span>
 								<select v-if="index !== 0" v-model="user.nickname" class="form-select" required>
 									<option value="" disabled selected>Select Player {{ index * 2 + 2 }}</option>
 									<option v-for="user in usersGodMode" :key="user.id" :value="user.nickname">
@@ -164,34 +173,13 @@ const setGameMode = (mode) => {
 	gameMode.value = ''; // Reset game mode when switching between Online/Offline
 };
 
-let ids = new Array(8);
-
 const startGame = () => {
-	// No user was found & AI Game is selected
-	if (!users.value[0])
-		ids.push(user.value.id, user.value.nickname)
-	else { // Any length user list was found (above one player) & data will be formatted
-		console.log('Lengths:');
-		console.log(users.value.length);
-		console.log(players.value.length);
-		console.log('ids:');
-		users.value[0] = '1';
-		console.log(users.value[0]);
-		console.log(Object.keys(users.value));
-		console.log(Object.keys(players.value));
-		for (let index = 0; index < users.value.length; index++) {
-			console.log('Index: ', index);
-			ids[index] = users.value[index].id;
-		}
-	}
-	console.log(ids);
 	const data = {
 		gameMode: gameMode.value,
-		players: players.value.map(player => ({
-			player1Name: user.value.nickname,
-			player2Name: player.name2
+		players: users.value.map(user => ({
+			player: user.nickname,
+			id: user.id,
 		})),
-		id: ids,
 	};
 
 	if (gameMode.value === 'onePlayer') {
