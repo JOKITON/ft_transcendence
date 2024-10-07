@@ -24,6 +24,8 @@ class PongGame(models.Model):
     winner = models.CharField(max_length=255)
     player1 = models.ForeignKey(Player, on_delete=models.DO_NOTHING, related_name='player1_data', null=True, blank=True)
     player2 = models.ForeignKey(Player, on_delete=models.DO_NOTHING,  related_name='player2_data', null=True, blank=True)
+    id_player1 = models.IntegerField(null=True, blank=True)
+    id_player2 = models.IntegerField(null=True, blank=True)
     player1_name = models.CharField(max_length=255, null=True, blank=True)
     player2_name = models.CharField(max_length=255, null=True, blank=True)
     player1_score = models.IntegerField(default=0)

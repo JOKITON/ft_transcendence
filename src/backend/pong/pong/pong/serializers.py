@@ -15,10 +15,11 @@ from .models import Player, FinalRound, SemiFinal, Tournament8P
 class PongGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = PongGame
-        fields = ['winner', 'player1_name', 'player2_name', 'player1_score', 'player2_score', 'tournament_type']
+        fields = ['winner', 'id_player1', 'id_player2', 'player1_name', 'player2_name', 'player1_score', 'player2_score', 'tournament_type']
 
     def create_player(self, player_data):
         player, created = Player.objects.get_or_create(
+            id=player_data['id'],  # Match by ID
             name=player_data['name_player'],  # Match by name, or you can use another unique field
             defaults={'avg_score': player_data['score_player']}
         )
@@ -45,12 +46,14 @@ class PongGameSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Extract player-related data
         player_data1 = {
+            'id': validated_data['id_player1'],
             'name_player': validated_data['player1_name'],
             'score_player': validated_data['player1_score'],
             'winner': validated_data['winner']
         }
         
         player_data2 = {
+            'id': validated_data['id_player2'],
             'name_player': validated_data['player2_name'],
             'score_player': validated_data['player2_score'],
             'winner': validated_data['winner']
