@@ -15,63 +15,70 @@ from .models import Player, FinalRound, SemiFinal, Tournament8P
 class PongGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = PongGame
-        fields = ['winner', 'name_player1', 'name_player2', 'id_player1', 'id_player2', 'score_player1', 'score_player2', 'tournament_type']
+        fields = ['winner', 'name_player1', 'name_player2', 'score_player1', 'score_player2', 'tournament_type']
 
-    def get_player_by_id(self, player_id):
-        try:
-            # Fetch the Player instance by its ID
-            return Player.objects.get(id=player_id)
-        except Player.DoesNotExist:
-            raise serializers.ValidationError(f"Player with ID '{player_id}' does not exist.")
-    
-    def create_players(self, player_data):
-        player1 = self.get_player_by_id(player_data['id_player1'])
-        player2 = self.get_player_by_id(player_data['id_player2'])
+    def create_player(self, player_data):
+        player, created = Player.objects.get_or_create(
+            name=player_data['name_player'],  # Match by name, or you can use another unique field
+            defaults={'avg_score': player_data['score_player']}
+        )
 
-        # Update scores and stats
-        player1.score += player_data['score_player1']
-        player2.score += player_data['score_player2']
-
-        if player_data['winner'] == player_data['name_player1']:
-            player1.wins += 1
-            player2.losses += 1
+        if not created:
+            # Calculate the new average score considering the new game's score
+            total_games = player.total_games + 1
+            player.avg_score = float(float(player.avg_score * player.total_games) + player_data['score_player']) / total_games
         else:
-            player2.wins += 1
-            player1.losses += 1
+            # For a new player, the average score is the current score
+            player.avg_score = player_data['score_player']
 
-        player1.total_games += 1
-        player2.total_games += 1
+        # Update wins, losses, and total games
+        if player_data['winner'] == player_data['name_player']:
+            player.wins += 1
+        else:
+            player.losses += 1
 
-        player1.save()
-        player2.save()
+        player.total_games += 1
+        player.save()
 
-        return player1, player2
+        return player
 
     def create(self, validated_data):
-        # Extract and remove player info from validated_data
-        player_data = {
-            'id_player1': validated_data.pop('id_player1'),
-            'id_player2': validated_data.pop('id_player2'),
-            'name_player1': validated_data['name_player1'],
-            'name_player2': validated_data['name_player2'],
-            'score_player1': validated_data['score_player1'],
-            'score_player2': validated_data['score_player2'],
+        # Extract player-related data
+        player_data1 = {
+            'name_player': validated_data['name_player1'],
+            'score_player': validated_data['score_player1'],
             'winner': validated_data['winner']
         }
         
+        player_data2 = {
+            'name_player': validated_data['name_player2'],
+            'score_player': validated_data['score_player2'],
+            'winner': validated_data['winner']
+        }
+
         # Create or update players
-        p1, p2 = self.create_players(player_data)
-        
-        # Create the PongGame instance with proper Player foreign keys
+        p1 = self.create_player(player_data1)
+        p2 = self.create_player(player_data2)
+
+        # Create the PongGame instance with the Player ForeignKey relations
         tournament = PongGame.objects.create(
-            id_player1=p1, id_player2=p2, **validated_data
+            id_player1=p1,
+            id_player2=p2,
+            name_player1=validated_data['name_player1'],
+            name_player2=validated_data['name_player2'],
+            score_player1=validated_data['score_player1'],
+            score_player2=validated_data['score_player2'],
+            winner=validated_data['winner'],
+            tournament_type=validated_data['tournament_type']
         )
+
         return tournament
+
 
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
-        fields = ['name', 'score', 'position']
+        fields = ['name', 'avg_score', 'position']
 
 class FinalRoundSerializer(serializers.ModelSerializer):
     class Meta:

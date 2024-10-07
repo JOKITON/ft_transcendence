@@ -24,10 +24,24 @@ const user = ref({
   id: 0,
 });
 
+let globalIds = ref({
+  idPlayerOne: 0,
+  idPlayerTwo: 0,
+  idPlayerThree: 0,
+  idPlayerFour: 0,
+  idPlayerFive: 0,
+  idPlayerSix: 0,
+  idPlayerSeven: 0,
+  idPlayerEight: 0,
+});
+
 // Handle game start
 const handleStartGame = (data) => {
-  const { aiDifficulty, gameMode, players } = data;
+  const { id, aiDifficulty, gameMode, players } = data;
 
+  console.log(data);
+  console.log(id);
+  globalIds.value = id;
   // Store player names and optionally AI difficulty
   aiDif.value = Number(aiDifficulty);
   arPlayers.value = players;
@@ -48,8 +62,9 @@ const handleStartGame = (data) => {
 // Send tournament data to backend
 const sendAIData = async (tournamentResults) => {
   try {
+    tournamentResults.id_player1 = globalIds.value.idPlayerOne;
     const response = await api.post("pong/ai", tournamentResults);
-    // console.log('Data sent successfully:', response.data);
+    console.log('Data sent successfully:', response.data);
   } catch (error) {
     console.error('Error sending data:', error);
 
@@ -75,8 +90,8 @@ const sendAIData = async (tournamentResults) => {
 const send2PData = async (tournamentResults) => {
   try {
     // Change player name to ID
-    tournamentResults.id_player1 = 1;
-    tournamentResults.id_player2 = user.value.id;
+    tournamentResults.id_player1 = globalIds.value.idPlayerOne;
+    tournamentResults.id_player2 = globalIds.value.idPlayerTwo;
     const response = await api.post("pong/2p", tournamentResults);
     console.log('Data sent successfully:', response.data);
   } catch (error) {
@@ -103,6 +118,14 @@ const send2PData = async (tournamentResults) => {
 // Send tournament data to backend
 const sendTournamentData = async (tournamentResults) => {
   try {
+    tournamentResults.id_player1 = globalIds.value.idPlayerOne;
+    tournamentResults.id_player2 = globalIds.value.idPlayerTwo;
+    tournamentResults.id_player3 = globalIds.value.idPlayerThree;
+    tournamentResults.id_player4 = globalIds.value.idPlayerFour;
+    tournamentResults.id_player5 = globalIds.value.idPlayerFive;
+    tournamentResults.id_player6 = globalIds.value.idPlayerSix;
+    tournamentResults.id_player7 = globalIds.value.idPlayerSeven;
+    tournamentResults.id_player8 = globalIds.value.idPlayerEight;
     const response = await api.post("pong/8p", tournamentResults);
     console.log('Data sent successfully:', response.data);
   } catch (error) {

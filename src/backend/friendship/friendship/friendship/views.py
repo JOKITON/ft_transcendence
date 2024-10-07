@@ -31,13 +31,13 @@ class AllUsers(APIView):
             .objects.values(
                 "id",
                 "username",
+                "nickname",
                 "status",  # Assuming status is a field on your User model
             )
             .exclude(id=request.user.id)  # Exclude the current user
         )
         
         return Response(data=users, status=status.HTTP_200_OK)
-
 
 
 class FriendsView(APIView):

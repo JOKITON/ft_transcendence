@@ -4,17 +4,16 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class Player(models.Model):
-    id = models.IntegerField(primary_key=True, blank=False, null=False)
     name = models.CharField(max_length=255)
-    score = models.IntegerField(default=0)
-    position = models.IntegerField(blank=True)
+    avg_score = models.FloatField(default=0)
+    position = models.IntegerField(default=0, blank=True, null=True)
 
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)
     total_games = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.name} (Position: {self.position}, Score: {self.score})"
+        return f"{self.name} (Position: {self.position}, Score: {self.avg_score})"
 
 class PongGame(models.Model):
     tournament_type_choices = [
@@ -23,12 +22,12 @@ class PongGame(models.Model):
 
     tournament_type = models.CharField(max_length=2, choices=tournament_type_choices, default='2P')
     winner = models.CharField(max_length=255)
-    id_player1 = models.ForeignKey(Player, on_delete=models.DO_NOTHING, related_name='player1_data', null=True, blank=True)
-    id_player2 = models.ForeignKey(Player, on_delete=models.DO_NOTHING,  related_name='player2_data', null=True, blank=True)
-    name_player1 = models.CharField(max_length=255, null=True, blank=True)
-    name_player2 = models.CharField(max_length=255, null=True, blank=True)
-    score_player1 = models.IntegerField()
-    score_player2 = models.IntegerField()
+    player1 = models.ForeignKey(Player, on_delete=models.DO_NOTHING, related_name='player1_data', null=True, blank=True)
+    player2 = models.ForeignKey(Player, on_delete=models.DO_NOTHING,  related_name='player2_data', null=True, blank=True)
+    player1_name = models.CharField(max_length=255, null=True, blank=True)
+    player2_name = models.CharField(max_length=255, null=True, blank=True)
+    player1_score = models.IntegerField()
+    player2_score = models.IntegerField()
 
     def __str__(self):
         return f"{self.tournament_type} - {self.winner}"

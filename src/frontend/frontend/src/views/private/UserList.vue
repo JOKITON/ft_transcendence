@@ -40,6 +40,7 @@ const users = ref<User[]>([]);
 interface User {
 	id: number
 	username: string
+	nickname: string
 	email: string,
 }
 

@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/17 18:36:34 by jaizpuru          #+#    #+#              #
-#    Updated: 2024/10/02 17:31:01 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/05 12:31:10 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -52,6 +52,7 @@ class Tournament2PView(APIView):
 
     def post(self, request: Request) -> Response:
         serializer = PongGameSerializer(data=request.data, context={"request": request})
+        # serializer.create_players(validated_data=request.data)
 
         if serializer.is_valid():
             serializer.save()  # Save the tournament instance
