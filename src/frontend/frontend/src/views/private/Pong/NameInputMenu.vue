@@ -138,16 +138,35 @@ interface User {
 	id: number
 	username: string
 	nickname: string
-	email: string,
+	status: string,
 }
 
-const users = ref<User[]>([]);
+const users = ref<User>([8]);
+
+const friends = ref<Friend[]>([]);
+
+interface Friend {
+	id: number
+	username: string
+	nickname: string
+	status: string,
+}
 
 const fetchUserList = async () => {
 	try {
-		const response = await api.get('friendship/users');
-		const data = Object.values(response);
-		users.value = data.filter(user => typeof user === 'object' && user.id && user.username);
+		const response = await api.get<Friend[]>('friendship/users');
+        console.log(response);
+		console.log(response.data);
+		friends.value = response.data || [];
+        console.log('lista de amigos')
+        for (let index = 0; index < friends.value.length; index++) {
+			const element = friends[index];
+			console.log(element)
+		}
+
+/* 		users.value = response.data;
+		console.log(users.value); // Error here
+		console.log(Object.keys(users.value)); */
 	} catch (error) {
 		console.error('Error fetching users:', error.response ? error.response.data : error.message);
 	}
@@ -181,8 +200,17 @@ const startGame = () => {
 	if (!users.value[0])
 		ids.push(user.value.id, user.value.nickname)
 	else { // Any length user list was found (above one player) & data will be formatted
-		for (let index : number = 0; index < players.value.length; index++) {
-			ids[index] = users.value[index].id;		
+		console.log('Lengths:');
+		console.log(users.value.length);
+		console.log(players.value.length);
+		console.log('ids:');
+		users.value[0] = '1';
+		console.log(users.value[0]);
+		console.log(Object.keys(users.value));
+		console.log(Object.keys(players.value));
+		for (let index = 0; index < users.value.length; index++) {
+			console.log('Index: ', index);
+			ids[index] = users.value[index].id;
 		}
 	}
 	console.log(ids);

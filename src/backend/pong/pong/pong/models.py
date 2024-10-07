@@ -26,8 +26,8 @@ class PongGame(models.Model):
     player2 = models.ForeignKey(Player, on_delete=models.DO_NOTHING,  related_name='player2_data', null=True, blank=True)
     player1_name = models.CharField(max_length=255, null=True, blank=True)
     player2_name = models.CharField(max_length=255, null=True, blank=True)
-    player1_score = models.IntegerField()
-    player2_score = models.IntegerField()
+    player1_score = models.IntegerField(default=0)
+    player2_score = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.tournament_type} - {self.winner}"

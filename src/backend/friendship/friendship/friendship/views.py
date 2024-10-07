@@ -37,7 +37,7 @@ class AllUsers(APIView):
             .exclude(id=request.user.id)  # Exclude the current user
         )
         
-        return Response(data=users, status=status.HTTP_200_OK)
+        return Response({"data": users}, status=status.HTTP_200_OK)
 
 
 class FriendsView(APIView):
