@@ -36,21 +36,21 @@
 
 				<!-- Player Input Fields -->
 				<div v-if="gameMode" class="player-inputs">
-					<div v-for="(player, index) in filteredPlayers" :key="index" class="player-group">
-						
-						<!-- First Player is always the current user, not changeable -->
-						<div v-if="index === 0" class="static-player">
-							<span class="player-nickname">{{ user.nickname }}</span>
+					<span v-if="gameMode === 'onePlayer'" class="vs-text">{{ userOne.nickname }} VS AI</span>
+					
+					<div v-if="gameMode !== 'onePlayer'" class="player-group">
+						<span class="player-nickname">{{ userOne.nickname }}</span>
+						<span class="vs-text">VS</span>
+						<div v-for="(user, index) in users" :key="index" class="player-group">
+							<div v-if="gameMode === 'twoPlayer' && index < 2">
+								<select v-if="index !== 0" v-model="user.nickname" class="form-select" required>
+									<option value="" disabled selected>Select Player {{ index * 2 + 2 }}</option>
+									<option v-for="user in usersGodMode" :key="user.id" :value="user.nickname">
+										{{ user.nickname }}
+									</option>
+								</select>
+							</div>
 						</div>
-						
-						<!-- For Two Player and Tournament mode, show the dropdown for Player 2 -->
-						<span v-if="gameMode !== 'onePlayer'" class="vs-text">VS</span>
-						
-						<!-- Dropdown for Player 2 -->
-						<select v-if="gameMode !== 'onePlayer'" v-model="players[index].name2" class="form-select" required>
-							<option value="" disabled selected>Select Player {{ index * 2 + 2 }}</option>
-							<option v-for="user in users" :key="user.id" :value="user.nickname">{{ user.nickname }}</option>
-						</select>
 					</div>
 
 					<!-- AI Difficulty Selection for One Player Mode -->
@@ -86,8 +86,6 @@
 	</div>
 </template>
 
-
-
 <script setup lang="ts">
 import { onMounted, ref, computed, inject } from 'vue';
 import type Api from '@/utils/Api/Api'
@@ -96,20 +94,9 @@ import auth from '../../../services/user/services/auth/auth.ts'
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 
-const user = ref({
-	id: 0,
-	nickname: '',
-});
-
 const isOnline = ref(''); // Keep track of whether Online or Offline is selected
 const gameMode = ref('');
 const aiDifficulty = ref(1);
-const players = ref([
-	{ name1: '', name2: '' },
-	{ name1: '', name2: '' },
-	{ name1: '', name2: '' },
-	{ name1: '', name2: '' }
-]);
 
 // Sample leaderboard data
 const leaderboard = ref([
@@ -119,70 +106,54 @@ const leaderboard = ref([
 	{ id: 4, name: 'Chris Brown', score: 800, status: 'bg-danger' },
 ]);
 
-// Compute the number of player pairs needed based on the game mode
-const filteredPlayers = computed(() => {
-	if (gameMode.value === 'onePlayer' || gameMode.value === 'twoPlayer') {
-		return players.value.slice(0, 1);
-	} else if (gameMode.value === 'eightPlayer') {
-		return players.value;
-	}
-	return [];
-});
-
 onMounted(async () => {
 	await fetchNickname()
 	await fetchUserList()
 })
 
 interface User {
-	id: number
-	username: string
-	nickname: string
-	status: string,
+    id: number;
+    username: string;
+    nickname: string;
+    status: string;
 }
 
-const users = ref<User>([8]);
-
-const friends = ref<Friend[]>([]);
-
-interface Friend {
-	id: number
-	username: string
-	nickname: string
-	status: string,
-}
+const users = ref<User[]>([]);
+const usersGodMode = ref<User[]>([]);
+const userOne = ref<User>(); // Assuming you want to store the fetched user
 
 const fetchUserList = async () => {
-	try {
-		const response = await api.get<Friend[]>('friendship/users');
-        console.log(response);
-		console.log(response.data);
-		friends.value = response.data || [];
-        console.log('lista de amigos')
-        for (let index = 0; index < friends.value.length; index++) {
-			const element = friends[index];
-			console.log(element)
-		}
+    try {
+        const response = await api.get<User[]>('friendship/users');
+        users.value = response.data || [];
+		usersGodMode.value = [...users.value];
 
-/* 		users.value = response.data;
-		console.log(users.value); // Error here
-		console.log(Object.keys(users.value)); */
-	} catch (error) {
-		console.error('Error fetching users:', error.response ? error.response.data : error.message);
-	}
+        // Add the user from fetchNickname() at the first position
+        if (userOne.value) {
+            users.value.unshift(userOne.value); // Add the user to the start of the array
+        }
+		console.log(userOne.value.nickname);
+
+        /* users.value.forEach(user => {
+            console.log(user.username);
+        }); */
+    } catch (error) {
+        console.error('Error fetching users:', error.response ? error.response.data : error.message);
+    }
 }
 
 async function fetchNickname() {
-  try {
-    const response = await Auth.whoami();
-    user.value = {
-		id: response.id,
-    	nickname: response.nickname,
-    };
-    // console.log(user.value.id );
-  } catch (error: any) {
-    console.error('Error fetching user data:', error.message);
-  }
+    try {
+        const response = await Auth.whoami();
+        userOne.value = {
+            id: response.id,
+            username: response.username,
+            nickname: response.nickname,
+            status: 'Online',
+        };
+    } catch (error: any) {
+        console.error('Error fetching user data:', error.message);
+    }
 }
 
 const emit = defineEmits(['startGame']);

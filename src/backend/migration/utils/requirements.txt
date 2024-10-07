@@ -28,4 +28,4 @@ cryptography==42.0.8
 django-csp==3.8
 requests==2.32.3
 pillow==10.4.0
-UserModel==0.0.4
+UserModel==0.0.6
