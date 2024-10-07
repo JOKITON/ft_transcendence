@@ -9,4 +9,3 @@ UserModel.egg-info/PKG-INFO
 UserModel.egg-info/SOURCES.txt
 UserModel.egg-info/dependency_links.txt
 UserModel.egg-info/top_level.txt
-UserModel/migrations/__init__.py
