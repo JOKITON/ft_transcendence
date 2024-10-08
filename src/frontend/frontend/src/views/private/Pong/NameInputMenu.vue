@@ -1,98 +1,104 @@
 <template>
-	<div class="form-container">
-		<div class="form-content">
-			<form @submit.prevent="startGame" class="game-form">
-				<div class="d-flex justify-content-center mt-4">
-					<!-- Toggle buttons for Online/Offline mode -->
-					<button type="button" class="btn btn-lg mx-2"
-						:class="{ 'btn-primary': isOnline === 'Online', 'btn-outline-primary': isOnline !== 'Online' }"
-						@click="setGameMode('Online')">
-						Online
-					</button>
-					<button type="button" class="btn btn-lg mx-2"
-						:class="{ 'btn-secondary': isOnline === 'Offline', 'btn-outline-secondary': isOnline !== 'Offline' }"
-						@click="setGameMode('Offline')">
-						Offline
-					</button>
-				</div>
+    <div class="form-container">
+        <div class="form-content">
+            <form @submit.prevent="startGame" class="game-form">
+                <div class="d-flex justify-content-center mt-4">
+                    <!-- Toggle buttons for Online/Offline mode -->
+                    <button type="button" class="btn btn-lg mx-2"
+                        :class="{ 'btn-primary': isOnline === 'Online', 'btn-outline-primary': isOnline !== 'Online' }"
+                        @click="setGameMode('Online')">
+                        Online
+                    </button>
+                    <button type="button" class="btn btn-lg mx-2"
+                        :class="{ 'btn-secondary': isOnline === 'Offline', 'btn-outline-secondary': isOnline !== 'Offline' }"
+                        @click="setGameMode('Offline')">
+                        Offline
+                    </button>
+                </div>
 
-				<div v-if="isOnline" class="player-inputs">
-					<h3 class="mb-3">Choose Game Mode:</h3>
-					<div class="game-mode-options">
-						<label v-if="isOnline === 'Offline'" class="game-mode-label">
-							<input v-model="gameMode" type="radio" value="onePlayer" required />
-							One Player (vs AI)
-						</label>
-						<label class="game-mode-label">
-							<input v-model="gameMode" type="radio" value="twoPlayer" required />
-							Two Player
-						</label>
-						<label class="game-mode-label">
-							<input v-model="gameMode" type="radio" value="eightPlayer" required />
-							Tournament (8 Player)
-						</label>
-					</div>
-				</div>
+                <div v-if="isOnline" class="player-inputs">
+                    <h3 class="mb-3">Choose Game Mode:</h3>
+                    <div class="game-mode-options">
+                        <label v-if="isOnline === 'Offline'" class="game-mode-label">
+                            <input v-model="gameMode" type="radio" value="onePlayer" required />
+                            One Player (vs AI)
+                        </label>
+                        <label class="game-mode-label">
+                            <input v-model="gameMode" type="radio" value="twoPlayer" required />
+                            Two Player
+                        </label>
+                        <label class="game-mode-label">
+                            <input v-model="gameMode" type="radio" value="eightPlayer" required />
+                            Tournament (4|8 Player)
+                        </label>
+                    </div>
+                </div>
 
-				<!-- Player Input Fields -->
-				<div v-if="gameMode" class="player-inputs">
-					<span v-if="gameMode === 'onePlayer'" class="vs-text">{{ userOne.nickname }} VS AI</span>
-					
-					<div v-if="gameMode !== 'onePlayer'" class="player-group">
-						<span class="player-nickname">{{ userOne.nickname }}</span>
-						<div v-for="(user, index) in users" :key="index" class="player-group">
-							<div v-if="gameMode === 'twoPlayer' && index < 2">
-								<span class="vs-text">VS</span>
-								<select v-if="index !== 0" v-model="user.nickname" class="form-select" required>
-									<option value="" disabled selected>Select Player {{ index * 2 + 2 }}</option>
-									<option v-for="user in usersGodMode" :key="user.id" :value="user.nickname">
-										{{ user.nickname }}
-									</option>
-								</select>
-							</div>
-							<div v-if="gameMode === 'eightPlayer' && users.length > 2">
-								<span class="vs-text">VS</span>
-								<select v-if="index !== 0" v-model="user.nickname" class="form-select" required>
-									<option value="" disabled selected>Select Player {{ index * 2 + 2 }}</option>
-									<option v-for="user in usersGodMode" :key="user.id" :value="user.nickname">
-										{{ user.nickname }}
-									</option>
-								</select>
-							</div>
-						</div>
-					</div>
+                <!-- Player Input Fields -->
+                <div v-if="gameMode" class="player-inputs">
+                    <span v-if="gameMode === 'onePlayer'" class="vs-text">{{ userOne.nickname }} VS AI</span>
 
-					<!-- AI Difficulty Selection for One Player Mode -->
-					<div v-if="gameMode === 'onePlayer'" class="ai-difficulty">
-						<select v-model="aiDifficulty" class="form-select" required>
-							<option value="">Choose difficulty...</option>
-							<option value="0.3">Easy</option>
-							<option value="0.5">Normal</option>
-							<option value="1">Hard</option>
-							<option value="1.5">Impossible</option>
-						</select>
-					</div>
-				</div>
+                    <div v-if="gameMode !== 'onePlayer'" class="player-group">
+                        <span class="player-nickname">{{ userOne.nickname }}</span>
+						<span class="vs-text">VS</span>
+                        <div class="player-group">
+                            <!-- Inside your player group for two-player mode -->
+                            <div v-if="gameMode === 'twoPlayer'" class="player-group">
+                                <select v-model="selectedOpponent" class="form-select" required>
+                                    <option value="" disabled>Select Opponent</option>
+                                    <option v-for="user in orUsers" :key="user.nickname" :value="user.nickname">
+                                        {{ user.nickname }}
+                                    </option>
+                                </select>
+                            </div>
 
-				<button v-if="gameMode" type="submit" class="btn btn-primary mt-4">Start Game</button>
-			</form>
+                            <!-- Inside your player group for eight-player mode -->
+                            <div v-if="gameMode === 'eightPlayer' && (users.length == 4 || users.length == 8)">
+                                <div v-for="(user, index) in users" :key="index" class="player-group">
+                                    <select v-model="user.nickname" class="form-select" required>
+                                        <option value="" disabled>Select Opponent</option>
+                                        <option v-for="filteredUser in filteredUsers(index)" :key="filteredUser.nickname" :value="filteredUser.nickname">
+                                            {{ filteredUser.nickname }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-			<!-- Leaderboard Section -->
-			<div class="leaderboard mt-10000">
-				<h6 class="d-flex align-items-center mb-3">Leaderboard</h6>
-				<ul class="list-group">
-					<li v-for="user in leaderboard" :key="user.id"
-						class="list-group-item d-flex justify-content-between align-items-center">
-						<span>
-							<span :class="['status-indicator', user.status]"></span>
-							{{ user.name }}
-						</span>
-						<span class="badge bg-primary rounded-pill">{{ user.score }}</span>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</div>
+                    <!-- AI Difficulty Selection for One Player Mode -->
+                    <div v-if="gameMode === 'onePlayer'" class="ai-difficulty">
+                        <select v-model="aiDifficulty" class="form-select" required>
+                            <option value="">Choose difficulty...</option>
+                            <option value="0.3">Easy</option>
+                            <option value="0.5">Normal</option>
+                            <option value="1">Hard</option>
+                            <option value="1.5">Impossible</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button
+                    v-if="gameMode && (gameMode === 'onePlayer' || (gameMode === 'twoPlayer' && users.length >= 2) || (gameMode === 'eightPlayer' && (users.length == 4 || users.length == 8)))"
+                    type="submit" class="btn btn-primary mt-4">Start Game</button>
+            </form>
+
+            <!-- Leaderboard Section -->
+            <div class="leaderboard mt-10000">
+                <h6 class="d-flex align-items-center mb-3">Leaderboard</h6>
+                <ul class="list-group">
+                    <li v-for="user in leaderboard" :key="user.id"
+                        class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>
+                            <span :class="['status-indicator', user.status]"></span>
+                            {{ user.name }}
+                        </span>
+                        <span class="badge bg-primary rounded-pill">{{ user.score }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -106,18 +112,19 @@ const Auth: auth = new auth(api)
 const isOnline = ref(''); // Keep track of whether Online or Offline is selected
 const gameMode = ref('');
 const aiDifficulty = ref(1);
+const selectedOpponent = ref('');
 
 // Sample leaderboard data
 const leaderboard = ref([
-	{ id: 1, name: 'Jane Smith', score: 1500, status: 'bg-success' },
-	{ id: 2, name: 'Mike Johnson', score: 1200, status: 'bg-danger' },
-	{ id: 3, name: 'Emily Davis', score: 1000, status: 'bg-success' },
-	{ id: 4, name: 'Chris Brown', score: 800, status: 'bg-danger' },
+    { id: 1, name: 'Jane Smith', score: 1500, status: 'bg-success' },
+    { id: 2, name: 'Mike Johnson', score: 1200, status: 'bg-danger' },
+    { id: 3, name: 'Emily Davis', score: 1000, status: 'bg-success' },
+    { id: 4, name: 'Chris Brown', score: 800, status: 'bg-danger' },
 ]);
 
 onMounted(async () => {
-	await fetchNickname()
-	await fetchUserList()
+    await fetchNickname()
+    await fetchUserList()
 })
 
 interface User {
@@ -128,20 +135,20 @@ interface User {
 }
 
 const users = ref<User[]>([]);
-const usersGodMode = ref<User[]>([]);
+const orUsers = ref<User[]>([]);
 const userOne = ref<User>(); // Assuming you want to store the fetched user
 
 const fetchUserList = async () => {
     try {
         const response = await api.get<User[]>('friendship/users');
         users.value = response.data || [];
-		usersGodMode.value = [...users.value];
+
+		orUsers.value = [...users.value];
 
         // Add the user from fetchNickname() at the first position
         if (userOne.value) {
             users.value.unshift(userOne.value); // Add the user to the start of the array
         }
-		console.log(userOne.value.nickname);
 
         /* users.value.forEach(user => {
             console.log(user.username);
@@ -169,24 +176,30 @@ const emit = defineEmits(['startGame']);
 
 // Function to set the game mode (Online/Offline)
 const setGameMode = (mode) => {
-	isOnline.value = mode;
-	gameMode.value = ''; // Reset game mode when switching between Online/Offline
+    isOnline.value = mode;
+    gameMode.value = ''; // Reset game mode when switching between Online/Offline
+};
+
+const filteredUsers = (currentIndex) => {
+    return users.value.filter(user =>
+        !users.value.some((selectedUser, index) => index !== currentIndex && selectedUser.nickname === user.nickname && selectedUser.nickname !== userOne.nickname)
+    );
 };
 
 const startGame = () => {
-	const data = {
-		gameMode: gameMode.value,
-		players: users.value.map(user => ({
-			player: user.nickname,
-			id: user.id,
-		})),
-	};
+    const data = {
+        gameMode: gameMode.value,
+        players: users.value.map(user => ({
+            player: user.nickname,
+            id: user.id,
+        })),
+    };
 
-	if (gameMode.value === 'onePlayer') {
-		data.aiDifficulty = aiDifficulty.value;
-	}
+    if (gameMode.value === 'onePlayer') {
+        data.aiDifficulty = aiDifficulty.value;
+    }
 
-	emit('startGame', data);
+    emit('startGame', data);
 };
 </script>
 

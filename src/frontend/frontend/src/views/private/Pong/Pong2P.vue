@@ -14,14 +14,16 @@ import { handleCollisions } from '../../../services/pong/Utils';
 
 const props = defineProps({
   players: Array<Object>,
+  id: Array<Number>,
+  aiDifficulty: Number,
 });
 const emit = defineEmits(['gameOver']);
 
 // Extract initial players for the current game
-let player1Name = ref(props.players[0].player1Name);
-let player2Name = ref(props.players[0].player2Name);
+let player1Name = ref(props.players[0].player);
+let player2Name = ref(props.players[1].player);
 
-console.log('Players:', props.players[0].player1Name, props.players[0].player2Name);
+console.log('Players:', player1Name.value, player2Name.value);
 
 const three = new ThreeService(window.innerWidth, window.innerHeight);
 
@@ -171,14 +173,18 @@ const endGame = (winningPlayer: string) => {
   setTimeout(() => {
     winner.value = winningPlayer;
     isGameOver.value = true;
+
+    let players = [player1Name.value, player2Name.value];
+    let scores = [numScorePlayerOne, numScorePlayerTwo];
+    let ids = [props.players[0].id, props.players[1].id];
+
     // Emit the tournament data to the parent component
     emit('gameOver', {
       winner: winningPlayer,
-      name_player1: player1Name.value,
-      name_player2: player2Name.value,
-      score_player1: numScorePlayerOne,
-      score_player2: numScorePlayerTwo,
-      tournament_type: '2P'
+      player_names: players,
+      player_scores: scores,
+      player_ids: ids,
+      tournament_type: '2P',
     });
   }, 5000);
 };

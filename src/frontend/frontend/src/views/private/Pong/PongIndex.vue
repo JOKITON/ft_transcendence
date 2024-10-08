@@ -35,8 +35,6 @@ let globalIds = ref({
 const handleStartGame = (data) => {
   const { id, aiDifficulty, gameMode, players } = data;
 
-  console.log(data);
-  console.log(id);
   globalIds.value = id;
   // Store player names and optionally AI difficulty
   aiDif.value = Number(aiDifficulty);
@@ -84,9 +82,6 @@ const sendAIData = async (tournamentResults) => {
 // Send tournament data to backend
 const send2PData = async (tournamentResults) => {
   try {
-    // Change player name to ID
-    tournamentResults.id_player1 = globalIds.value.idPlayerOne;
-    tournamentResults.id_player2 = globalIds.value.idPlayerTwo;
     const response = await api.post("pong/2p", tournamentResults);
     console.log('Data sent successfully:', response.data);
   } catch (error) {
@@ -113,14 +108,6 @@ const send2PData = async (tournamentResults) => {
 // Send tournament data to backend
 const sendTournamentData = async (tournamentResults) => {
   try {
-    tournamentResults.id_player1 = globalIds.value.idPlayerOne;
-    tournamentResults.id_player2 = globalIds.value.idPlayerTwo;
-    tournamentResults.id_player3 = globalIds.value.idPlayerThree;
-    tournamentResults.id_player4 = globalIds.value.idPlayerFour;
-    tournamentResults.id_player5 = globalIds.value.idPlayerFive;
-    tournamentResults.id_player6 = globalIds.value.idPlayerSix;
-    tournamentResults.id_player7 = globalIds.value.idPlayerSeven;
-    tournamentResults.id_player8 = globalIds.value.idPlayerEight;
     const response = await api.post("pong/8p", tournamentResults);
     console.log('Data sent successfully:', response.data);
   } catch (error) {
@@ -151,6 +138,9 @@ const handleGameOver = (tournamentResults) => {
   // Send tournament results to backend
   switch (tournamentResults.tournament_type) {
     case '8P':
+      sendTournamentData(tournamentResults);
+      break ;
+    case '4P':
       sendTournamentData(tournamentResults);
       break ;
     case '2P':

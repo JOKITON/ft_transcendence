@@ -17,19 +17,16 @@ class Player(models.Model):
 
 class PongGame(models.Model):
     tournament_type_choices = [
-        ('AI', 'AI Tournament'), ('2P', '2P Tournament')
+        ('AI'), ('2P'), ('4P'), ('8P')
     ]
 
     tournament_type = models.CharField(max_length=2, choices=tournament_type_choices, default='2P')
     winner = models.CharField(max_length=255)
     player1 = models.ForeignKey(Player, on_delete=models.DO_NOTHING, related_name='player1_data', null=True, blank=True)
     player2 = models.ForeignKey(Player, on_delete=models.DO_NOTHING,  related_name='player2_data', null=True, blank=True)
-    id_player1 = models.IntegerField(null=True, blank=True)
-    id_player2 = models.IntegerField(null=True, blank=True)
-    player1_name = models.CharField(max_length=255, null=True, blank=True)
-    player2_name = models.CharField(max_length=255, null=True, blank=True)
-    player1_score = models.IntegerField(default=0)
-    player2_score = models.IntegerField(default=0)
+    player_ids = models.JSONField(null=True, blank=True)
+    player_names = models.JSONField(null=True, blank=True)
+    player_scores = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.tournament_type} - {self.winner}"

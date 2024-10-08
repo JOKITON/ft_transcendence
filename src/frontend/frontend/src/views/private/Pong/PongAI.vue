@@ -14,6 +14,7 @@ import { handleCollisions } from '../../../services/pong/Utils';
 
 const props = defineProps({
   players: Array<Object>,
+  id: Array<Number>,
   aiDifficulty: Number,
 });
 
@@ -202,16 +203,17 @@ const endGame = (winningPlayer: string) => {
     winner.value = winningPlayer;
     isGameOver.value = true;
 
+    let players = [player1Name.value, 'AI'];
+    let ids = [props.players[0].id, 0];
+    let scores = [numScorePlayerOne, numScorePlayerTwo];
+
     // Emit the tournament data to the parent component
     emit('gameOver', {
       winner: winningPlayer,
-      player1_name: player1Name.value,
-      player2_name: 'AI',
-      player1_score: numScorePlayerOne,
-      player2_score: numScorePlayerTwo,
+      player_names: players,
+      player_scores: scores,
+      player_ids: ids,
       tournament_type: 'AI',
-      id_player1: props.players[0].id,
-      id_player2: 0,
     });
   }, 5000);
 };

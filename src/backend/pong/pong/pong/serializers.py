@@ -15,7 +15,7 @@ from .models import Player, FinalRound, SemiFinal, Tournament8P
 class PongGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = PongGame
-        fields = ['winner', 'id_player1', 'id_player2', 'player1_name', 'player2_name', 'player1_score', 'player2_score', 'tournament_type']
+        fields = ['winner', 'player_ids', 'player_names', 'player_scores', 'tournament_type']
 
     def create_player(self, player_data):
         player, created = Player.objects.get_or_create(
@@ -44,39 +44,40 @@ class PongGameSerializer(serializers.ModelSerializer):
         return player
 
     def create(self, validated_data):
-        # Extract player-related data
-        player_data1 = {
-            'id': validated_data['id_player1'],
-            'name_player': validated_data['player1_name'],
-            'score_player': validated_data['player1_score'],
-            'winner': validated_data['winner']
-        }
+        # Extract lists of player IDs, names, and scores
+        player_ids = validated_data['player_ids']
+        player_names = validated_data['player_names']
+        player_scores = validated_data['player_scores']
+        winner = validated_data['winner']
         
-        player_data2 = {
-            'id': validated_data['id_player2'],
-            'name_player': validated_data['player2_name'],
-            'score_player': validated_data['player2_score'],
-            'winner': validated_data['winner']
-        }
+        players = []
 
-        # Create or update players
-        p1 = self.create_player(player_data1)
-        p2 = self.create_player(player_data2)
+        # Iterate over the lists to create player_data dictionaries
+        for i in range(len(player_ids)):
+            player_data = {
+                'id': player_ids[i],
+                'name_player': player_names[i],
+                'score_player': player_scores[i],
+                'winner': winner
+            }
+            print(player_data)  # Example operation
+
+            # Create or update player instances
+            player = self.create_player(player_data)
+            players.append(player)
+        
+        p1, p2 = players;
 
         # Create the PongGame instance with the Player ForeignKey relations
         tournament = PongGame.objects.create(
             player1=p1,
             player2=p2,
-            player1_name=validated_data['player1_name'],
-            player2_name=validated_data['player2_name'],
-            player1_score=validated_data['player1_score'],
-            player2_score=validated_data['player2_score'],
-            winner=validated_data['winner'],
-            tournament_type=validated_data['tournament_type']
+            player_names=player_names,
+            player_scores=player_scores,
+            winner=winner,
         )
 
         return tournament
-
 
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
