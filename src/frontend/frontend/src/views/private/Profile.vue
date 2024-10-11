@@ -68,9 +68,9 @@ const user = ref({
 const userLoaded = ref(false);
 /* ----- FETCH INFORMATION ----- */
 
-async function fetchPongData() {
+/* async function fetchPongData() {
   try {
-    const response = await api.get("pong/data");
+    const response = await Auth.pongData(user.id);
     // console.log('Data sent successfully:', response.data);
     console.log(response);
   } catch (error) {
@@ -92,7 +92,8 @@ async function fetchPongData() {
       alert('Request to the backend failed. Please try again later.');
     }
   }
-};
+}; */
+
 async function fetchUserData() {
   try {
     const response = await Auth.whoami();
@@ -135,7 +136,7 @@ async function fetchUserAvatar() {
 
 onMounted(async () => {
   await fetchUserData();
-  await fetchPongData();
+  // await fetchPongData();
 });
 
 

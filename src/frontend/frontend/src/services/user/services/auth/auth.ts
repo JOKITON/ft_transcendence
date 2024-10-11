@@ -119,6 +119,25 @@ export default class auth implements IAuth {
     }
   }
 
+  public async pongData(id: number): Promise<boolean> {
+    try {
+      const response: ApiResponse<Record<string, any>> = await this.api.get(
+        'pong/user/' + id + '/',
+        id,
+      )
+
+      if (response && response?.status === 200) {
+        return (response)
+      } else {
+        console.error('Error getting username:', response)
+        return false
+      }
+    } catch (error: any) {
+      console.error('Error getting username:', error)
+      return false
+    }
+  }
+
   public async checkAndRefreshToken(): Promise<boolean> {
     try {
       const accessToken = localStorage.getItem('access_token');

@@ -22,7 +22,7 @@ class Player(models.Model):
     @property
     def avg_score(self):
         if self.total_games > 0:
-            return self.total_score / self.total_games
+            return round(float(self.total_score) / self.total_games, 2)
         return 0
 
 class PongGame(models.Model):

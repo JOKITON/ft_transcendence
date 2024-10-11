@@ -20,19 +20,93 @@
 
 /* ----- IMPORTS ----- */
 
-import { ref } from 'vue';
+import type Api from '@/utils/Api/Api'
+import auth from '../../services/user/services/auth/auth.ts'
+import { useRouter } from 'vue-router'
+import { onMounted, ref, inject } from 'vue';
 import { Carousel, Slide, Pagination } from 'vue3-carousel';
 import avatar from '../../assets/avatars/pepe.png';
 import img1 from '../../assets/avatars/trofeo.png';
 import img2 from '../../assets/avatars/perder.png';
 import img3 from '../../assets/avatars/maquina-de-arcade.png';
 
+const api: Api = inject('$api') as Api;
+const Auth: auth = new auth(api)
+const router = useRouter()
+
+const user = ref({
+  id: 2,
+  username: '',
+});
+
+const userPongData = ref({
+  name: '',
+  wins: 0,
+  losses: 0,
+  total_games: 0,
+  avg_score: 0,
+});
+
 const items = ref([
-  { category: 'Victorias', value: '10', image: ref(img1) },
+  { category: 'Victorias', value: '0' , image: ref(img1) },
   { category: 'Derrotas', value: '10', image: ref(img2) },
   { category: 'Partidas Jugadas', value: '10', image: ref(img3) },
   { category: 'Duracion de Partida', value: '10', image: ref(avatar) }
 ]);
+
+onMounted(async () => {
+  await fetchUserData();
+  await fetchPongData();
+  await updateItems();
+});
+
+async function updateItems() {
+  items.value = [
+    { category: 'Victorias', value: userPongData.value.wins, image: ref(img1) },
+    { category: 'Derrotas', value: userPongData.value.losses, image: ref(img2) },
+    { category: 'Partidas Jugadas', value: userPongData.value.total_games, image: ref(img3) },
+    { category: 'Media de puntuacion', value: userPongData.value.avg_score, image: ref(avatar) },
+    { category: 'Duracion de Partida', value: userPongData.value.avg_position, image: ref(avatar) },
+  ];
+}
+
+async function fetchUserData() {
+  try {
+    const response = await Auth.whoami();
+    user.value = {
+      id: response.id,
+      username: response.username,
+    };
+  } catch (error: any) {
+    console.error('Error fetching user data:', error.message);
+  }
+}
+
+async function fetchPongData() {
+  try {
+    const response = await Auth.pongData(user.value.id);
+    // console.log('Data sent successfully:', response.data);
+    userPongData.value = response;
+  } catch (error) {
+    console.error('Error sending data:', error);
+
+    if (error.response) {
+      const message = error.response.data.message || 'An error occurred.';
+      const errors = error.response.data.errors || {};
+
+      let errorMessage = `Request failed. ${message}`;
+      if (Object.keys(errors).length > 0) {
+        errorMessage += '\nErrors:\n';
+        for (const [field, msgs] of Object.entries(errors)) {
+          errorMessage += `${field}: ${msgs.join(', ')}\n`;
+        }
+      }
+      alert(errorMessage);
+    } else {
+      alert('Request to the backend failed. Please try again later.');
+    }
+  }
+};
 
 </script>
 
