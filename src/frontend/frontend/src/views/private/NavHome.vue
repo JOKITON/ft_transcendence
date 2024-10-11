@@ -171,7 +171,6 @@ const logoutUser = async () => {
 async function fetchUsername() {
   try {
     const response = await Auth.whoami();
-    console.log(response.username)
     user.value = {
       username: response.username,
       avatarUrl: response.avatar ? response.avatar : 'avatars/pepe.png',
@@ -182,7 +181,6 @@ async function fetchUsername() {
     // Check if avatarUrl is set to the default '/src/assets/avatars/pepe.png'
     if (user.value.avatarUrl === '/src/assets/avatars/pepe.png') {
       // Use the default local avatar
-      console.log("Using default avatar");
     } else {
       // Retrieve avatar from the backend
       await fetchUserAvatar();

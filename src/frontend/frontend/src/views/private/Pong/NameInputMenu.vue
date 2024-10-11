@@ -37,30 +37,40 @@
                 <!-- Player Input Fields -->
                 <div v-if="gameMode" class="player-inputs">
                     <span v-if="gameMode === 'onePlayer'" class="vs-text">{{ userOne.nickname }} VS AI</span>
-
+                
                     <div v-if="gameMode !== 'onePlayer'" class="player-group">
-                        <span class="player-nickname">{{ userOne.nickname }}</span>
-						<span class="vs-text">VS</span>
                         <div class="player-group">
                             <!-- Inside your player group for two-player mode -->
                             <div v-if="gameMode === 'twoPlayer'" class="player-group">
-                                <select v-model="selectedOpponent" class="form-select" required>
+                                <span class="player-nickname">{{ userOne.nickname }}</span>
+                                <span class="vs-text">VS</span>
+                                <select class="form-select" required>
                                     <option value="" disabled>Select Opponent</option>
                                     <option v-for="user in orUsers" :key="user.nickname" :value="user.nickname">
                                         {{ user.nickname }}
                                     </option>
                                 </select>
                             </div>
-
+                
                             <!-- Inside your player group for eight-player mode -->
                             <div v-if="gameMode === 'eightPlayer' && (users.length == 4 || users.length == 8)">
                                 <div v-for="(user, index) in users" :key="index" class="player-group">
-                                    <select v-model="user.nickname" class="form-select" required>
-                                        <option value="" disabled>Select Opponent</option>
-                                        <option v-for="filteredUser in filteredUsers(index)" :key="filteredUser.nickname" :value="filteredUser.nickname">
-                                            {{ filteredUser.nickname }}
-                                        </option>
-                                    </select>
+                                    <!-- The player that should be in the left side of the column for the Tournament -->
+                                    <div v-if="index % 2 == 0" class="player-select-wrapper" style="display: flex; align-items: center;">
+                                        <select class="form-select" required>
+                                            <option value="" disabled>Select Opponent</option>
+                                            <option v-for="filteredUser in filteredUsers(index)" :key="filteredUser.nickname" :value="filteredUser.nickname">
+                                                {{ filteredUser.nickname }}
+                                            </option>
+                                        </select>
+                                        <span class="vs-text" style="margin-left: 10px;">VS</span>
+                                        <select class="form-select" required>
+                                            <option value="" disabled>Select Opponent</option>
+                                            <option v-for="filteredUser in filteredUsers(index + 1)" :key="filteredUser.nickname" :value="filteredUser.nickname">
+                                                {{ filteredUser.nickname }}
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -182,23 +192,50 @@ const setGameMode = (mode) => {
 
 const filteredUsers = (currentIndex) => {
     return users.value.filter(user =>
-        !users.value.some((selectedUser, index) => index !== currentIndex && selectedUser.nickname === user.nickname && selectedUser.nickname !== userOne.nickname)
+        !users.value.some((selectedUser, index) => index !== currentIndex && selectedUser.nickname === user.nickname)
     );
 };
 
 const startGame = () => {
     const data = {
         gameMode: gameMode.value,
-        players: users.value.map(user => ({
-            player: user.nickname,
-            id: user.id,
-        })),
+        players: [],
     };
 
     if (gameMode.value === 'onePlayer') {
+        data.players.push({
+            player: userOne.value.nickname,
+            id: userOne.value.id,
+        });
         data.aiDifficulty = aiDifficulty.value;
+    } else if (gameMode.value === 'twoPlayer') {
+        const selectedOpponent = document.querySelector('.player-group select').value;
+        const opponent = users.value.find(user => user.nickname === selectedOpponent);
+        if (opponent) {
+            data.players.push({
+                player: userOne.value.nickname,
+                id: userOne.value.id,
+            });
+            data.players.push({
+                player: opponent.nickname,
+                id: opponent.id,
+            });
+        }
+    } else if (gameMode.value === 'eightPlayer') {
+        const selects = document.querySelectorAll('.player-select-wrapper select');
+        selects.forEach(select => {
+            const selectedNickname = select.value;
+            const selectedUser = users.value.find(user => user.nickname === selectedNickname);
+            if (selectedUser) {
+                data.players.push({
+                    player: selectedUser.nickname,
+                    id: selectedUser.id,
+                });
+            }
+        });
     }
 
+    console.log('Data :', data);
     emit('startGame', data);
 };
 </script>

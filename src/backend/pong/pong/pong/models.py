@@ -1,23 +1,36 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.fields import ArrayField
 
 User = get_user_model()
 
 class Player(models.Model):
-    name = models.CharField(max_length=255)
-    avg_score = models.FloatField(default=0)
-    position = models.IntegerField(default=0, blank=True, null=True)
-
+    id = models.AutoField(primary_key=True, editable=False)
+    name = models.CharField(max_length=100)
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)
     total_games = models.IntegerField(default=0)
+    total_score = models.FloatField(default=0)
+    # Tournament related fields
+    scores = models.JSONField(default=list)  # Assuming scores are stored as a list of integers
+    last_position = models.IntegerField(default=0)
+    avg_position = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.name} (Position: {self.position}, Score: {self.avg_score})"
+        return f"{self.name} (Position: {self.avg_position}, Avg Score: {self.avg_score})"
+    
+    @property
+    def avg_score(self):
+        if self.total_games > 0:
+            return self.total_score / self.total_games
+        return 0
 
 class PongGame(models.Model):
     tournament_type_choices = [
-        ('AI'), ('2P'), ('4P'), ('8P')
+        ('AI', 'AI Game'),
+        ('2P', '2 Player'),
+        ('4P', '4 Player'),
+        ('8P', '8 Player'),
     ]
 
     tournament_type = models.CharField(max_length=2, choices=tournament_type_choices, default='2P')
@@ -49,6 +62,15 @@ class SemiFinal(models.Model):
 
     def __str__(self):
         return "Semi Final Round"
+
+class Tournament4P(models.Model):
+    players = models.ManyToManyField(Player)
+    final_round = models.OneToOneField(FinalRound, on_delete=models.CASCADE)
+    tournament_type = models.CharField(max_length=3, default='4P')
+
+    def __str__(self):
+        return f"Tournament {self.tournament_type} with {self.players.count()} players"
+
 
 class Tournament8P(models.Model):
     players = models.ManyToManyField(Player)

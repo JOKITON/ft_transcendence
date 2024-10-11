@@ -14,9 +14,9 @@ import { handleCollisions } from '../../../services/pong/Utils';
 
 const props = defineProps({
   players: Array<Object>,
-  id: Array<Number>,
-  aiDifficulty: Number,
 });
+
+console.log(props);
 const emit = defineEmits(['gameOver']);
 
 // Extract initial players for the current game

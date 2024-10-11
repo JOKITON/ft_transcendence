@@ -16,10 +16,13 @@ const props = defineProps({
   players: Array<Object>,
 });
 
+// console.log('Ids: ', props.players[0].id);
+
 const players = props.players;
-console.log(players);
+// console.log('Players: ', players);
 
 const playerCount = props.players.length;
+console.log('Player count:', playerCount);
 
 const emit = defineEmits(['gameOver']);
 
@@ -61,6 +64,7 @@ const wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector
 let variableScoreOne = 0;
 let variableScoreTwo = 0;
 let playerScores: Array<Array<number>>= [[]];
+playerScores = Array.from({ length: playerCount }, () => []);
 
 let posPlayers: Array<number> = new Array(8).fill(0);  // Assuming an array of size 8
 
@@ -196,11 +200,6 @@ function resetScores(): void {
 }
 
 /* Player positions */
-let semiOne = '';
-let semiTwo = '';
-let semiThree = '';
-let semiFour = '';
-
 let finalOne = '';
 let finalTwo = '';
 
@@ -211,16 +210,16 @@ function setNewTournamentNames(newPlayer1Name: string, newPlayer2Name: string): 
 }
 
 // Function to handle semi-final position updates
-function setSemiPositions(indexPosPlayer: number, indexPlayer: number, indexMatch: number, losingPlayer: string): void {
+function setSemiPositions(indexPosPlayer: number, posPlayer: number, losingPlayer: string): void {
   const player1 = player1Name.value;
   const player2 = player2Name.value;
 
   if (losingPlayer === player1) {
-    posPlayers[indexPosPlayer - 1] = indexMatch;
-    console.log(`Player: ${player1}, IndexPos: ${indexPosPlayer}, Position: ${indexMatch}`);
+    posPlayers[indexPosPlayer] = posPlayer;
+    console.log(`Player: ${player1}, IndexPos: ${indexPosPlayer}, Position: ${posPlayer}`);
   } else if (losingPlayer === player2) {
-    posPlayers[indexPosPlayer] = indexMatch;
-    console.log(`Player: ${player2}, IndexPos: ${indexPosPlayer + 1}, Position: ${indexMatch}`);
+    posPlayers[indexPosPlayer + 1] = posPlayer;
+    console.log(`Player: ${player2}, IndexPos: ${indexPosPlayer + 1}, Position: ${posPlayer}`);
   }
 }
 
@@ -233,12 +232,16 @@ function setFinalPositions(losingPlayer: string, indexMatch: number): void {
 
   console.log(`Player Index Found: ${playerIndex}`);
   if (playerIndex !== -1) {
-    const finalPlayerIndex = (player1Name === losingPlayer) ? playerIndex * 2 : playerIndex * 2 + 1;
-    posPlayers[finalPlayerIndex] = indexMatch;
-    console.log(`Player: ${losingPlayer}, IndexPos: ${finalPlayerIndex + 1}, Position: ${indexMatch}`);
+    posPlayers[playerIndex] = indexMatch;
+    console.log(`Player: ${losingPlayer}, IndexPos: ${playerIndex}, Position: ${indexMatch}`);
   } else {
     console.error(`Player ${losingPlayer} not found in the tournament`);
   }
+}
+
+function setFinalNames(  ) {
+  player1Name.value = finalOne;
+  player2Name.value = finalTwo;
 }
 
 
@@ -246,37 +249,31 @@ function setFinalPositions(losingPlayer: string, indexMatch: number): void {
 function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: number): void {
   console.log(`Results: {${variableScoreOne}} {${variableScoreTwo}}`);
 
-  const updateScoresAndNames = (index: number, semi: string) => {
-    playerScores[index].push(variableScoreOne);
-    playerScores[index + 1].push(variableScoreTwo);
-    semi = winPlayer;
-    setSemiPositions(index + 1, matchIndex - 1, 9 - matchIndex, losingPlayer);
-    setNewTournamentNames(player1Name.value, player2Name.value);
+  const updateScoresAndNames = (oldPlayerIndex: number, newPlayerIndex: number) => {
+    playerScores[oldPlayerIndex].push(variableScoreOne);
+    playerScores[oldPlayerIndex + 1].push(variableScoreTwo);
+
+    // Set the semi-final positions
+    setSemiPositions(oldPlayerIndex, 5 - matchIndex, losingPlayer);
+
+    // If the match is the final, set the final names
+    if (newPlayerIndex == -1)
+      setFinalNames();
+    // Set the next match players
+    else {
+      player1Name.value = props.players[newPlayerIndex].player;
+      player2Name.value = props.players[newPlayerIndex + 1].player;
+    }
   };
 
   switch (matchIndex) {
     case 1:
-      updateScoresAndNames(0, semiOne);
+      finalOne = winPlayer;
+      updateScoresAndNames(0, 2);
       break;
     case 2:
-      updateScoresAndNames(2, semiTwo);
-      break;
-    case 3:
-      updateScoresAndNames(4, semiThree);
-      break;
-    case 4:
-      updateScoresAndNames(6, semiFour);
-      setNewTournamentNames(semiOne, semiTwo);
-      break;
-    case 5:
-      updateFinalScoresAndNames(winPlayer, losingPlayer, 0, 1);
-      setNewTournamentNames(semiThree, semiFour);
-      setFinalPositions(losingPlayer, 9 - matchIndex);
-      break;
-    case 6:
-      updateFinalScoresAndNames(winPlayer, losingPlayer, 2, 3);
-      setNewTournamentNames(finalOne, finalTwo);
-      setFinalPositions(losingPlayer, 9 - matchIndex);
+      finalTwo = winPlayer;
+      updateScoresAndNames(2, -1);
       break;
     default:
       console.error('Invalid match index');
@@ -287,53 +284,14 @@ function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: n
   playerOne.setName(player1Name.value);
 }
 
-// Helper function to update final scores and names
-function updateFinalScoresAndNames(
-  winPlayer: string, 
-  losingPlayer: string, 
-  playerIndex1: number, 
-  playerIndex2: number
-): void {
-  const updateScores = (playerName: string, score: number, index: number) => {
-    if (playerName === player1Name.value) {
-      playerScores[index].push(score);
-      return player1Name.value;
-    } else {
-      playerScores[index + 1].push(score);
-      return player2Name.value;
-    }
-  };
-
-  let tempFinal = updateScores(winPlayer, variableScoreOne, playerIndex1);
-  if (tempFinal === winPlayer) {
-    if (playerIndex1 === 2 && playerIndex2 === 3) {
-      finalTwo = tempFinal;
-    } else {
-      finalOne = tempFinal;
-    }
-  }
-
-  tempFinal = updateScores(losingPlayer, variableScoreTwo, playerIndex2);
-  if (tempFinal === winPlayer) {
-    if (playerIndex1 === 2 && playerIndex2 === 3) {
-      finalTwo = tempFinal;
-    } else {
-      finalOne = tempFinal;
-    }
-  }
-
-  console.log('FinalOne: ', finalOne);
-  console.log('FinalTwo: ', finalTwo);
-}
-
 const endGame = (winningPlayer: string, losingPlayer: string) => {
   const finalScore = new GameOver(winningPlayer + ' won!', new Color('white'), new Vector3(0, 0.5, 0));
   three.addScene(finalScore.get());
   blinkObject(finalScore.get());
   indexGame += 1;
-
+  // Remove the ability to start the game for a short period
   window.removeEventListener("keydown", toggleAnimation);
-  if (indexGame < 7) {
+  if (indexGame < (playerCount - 1)) {
     isAnimating.value = false;
     setTimeout(() => {
       three.removeScene(finalScore.get());
@@ -342,7 +300,7 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
       setHelpText();
       window.addEventListener("keydown", toggleAnimation);
     }, 3000);
-  } else if (indexGame === 7) {
+  } else if (indexGame === (playerCount - 1)) {
     const updatePlayerScores = (player: string, score: number) => {
       const playerIndex = players.findIndex(p => p.player === player);
       if (playerIndex !== -1) {
@@ -365,8 +323,9 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
       // Emit the tournament data to the parent component
       emit('gameOver', {
         players: players.map((player, index) => ({
+          id: props.players[index].id,
           name: player.player,
-          score: playerScores[index],
+          scores: playerScores[index],
           position: posPlayers[index],
         })),
         final_round: {
@@ -374,12 +333,6 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
           player_two: finalTwo,
           winner: winningPlayer,
           loser: losingPlayer,
-        },
-        semi_finals: {
-          semi_one: semiOne,
-          semi_two: semiTwo,
-          semi_three: semiThree,
-          semi_four: semiFour,
         },
         tournament_type: tournament_type,
       });

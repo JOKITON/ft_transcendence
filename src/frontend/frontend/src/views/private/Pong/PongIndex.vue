@@ -3,7 +3,7 @@ import { onMounted, ref, markRaw, inject } from 'vue'
 import NavHome from "../NavHome.vue"
 import PongAI from "./PongAI.vue"
 import Pong2P from "./Pong2P.vue"
-import PongTournament from "./PongTournament.vue"
+import PongTournament from "./PongTournament4P.vue"
 import NameInputMenu from "./NameInputMenu.vue"
 import auth from '../../../services/user/services/auth/auth.ts'
 import type Api from '@/utils/Api/Api'
@@ -106,7 +106,33 @@ const send2PData = async (tournamentResults) => {
 };
 
 // Send tournament data to backend
-const sendTournamentData = async (tournamentResults) => {
+const sendTournamentData4P = async (tournamentResults) => {
+  try {
+    const response = await api.post("pong/4p", tournamentResults);
+    console.log('Data sent successfully:', response.data);
+  } catch (error) {
+    console.error('Error sending data:', error);
+
+    if (error.response) {
+      const message = error.response.data.message || 'An error occurred.';
+      const errors = error.response.data.errors || {};
+
+      let errorMessage = `Request failed. ${message}`;
+      if (Object.keys(errors).length > 0) {
+        errorMessage += '\nErrors:\n';
+        for (const [field, msgs] of Object.entries(errors)) {
+          errorMessage += `${field}: ${msgs.join(', ')}\n`;
+        }
+      }
+      alert(errorMessage);
+    } else {
+      alert('Request to the backend failed. Please try again later.');
+    }
+  }
+};
+
+// Send tournament data to backend
+const sendTournamentData8P = async (tournamentResults) => {
   try {
     const response = await api.post("pong/8p", tournamentResults);
     console.log('Data sent successfully:', response.data);
@@ -138,10 +164,10 @@ const handleGameOver = (tournamentResults) => {
   // Send tournament results to backend
   switch (tournamentResults.tournament_type) {
     case '8P':
-      sendTournamentData(tournamentResults);
+      sendTournamentData8P(tournamentResults);
       break ;
     case '4P':
-      sendTournamentData(tournamentResults);
+      sendTournamentData4P(tournamentResults);
       break ;
     case '2P':
       send2PData(tournamentResults);
