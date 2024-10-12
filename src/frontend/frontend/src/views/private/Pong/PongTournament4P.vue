@@ -11,6 +11,7 @@ import HelpText from '../../../services/pong/Objects/HelpText';
 import GameOver from '../../../services/pong/Objects/GameOver';
 import Wall from '../../../services/pong/Wall';
 import { handleCollisions } from '../../../services/pong/Utils';
+import FontService from '../../../services/pong/Objects/FontService';
 
 const props = defineProps({
   players: Array<Object>,
@@ -57,8 +58,37 @@ const vecHorizWall = new Vector3(33, 0.3, 1);
 const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'));
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
 
-// Vertical dashed wall
-const wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1));
+const font = ref(undefined);
+
+let wallMid: DashedWall; // Vertical dashed wall
+let scorePlayer1: Score;
+let scorePlayer2: Score;
+let helpText: GameOver;
+
+let helpTextSpace: HelpText;
+let helpTextPlayerOne: HelpText;
+let helpTextPlayerTwo: HelpText;
+
+let finalScore: GameOver;
+
+async function loadFont() {
+  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((font) => {
+    font.value = font;  
+
+    // Vertical dashed wall
+    wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1), font.value);
+    scorePlayer1 = new Score(variableScoreOne, new Color('white'), new Vector3(-2, 7.5, 0), font.value);
+    scorePlayer2 = new Score(variableScoreTwo, new Color('white'), new Vector3(2, 7.5, 0), font.value);
+    helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font.value);
+
+    helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
+
+    helpTextPlayerOne = new HelpText(player1Name.value, new Color('white'), new Vector3(-16, 3.5, 0));
+    helpTextPlayerTwo = new HelpText('AI', new Color('white'), new Vector3(16, 3.5, 0));
+
+    finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font.value);
+  });
+}
 
 // Scores
 let variableScoreOne = 0;
@@ -68,9 +98,6 @@ playerScores = Array.from({ length: playerCount }, () => []);
 
 let posPlayers: Array<number> = new Array(8).fill(0);  // Assuming an array of size 8
 
-const scorePlayer1 = new Score(variableScoreOne, new Color('white'), new Vector3(-2, 7.5, 0));
-const scorePlayer2 = new Score(variableScoreTwo, new Color('white'), new Vector3(2, 7.5, 0));
-
 const isAnimating = ref(true);
 const isGameOver = ref(false);
 const winner = ref('');
@@ -79,10 +106,6 @@ const winner = ref('');
 const playerOne = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(16, 0, 0), 'ArrowUp', 'ArrowDown', player1Name.value);
 const playerTwo = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(-16, 0, 0), 'KeyW', 'KeyS', player2Name.value);
 
-const helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
-
-const helpTextPlayerOne = new HelpText(player1Name.value, new Color('white'), new Vector3(-16, 3.5, 0));
-const helpTextPlayerTwo = new HelpText(player2Name.value, new Color('white'), new Vector3(16, 3.5, 0));
 
 function setupScene() {
   setHelpText();
@@ -285,21 +308,22 @@ function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: n
 }
 
 const endGame = (winningPlayer: string, losingPlayer: string) => {
-  const finalScore = new GameOver(winningPlayer + ' won!', new Color('white'), new Vector3(0, 0.5, 0));
-  three.addScene(finalScore.get());
-  blinkObject(finalScore.get());
-  indexGame += 1;
   // Remove the ability to start the game for a short period
   window.removeEventListener("keydown", toggleAnimation);
+  three.addScene(finalScore.get());
+  finalScore.updateScore(winningPlayer + ' wins!');
+  blinkObject(finalScore.get());
+  isAnimating.value = false;
+  
+  indexGame += 1;
   if (indexGame < (playerCount - 1)) {
-    isAnimating.value = false;
+    manageTournament(winningPlayer, losingPlayer, indexGame);
     setTimeout(() => {
       three.removeScene(finalScore.get());
-      manageTournament(winningPlayer, losingPlayer, indexGame);
+      window.addEventListener("keydown", toggleAnimation);
       resetScores();
       setHelpText();
-      window.addEventListener("keydown", toggleAnimation);
-    }, 3000);
+    }, 2000);
   } else if (indexGame === (playerCount - 1)) {
     const updatePlayerScores = (player: string, score: number) => {
       const playerIndex = players.findIndex(p => p.player === player);
@@ -313,10 +337,13 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
 
     setFinalPositions(losingPlayer, 2);
     setFinalPositions(winningPlayer, 1);
+
     setTimeout(() => {
       finalScore.updateScore("Returning to home...");
-      winner.value = winningPlayer;
-      isGameOver.value = true;
+    }, 2000);
+    winner.value = winningPlayer;
+    isGameOver.value = true;
+    setTimeout(() => {
 
       const tournament_type = playerCount === 4 ? '4P' : '8P';
 
@@ -337,11 +364,12 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
         tournament_type: tournament_type,
       });
       window.addEventListener("keydown", toggleAnimation);
-    }, 3000);
+    }, 5000);
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  await loadFont();
   setupScene();
   three.startAnimation(update);
   window.addEventListener('resize', () => {

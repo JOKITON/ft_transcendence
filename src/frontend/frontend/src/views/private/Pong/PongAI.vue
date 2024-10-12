@@ -11,6 +11,7 @@ import HelpText from '../../../services/pong/Objects/HelpText';
 import GameOver from '../../../services/pong/Objects/GameOver';
 import Wall from '../../../services/pong/Wall';
 import { handleCollisions } from '../../../services/pong/Utils';
+import FontService from '../../../services/pong/Objects/FontService';
 
 const props = defineProps({
   players: Array<Object>,
@@ -62,8 +63,37 @@ const vecHorizWall = new Vector3(33, 0.3, 1);
 const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'));
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
 
-// Vertical dashed wall
-const wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1));
+const font = ref(undefined);
+
+let wallMid: DashedWall; // Vertical dashed wall
+let scorePlayer1: Score;
+let scorePlayerAI: Score;
+let helpText: GameOver;
+
+let helpTextSpace: HelpText;
+let helpTextPlayerOne: HelpText;
+let helpTextPlayerTwo: HelpText;
+
+let finalScore: GameOver;
+
+async function loadFont() {
+  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((font) => {
+    font.value = font;  
+
+    // Vertical dashed wall
+    wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1), font.value);
+    scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font.value);
+    scorePlayerAI = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font.value);
+    helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font.value);
+
+    helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
+
+    helpTextPlayerOne = new HelpText(player1Name.value, new Color('white'), new Vector3(-16, 3.5, 0));
+    helpTextPlayerTwo = new HelpText('AI', new Color('white'), new Vector3(16, 3.5, 0));
+
+    finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font.value);
+  });
+}
 
 // Player objects (to be initialized later)
 let player: Player;
@@ -72,10 +102,6 @@ let playerAI: Player;
 // Scores
 let numScorePlayerOne = 0;
 let numScorePlayerTwo = 0;
-const scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0));
-const scorePlayerAI = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0));
-
-const helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0));
 
 const isAnimating = ref(true);
 const isGameOver = ref(false);
@@ -85,11 +111,6 @@ const winner = ref('');
 player = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(-16, 0, 0), 'ArrowUp', 'ArrowDown', player1Name.value);
 playerAI = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(16, 0, 0), '', '', 'AI');
 playerAI.setAiDifficulty(Number(props.aiDifficulty));
-
-const helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
-
-const helpTextPlayerOne = new HelpText(player1Name.value, new Color('white'), new Vector3(-16, 3.5, 0));
-const helpTextPlayerTwo = new HelpText('AI', new Color('white'), new Vector3(16, 3.5, 0));
 
 function setupScene() {
   three.addScene(helpTextSpace.get());
@@ -193,7 +214,7 @@ function toggleAnimation(event: KeyboardEvent) {
 
 const endGame = (winningPlayer: string) => {
   window.removeEventListener("keydown", toggleAnimation);
-  const finalScore = new GameOver(winningPlayer + ' won!', new Color('white'), new Vector3(0, 0.5, 0));
+  finalScore.updateScore(winningPlayer + ' wins!');
   three.addScene(finalScore.get());
   blinkObject(finalScore.get());
   setTimeout(() => {
@@ -218,7 +239,8 @@ const endGame = (winningPlayer: string) => {
   }, 5000);
 };
 
-onMounted(() => {
+onMounted(async () => {
+  await loadFont();
   setupScene()
   setTimeout(() => {
     three.removeScene(helpTextPlayerOne.get());

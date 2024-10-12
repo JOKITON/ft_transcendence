@@ -11,19 +11,17 @@ import HelpText from '../../../services/pong/Objects/HelpText';
 import GameOver from '../../../services/pong/Objects/GameOver';
 import Wall from '../../../services/pong/Wall';
 import { handleCollisions } from '../../../services/pong/Utils';
+import FontService from '../../../services/pong/Objects/FontService';
 
 const props = defineProps({
   players: Array<Object>,
 });
 
-console.log(props);
 const emit = defineEmits(['gameOver']);
 
 // Extract initial players for the current game
 let player1Name = ref(props.players[0].player);
 let player2Name = ref(props.players[1].player);
-
-console.log('Players:', player1Name.value, player2Name.value);
 
 const three = new ThreeService(window.innerWidth, window.innerHeight);
 
@@ -41,8 +39,37 @@ const vecHorizWall = new Vector3(33, 0.3, 1);
 const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'));
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
 
-// Vertical dashed wall
-const wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1));
+const font = ref(undefined);
+
+let wallMid: DashedWall; // Vertical dashed wall
+let scorePlayer1: Score;
+let scorePlayer2: Score;
+let helpText: GameOver;
+
+let helpTextSpace: HelpText;
+let helpTextPlayerOne: HelpText;
+let helpTextPlayerTwo: HelpText;
+
+let finalScore: GameOver;
+
+async function loadFont() {
+  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((font) => {
+    font.value = font;  
+
+    // Vertical dashed wall
+    wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1), font.value);
+    scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font.value);
+    scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font.value);
+    helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font.value);
+
+    helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
+
+    helpTextPlayerOne = new HelpText(player1Name.value, new Color('white'), new Vector3(-16, 3.5, 0));
+    helpTextPlayerTwo = new HelpText('AI', new Color('white'), new Vector3(16, 3.5, 0));
+
+    finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font.value);
+  });
+}
 
 // Player objects (to be initialized later)
 let player: Player;
@@ -51,8 +78,6 @@ let player2: Player;
 // Scores
 let numScorePlayerOne = 0;
 let numScorePlayerTwo = 0;
-const scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0));
-const scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0));
 
 const isAnimating = ref(true);
 const isGameOver = ref(false);
@@ -61,11 +86,6 @@ const winner = ref('');
 // Initialize players with the provided names
 player = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(16, 0, 0), 'ArrowUp', 'ArrowDown', player1Name.value);
 player2 = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(-16, 0, 0), 'KeyW', 'KeyS', player2Name.value);
-
-const helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
-
-const helpTextPlayerOne = new HelpText(player1Name.value, new Color('white'), new Vector3(-16, 3.5, 0));
-const helpTextPlayerTwo = new HelpText(player2Name.value, new Color('white'), new Vector3(16, 3.5, 0));
 
 function setupScene() {
   three.addScene(helpTextSpace.get());
@@ -164,7 +184,8 @@ function toggleAnimation(event: KeyboardEvent) {
 }
 
 const endGame = (winningPlayer: string) => {
-  const finalScore = new GameOver(winningPlayer + ' won!', new Color('white'), new Vector3(0, 0.5, 0));
+  window.removeEventListener("keydown", toggleAnimation);
+  finalScore.updateScore(winningPlayer + ' wins!');
   three.addScene(finalScore.get());
   blinkObject(finalScore.get());
   setTimeout(() => {
@@ -187,9 +208,10 @@ const endGame = (winningPlayer: string) => {
       tournament_type: '2P',
     });
   }, 5000);
-};
+}
 
-onMounted(() => {
+onMounted(async () => {
+  await loadFont();
   setupScene()
   setTimeout(() => {
     three.removeScene(helpTextPlayerOne.get());

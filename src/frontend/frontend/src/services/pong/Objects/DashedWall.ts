@@ -11,33 +11,14 @@ export default class DashedWall {
   private font?: Font;
   private textGeometry?: TextGeometry;
 
-  constructor(score: string, color: Color, initialPos: Vector3) {
+  constructor(score: string, color: Color, initialPos: Vector3, font: Font) {
     this.material = new MeshPhongMaterial({ color });
     this.mesh = new Mesh(); // Initialize mesh without geometry
     this.mesh.position.set(initialPos.x, initialPos.y, initialPos.z);
 
     // Load font asynchronously
-    this.loadFont().then(() => {
-      this.updateScore(score); // Update text after font is loaded
-    });
-  }
-
-  private async loadFont() {
-    return new Promise<void>((resolve, reject) => {
-      const loader = new FontLoader();
-      loader.load(
-        './src/assets/fonts/Bit5x3_Regular.json', // Font URL
-        (font) => {
-          this.font = font;
-          resolve();
-        },
-        undefined,
-        (error) => {
-          console.error('An error occurred while loading the font:', error);
-          reject(error);
-        }
-      );
-    });
+    this.font = font;
+    this.updateScore(score); // Update text after font is loaded
   }
 
   private updateText(score: string) : void {
