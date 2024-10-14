@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/30 22:18:38 by jaizpuru          #+#    #+#              #
-#    Updated: 2024/10/11 17:45:50 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/14 19:54:15 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from .models import Player, PongGame
-from .serializers import PongGameSerializer
+from .serializers import PongGameSerializer, LeaderBoardSerializer
 
 class UserDataView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -42,6 +42,20 @@ class UserDataView(APIView):
         }
         print(player_data)
         return Response(data=player_data, status=status.HTTP_200_OK)
+
+class LeaderBoardView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        # Query all Player objects
+        players = Player.objects.all().order_by('-wins')
+
+        # Use the serializer to serialize the player data
+        serializer = LeaderBoardSerializer(players, many=True)
+
+        # Return the serialized data
+        return Response({"data": serializer.data}, status=status.HTTP_200_OK)
 
 class TournamentListView(APIView):
     authentication_classes = [JWTAuthentication]

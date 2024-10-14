@@ -51,7 +51,7 @@ onMounted(async () => {
 const fetchUserList = async () => {
 	try {
 		const response = await api.get('friendship/users');
-		const data = Object.values(response);
+		const data = Object.values(response.data);
 		users.value = data.filter(user => typeof user === 'object' && user.id && user.username);
 	} catch (error) {
 		console.error('Error fetching users:', error.response ? error.response.data : error.message);

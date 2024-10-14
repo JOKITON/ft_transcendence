@@ -7,6 +7,7 @@ from .views import (
 )
 from .views_get import (
     TournamentListView,
+    LeaderBoardView,
     UserDataView,
 )
 
@@ -17,5 +18,6 @@ urlpatterns = [
     path("8p", Tournament8P.as_view(), name="post-8p"),
     
     path("user/<int:pk>/", UserDataView.as_view(), name="get-user"),
+    path("leaderboard", LeaderBoardView.as_view(), name="get-leaderboard"),
     path("data", TournamentListView.as_view(), name="get-results"),
 ]

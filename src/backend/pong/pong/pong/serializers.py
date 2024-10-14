@@ -210,3 +210,10 @@ class Tournament4PSerializer(serializers.ModelSerializer):
         tournament.players.set(players)  # Assign players to the tournament
 
         return tournament
+
+class LeaderBoardSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Player
+        fields = ['id', 'name', 'wins']
+    

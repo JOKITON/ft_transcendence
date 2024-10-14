@@ -100,16 +100,18 @@
             </form>
 
             <!-- Leaderboard Section -->
-            <div class="leaderboard mt-10000">
+            <div v-if="gameMode == false" class="leaderboard mt-10000">
                 <h6 class="d-flex align-items-center mb-3">Leaderboard</h6>
                 <ul class="list-group">
-                    <li v-for="user in leaderboard" :key="user.id"
+                    <li v-for="(user, index) in leaderboard" :key="user.id"
                         class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                            <span :class="['status-indicator', user.status]"></span>
+                        <span class="badge text-dark" >
+                            <span v-if="user.status == 'True'" :class="['status-indicator', 'bg-success']"></span>
+                            <span v-else-if="user.status == 'Offline'" :class="['status-indicator', 'bg-danger']"></span>
+                            <span v-else :class="['status-indicator', 'bg-warning']"></span>
                             {{ user.name }}
                         </span>
-                        <span class="badge bg-primary rounded-pill">{{ user.score }}</span>
+                        <span class="badge bg-primary rounded-pill">{{ user.wins }}</span>
                     </li>
                 </ul>
             </div>
@@ -132,17 +134,25 @@ const aiDifficulty = ref(1);
 const selectedOpponent = ref('');
 
 // Sample leaderboard data
-const leaderboard = ref([
-    { id: 1, name: 'Jane Smith', score: 1500, status: 'bg-success' },
-    { id: 2, name: 'Mike Johnson', score: 1200, status: 'bg-danger' },
-    { id: 3, name: 'Emily Davis', score: 1000, status: 'bg-success' },
-    { id: 4, name: 'Chris Brown', score: 800, status: 'bg-danger' },
-]);
+const leaderboard = ref<LeaderboardEntry[]>([]); // Initialize the leaderboard as a single array of LeaderboardEntry objects
+
+// Function to print the length of the leaderboard array
+function printLeaderboardLength() {
+  console.log(leaderboard.value.length);
+}
 
 onMounted(async () => {
     await fetchNickname()
     await fetchUserList()
+    await fetchLeaderboard()
 })
+
+interface LeaderboardEntry {
+    id: number;
+    name: string;
+    wins: number;
+    status: string;
+}
 
 interface User {
     id: number;
@@ -154,6 +164,23 @@ interface User {
 const users = ref<User[]>([]);
 const orUsers = ref<User[]>([]);
 const userOne = ref<User>(); // Assuming you want to store the fetched user
+
+const fetchLeaderboard = async () => {
+    try {
+        const response = await api.get('pong/leaderboard');
+        leaderboard.value = response.data as LeaderboardEntry[] || []; // Ensure you access the data property
+
+        for (let i = 0; i < users.value.length; i++) {
+            for (let j = 0; j < users.value.length; j++) {
+                if (leaderboard.value[i].name === users.value[j].nickname) {
+                    leaderboard.value[i].status = users.value[j].status;
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error.response ? error.response.data : error.message);
+    }
+}
 
 const fetchUserList = async () => {
     try {
@@ -182,7 +209,7 @@ async function fetchNickname() {
             id: response.id,
             username: response.username,
             nickname: response.nickname,
-            status: 'Online',
+            status: 'True',
         };
     } catch (error: any) {
         console.error('Error fetching user data:', error.message);
