@@ -1,17 +1,18 @@
 import { Color, Mesh, MeshPhongMaterial, Vector3 } from 'three';
 import { Font, FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import type ITextObject from '../../interfaces/ITextObject';
 
 const depth = 0.15,
   size = 2;
 
-export default class Score {
+export default class DashedWall implements ITextObject {
   private mesh: Mesh;
   private material: MeshPhongMaterial;
   private font?: Font;
   private textGeometry?: TextGeometry;
 
-  constructor(score: number, color: Color, initialPos: Vector3, font: Font) {
+  constructor(score: string, color: Color, initialPos: Vector3, font: Font) {
     this.material = new MeshPhongMaterial({ color });
     this.mesh = new Mesh(); // Initialize mesh without geometry
     this.mesh.position.set(initialPos.x, initialPos.y, initialPos.z);
@@ -21,7 +22,7 @@ export default class Score {
     this.updateScore(score); // Update text after font is loaded
   }
 
-  private updateText(score: string) {
+  private updateText(score: string) : void {
     if (!this.font) return;
 
     // Dispose old geometry if it exists
@@ -54,9 +55,11 @@ export default class Score {
     // Update mesh with new geometry
     this.mesh.geometry = this.textGeometry;
     this.mesh.material = this.material;
+
+    this.mesh.rotation.z = Math.PI / 2;  // Rotate 90 degrees around X-axis
   }
 
-  public updateScore(numScore: Promise<number> | number) {
+  public updateScore(numScore: number) {
     if (numScore > 99 || numScore < -99)
       this.updateText('0');
     else

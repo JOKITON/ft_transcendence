@@ -13,8 +13,10 @@ const showMenu = ref(true);
 const selectedGame = ref(null);
 const aiDif = ref(1);
 const arPlayers = ref([]); // Initialize as an array
+let isAudioEnabledTemp : boolean = false;
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
+const songElement = ref(null);
 
 const user = ref({
   id: 0,
@@ -31,14 +33,28 @@ let globalIds = ref({
   idPlayerEight: 0,
 });
 
+const stopAudio = () => {
+  if (songElement.value) {
+    songElement.value.pause();
+    songElement.value.currentTime = 0;
+  }
+}
+
+const resumeAudio = () => {
+  if (songElement.value) {
+    songElement.value.play();
+  }
+}
+
 // Handle game start
 const handleStartGame = (data) => {
-  const { id, aiDifficulty, gameMode, players } = data;
+  const { id, aiDifficulty, gameMode, players, isAudioEnabled } = data;
 
   globalIds.value = id;
   // Store player names and optionally AI difficulty
   aiDif.value = Number(aiDifficulty);
   arPlayers.value = players;
+  isAudioEnabledTemp = isAudioEnabled;
 
   // Select appropriate game component
   if (gameMode === 'onePlayer') {
@@ -51,6 +67,7 @@ const handleStartGame = (data) => {
 
   // Hide menu and show game
   showMenu.value = false;
+  stopAudio();
 };
 
 // Send tournament data to backend
@@ -180,12 +197,16 @@ const handleGameOver = (tournamentResults) => {
   // Reset the state to return to the menu
   showMenu.value = true;
   selectedGame.value = null;
+  resumeAudio();
 };
 
 </script>
 
 <template>
   <NavHome />
+  <audio controls autoplay ref="songElement" preload="auto" style="display: none">
+    <source src="/src/assets/songs/main-menu.mp3" type="audio/mp3">
+  </audio>
   <div v-if="showMenu">
     <NameInputMenu @startGame="handleStartGame" />
   </div>
@@ -194,7 +215,8 @@ const handleGameOver = (tournamentResults) => {
     <component 
       :is="selectedGame" 
       :players="arPlayers"
-      :aiDifficulty=aiDif
+      :aiDifficulty="aiDif"
+      :isAudioEnabled="isAudioEnabledTemp"
       @gameOver="handleGameOver"
     />
   </div>

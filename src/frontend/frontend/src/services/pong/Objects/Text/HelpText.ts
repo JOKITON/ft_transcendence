@@ -1,27 +1,47 @@
 import { Color, Mesh, MeshPhongMaterial, Vector3 } from 'three';
-import { Font, FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import type ITextObject from '../../interfaces/ITextObject';
 
-const depth = 0.15,
-  size = 2;
+const depth = 0,
+  size = 1;
 
-export default class DashedWall {
+export default class HelpText implements ITextObject {
   private mesh: Mesh;
   private material: MeshPhongMaterial;
   private font?: Font;
   private textGeometry?: TextGeometry;
 
-  constructor(score: string, color: Color, initialPos: Vector3, font: Font) {
+  constructor(score: string, color: Color, initialPos: Vector3) {
     this.material = new MeshPhongMaterial({ color });
     this.mesh = new Mesh(); // Initialize mesh without geometry
     this.mesh.position.set(initialPos.x, initialPos.y, initialPos.z);
 
     // Load font asynchronously
-    this.font = font;
-    this.updateScore(score); // Update text after font is loaded
+    this.loadFont().then(() => {
+      this.updateScore(score); // Update text after font is loaded
+    });
   }
 
-  private updateText(score: string) : void {
+  private async loadFont() {
+    return new Promise<void>((resolve, reject) => {
+      const loader = new FontLoader();
+      loader.load(
+        './src/assets/fonts/Bit5x3_Regular.json', // Font URL
+        (font) => {
+          this.font = font;
+          resolve();
+        },
+        undefined,
+        (error) => {
+          console.error('An error occurred while loading the font:', error);
+          reject(error);
+        }
+      );
+    });
+  }
+
+  private updateText(score: string) {
     if (!this.font) return;
 
     // Dispose old geometry if it exists
@@ -34,7 +54,7 @@ export default class DashedWall {
       size: size,
       depth: depth,
       curveSegments: 0,
-      bevelThickness: 0.15,
+      bevelThickness: 0.05,
       bevelSize: 0,
       bevelEnabled: true
     });
@@ -54,15 +74,10 @@ export default class DashedWall {
     // Update mesh with new geometry
     this.mesh.geometry = this.textGeometry;
     this.mesh.material = this.material;
-
-    this.mesh.rotation.z = Math.PI / 2;  // Rotate 90 degrees around X-axis
   }
 
-  public updateScore(numScore: number) {
-    if (numScore > 99 || numScore < -99)
-      this.updateText('0');
-    else
-      this.updateText(numScore.toString());
+  public updateScore(endingText: string) {
+    this.updateText(endingText);
   }
 
   public get(): Mesh {

@@ -1,6 +1,6 @@
-import type IPlayer from './interfaces/IPlayer';
-import Box from './Objects/Box';
-import Sphere from './Objects/Sphere';
+import type IPlayer from '../interfaces/IPlayer';
+import Box from './Box';
+import Sphere from './Sphere';
 import { Sphere as ThreeSphere, BoxGeometry, Color, Vector3 } from 'three';
 
 export default class Player extends Box implements IPlayer {

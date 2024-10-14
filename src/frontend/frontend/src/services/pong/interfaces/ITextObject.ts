@@ -2,7 +2,7 @@ import { Color, Mesh, MeshPhongMaterial, Vector3 } from 'three';
 import { Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
-export default interface DashedWall {
+export default interface ITextObject {
 	name: string
 	mesh: Mesh
 	material: MeshPhongMaterial
@@ -15,4 +15,4 @@ export default interface DashedWall {
 	updateScore(numScore: number) : void
 	get(): Mesh
 	dispose(): void
-  }
+}

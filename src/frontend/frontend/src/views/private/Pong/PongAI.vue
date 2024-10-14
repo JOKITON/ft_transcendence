@@ -3,24 +3,26 @@
 import { Vector3, Color, Mesh } from 'three';
 import { onMounted, onBeforeUnmount, ref, defineProps, defineEmits } from 'vue';
 import ThreeService from '../../../services/pong/ThreeService';
-import Player from '../../../services/pong/Player';
+import Player from '../../../services/pong/Objects/Player';
 import Sphere from '../../../services/pong/Objects/Sphere';
-import DashedWall from '../../../services/pong/Objects/DashedWall';
-import Score from '../../../services/pong/Objects/Score';
-import HelpText from '../../../services/pong/Objects/HelpText';
-import GameOver from '../../../services/pong/Objects/GameOver';
-import Wall from '../../../services/pong/Wall';
-import { handleCollisions } from '../../../services/pong/Utils';
-import FontService from '../../../services/pong/Objects/FontService';
+import DashedWall from '../../../services/pong/Objects/Text/DashedWall';
+import Score from '../../../services/pong/Objects/Text/Score';
+import HelpText from '../../../services/pong/Objects/Text/HelpText';
+import GameOver from '../../../services/pong/Objects/Text/GameOver';
+import Wall from '../../../services/pong/Objects/Wall';
+import { handleCollisions } from '../../../services/pong/Objects/Utils/Utils';
+import FontService from '../../../services/pong/Objects/Text/FontService';
 
 const props = defineProps({
-  players: Array<Object>,
-  id: Array<Number>,
-  aiDifficulty: Number,
+  isAudioEnabled: Boolean,
+  players: Array,
+  aiDifficulty: Number
 });
 
-const emit = defineEmits(['gameOver']);
+const isAudioEnabled2 = ref(props.isAudioEnabled);
+console.log(props);
 
+const emit = defineEmits(['gameOver']);
 
 // Extract initial players for the current game
 let player1Name = ref(props.players[0].player);
@@ -267,11 +269,14 @@ onBeforeUnmount(() => {
   helpTextPlayerOne.dispose();
   helpTextPlayerTwo.dispose();
 });
+
 </script>
 
 <template>
-  <audio ref="songElement" preload="auto" style="display: none">
-    <source src="/src/assets/songs/ping-pong.mp3" type="audio/mp3">
-  </audio>
+  <div>
+    <audio controls autoplay v-if="props.isAudioEnabled == true" ref="songElement" preload="auto" style="display: none">
+      <source src="/src/assets/songs/opening-movie.mp3" type="audio/mp3">
+    </audio>
+  </div>
   <div></div>
 </template>

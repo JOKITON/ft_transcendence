@@ -1,11 +1,12 @@
 import { Color, Mesh, MeshPhongMaterial, Vector3 } from 'three';
 import { Font, FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import type ITextObject from '../../interfaces/ITextObject';
 
 const depth = 0.15,
   size = 2;
 
-export default class Score {
+export default class Score implements ITextObject {
   private mesh: Mesh;
   private material: MeshPhongMaterial;
   private font?: Font;

@@ -1,4 +1,4 @@
-import Box from './Objects/Box';
+import Box from './Box';
 import { Color, Vector3 } from 'three';
 
 export default class Wall extends Box {

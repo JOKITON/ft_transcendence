@@ -36,7 +36,13 @@
 
                 <!-- Player Input Fields -->
                 <div v-if="gameMode" class="player-inputs">
-                    <span v-if="gameMode === 'onePlayer'" class="vs-text">{{ userOne.nickname }} VS AI</span>
+                    <span v-if="gameMode === 'onePlayer'" class="vs-text">
+                        {{ userOne.nickname }} VS AI
+                        <div class="form-check form-switch" style="margin-left: 10px;">
+                            <input class="form-check-input" type="checkbox" v-model="isAudioEnabled" id="audioSwitch">
+                            <label class="form-check-label" for="audioSwitch">Enable Audio</label>
+                        </div>
+                    </span>
                 
                     <div v-if="gameMode !== 'onePlayer'" class="player-group">
                         <div class="player-group">
@@ -121,6 +127,7 @@ const Auth: auth = new auth(api)
 
 const isOnline = ref(''); // Keep track of whether Online or Offline is selected
 const gameMode = ref('');
+const isAudioEnabled : boolean = ref(false);
 const aiDifficulty = ref(1);
 const selectedOpponent = ref('');
 
@@ -200,6 +207,7 @@ const startGame = () => {
     const data = {
         gameMode: gameMode.value,
         players: [],
+        isAudioEnabled: isAudioEnabled.value,
     };
 
     if (gameMode.value === 'onePlayer') {

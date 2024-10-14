@@ -1,4 +1,4 @@
-import type IKeyboard from './interfaces/IKeyboard'
+import type IKeyboard from '../interfaces/IKeyboard'
 import Player from './Player'
 
 export default class Keyboard implements IKeyboard {

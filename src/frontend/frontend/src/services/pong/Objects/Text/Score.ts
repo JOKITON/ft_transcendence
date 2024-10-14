@@ -1,43 +1,25 @@
 import { Color, Mesh, MeshPhongMaterial, Vector3 } from 'three';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
+import { Font, FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import type ITextObject from '../../interfaces/ITextObject';
 
-const depth = 0,
-  size = 1;
+const depth = 0.15,
+  size = 2;
 
-export default class HelpText {
+export default class Score implements ITextObject {
   private mesh: Mesh;
   private material: MeshPhongMaterial;
   private font?: Font;
   private textGeometry?: TextGeometry;
 
-  constructor(score: string, color: Color, initialPos: Vector3) {
+  constructor(score: number, color: Color, initialPos: Vector3, font: Font) {
     this.material = new MeshPhongMaterial({ color });
     this.mesh = new Mesh(); // Initialize mesh without geometry
     this.mesh.position.set(initialPos.x, initialPos.y, initialPos.z);
 
     // Load font asynchronously
-    this.loadFont().then(() => {
-      this.updateScore(score); // Update text after font is loaded
-    });
-  }
-
-  private async loadFont() {
-    return new Promise<void>((resolve, reject) => {
-      const loader = new FontLoader();
-      loader.load(
-        './src/assets/fonts/Bit5x3_Regular.json', // Font URL
-        (font) => {
-          this.font = font;
-          resolve();
-        },
-        undefined,
-        (error) => {
-          console.error('An error occurred while loading the font:', error);
-          reject(error);
-        }
-      );
-    });
+    this.font = font;
+    this.updateScore(score); // Update text after font is loaded
   }
 
   private updateText(score: string) {
@@ -53,7 +35,7 @@ export default class HelpText {
       size: size,
       depth: depth,
       curveSegments: 0,
-      bevelThickness: 0.05,
+      bevelThickness: 0.15,
       bevelSize: 0,
       bevelEnabled: true
     });
@@ -75,8 +57,11 @@ export default class HelpText {
     this.mesh.material = this.material;
   }
 
-  public updateScore(endingText: string) {
-    this.updateText(endingText);
+  public updateScore(numScore: Promise<number> | number) {
+    if (numScore > 99 || numScore < -99)
+      this.updateText('0');
+    else
+      this.updateText(numScore.toString());
   }
 
   public get(): Mesh {

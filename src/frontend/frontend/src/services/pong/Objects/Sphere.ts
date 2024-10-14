@@ -1,5 +1,5 @@
 import { Color, Mesh, MeshBasicMaterial, SphereGeometry, Vector3, Sphere as ThreeSphere } from 'three';
-import Player from './../Player'
+import Player from './Player'
 
 export default class Sphere {
   protected mesh: Mesh;
