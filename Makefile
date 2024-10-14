@@ -53,9 +53,9 @@ logs-backend:
 logs-metrics:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) logs
 down:
-	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) down --volumes
-	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) down --volumes
-	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) down --volumes
+	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) down --remove-orphans --volumes
+	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) down --remove-orphans --volumes
+	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) down --remove-orphans --volumes 
 clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES)
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES_BACKEND)
@@ -67,7 +67,7 @@ clean:
 fclean: down clean
 	@$(DOCKER) system prune --all --volumes --force
 
-re: down clean up
+re: down up
 
 curl: 
 	curl -X POST \

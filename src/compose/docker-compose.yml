@@ -28,10 +28,9 @@ services:
   redis:
     container_name: redis
     build: ../backend/redis/
-    #env_file: ../.env.dev
     restart: always
-    #volumes:
-    #  - redis:/redis
+    volumes:
+      - redis:/redis
     networks:
       - traefik
     ports:
@@ -50,4 +49,10 @@ volumes:
       type: none
       o: bind
       device: ../frontend/frontend
+  redis:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/redis/
   node_modules:

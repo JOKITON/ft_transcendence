@@ -6,16 +6,24 @@
 #    By: Dugonzal <dugonzal@student.42urduliz.com>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/05 20:54:09 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/10/04 21:36:29 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/10/14 19:33:06 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM alpine:3.20
 
+
 LABEL traefik.enable=true
 LABEL traefik.http.routers.livechat.rule="Host(`localhost`) && PathPrefix(`/api/v1/livechat`)"
 LABEL traefik.http.services.livechat.loadbalancer.server.port=80
 
+# Middlewares para WebSocket y eliminación del prefijo
+LABEL traefik.http.middlewares.websocket-headers.headers.customrequestheaders.Upgrade=websocket
+LABEL traefik.http.middlewares.websocket-headers.headers.customrequestheaders.Connection=Upgrade
+LABEL traefik.http.middlewares.strip-prefix.stripprefix.prefixes=/api/v1/livechat
+
+# Asociar los middlewares al router
+LABEL traefik.http.routers.livechat.middlewares=strip-prefix,websocket-headers
 RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3 jq
 
 RUN cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime
