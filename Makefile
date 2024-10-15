@@ -10,7 +10,7 @@ DOCKER_IMAGES = $(addprefix ft_transcendence-,$(IMAGES))
 DOCKER_IMAGES_BACKEND = $(addprefix ft_transcendence_backend-,$(IMAGES_BACKEND))
 DOCKER_IMAGES_METRICS = $(addprefix ft_transcendence_metrics-,$(IMAGES_METRICS))
 # Add here the container names
-IMAGES = frontend reverse-proxy
+IMAGES = frontend proxy
 IMAGES_BACKEND = keys admin pong db auth migration friendship
 IMAGES_METRICS = grafana prometheus
 

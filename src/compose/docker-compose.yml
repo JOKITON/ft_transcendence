@@ -1,30 +1,29 @@
 name: ft_transcendence
 
 services:
-  reverse-proxy:
+  proxy:
     container_name: proxy
-    build: ../reverse-proxy/
+    build: ../proxy/
     ports:
-      - 8080:8080
       - 80:80
       - 443:443
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
     restart: always
+    volumes:
+      - proxy:/proxy
     networks:
-      - traefik
+      - proxy
 
   frontend:
     container_name: frontend
     build: ../frontend/
     networks:
-      - traefik
+      - proxy
     volumes:
       - node_modules:/frontend/node_modules
       - frontend:/frontend
     restart: always
     depends_on:
-      - reverse-proxy
+      - proxy
   redis:
     container_name: redis
     build: ../backend/redis/
@@ -32,17 +31,18 @@ services:
     volumes:
       - redis:/redis
     networks:
-      - traefik
+      - proxy
     ports:
       - 6379
 #secrets:
 #  auth_traefik:
 
 networks:
-  traefik:
-    name: traefik
+  proxy:
+    name: proxy
     driver: bridge
 volumes:
+  proxy:
   frontend:
     driver: local
     driver_opts:

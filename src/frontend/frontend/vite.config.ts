@@ -16,8 +16,8 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 80,
     proxy: {
-      '/api/v1': {
-        target: 'http://auth:8000',
+      '/api/v1/auth/': {
+        target: 'http://auth:80',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/auth/, '/api/auth'),
       },
