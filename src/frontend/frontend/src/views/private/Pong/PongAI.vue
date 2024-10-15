@@ -12,15 +12,13 @@ import GameOver from '../../../services/pong/Objects/Text/GameOver';
 import Wall from '../../../services/pong/Objects/Wall';
 import { handleCollisions } from '../../../services/pong/Objects/Utils/Utils';
 import FontService from '../../../services/pong/Objects/Text/FontService';
+import LuckySphere from '../../../services/pong/Objects/LuckySphere';
 
 const props = defineProps({
   isAudioEnabled: Boolean,
   players: Array,
   aiDifficulty: Number
 });
-
-const isAudioEnabled2 = ref(props.isAudioEnabled);
-console.log(props);
 
 const emit = defineEmits(['gameOver']);
 
@@ -64,6 +62,9 @@ const ball = new Sphere(ballGeometry, new Color('white'), new Vector3(0, 0, 0), 
 const vecHorizWall = new Vector3(33, 0.3, 1);
 const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'));
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
+
+const ballGeometry2 = [0.66, 10, 10];
+const luckySphere = new LuckySphere(ballGeometry2, new Color('yellow'), new Vector3(0, 0, 0));
 
 const font = ref(undefined);
 
@@ -127,12 +128,31 @@ function setupScene() {
   three.addScene(ball.get());
   three.addScene(scorePlayer1.get());
   three.addScene(scorePlayerAI.get());
+  three.addScene(luckySphere.get());
 
   isAnimating.value = false;
 }
 
 function update() {
   if (!isAnimating.value) return;
+  let isTaken : boolean = true;
+
+  if (Date.now() % 5000 < 50) {
+    luckySphere.randomizePosition();
+    three.addScene(luckySphere.get());
+    isTaken = true;
+  }
+
+  if (isTaken) {
+    if (ball.getVelocity().x < 0) {
+      isTaken = luckySphere.update(ball, playerAI);
+    } else {
+      isTaken = luckySphere.update(ball, player);
+    }
+    if (isTaken)
+      three.removeScene(luckySphere.get());
+    isTaken = false;
+  }
 
   let check = ball.update();
   if (check) {
@@ -189,6 +209,7 @@ function blinkObject(mesh: Mesh) {
 }
 
 function returnObjectsToPlace() {
+  ball.returnToPlace();
   player.returnToPlace();
   playerAI.returnToPlace();
 }
@@ -216,6 +237,7 @@ function toggleAnimation(event: KeyboardEvent) {
 
 const endGame = (winningPlayer: string) => {
   window.removeEventListener("keydown", toggleAnimation);
+  three.removeScene(luckySphere.get());
   finalScore.updateScore(winningPlayer + ' wins!');
   three.addScene(finalScore.get());
   blinkObject(finalScore.get());

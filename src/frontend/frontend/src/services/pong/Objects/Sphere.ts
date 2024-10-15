@@ -47,6 +47,10 @@ export default class Sphere {
     return (this.velocity.x > 0);
   }
 
+  public resize(size: number): void {
+    this.mesh.scale.set(size, size, size);
+  }
+
   update(): number {
     // Update position based on velocity
     this.mesh.position.add(this.velocity);
@@ -116,6 +120,13 @@ export default class Sphere {
       this.velocity.y -= (randNum * 0.1);
     else  
       this.velocity.y += (randNum * 0.1);
+  }
+
+  public returnToPlace(): void {
+    this.mesh.position.x = 0;
+    this.mesh.position.y = 0;
+    this.mesh.position.z = 0;
+    this.mesh.scale.set(1, 1, 1);
   }
 
   public setPosition(pos: Vector3) {

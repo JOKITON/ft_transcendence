@@ -165,15 +165,26 @@ const users = ref<User[]>([]);
 const orUsers = ref<User[]>([]);
 const userOne = ref<User>(); // Assuming you want to store the fetched user
 
+// Set the default leaderboard data
+const setDefaultLeaderboard = async () => {
+    leaderboard.value = [{ id: 0, name: 'No data found', wins: 0, status: 'Offline' }];
+}
+
 const fetchLeaderboard = async () => {
     try {
         const response = await api.get('pong/leaderboard');
-        leaderboard.value = response.data as LeaderboardEntry[] || []; // Ensure you access the data property
+        if (response.data.length == 0) {
+            console.log('No data found');
+            setDefaultLeaderboard();
+        }
+        else {
+            leaderboard.value = response.data as LeaderboardEntry[] || []; // Ensure you access the data property
 
-        for (let i = 0; i < users.value.length; i++) {
-            for (let j = 0; j < users.value.length; j++) {
-                if (leaderboard.value[i].name === users.value[j].nickname) {
-                    leaderboard.value[i].status = users.value[j].status;
+            for (let i = 0; i < users.value.length; i++) {
+                for (let j = 0; j < users.value.length; j++) {
+                    if (leaderboard.value[i].name === users.value[j].nickname) {
+                        leaderboard.value[i].status = users.value[j].status;
+                    }
                 }
             }
         }

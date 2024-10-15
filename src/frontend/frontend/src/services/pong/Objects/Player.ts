@@ -4,6 +4,10 @@ import Sphere from './Sphere';
 import { Sphere as ThreeSphere, BoxGeometry, Color, Vector3 } from 'three';
 
 export default class Player extends Box implements IPlayer {
+  private orGeometry: Vector3;
+  private orColor: Color;
+  private orPosition: Vector3;
+
   private name: string = 'NPC';
   private position: Vector3;
   private score: number = 0;
@@ -29,6 +33,11 @@ export default class Player extends Box implements IPlayer {
     name: string,
   ) {
     super(geometry, color, position);
+    
+    this.orGeometry = geometry;
+    this.orColor = color;
+    this.orPosition = position;
+
     this.position = position;
     this.name = name;
     if (up && down) {
@@ -169,5 +178,7 @@ export default class Player extends Box implements IPlayer {
     this.mesh.position.x = (this.position.x);
     this.mesh.position.y = (this.position.y);
     this.mesh.position.z = (this.position.z);
+    
+    this.mesh.scale.set(1, 1, 1);
   }
 }
