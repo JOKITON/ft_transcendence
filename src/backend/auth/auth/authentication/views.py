@@ -59,6 +59,7 @@ class RegisterUserView(APIView):
             if valid:
                 response: Dict[str, Any] = {
                     "message": "User created successfully",
+                    "id": valid.id,
                     "status": status.HTTP_201_CREATED,
                 }
                 return Response(response, status=status.HTTP_201_CREATED)

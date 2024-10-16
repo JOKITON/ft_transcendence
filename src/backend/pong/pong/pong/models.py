@@ -16,6 +16,9 @@ class Player(models.Model):
     last_position = models.IntegerField(default=0)
     avg_position = models.IntegerField(default=0)
 
+    class Meta:
+        db_table = 'pong_player'
+    
     def __str__(self):
         return f"{self.name} (Position: {self.avg_position}, Avg Score: {self.avg_score})"
     
