@@ -181,11 +181,11 @@ async function fetchPongData() {
   transition: 0.5s ease;
 }
 
-::v-deep .carousel__pagination-button::after {
+:deep(.carousel__pagination-button::after) {
   background-color:rgba(19, 14, 43, 0.9);
 }
 
-::v-deep .carousel__pagination-button--active::after {
+:deep(.carousel__pagination-button--active::after) {
   background-color: #e74c3c;
 }
 

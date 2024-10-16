@@ -83,14 +83,14 @@ const fetchUserAvatar = async (id: number) => {
     } else {
       console.error('Failed to fetch avatar:', response.data);
     }
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error fetching user avatar:', error.message);
   }
 }
 /* ----- CARGAR DATOS USUARIO POR ID ----- */
 
 // Observar cambios en los parámetros de la ruta
-watch(() => route.params.id, (newId) => {
+watch(() => route.params.id, (newId: string) => {
   userId.value = parseInt(newId, 10)
   if (userId.value) {
     fetchUserData(userId.value)  // Recargar los datos del nuevo usuario
@@ -101,7 +101,7 @@ watch(() => route.params.id, (newId) => {
 
 // Obtener el ID del usuario desde la URL y realizar la llamada a la API
 onMounted(() => {
-  userId.value = parseInt(route.params.id, 10)
+  userId.value = parseInt(route.params.id[0], 10)
   if (userId.value) {
     fetchUserData(userId.value)
     fetchUserAvatar(userId.value)

@@ -1,4 +1,4 @@
-import FriendRequest from './friendRequest';
+import type FriendRequest from './friendRequest';
 
 export interface sendFriendRequest{
     fromUser: string,

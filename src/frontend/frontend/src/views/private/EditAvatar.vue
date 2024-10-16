@@ -39,7 +39,6 @@
 
 import { ref, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
-
 import NavHome from './NavHome.vue';
 
 
@@ -110,7 +109,7 @@ async function fetchUserAvatar() {
     } else {
       console.error('Failed to fetch avatar:', response.data);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching user avatar:', error.message);
   }
 }

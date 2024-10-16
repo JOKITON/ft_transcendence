@@ -43,6 +43,11 @@ networks:
     driver: bridge
 volumes:
   proxy:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../proxy/
   frontend:
     driver: local
     driver_opts:

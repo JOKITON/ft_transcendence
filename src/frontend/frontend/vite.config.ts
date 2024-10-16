@@ -21,18 +21,19 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/auth/, '/api/auth'),
       },
-      '/api/pong/': {
-        target: 'http://pong:8000',
+      '/api/v1/pong/': {
+        target: 'http://pong:80',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/pong/, '/api/pong'),
       },
-      '/api/user/': {
-        target: 'http://api:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/user/, '/api/user'),
-      },
-      '/api/v1/friendship': {
+      '/api/v1/friendship/': {
         target: 'http://friendship:80',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/admin/, '/api/admin'),
+      },
+      '/api/v1/livechat/ws/': {
+        target: 'http://livechat:80',
+        ws: true,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/admin/, '/api/admin'),
       },

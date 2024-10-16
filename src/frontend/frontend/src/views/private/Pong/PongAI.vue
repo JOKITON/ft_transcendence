@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { Vector3, Color, Mesh } from 'three';
-import { onMounted, onBeforeUnmount, ref, defineProps, defineEmits } from 'vue';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
 import ThreeService from '../../../services/pong/ThreeService';
 import Player from '../../../services/pong/Objects/Player';
 import Sphere from '../../../services/pong/Objects/Sphere';
