@@ -17,15 +17,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         try:
             text_data_json = json.loads(text_data)
-
             username = text_data_json.get("username", "Anonymous")
-            # Usa 'Anonymous' si no se proporciona el nombre
             message = text_data_json.get("message")
-
             if not message:
                 await self.send(
-                    text_data=json.dumps(
-                        {"error": "El mensaje no puede estar vacío."})
+                    text_data=json.dumps({"error": "El mensaje no puede estar vacío."})
                 )
                 return
 
@@ -46,9 +42,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
     async def chat_message(self, event):
-        # Enviar el mensaje recibido del grupo a través del WebSocket
-        await self.send(
-            text_data=json.dumps(
-                {"username": event["username"], "message": event["message"]}
-            )
+        text_data = json.dumps(
+            {
+                "event": "message",
+                "username": event["username"],
+                "message": event["message"],
+            }
         )
+        await self.send(text_data=text_data)

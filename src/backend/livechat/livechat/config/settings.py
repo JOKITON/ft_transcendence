@@ -22,8 +22,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    #    "rest_framework_simplejwt",
-    # "rest_framework_simplejwt.token_blacklist",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "UserModel",
     "channels",
     "livechat",
@@ -37,9 +37,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
 ]
-"""
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:80",
     "https://localhost:443",
@@ -63,21 +61,15 @@ SIMPLE_JWT = {
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
 
-"""
 ASGI_APPLICATION = "livechat.asgi.application"
-
-"""
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_HTTPONLY = True
 CORS_ALLOW_CREDENTIALS = True
-"""
 
 AUTH_USER_MODEL = "UserModel.User"
 
 ROOT_URLCONF = "config.urls"
-
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 CHANNEL_LAYERS = {
     "default": {
@@ -87,6 +79,7 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -104,7 +97,6 @@ TEMPLATES = [
 ]
 
 ASGI_APPLICATION = "config.asgi.application"
-
 
 DATABASES = {
     "default": {

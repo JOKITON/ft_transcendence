@@ -79,6 +79,7 @@
 import { ref, onMounted, inject } from 'vue'
 import Chat from 'vue3-beautiful-chat' // Importa el componente de chat
 import Socket from '../../utils/socket/imp/socket'
+import { WebsocketEvent } from 'websocket-ts'
 
 interface Friend {
   id: number
@@ -109,7 +110,10 @@ const friends = ref<Friend[]>([])
 const activeChats = ref<ChatInstance[]>([])
 const isDropdownVisible = ref(false)
 const lastOpenedChat = ref<Friend | null>(null)
+const size = ref(1)
 const socket = new Socket()
+const user = ref('')
+//const socket = inject('socket') as Socket | null
 
 const colors = {
   header: {
@@ -157,9 +161,10 @@ const openChat = (friend: Friend) => {
     existingChat.isOpen = true
   } else {
     // Rellenar con mensajes de ejemplo
+    // aqui se podrian cargar los mensajes del chat
     const messageList: Message[] = [
-      { type: 'text', author: 'me', data: { text: 'Say yes!' } },
-      { type: 'text', author: 'friend', data: { text: 'No.' } }
+      //{ type: 'text', author: 'me', data: { text: 'Say yes!' } },
+      //{ type: 'text', author: 'friend', data: { text: 'No.' } }
     ]
 
     activeChats.value.push({
@@ -170,7 +175,6 @@ const openChat = (friend: Friend) => {
       newMessagesCount: 0
     })
   }
-
   // Guarda el último amigo con el que se abrió el chat
   lastOpenedChat.value = friend
   console.log('Chat opened with:', lastOpenedChat.value)
@@ -205,17 +209,12 @@ const sendMessage = (chatIndex: number, message: any) => {
     const text = message.data.text
     if (text.length > 0) {
       chat.newMessagesCount = chat.isOpen ? chat.newMessagesCount : chat.newMessagesCount + 1
-
-      //socket.send({ username: friend.username, message: text })
-      socket.send({ username: 'username', message: 'peronsadasd' })
-      // Agregar el mensaje a la lista de mensajes
-      const msg = socket.getLastMessage()
-      console.log('Message sent:', msg)
-      onMessageWasSent(chatIndex, msg)
+      socket.send(user.value, text)
     }
   }
 }
 
+//const connectWebSocket = () => {}
 // Función para agregar el mensaje a la lista de mensajes
 const onMessageWasSent = (chatIndex: number, message: Message) => {
   const chat = activeChats.value[chatIndex]
@@ -227,7 +226,10 @@ const onMessageWasSent = (chatIndex: number, message: Message) => {
 onMounted(async () => {
   try {
     const response = await api.get<{ friends: Friend[] }>('friendship/friends')
-
+    const Iam = await api.get('auth/iam')
+    user.value = Iam.username
+    console.log('User:', user.value)
+    connectWebSocket()
     // Convertir isOnline a booleano
     friends.value = (response.friends || []).map((friend) => ({
       ...friend,
@@ -239,6 +241,21 @@ onMounted(async () => {
     console.error('Error fetching friends:', error)
   }
 })
+
+const echoOnMessage = (i: Websocket, ev: MessageEvent) => {
+  const data = JSON.parse(ev.data)
+  let username = data.username === user.value ? 'me' : 'friend'
+  console.log('username', username)
+  onMessageWasSent(0, {
+    type: 'text',
+    author: username,
+    data: { text: data.message }
+  })
+}
+
+const connectWebSocket = () => {
+  socket.AddEventListener(WebsocketEvent.message, echoOnMessage)
+}
 
 // Función para bloquear un amigo
 const blockUser = async (username: string) => {
