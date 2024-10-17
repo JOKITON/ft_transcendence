@@ -1,4 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+from .db import create_room, create_message
 import json
 
 
@@ -6,10 +8,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}"
-
+        await create_room(self.room_name)
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-
         await self.accept()
+        # await self.send_historical_messages()
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
@@ -41,7 +43,29 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 )
             )
 
+    async def send_historical_messages(self):
+        messages = await self.get_messages(self.room_name)
+        for message in messages:
+            text_data = json.dumps(
+                {
+                    "event": "message",
+                    "username": message.username,
+                    "message": message.message,
+                }
+            )
+            await self.send(text_data=text_data)
+
+    @database_sync_to_async
+    def get_messages(self, room_name):
+        from .models import Message
+
+        try:
+            return Message.objects.filter(room=room_name).order_by("created_at")
+        except Message.DoesNotExist:
+            return []
+
     async def chat_message(self, event):
+        await create_message(self.room_name, event["message"], event["username"])
         text_data = json.dumps(
             {
                 "event": "message",
