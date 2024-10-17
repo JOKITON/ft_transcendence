@@ -6,15 +6,11 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/06 18:24:57 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/17 16:17:48 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM alpine:3.20 AS builder
-
-LABEL traefik.enable=true
-LABEL traefik.http.routers.admin.rule="Host(`localhost`) && PathPrefix(`/api/admin/`)"
-LABEL traefik.http.services.admin.loadbalancer.server.port=8000
 
 RUN apk add --no-cache \
     curl \

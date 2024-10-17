@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Vector3, Color, Mesh } from 'three'
-import { onMounted, onBeforeUnmount, ref, defineProps, defineEmits } from 'vue'
+import { onMounted, onBeforeUnmount, ref } from 'vue'
 import ThreeService from '../../../services/pong/ThreeService'
 import Player from '../../../services/pong/Objects/Player'
 import Sphere from '../../../services/pong/Objects/Sphere'
@@ -16,6 +16,8 @@ import LuckySphere from '../../../services/pong/Objects/LuckySphere'
 const props = defineProps({
   players: Array<Object>
 })
+
+const dateStart = Date.now() / 1000;
 
 // console.log('Ids: ', props.players[0].id);
 
@@ -123,6 +125,9 @@ let variableScoreOne = 0
 let variableScoreTwo = 0
 let playerScores: Array<Array<number>> = [[]]
 playerScores = Array.from({ length: playerCount }, () => [])
+
+let playerHits: Array<Array<number>> = [[]]
+  playerHits = Array.from({ length: playerCount }, () => [])
 
 let posPlayers: Array<number> = new Array(8).fill(0) // Assuming an array of size 8
 
@@ -336,6 +341,9 @@ function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: n
     playerScores[oldPlayerIndex].push(variableScoreOne)
     playerScores[oldPlayerIndex + 1].push(variableScoreTwo)
 
+    playerHits[oldPlayerIndex].push(playerOne.getHits())
+    playerHits[oldPlayerIndex].push(playerTwo.getHits())
+
     // Set the semi-final positions
     setSemiPositions(oldPlayerIndex, 5 - matchIndex, losingPlayer)
 
@@ -405,6 +413,7 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
     isGameOver.value = true
     setTimeout(() => {
       const tournament_type = playerCount === 4 ? '4P' : '8P'
+      const dateEnd = Date.now() / 1000;
 
       // Emit the tournament data to the parent component
       emit('gameOver', {
@@ -412,6 +421,8 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
           id: props.players[index].id,
           name: player.player,
           scores: playerScores[index],
+          time_played: Math.floor(dateEnd - dateStart),
+          player_hits: playersHits,
           position: posPlayers[index]
         })),
         final_round: {

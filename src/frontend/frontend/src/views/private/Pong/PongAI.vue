@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { Vector3, Color, Mesh } from 'three';
-import { onMounted, onBeforeUnmount, ref, defineProps, defineEmits } from 'vue';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
 import ThreeService from '../../../services/pong/ThreeService';
 import Player from '../../../services/pong/Objects/Player';
 import Sphere from '../../../services/pong/Objects/Sphere';
@@ -19,6 +19,8 @@ const props = defineProps({
   players: Array,
   aiDifficulty: Number
 });
+
+const dateStart = Date.now() / 1000;
 
 const emit = defineEmits(['gameOver']);
 
@@ -251,6 +253,8 @@ const endGame = (winningPlayer: string) => {
     let players = [player1Name.value, 'AI'];
     let ids = [props.players[0].id, 0];
     let scores = [numScorePlayerOne, numScorePlayerTwo];
+    const dateEnd = Date.now() / 1000;
+    let playersHits = [player.getHits(), playerAI.getHits()];
 
     // Emit the tournament data to the parent component
     emit('gameOver', {
@@ -258,6 +262,8 @@ const endGame = (winningPlayer: string) => {
       player_names: players,
       player_scores: scores,
       player_ids: ids,
+      player_hits: playersHits,
+      time_played: Math.floor(dateEnd - dateStart),
       tournament_type: 'AI',
     });
   }, 5000);

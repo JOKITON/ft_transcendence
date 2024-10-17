@@ -32,11 +32,12 @@ import img3 from '../../assets/avatars/maquina-de-arcade.png';
 
 const api: Api = inject('$api') as Api;
 const Auth: auth = new auth(api)
-const router = useRouter()
 
-const user = ref({
-  id: 2,
-  username: '',
+const props = defineProps({
+  userId: {
+    type: Number,
+    required: true
+  }
 });
 
 const userPongData = ref({
@@ -47,15 +48,9 @@ const userPongData = ref({
   avg_score: 0,
 });
 
-const items = ref([
-  { category: 'Victorias', value: '0' , image: ref(img1) },
-  { category: 'Derrotas', value: '10', image: ref(img2) },
-  { category: 'Partidas Jugadas', value: '10', image: ref(img3) },
-  { category: 'Duracion de Partida', value: '10', image: ref(avatar) }
-]);
+const items = ref([]);
 
 onMounted(async () => {
-  await fetchUserData();
   await fetchPongData();
   await updateItems();
 });
@@ -66,25 +61,14 @@ async function updateItems() {
     { category: 'Derrotas', value: userPongData.value.losses, image: ref(img2) },
     { category: 'Partidas Jugadas', value: userPongData.value.total_games, image: ref(img3) },
     { category: 'Media de puntuacion', value: userPongData.value.avg_score, image: ref(avatar) },
-    { category: 'Duracion de Partida', value: userPongData.value.avg_position, image: ref(avatar) },
+    { category: 'Duracion de Partida', value: userPongData.value.time_played, image: ref(avatar) },
+    { category: 'Remates', value: userPongData.value.hits, image: ref(avatar) },
   ];
-}
-
-async function fetchUserData() {
-  try {
-    const response = await Auth.whoami();
-    user.value = {
-      id: response.id,
-      username: response.username,
-    };
-  } catch (error: any) {
-    console.error('Error fetching user data:', error.message);
-  }
 }
 
 async function fetchPongData() {
   try {
-    const response = await Auth.pongData(user.value.id);
+    const response = await Auth.pongData(props.userId);
     // console.log('Data sent successfully:', response.data);
     userPongData.value = response;
   } catch (error) {
@@ -185,11 +169,11 @@ async function fetchPongData() {
   transition: 0.5s ease;
 }
 
-::v-deep .carousel__pagination-button::after {
+:deep(.carousel__pagination-button::after) {
   background-color:rgba(19, 14, 43, 0.9);
 }
 
-::v-deep .carousel__pagination-button--active::after {
+:deep(.carousel__pagination-button--active::after) {
   background-color: #e74c3c;
 }
 

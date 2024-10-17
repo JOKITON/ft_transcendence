@@ -12,7 +12,7 @@ services:
     restart: always
     shm_size: 128mb
     networks:
-      - traefik
+      - proxy
 
   auth:
     container_name: auth
@@ -23,7 +23,7 @@ services:
       - auth:/auth
       - dependencies:/opt/venv/
     networks:
-      - traefik
+      - proxy
     depends_on:
       - db
 
@@ -38,7 +38,7 @@ services:
       - friendship:/usr/src/app/friendship
       - dependencies:/opt/venv/
     networks:
-      - traefik
+      - proxy
     depends_on:
       - db
       - auth
@@ -52,7 +52,7 @@ services:
       - pong:/pong
       - dependencies:/opt/venv/
     networks:
-      - traefik
+      - proxy
     depends_on:
       - db
       - auth
@@ -67,7 +67,7 @@ services:
       - friendship:/friendship
       - dependencies:/opt/venv/
     networks:
-      - traefik
+      - proxy
     depends_on:
       - db
       - auth
@@ -82,12 +82,12 @@ services:
     volumes:
       - livechat:/livechat
     networks:
-      - traefik
+      - proxy
     depends_on:
       - auth
 
 networks:
-  traefik:
+  proxy:
     external: true
 
 volumes:

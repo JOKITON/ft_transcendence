@@ -116,7 +116,6 @@
 
 import { ref, inject, onMounted } from 'vue';
 import { useRouter } from 'vue-router'
-
 import type { passwdRequest, passwdResponse} from '@/models/user/passwdRequest'
 import type { userDataRequest, userDataResponse } from '@/models/user/userDataRequest';
 
@@ -205,7 +204,7 @@ const resetUserDataForm = () => {
 
 async function fetchUserData() {
   try {
-    const response = await Auth.whoami();
+    const response : any = await Auth.whoami();
     console.log(response)
     formUserData.value = {
       newUsername: response.username,

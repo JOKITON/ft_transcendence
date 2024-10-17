@@ -122,6 +122,7 @@ const lastOpenedChat = ref<Friend | null>(null)
 const size = ref(1)
 const socket = new Socket()
 const user = ref('')
+const room = ref('')
 //const socket = inject('socket') as Socket | null
 
 const colors = {
@@ -153,8 +154,19 @@ const toggleDropdown = () => {
   isDropdownVisible.value = !isDropdownVisible.value
 }
 
-const openChat = (friend: Friend) => {
-  console.log('Opening chat with:', friend)
+const openChat = async (friend: Friend) => {
+
+  const whoami = await api.get('auth/whoami')
+    console.log('My Id:', whoami.id)
+  
+  const response2 = await api.post('friendship/room', {
+      friend_id: friend.id,
+      user_id: whoami.id,
+  })
+  console.log('Room:', response2.data)
+  room.value = response2.data
+
+  console.log('Opening chat with:', friend.username)
   if (!friend) {
     friend = lastOpenedChat.value
   }
@@ -235,9 +247,11 @@ const onMessageWasSent = (chatIndex: number, message: Message) => {
 onMounted(async () => {
   try {
     const response = await api.get<{ friends: Friend[] }>('friendship/friends')
+
     const Iam = await api.get('auth/iam')
     user.value = Iam.username
     console.log('User:', user.value)
+
     connectWebSocket()
     
     eventBus.on('messageSent', (data) => {

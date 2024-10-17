@@ -107,7 +107,10 @@ export default class Sphere {
   public intersects(other: Player): boolean {
     const thisSphere = this.getBoundingSphere();
     const otherSphere = other.getBoundingSphere();
-    return thisSphere.intersectsSphere(otherSphere);
+    const ret : boolean = thisSphere.intersectsSphere(otherSphere);
+    if (ret)
+      other.addHit();
+    return ret;
   }
 
   public invertVelocity(): void {

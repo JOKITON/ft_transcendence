@@ -8,6 +8,8 @@ export default class Player extends Box implements IPlayer {
   private orColor: Color;
   private orPosition: Vector3;
 
+  private hits : number = 0;
+
   private name: string = 'NPC';
   private position: Vector3;
   private score: number = 0;
@@ -172,6 +174,16 @@ export default class Player extends Box implements IPlayer {
     const playerSphere = this.getBoundingSphere();
     const ballSphere = other.getBoundingSphere();
     return playerSphere.intersectsSphere(ballSphere);
+  }
+
+  public addHit() {
+    this.hits += 1;
+  }
+
+  public getHits() : number {
+    const ret : number = this.hits;
+    this.hits = 0;
+    return ret;
   }
 
   public returnToPlace() {

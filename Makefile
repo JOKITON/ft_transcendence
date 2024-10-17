@@ -10,7 +10,7 @@ DOCKER_IMAGES = $(addprefix ft_transcendence-,$(IMAGES))
 DOCKER_IMAGES_BACKEND = $(addprefix ft_transcendence_backend-,$(IMAGES_BACKEND))
 DOCKER_IMAGES_METRICS = $(addprefix ft_transcendence_metrics-,$(IMAGES_METRICS))
 # Add here the container names
-IMAGES = frontend reverse-proxy
+IMAGES = frontend proxy
 IMAGES_BACKEND = keys admin pong db auth migration friendship
 IMAGES_METRICS = grafana prometheus
 
@@ -37,7 +37,7 @@ VOLUMES = volumes/db volumes/dependencies
 all : up
 
 $(NETWORKS) :
-	@$(DOCKER) network inspect traefik >/dev/null 2>&1 || $(DOCKER) network create traefik && echo "Created metrics network."
+	@$(DOCKER) network inspect proxy >/dev/null 2>&1 || $(DOCKER) network create proxy && echo "Created metrics network."
 
 $(VOLUMES) :
 	@mkdir -p $(VOLUMES)

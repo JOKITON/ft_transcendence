@@ -46,7 +46,7 @@
         </div>
       </div>
       <div class="col-md-8 d-flex">
-        <MyCarousel></MyCarousel>
+          <Stats v-if="userLoaded" :userId="userData.id"></Stats>
       </div>
     </div>
     <FriendList v-if="userLoaded" :userId="userData.id"></FriendList>
@@ -57,7 +57,7 @@
 import { onMounted, ref, inject, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import NavHome from './NavHome.vue';
-import MyCarousel from './Stats.vue';
+import Stats from './Stats.vue';
 import FriendList from './FriendList.vue';
 import { eventBus } from './eventbus.js';
 
@@ -141,14 +141,14 @@ const fetchUserAvatar = async (id: number) => {
       const avatarBase64 = response.avatar_base64;
       userData.value.avatar = `data:image/jpeg;base64,${avatarBase64}`;
     }
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error fetching user avatar:', error.message);
   }
 };
 
 // Observar cambios en los parámetros de la ruta
-watch(() => route.params.id, (newId) => {
-  userId.value = parseInt(newId, 10);
+watch(() => route.params.id, (newId: string) => {
+  userId.value = parseInt(newId, 10)
   if (userId.value) {
     fetchUserData(userId.value);
     fetchUserAvatar(userId.value);

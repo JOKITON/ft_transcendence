@@ -22,11 +22,11 @@
             </div>
           </div>
         </div>
-      </div>
 
+      </div>
       <!-- ESTADISTICAS DEL USUARIO -->
       <div class="col-md-8 d-flex stats-container">
-        <Stats></Stats>
+          <Stats v-if="userLoaded" :userId="user.id"></Stats>
       </div>
     </div>
     
