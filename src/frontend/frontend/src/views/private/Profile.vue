@@ -1,39 +1,40 @@
 <!-- ** FALTA AÑADIR LA PARTE DE LA LISTA DE AMIGOS ** -->
 <template>
-
-  <!-- NAV DE LA PAGINA -->
-  <NavHome></NavHome>
+  <div class="pruebas">
+    <NavHome></NavHome>
+  </div>
   <div class="container">
-      <div class="row gutters-sm my-3">
+    <div class="row gutters-sm my-3">
+      
+      <!-- CARD DEL USUARIO -->
+      <div class="col-md-4 d-flex align-items-stretch user-card-container">
+        <div class="user-card w-100 m-3 d-flex justify-content-center">
+          <div class="d-flex flex-column justify-content-center align-items-center text-center">
+            <h2 class="user-name pb-3 px-3">{{ user.username }}</h2>
+            <img :src="user.avatarUrl" alt="User Avatar" class="rounded-circle m-3" width="50%">
+            <p class="user-data pt-3 pb-1">{{ user.nickname }}</p>
+            <p class="user-data pb-3 pt-1">{{ user.email }}</p>
 
-        <!-- CARD DEL USUARIO -->
-        <div class="col-md-4 d-flex align-items-stretch">
-          <div class="user-card w-100 m-3 d-flex justify-content-center">
-            <div class="d-flex flex-column justify-content-center align-items-center text-center">
-              <h2 class="user-name pb-3 px-3">{{ user.username }}</h2>
-              <img :src="user.avatarUrl" alt="User Avatar" class="rounded-circle m-3" width="50%">
-              <p class="user-data pt-3 pb-1">{{ user.nickname }}</p>
-              <p class="user-data pb-3 pt-1">{{ user.email }}</p>
-
-              <!-- BOTONES PARA EDITAR LA INFORMACION O EL AVATAR -->
-              <div>
-                <button class="btn background-button mt-3 mx-2" @click="goToEditAvatar">Edit avatar</button>
-                <button class="btn border-button mt-3 mx-2" @click="goToEditProfile">Edit profile</button>
-              </div>
+            <!-- BOTONES PARA EDITAR LA INFORMACION O EL AVATAR -->
+            <div>
+              <button class="btn background-button mt-3 mx-2" @click="goToEditAvatar">Edit avatar</button>
+              <button class="btn border-button mt-3 mx-2" @click="goToEditProfile">Edit profile</button>
             </div>
           </div>
         </div>
 
-        <!-- ESTADISTICAS DEL USUARIO -->
-        <div class="col-md-8 d-flex">
-            <Stats v-if="userLoaded" :userId="user.id"></Stats>
-        </div>
       </div>
-      
-    <!-- LISTA DE AMIGOS-->
-    <FriendList v-if="userLoaded" :userId="user.id"></FriendList>
+      <!-- ESTADISTICAS DEL USUARIO -->
+      <div class="col-md-8 d-flex stats-container">
+          <Stats v-if="userLoaded" :userId="user.id"></Stats>
+      </div>
+    </div>
+    
+    <!-- LISTA DE AMIGOS -->
+    <FriendList v-if="userLoaded" :userId="user.id" class="friend-list"></FriendList>
   </div>
 </template>
+
 
 <script setup lang="ts">
 
@@ -165,6 +166,16 @@ const goToEditProfile = () => {
   color:#ebd2ff;
   margin-bottom: 0px;
   font-size: 1.2em;
+
 }
-  
+
+.stats-container {
+  position: relative;
+  z-index: 1; /* Mantiene las estadísticas debajo de la tarjeta */
+}
+
+.pruebas {
+  position: relative;
+  z-index: 100;
+}
 </style>

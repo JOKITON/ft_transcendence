@@ -59,6 +59,7 @@ class InviteFriendView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request: Request) -> Response:
+        print("request ", request)
         serializer = InviteFriendSerializer(
             data=request.data, context={"request": request}
         )

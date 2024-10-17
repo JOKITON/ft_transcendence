@@ -289,8 +289,9 @@ const startGame = () => {
 <style scoped>
 .form-container {
 	display: flex;
+	flex-direction: column;
 	align-items: center;
-	justify-content: center;
+	justify-content: space-between;
 	padding: 2rem;
 	padding-top: 100px;
 }
@@ -354,7 +355,8 @@ h3 {
 
 .vs-text {
 	font-weight: bold;
-	color: #6c757d;
+	font-size: 1.2rem;
+	color: #495057;
 	margin: 0 10px;
 }
 
@@ -382,7 +384,7 @@ h3 {
 
 .list-group-item {
 	display: flex;
-	justify-content: space-between;
+	justify-content: center;
 	align-items: center;
 }
 

@@ -12,7 +12,7 @@
           <li><a @click="goToPong" class="nav-link px-4 nav-item">Pong</a></li>
 
           <!-- DROPDOWN MENU ADMIN -->
-          <li class="nav-link px-4">
+<!--           <li class="nav-link px-4">
             <div class="dropdown text-end">
               <a @click="toggleDropdownAdmin" class="d-block text-decoration-none dropdown-toggle nav-item">Admin</a>
               <ul class="dropdown-menu text-small nav-drop" :class="{ show: isDropdownAdminVisible }">
@@ -20,7 +20,7 @@
                 <li><a @click="openUserList" class="dropdown-item nav-drop-item">Otra cosa mas</a></li>
               </ul>
             </div>
-          </li>
+          </li> -->
         </ul>
 
         <!-- BUSCADOR -->
@@ -81,6 +81,7 @@
     </div>
   </header>
   <ChatDropdown />
+
 </template>
 
 <script setup lang="ts">
@@ -92,6 +93,8 @@ import { useRouter } from 'vue-router'
 import type Api from '../../services/Api/api'
 import auth from '../../services/user/services/auth/auth'
 import ChatDropdown from './DesplegableChat.vue';
+import Friendss from './Friends.vue';
+
 
 
 /* ----- VARIABLES ----- */
@@ -250,6 +253,7 @@ const goToUserProfile = (userId: number) => {
 }
 
 onMounted(async () => {
+
   await fetchUsername()
   await fetchFriendRequests();
 })
@@ -352,5 +356,22 @@ const fetchFriendRequests = async () => {
 
 .nav-sign-out:hover {
   background-color: #f92464 !important;
+}
+
+ChatDropdown {
+  position: fixed; /* Esto lo hace fijo en la pantalla */
+  bottom: 20px; /* Ubicación desde la parte inferior de la ventana */
+  right: 20px; /* Ubicación desde la parte derecha de la ventana */
+  z-index: 10000; /* Elevamos el chat por encima del resto del contenido */
+  width: 300px; /* Ajusta el ancho del chat según sea necesario */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Opcional: sombra para dar un efecto de elevación */
+}
+
+/* Estilo opcional para el botón desplegable del chat */
+.chat-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10001; /* Botón por encima del resto */
 }
 </style>

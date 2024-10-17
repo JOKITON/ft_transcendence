@@ -79,7 +79,7 @@ const handleSubmit: () => Promise<void> = async () => {
   try {
     const response: boolean = await Auth.login<userResponse>(form.value)
     if (response === true) {
-      router.push('/pong')
+      router.push('/home')
     }
     console.log('Login successful ', response)
   } catch (error: any) {

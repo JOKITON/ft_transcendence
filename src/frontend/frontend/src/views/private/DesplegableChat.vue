@@ -50,7 +50,7 @@
             </div>
           </li>
         </ul>
-        <p v-else>No friends available</p>
+        <p v-else class="no-friends-msg">No friends available</p>
       </div>
     </div>
 
@@ -81,6 +81,8 @@ import Chat from 'vue3-beautiful-chat' // Importa el componente de chat
 import Socket from '../../utils/socket/imp/socket'
 import { WebsocketEvent } from 'websocket-ts'
 
+import { eventBus } from './eventbus.js';
+
 interface Friend {
   id: number
   username: string
@@ -88,6 +90,13 @@ interface Friend {
   is_blocked_by_user: boolean
   is_blocked_by_friend: boolean
 }
+
+const props = defineProps({
+  friend: {
+   
+    required: true
+  }
+});
 
 interface Message {
   type: string
@@ -238,16 +247,23 @@ const onMessageWasSent = (chatIndex: number, message: Message) => {
 onMounted(async () => {
   try {
     const response = await api.get<{ friends: Friend[] }>('friendship/friends')
+
+    const Iam = await api.get('auth/iam')
+    user.value = Iam.username
+    console.log('User:', user.value)
+
+    connectWebSocket()
+    
+    eventBus.on('messageSent', (data) => {
+    console.log('Message sent:', data);
+    openChat(data.friend);
+  }
+);
+    // Convertir isOnline a booleano
     friends.value = (response.friends || []).map((friend) => ({
       ...friend,
       isOnline: friend.isOnline === 'True' // Convertir a booleano
     }))
-
-    const Iam = await api.get('auth/iam')
-    user.value = Iam.username
-
-    connectWebSocket()
-    // Convertir isOnline a booleano
 
     console.log('Friends loaded:', friends.value)
   } catch (error) {
@@ -294,7 +310,8 @@ const unblockUser = async (username: string) => {
   } catch (error) {
     console.error('Error unblocking user', error)
   }
-}
+};
+
 </script>
 
 <style scoped>
@@ -390,4 +407,23 @@ const unblockUser = async (username: string) => {
   display: flex;
   justify-content: center;
 }
+.chat-container {
+  position: absolute;
+  z-index: 1119; /* Valor por defecto para los chats */
+}
+
+.chat-container.active {
+  position: absolute;
+  z-index: 1111111; /* Valor más alto para el chat activo */
+}
+
+.no-friends-msg {
+  background-color: #b8b5bd;
+  color: #000000;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-family: NunitoBlack, sans-serif;
+}
+
 </style>
