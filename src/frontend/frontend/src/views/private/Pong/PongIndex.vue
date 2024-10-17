@@ -203,10 +203,12 @@ const handleGameOver = (tournamentResults) => {
 </script>
 
 <template>
-  <NavHome />
-  <audio controls autoplay ref="songElement" preload="auto" style="display: none">
+  <div class="pruebas">
+    <NavHome></NavHome>
+    <audio controls autoplay ref="songElement" preload="auto" style="display: none">
     <source src="/src/assets/songs/main-menu.mp3" type="audio/mp3">
   </audio>
+  </div>
   <div v-if="showMenu">
     <NameInputMenu @startGame="handleStartGame" />
   </div>
@@ -221,3 +223,11 @@ const handleGameOver = (tournamentResults) => {
     />
   </div>
 </template>
+
+
+<style>
+
+.pruebas {
+  position: relative;
+  z-index: 100;
+}</style>

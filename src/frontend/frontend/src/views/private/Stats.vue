@@ -114,6 +114,8 @@ async function fetchPongData() {
 
 .carousel * {
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 .stat-title{
@@ -137,6 +139,7 @@ async function fetchPongData() {
   justify-content: center;
   align-items: center;
   position: relative;
+  z-index: 1; 
 }
 
 .shield {
@@ -175,6 +178,7 @@ async function fetchPongData() {
 .carousel__slide--active {
   opacity: 1;
   transform: scale(1);
+  z-index: 1; 
 }
 
 .carousel__slide--sliding {

@@ -1,5 +1,7 @@
 <template>
-  <NavHome></NavHome>
+  <div class="pruebas">
+    <NavHome ></NavHome>
+  </div>
   <div class="row gutters-sm">
     <div class="col-sm-6 mb-3">
       <div class="card h-100 card-scrollable">
@@ -22,26 +24,12 @@
                 >
               </span>
               <div class="btn-group">
-                <button
-                  class="btn btn-primary btn-sm"
-                  @click="sendMessage(friend.username)"
-                  :disabled="friend.is_blocked_by_friend"
-                >
-                  Mensaje
-                </button>
-                <button
-                  v-if="friend.is_blocked_by_user"
-                  class="btn btn-warning btn-sm"
-                  @click="unblockUser(friend.username)"
-                >
+                <button class="btn btn-primary btn-sm" @click="handleSendMessage(friend)" :disabled="friend.is_blocked_by_friend">Mensaje</button>
+
+                <button v-if="friend.is_blocked_by_user" class="btn btn-warning btn-sm" @click="unblockUser(friend.username)">
                   Desbloquear
                 </button>
-                <button
-                  v-else
-                  class="btn btn-danger btn-sm"
-                  @click="blockUser(friend.username)"
-                  :disabled="friend.is_blocked_by_friend"
-                >
+                <button v-else class="btn btn-danger btn-sm" @click="blockUser(friend.username)" :disabled="friend.is_blocked_by_friend">
                   Bloquear
                 </button>
                 <button
@@ -92,31 +80,38 @@
               v-model="searchQuery"
             />
             <button class="btn btn-primary mt-2 w-100" @click="sendFriendRequest">Enviar</button>
-            <button class="btn btn-primary mt-2 w-100" @click="printFriendsList">
-              Ver lista de amigos
-            </button>
           </div>
+          <div v-if="feedbackMessage" class="alert" :class="feedbackClass">{{ feedbackMessage }}</div>
         </div>
       </div>
     </div>
   </div>
-  <button @click="printFriendsList">Ver lista de amigos</button>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue'
-import { useRouter } from 'vue-router'
-import NavHome from './NavHome.vue'
-
-// Inyecta el cliente API
-const api = inject('$api') as Api
-const router = useRouter()
 
 // Define las referencias para amigos y solicitudes de amistad
+
+
+import { ref,onMounted, inject } from 'vue';
+import { defineEmits } from 'vue';
+import NavHome from './NavHome.vue';
+import { eventBus } from './eventbus.js';
+import DesplegableChat from './DesplegableChat.vue';
+
+// Inyecta el cliente API
+const api = inject('$api') as any;
+
 const friends = ref<Friend[]>([])
 const friendRequests = ref<FriendRequest[]>([])
-const searchQuery = ref('')
+const searchQuery = ref('');
+const feedbackMessage = ref('');
+const feedbackClass = ref('');
 
+const handleSendMessage = (friend) => {
+  console.log('Sending message to:', friend);
+  eventBus.emit('messageSent', { friend: friend });
+}
 interface Friend {
   id: number
   username: string
@@ -145,10 +140,6 @@ const form = ref({
   nickname: ''
 })
 
-const printFriendsList = async () => {
-  console.log('Lista de amigos:', friends.value)
-}
-
 onMounted(async () => {
   try {
     // Fetch friends and user data
@@ -158,8 +149,11 @@ onMounted(async () => {
     ])
 
     // Asigna el estado correctamente, incluyendo los nuevos campos de bloqueo
-    friends.value = fetchFriendsResponse.friends || []
-    form.value = { ...userResponse.data }
+    friends.value = (fetchFriendsResponse.friends || []).map(friend => ({
+      ...friend,
+      isOnline: friend.isOnline === 'True'  // Convertir a booleano
+    }));
+    form.value = { ...userResponse.data };
 
     // Fetch friend requests as part of onMounted
     await fetchFriendRequests()
@@ -201,10 +195,6 @@ const unblockUser = async (username: string) => {
   }
 }
 
-// Implementa las funciones restantes
-const sendMessage = (username: string) => {
-  // Implement message sending logic
-}
 
 const inviteUser = async (username: string) => {
   try {
@@ -217,12 +207,19 @@ const inviteUser = async (username: string) => {
 
 const sendFriendRequest = async () => {
   try {
-    await api.post('friendship/add', { friend: searchQuery.value })
-    console.log(`Friend request sent to ${searchQuery.value}`)
-    searchQuery.value = ''
-    ;('')
+    const myresponse = await api.post('friendship/add', { friend: searchQuery.value });
+    console.log('response', myresponse);
+    if (myresponse.status === 201) {
+      feedbackMessage.value = `Solicitud de amistad enviada a ${searchQuery.value}`;
+      feedbackClass.value = 'alert-success';
+      searchQuery.value = '';
+    } else {
+      feedbackMessage.value = `Error al enviar solicitud de amistad`;
+      feedbackClass.value = 'alert-danger';
+    }
   } catch (error) {
-    console.error('Error sending friend request', error)
+    feedbackMessage.value = `Error al enviar solicitud de amistad: ${error.message}`;
+    feedbackClass.value = 'alert-danger';
   }
 }
 
@@ -245,7 +242,8 @@ const declineFriendRequest = async (requestId: number) => {
   } catch (error) {
     console.error('Error declining friend request', error)
   }
-}
+};
+
 </script>
 
 <style scoped>
@@ -269,4 +267,20 @@ const declineFriendRequest = async (requestId: number) => {
 .bg-danger {
   background-color: red;
 }
+.pruebas {
+  position: relative;
+  z-index: 100;
+}
+
+.alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
 </style>
