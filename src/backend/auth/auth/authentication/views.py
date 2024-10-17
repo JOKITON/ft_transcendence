@@ -15,10 +15,10 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken, Token
 from UserModel.models import User
 
-from .serializers import (PasswdSerializer, UserSerializer,
-                          UserSerializerRegister)
+from .serializers import PasswdSerializer, UserSerializer, UserSerializerRegister
 
 logger: logging.Logger = logging.getLogger(__name__)
+
 
 class RegisterUserView(APIView):
     def post(self, request: Request) -> Response:
@@ -26,9 +26,10 @@ class RegisterUserView(APIView):
             data=request.data, context={"request": request}
         )
         if serializer.is_valid():
-            # Check if the user already exists
             user_data = serializer.validated_data
-            if User.objects.filter(username=user_data['username']).exists():  # Check based on unique field
+            if User.objects.filter(
+                username=user_data["username"]
+            ).exists():  # Check based on unique field
                 return Response(
                     {
                         "message": "Username is not available.",
@@ -37,7 +38,9 @@ class RegisterUserView(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            if User.objects.filter(nickname=user_data['nickname']).exists():  # Check based on unique field
+            if User.objects.filter(
+                nickname=user_data["nickname"]
+            ).exists():  # Check based on unique field
                 return Response(
                     {
                         "message": "Nickname is not available.",
@@ -46,7 +49,9 @@ class RegisterUserView(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            if User.objects.filter(email=user_data['email']).exists():  # Check based on unique field
+            if User.objects.filter(
+                email=user_data["email"]
+            ).exists():  # Check based on unique field
                 return Response(
                     {
                         "message": "Email is not available.",
@@ -75,7 +80,8 @@ class RegisterUserView(APIView):
 
 class LoginUserView(APIView):
     def post(self, request: Request) -> Response:
-        serializer = UserSerializer(data=request.data, context={"request": request})
+        serializer = UserSerializer(
+            data=request.data, context={"request": request})
         if serializer.is_valid():
             user: User = serializer.validated_data
             login(request, user)
@@ -124,12 +130,31 @@ class LogoutView(APIView):
                 {"detail": f"Invalid token {e}"}, status=status.HTTP_400_BAD_REQUEST
             )
 
+
 class SessionView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         return Response({"isAuthenticated": True}, status=status.HTTP_200_OK)
+
+
+class IAm(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None) -> Response:
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response(
+                {"error": "User is not authenticated"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        else:
+            user_data = {"username": user.username}
+            return Response(user_data, status=status.HTTP_200_OK)
+
 
 class WhoAmIView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -144,28 +169,26 @@ class WhoAmIView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         else:
-            # print('Avatar url: ')
-            # print(user.avatar.url)
-            # print(user.avatar)
-            # avatar_url = request.build_absolute_uri(user.avatar.url) if user.avatar else None
-            avatar_url = user.avatar if user.avatar else f'{settings.MEDIA_URL}avatars/default_avatar.png'
-            # print(avatar_url)
+            avatar_url = (
+                user.avatar
+                if user.avatar
+                else f"{settings.MEDIA_URL}avatars/default_avatar.png"
+            )
             user_data = {
                 "username": user.username,
                 "email": user.email,
                 "nickname": user.nickname,
                 "avatar": str(avatar_url),
                 "id": user.id,
-                # Agrega aquí otros campos que desees mostrar
             }
             return Response(user_data, status=status.HTTP_200_OK)
+
 
 class PublicKeyView(APIView):
     def get(self, request: Request) -> Response:
         try:
             with open("/auth/secrets/public.pem", "r") as f:
                 public_key: str = f.read()
-                print(public_key)
             return HttpResponse(public_key, content_type="text/plain")
         except Exception as e:
             return Response(
