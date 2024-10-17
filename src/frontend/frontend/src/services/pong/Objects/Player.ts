@@ -176,6 +176,10 @@ export default class Player extends Box implements IPlayer {
     return playerSphere.intersectsSphere(ballSphere);
   }
 
+  public resize(size: number): void {
+    this.mesh.scale.set(size, size, size);
+  }
+
   public addHit() {
     this.hits += 1;
   }

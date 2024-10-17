@@ -33,8 +33,9 @@ export default class LuckySphere {
   }
 
   private applyEffects(ball: Sphere, player: Player): void {
-    let random = Math.random() * 3;
+    let random = Math.random() * 5;
     random = Math.floor(random);
+    console.log(random);
 
     switch (random) {
       case 0:
@@ -43,7 +44,7 @@ export default class LuckySphere {
         break;
       case 1:
         console.log("Speed down");
-        ball.speedUp(0.3);
+        ball.speedUp(-0.3);
         break;
       case 2:
         console.log("Size up");
@@ -53,13 +54,25 @@ export default class LuckySphere {
         console.log("Size down");
         ball.resize(0.5);
         break;
+      case 4:
+        console.log("Size down player");
+        player.resize(0.25);
+        break;
+      case 5:
+        console.log("Size up player");
+        player.resize(5);
+        break;
       default:
         break;
     }
   }
 
+  private lastUpdateTime: number = 0;
+
   public update(ball: Sphere, player: Player): number {
-    if (this.intersects(ball)) {
+    const currentTime = Date.now();
+    if (this.intersects(ball) && currentTime - this.lastUpdateTime > 1000) {
+      this.lastUpdateTime = currentTime;
       this.applyEffects(ball, player);
       return 1;
     } else {
