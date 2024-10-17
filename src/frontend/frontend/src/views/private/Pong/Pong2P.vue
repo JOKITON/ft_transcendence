@@ -20,6 +20,8 @@ const props = defineProps({
 
 const emit = defineEmits(['gameOver']);
 
+const gameStart = Date.now() / 1000;
+
 // Extract initial players for the current game
 let player1Name = ref(props.players[0].player);
 let player2Name = ref(props.players[1].player);
@@ -223,6 +225,8 @@ const endGame = (winningPlayer: string) => {
     let players = [player1Name.value, player2Name.value];
     let scores = [numScorePlayerOne, numScorePlayerTwo];
     let ids = [props.players[0].id, props.players[1].id];
+    const dateEnd = Date.now() / 1000;
+    let playersHits = [player.getHits(), playerAI.getHits()];
 
     // Emit the tournament data to the parent component
     emit('gameOver', {
@@ -230,6 +234,8 @@ const endGame = (winningPlayer: string) => {
       player_names: players,
       player_scores: scores,
       player_ids: ids,
+      player_hits: playersHits,
+      time_played: Math.floor(dateEnd - dateStart),
       tournament_type: '2P',
     });
   }, 5000);

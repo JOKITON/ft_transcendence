@@ -5,7 +5,7 @@ from .models import Player, FinalRound, SemiFinal, Tournament8P, Tournament4P
 class PongGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = PongGame
-        fields = ['winner', 'player_ids', 'player_names', 'player_scores', 'tournament_type']
+        fields = ['winner', 'player_ids', 'player_names', 'player_scores', 'player_hits', 'time_played', 'tournament_type']
 
     def create_player(self, player_data):
         player, created = Player.objects.get_or_create(
@@ -21,10 +21,14 @@ class PongGameSerializer(serializers.ModelSerializer):
             # Calculate the new average score considering the new game's score
             player.scores.append(player_data['score_player'])
             player.total_score += player_data['score_player']
+            player.time_played += player_data['time_played']
+            player.hits += player_data['player_hits']
         else:
             # For a new player, the average score is the current score
             player.scores.append(player_data['score_player'])
             player.total_score = player_data['score_player']
+            player.time_played = player_data['time_played']
+            player.hits = player_data['player_hits']
 
         # Update wins, losses, and total games
         if player_data['winner'] == player_data['name_player']:
@@ -42,6 +46,8 @@ class PongGameSerializer(serializers.ModelSerializer):
         player_ids = validated_data['player_ids']
         player_names = validated_data['player_names']
         player_scores = validated_data['player_scores']
+        time_played = validated_data['time_played']
+        player_hits = validated_data['player_hits']
         winner = validated_data['winner']
         tournament_type = validated_data['tournament_type']
         
@@ -53,6 +59,8 @@ class PongGameSerializer(serializers.ModelSerializer):
                 'id': player_ids[i],
                 'name_player': player_names[i],
                 'score_player': player_scores[i],
+                'time_played': time_played,
+                'player_hits': player_hits[i],
                 'winner': winner
             }
             print(player_data)  # Example operation
@@ -67,6 +75,7 @@ class PongGameSerializer(serializers.ModelSerializer):
         tournament = PongGame.objects.create(
             player1=p1,
             player2=p2,
+            player_hits=player_hits[0] + player_hits[1],
             player_names=player_names,
             player_scores=player_scores,
             winner=winner,
@@ -160,6 +169,8 @@ class Tournament4PSerializer(serializers.ModelSerializer):
             player.scores = player.scores + player_data['scores']
             player.total_score += sum(player_data['scores'])
             player.total_games += len(player_data['scores'])
+            player.hits += player_data['player_hits']
+            player.time_played += player_data['time_played']
             
             # Update the position to create the average
             player.avg_position = (player.avg_position + player_data['last_position']) / 2
@@ -168,8 +179,10 @@ class Tournament4PSerializer(serializers.ModelSerializer):
             player.scores = player_data['scores']
             player.total_score = sum(player_data['scores'])
             player.total_games = len(player_data['scores'])
+            player.hits = player_data['player_hits']
             # Create first position
             player.avg_position = player_data['last_position']
+            player.time_played = player_data['time_played']
 
         player.last_position=player_data['last_position']
         # Update wins &  losses

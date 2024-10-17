@@ -11,6 +11,8 @@ class Player(models.Model):
     losses = models.IntegerField(default=0)
     total_games = models.IntegerField(default=0)
     total_score = models.FloatField(default=0)
+    time_played = models.IntegerField(default=0)
+    hits = models.IntegerField(default=0)
     # Tournament related fields
     scores = models.JSONField(default=list)  # Assuming scores are stored as a list of integers
     last_position = models.IntegerField(default=0)
@@ -43,6 +45,8 @@ class PongGame(models.Model):
     player_ids = models.JSONField(null=True, blank=True)
     player_names = models.JSONField(null=True, blank=True)
     player_scores = models.JSONField(null=True, blank=True)
+    time_played = models.IntegerField(default=0)
+    player_hits = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.tournament_type} - {self.winner}"

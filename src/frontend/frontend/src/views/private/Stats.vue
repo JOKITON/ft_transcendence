@@ -48,12 +48,7 @@ const userPongData = ref({
   avg_score: 0,
 });
 
-const items = ref([
-  { category: 'Victorias', value: '0' , image: ref(img1) },
-  { category: 'Derrotas', value: '10', image: ref(img2) },
-  { category: 'Partidas Jugadas', value: '10', image: ref(img3) },
-  { category: 'Duracion de Partida', value: '10', image: ref(avatar) }
-]);
+const items = ref([]);
 
 onMounted(async () => {
   await fetchPongData();
@@ -66,7 +61,8 @@ async function updateItems() {
     { category: 'Derrotas', value: userPongData.value.losses, image: ref(img2) },
     { category: 'Partidas Jugadas', value: userPongData.value.total_games, image: ref(img3) },
     { category: 'Media de puntuacion', value: userPongData.value.avg_score, image: ref(avatar) },
-    { category: 'Duracion de Partida', value: userPongData.value.avg_position, image: ref(avatar) },
+    { category: 'Duracion de Partida', value: userPongData.value.time_played, image: ref(avatar) },
+    { category: 'Remates', value: userPongData.value.hits, image: ref(avatar) },
   ];
 }
 
