@@ -33,7 +33,6 @@ export default defineConfig({
       },
       '/api/v1/livechat/ws/': {
         target: 'http://livechat:80',
-        ws: true,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/admin/, '/api/admin'),
       },

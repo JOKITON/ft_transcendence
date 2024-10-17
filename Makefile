@@ -37,7 +37,7 @@ VOLUMES = volumes/db volumes/dependencies
 all : up
 
 $(NETWORKS) :
-	@$(DOCKER) network inspect traefik >/dev/null 2>&1 || $(DOCKER) network create traefik && echo "Created metrics network."
+	@$(DOCKER) network inspect proxy >/dev/null 2>&1 || $(DOCKER) network create proxy && echo "Created metrics network."
 
 $(VOLUMES) :
 	@mkdir -p $(VOLUMES)
