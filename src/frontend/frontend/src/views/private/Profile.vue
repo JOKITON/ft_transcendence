@@ -26,7 +26,7 @@
 
         <!-- ESTADISTICAS DEL USUARIO -->
         <div class="col-md-8 d-flex">
-            <Stats></Stats>
+            <Stats v-if="userLoaded" :userId="user.id"></Stats>
         </div>
       </div>
       

@@ -32,11 +32,12 @@ import img3 from '../../assets/avatars/maquina-de-arcade.png';
 
 const api: Api = inject('$api') as Api;
 const Auth: auth = new auth(api)
-const router = useRouter()
 
-const user = ref({
-  id: 2,
-  username: '',
+const props = defineProps({
+  userId: {
+    type: Number,
+    required: true
+  }
 });
 
 const userPongData = ref({
@@ -55,7 +56,6 @@ const items = ref([
 ]);
 
 onMounted(async () => {
-  await fetchUserData();
   await fetchPongData();
   await updateItems();
 });
@@ -70,21 +70,9 @@ async function updateItems() {
   ];
 }
 
-async function fetchUserData() {
-  try {
-    const response = await Auth.whoami();
-    user.value = {
-      id: response.id,
-      username: response.username,
-    };
-  } catch (error: any) {
-    console.error('Error fetching user data:', error.message);
-  }
-}
-
 async function fetchPongData() {
   try {
-    const response = await Auth.pongData(user.value.id);
+    const response = await Auth.pongData(props.userId);
     // console.log('Data sent successfully:', response.data);
     userPongData.value = response;
   } catch (error) {

@@ -18,7 +18,7 @@
           </div>
         </div>
         <div class="col-md-8 d-flex">
-            <MyCarousel></MyCarousel>
+            <Stats v-if="userLoaded" :userId="userData.id"></Stats>
         </div>
       </div>
     <FriendList v-if="userLoaded" :userId="userData.id"></FriendList>
@@ -31,7 +31,7 @@
 import { onMounted, ref, inject, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import NavHome from './NavHome.vue';
-import MyCarousel from './Stats.vue';
+import Stats from './Stats.vue';
 import FriendList from './FriendList.vue';
 import avatar from '../../assets/avatars/pepe.png';
 
