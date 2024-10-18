@@ -2,42 +2,33 @@
   <div class="pruebas">
     <NavHome></NavHome>
   </div>
-  <main class="home-wrapper">
+  <main>
     <!-- Sección de bienvenida con el tema de Pong -->
     <section class="welcome-section">
       <div class="overlay"></div>
       <div class="welcome-content">
-        <h1>Welcome to Magic Super Mega Pong, {{ username }}</h1>
-        <p>Challenge yourself and compete with players from around the world.</p>
+        <h1 class="h1-welcome">Welcome to Magic Super Mega Pong, {{ username }}</h1>
+        <h2 class="h2-welcome">Challenge yourself and compete with players from around the world.</h2>
         <button @click="goToPong" class="btn btn-lg btn-primary">Start Playing</button>
       </div>
     </section>
 
     <!-- Sección de información personalizada -->
-    <section class="info-section">
-      <div class="info-card">
-        <div class="icon">
-          <i class="fas fa-gamepad"></i>
-        </div>
-        <h2>Play a Game</h2>
-        <p>Jump into a match and test your skills.</p>
-        <button @click="goToPong" class="btn btn-outline-light">Play Now</button>
+    <section class="info-section row">
+      <div class="info-card d-flex flex-column justify-content-center col-md-4 col-sm-2">
+        <h2 class="pt-2">Play a Game</h2>
+        <p class="m-3 pt-4">Jump into a match and test your skills.</p>
+        <button @click="goToPong" class="btn txoinas-button mt-3 mx-2">Play Now</button>
       </div>
-      <div class="info-card">
-        <div class="icon">
-          <i class="fas fa-user-friends"></i>
-        </div>
-        <h2>Challenge Friends</h2>
-        <p>Invite your friends and see who comes out on top.</p>
-        <button @click="goToFriends" class="btn btn-outline-light">Challenge Friends</button>
+      <div class="info-card  d-flex flex-column justify-content-center col-md-4">
+        <h2 class="pt-2">Challenge Friends</h2>
+        <p class="m-3 pt-4">Invite your friends and see who comes out on top.</p>
+        <button @click="goToFriends" class="btn txoinas-button mt-3 mx-2">Challenge Friends</button>
       </div>
-      <div class="info-card">
-        <div class="icon">
-          <i class="fas fa-cog"></i>
-        </div>
-        <h2>Profile Settings</h2>
-        <p>Customize your avatar and update your profile information.</p>
-        <button @click="goToSettings" class="btn btn-outline-light">Edit Profile</button>
+      <div class="info-card  d-flex flex-column justify-content-center col-md-4">
+        <h2 class="pt-2">Profile Settings</h2>
+        <p class="m-3 pt-4">Customize your avatar and update your profile information.</p>
+        <button @click="goToSettings" class="btn txoinas-button mt-3 mx-2">Edit Profile</button>
       </div>
     </section>
   </main>
@@ -115,10 +106,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.home-wrapper {
-  font-family: 'Nunito', sans-serif;
-  color: #ffffff;
-}
 
 /* Sección de bienvenida */
 .welcome-section {
@@ -147,25 +134,19 @@ onMounted(async () => {
 .welcome-content {
   position: relative;
   z-index: 2;
+  color: #ebd2ff;
 }
 
-.welcome-content h1 {
+.h1-welcome {
   font-family: Titulo, sans-serif;
   font-size: 3rem;
   margin-bottom: 20px;
 }
 
-.welcome-content p {
-  font-family: Titulo, sans-serif;
-  font-size: 1.2rem;
-  margin-bottom: 30px;
-}
-
-.welcome-content button {
-  font-family: Titulo, sans-serif;
-  font-size: 1.1rem;
-  padding: 10px 30px;
-  cursor: pointer;
+.h2-welcome {
+  font-family: NunitoBlack, sans-serif;
+  font-size: 1.5rem;
+  margin: 1.5em;
 }
 
 /* Sección de información */
@@ -173,64 +154,34 @@ onMounted(async () => {
   display: flex;
   justify-content: space-around;
   padding: 40px 20px;
-  background-color: #223d5a;
-  flex-wrap: wrap;
+  background-color: rgba(19, 14, 43, 0.97);
+  border-top: solid 2px;
+  border-color: #ff3974;
+  flex-wrap: wrap; /* Permite que las tarjetas se vayan hacia abajo en pantallas más pequeñas */
+  box-shadow: 0px -10px 5px rgba(249,36,100,1);
 }
 
 .info-card {
-  background-color: #2c506f;
+  background-color: rgba(19, 14, 43, 1);
   text-align: center;
-  padding: 20px;
+  padding: 1.3em;
   border-radius: 10px;
   width: 22%;
-  margin: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.info-card .icon {
-  font-size: 2.5rem;
-  margin-bottom: 15px;
-}
-
-.info-card h2 {
+  margin: 0.8em;
   font-family: Titulo, sans-serif;
+  box-shadow: -4px 4px 10px rgba(249,36,100,255);
+  color: #ebd2ff;
+  min-width: 250px; /* Ajusta este valor según el ancho mínimo que quieras para las tarjetas */
+}
+
+h2 {
   font-size: 1.5rem;
-  margin-bottom: 15px;
+  word-wrap: break-word; /* Permite que el texto largo se ajuste y no se desborde */
 }
 
-.info-card p {
-  font-family: Titulo, sans-serif;
-  margin-bottom: 20px;
-}
-
-.info-card button {
-  font-family: Titulo, sans-serif;
-  font-size: 1rem;
-  padding: 8px 20px;
-  color: #ffffff;
-  border: 1px solid #ffffff;
-  background-color: transparent;
-  cursor: pointer;
-}
-
-.info-card button:hover {
-  background-color: #ffffff;
-  color: #223d5a;
-}
-
-.play-card .icon {
-  color: #28a745; /* Verde para el icono de juego */
-}
-
-.play-card button {
-  font-family: Titulo, sans-serif;
-  background-color: #28a745;
-  border-color: #28a745;
-}
-
-.play-card button:hover {
-  background-color: #218838;
-  border-color: #218838;
+p {
+  font-family: NunitoBlack !important;
+  font-size: 1.2em;
 }
 
 /* Estilo de los botones */
@@ -241,8 +192,10 @@ onMounted(async () => {
 }
 
 .btn-primary:hover {
-  background-color: #ff6f1f;
+  background-color: rgba(19, 14, 43, 1);
   border-color: #ff6f1f;
+  color: #ff6f1f;
+  box-shadow: -1px 2px 4px rgba(249,36,100,255);
 }
 
 .pruebas {

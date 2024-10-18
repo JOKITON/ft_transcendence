@@ -29,15 +29,24 @@
               >
                 Friend Request Sent
               </button>
-
+              
+              
+              <button
+              v-if="userData.is_blocked_by_friend"
+              class="btn background-button mt-3 mx-2"
+              disabled
+              >
+              Blocked user
+              </button>
+            
               <button
                 v-if="userData.isFriend"
                 class="btn background-button mt-3 mx-2"
                 disabled
-              >
+                >
                 Already Friends
               </button>
-
+            
               <button class="btn border-button mt-3 mx-2" @click="handleSendMessage(userData)">
                 Message
               </button>
@@ -85,7 +94,8 @@ const userData = ref({
   email: '',
   avatar: '',
   isFriend: false,
-  friendRequestSent: false
+  friendRequestSent: false,
+  is_blocked: false
 });
 const userLoaded = ref(false);
 
@@ -117,6 +127,8 @@ const checkIfFriend = (friends: Friend[], userId: number) => {
 const fetchUserData = async (id: number) => {
   try {
     const response = await api.get(`auth/search-user-id/${id}/`);
+    console.log("peter")
+    console.log(response)
     userData.value = {
       id: response.user_data.id,
       username: response.user_data.username,
@@ -125,7 +137,10 @@ const fetchUserData = async (id: number) => {
       avatar: response.user_data.avatar,
       isFriend: checkIfFriend(friends.value, response.user_data.id),
       friendRequestSent: false
+
     };
+    console.log("user data")
+    console.log(userData)
     userLoaded.value = true;
   } catch (error) {
     console.error('Error fetching user data:', error);

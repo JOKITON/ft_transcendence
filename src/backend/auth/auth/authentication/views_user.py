@@ -19,7 +19,7 @@ class GetUsers(APIView):
 
     def get(self, request: Request) -> Response:
         query = request.GET.get('q', '')
-        users = User.objects.filter(username__icontains=query)  # Busca usuarios que coincidan
+        users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)  # Busca usuarios que coincidan
         user_list = []
         for user in users:
             user_list.append({
