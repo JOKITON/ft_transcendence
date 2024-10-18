@@ -29,7 +29,7 @@ let player2Name = ref(props.players[1].player);
 const three = new ThreeService(window.innerWidth, window.innerHeight);
 
 // Define bounds of the Pong game
-const bounds = { minX: -16.2, maxX: 16.2, minY: -9.2, maxY: 9.2, minZ: 0, maxZ: 0 };
+const bounds = { minX: -16.2, maxX: 16.2, minY: -9.2, maxY: 9.2, minZ: 0, maxZ: 0 }
 
 // Ball object
 const ballVectorY = Math.random() * 0.2 - 0.1;
@@ -38,9 +38,9 @@ const ballGeometry = [0.5, 10, 10];
 const ball = new Sphere(ballGeometry, new Color('white'), new Vector3(0, 0, 0), ballVelocity, bounds);
 
 // Horizontal walls
-const vecHorizWall = new Vector3(33, 0.3, 1);
-const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'));
-const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
+const vecHorizWall = new Vector3(33, 0.3, 1)
+const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'))
+const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'))
 
 const ballGeometry2 = [0.66, 10, 10];
 const luckySphere = new LuckySphere(ballGeometry2, new Color('yellow'), new Vector3(0, 0, 0));
@@ -78,20 +78,34 @@ async function loadFont() {
 }
 
 // Player objects (to be initialized later)
-let player: Player;
-let player2: Player;
+let player: Player
+let player2: Player
 
 // Scores
 let numScorePlayerOne = 0;
 let numScorePlayerTwo = 0;
 
-const isAnimating = ref(true);
-const isGameOver = ref(false);
-const winner = ref('');
+const isAnimating = ref(true)
+const isGameOver = ref(false)
+const winner = ref('')
 
 // Initialize players with the provided names
-player = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(16, 0, 0), 'ArrowUp', 'ArrowDown', player1Name.value);
-player2 = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(-16, 0, 0), 'KeyW', 'KeyS', player2Name.value);
+player = new Player(
+  new Vector3(0.4, 3, 0.5),
+  new Color('red'),
+  new Vector3(16, 0, 0),
+  'ArrowUp',
+  'ArrowDown',
+  player1Name.value
+)
+player2 = new Player(
+  new Vector3(0.4, 3, 0.5),
+  new Color('blue'),
+  new Vector3(-16, 0, 0),
+  'KeyW',
+  'KeyS',
+  player2Name.value
+)
 
 function setupScene() {
   three.addScene(helpTextSpace.get());
@@ -107,7 +121,7 @@ function setupScene() {
   three.addScene(scorePlayer2.get());
   three.addScene(luckySphere.get());
 
-  isAnimating.value = false;
+  isAnimating.value = false
 }
 
 function update() {
@@ -144,7 +158,7 @@ if (isTaken) {
         console.log(`${player.getName()} lost!`);
         endGame(player2.getName());
       }
-      ball.invertVelocity();
+      ball.invertVelocity()
     } else if (check === 2) {
       numScorePlayerOne += 1;
       scorePlayer1.updateScore(numScorePlayerOne);
@@ -154,32 +168,32 @@ if (isTaken) {
         endGame(player.getName());
       }
     } else {
-      console.error('Unexpected check value');
+      console.error('Unexpected check value')
     }
-    returnObjectsToPlace();
-    const ballVectorY = Math.random() * 0.2 - 0.1;
-    ball.setVelocityY(ballVectorY);
-    isAnimating.value = false;
-    return;
+    returnObjectsToPlace()
+    const ballVectorY = Math.random() * 0.2 - 0.1
+    ball.setVelocityY(ballVectorY)
+    isAnimating.value = false
+    return
   }
 
 }
 
 // Blinking effect for the score when a player loses
 function blinkObject(mesh: Mesh) {
-  let visible = true;
-  const blinkDuration = 800;
-  const blinkInterval = 200;
+  let visible = true
+  const blinkDuration = 800
+  const blinkInterval = 200
 
   const intervalId = setInterval(() => {
-    visible = !visible;
-    mesh.visible = visible;
+    visible = !visible
+    mesh.visible = visible
 
     setTimeout(() => {
-      clearInterval(intervalId);
-      mesh.visible = true;
-    }, blinkDuration);
-  }, blinkInterval);
+      clearInterval(intervalId)
+      mesh.visible = true
+    }, blinkDuration)
+  }, blinkInterval)
 }
 
 function returnObjectsToPlace() {
@@ -216,8 +230,8 @@ const endGame = (winningPlayer: string) => {
   three.addScene(finalScore.get());
   blinkObject(finalScore.get());
   setTimeout(() => {
-    finalScore.updateScore("Returning to home...");
-  }, 2000);
+    finalScore.updateScore('Returning to home...')
+  }, 2000)
   setTimeout(() => {
     winner.value = winningPlayer;
     isGameOver.value = true;
@@ -257,19 +271,19 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
-  three.stopAnimation();
-  three.dispose();
-  player?.dispose();
-  player2?.dispose();
-  ball.dispose();
-  horizWallDown.dispose();
-  horizWallUp.dispose();
-  wallMid.dispose();
-  scorePlayer1.dispose();
-  scorePlayer2.dispose();
-  helpTextPlayerOne.dispose();
-  helpTextPlayerTwo.dispose();
-});
+  three.stopAnimation()
+  three.dispose()
+  player?.dispose()
+  player2?.dispose()
+  ball.dispose()
+  horizWallDown.dispose()
+  horizWallUp.dispose()
+  wallMid.dispose()
+  scorePlayer1.dispose()
+  scorePlayer2.dispose()
+  helpTextPlayerOne.dispose()
+  helpTextPlayerTwo.dispose()
+})
 </script>
 
 <template>
