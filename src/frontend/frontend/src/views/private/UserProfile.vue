@@ -23,7 +23,7 @@
               </button>
 
               <button
-                v-if="userData.friendRequestSent && !userData.isFriend"
+              v-else-if="userData.friendRequestSent && !userData.isFriend"
                 class="btn background-button mt-3 mx-2"
                 disabled
               >
@@ -32,7 +32,7 @@
               
               
               <button
-              v-if="userData.is_blocked_by_friend"
+              v-else-if="userData.is_blocked"
               class="btn background-button mt-3 mx-2"
               disabled
               >
@@ -40,7 +40,7 @@
               </button>
             
               <button
-                v-if="userData.isFriend"
+                v-else-if="userData.isFriend"
                 class="btn background-button mt-3 mx-2"
                 disabled
                 >
@@ -123,6 +123,12 @@ const checkIfFriend = (friends: Friend[], userId: number) => {
   return friends.some(friend => friend.id === userId);
 };
 
+const checkIfBloked = (friends: Friend[], userId: number) => {
+  console.log('Checking if user is blocked:', friends, userId);
+  return friends.some(friend => 
+    friend.id === userId && (friend.is_blocked_by_user || friend.is_blocked_by_friend)
+  );
+};
 // Función para cargar los datos del usuario
 const fetchUserData = async (id: number) => {
   try {
@@ -136,7 +142,7 @@ const fetchUserData = async (id: number) => {
       email: response.user_data.email,
       avatar: response.user_data.avatar,
       isFriend: checkIfFriend(friends.value, response.user_data.id),
-      friendRequestSent: false
+      is_blocked: checkIfBloked(friends.value, response.user_data.id),
 
     };
     console.log("user data")
