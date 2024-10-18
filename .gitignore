@@ -5,8 +5,7 @@ networks/
 
 # BackEnd
 venv/
-.venv/
-db/
+migrations/
 __pycache__/
 *.pem
 dist/
