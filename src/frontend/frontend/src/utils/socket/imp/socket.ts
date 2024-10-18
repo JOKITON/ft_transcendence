@@ -10,17 +10,22 @@ import type ISocket from '../ISocket'
 
 export default class Socket implements ISocket {
   private ws: Websocket | null = null
+  private url: string
+  private room: string
 
   constructor(url: string = 'ws://localhost/api/v1/livechat/ws/chat/', room: string = 'test_room') {
-    this.initializeWebSocket(url, room)
+    this.url = url
+    this.room = room
   }
 
-  private initializeWebSocket(url: string, room: string) {
-    this.ws = new WebsocketBuilder(url + room)
+  public open(room?: string): void {
+    if (this.room === 'test_room') {
+      this.room = room || this.room
+    }
+    this.ws = new WebsocketBuilder(this.url + this.room)
       .withBuffer(new ArrayQueue()) // Buffer messages when disconnected
       .withBackoff(new ConstantBackoff(1000)) // Retry every 1s
       .build()
-    // Event listeners
     this.ws.addEventListener(WebsocketEvent.open, this.onOpen.bind(this))
     this.ws.addEventListener(WebsocketEvent.close, this.onClose.bind(this))
     this.ws.addEventListener(WebsocketEvent.error, this.onError.bind(this))
@@ -32,9 +37,12 @@ export default class Socket implements ISocket {
     }
   }
 
-  public send(username: string, message: string): void {
+  public send(username: string, message: string, index: number): void {
     if (this.ws) {
-      this.ws.send(JSON.stringify({ username: username, message: message }))
+      console.log('index en metodo de enviar:', index)
+      const response = JSON.stringify({ username: username, message: message, index: index })
+      console.log('Sending message:', response)
+      this.ws.send(response)
     } else {
       console.error('WebSocket is not open. Cannot send message.')
     }

@@ -21,16 +21,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
             text_data_json = json.loads(text_data)
             username = text_data_json.get("username", "Anonymous")
             message = text_data_json.get("message")
+            index = text_data_json.get("index")
             if not message:
                 await self.send(
-                    text_data=json.dumps(
-                        {"error": "El mensaje no puede estar vacío."})
+                    text_data=json.dumps({"error": "El mensaje no puede estar vacío."})
                 )
                 return
 
             await self.channel_layer.group_send(
                 self.room_group_name,
-                {"type": "chat_message", "username": username, "message": message},
+                {
+                    "type": "chat_message",
+                    "username": username,
+                    "message": message,
+                    "index": index,
+                },
             )
 
         except json.JSONDecodeError:
@@ -53,17 +58,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "event": "message",
                     "username": message.user,
                     "message": message.message,
+                    "index": message.index,
                 }
             )
             await self.send(text_data=text_data)
 
     async def chat_message(self, event):
-        await create_message(self.room_name, event["message"], event["username"])
+        await create_message(
+            self.room_name, event["message"], event["username"], event["index"]
+        )
         text_data = json.dumps(
             {
                 "event": "message",
                 "username": event["username"],
                 "message": event["message"],
+                "index": event["index"],
             }
         )
         await self.send(text_data=text_data)

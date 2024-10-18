@@ -81,7 +81,7 @@ import Chat from 'vue3-beautiful-chat' // Importa el componente de chat
 import Socket from '../../utils/socket/imp/socket'
 import { WebsocketEvent } from 'websocket-ts'
 
-import { eventBus } from './eventbus.js';
+import { eventBus } from './eventbus.js'
 
 interface Friend {
   id: number
@@ -93,10 +93,9 @@ interface Friend {
 
 const props = defineProps({
   friend: {
-   
     required: true
   }
-});
+})
 
 interface Message {
   type: string
@@ -155,13 +154,12 @@ const toggleDropdown = () => {
 }
 
 const openChat = async (friend: Friend) => {
-
   const whoami = await api.get('auth/whoami')
-    console.log('My Id:', whoami.id)
-  
+  console.log('My Id:', whoami.id)
+
   const response2 = await api.post('friendship/room', {
-      friend_id: friend.id,
-      user_id: whoami.id,
+    friend_id: friend.id,
+    user_id: whoami.id
   })
   console.log('Room:', response2.data)
   room.value = response2.data
@@ -214,10 +212,9 @@ const closeChat = (chatIndex: number) => {
 const handleChatOpen = (chatIndex: number) => {
   activeChats.value[chatIndex].isOpen = true
 }
-
 // Método para enviar mensajes
-const sendMessage = (chatIndex: number, message: any) => {
-  const chat = activeChats.value[chatIndex]
+const sendMessage = (index: number, message: any) => {
+  const chat = activeChats.value[index]
   const friend = chat.friend
 
   // Validar si tú o el amigo están bloqueados
@@ -229,13 +226,13 @@ const sendMessage = (chatIndex: number, message: any) => {
   if (message && message.data.text) {
     const text = message.data.text
     if (text.length > 0) {
+      console.log('index hasta aqui', index)
       chat.newMessagesCount = chat.isOpen ? chat.newMessagesCount : chat.newMessagesCount + 1
-      socket.send(user.value, text)
+      socket.send(user.value, text, index)
     }
   }
 }
 
-//const connectWebSocket = () => {}
 // Función para agregar el mensaje a la lista de mensajes
 const onMessageWasSent = (chatIndex: number, message: Message) => {
   const chat = activeChats.value[chatIndex]
@@ -251,15 +248,13 @@ onMounted(async () => {
     const Iam = await api.get('auth/iam')
     user.value = Iam.username
     console.log('User:', user.value)
-
-    connectWebSocket()
-    
     eventBus.on('messageSent', (data) => {
-    console.log('Message sent:', data);
-    openChat(data.friend);
-  }
-);
+      console.log('Message sent:', data)
+      openChat(data.friend)
+    })
     // Convertir isOnline a booleano
+    socket.open(room.value)
+    connectWebSocket()
     friends.value = (response.friends || []).map((friend) => ({
       ...friend,
       isOnline: friend.isOnline === 'True' // Convertir a booleano
@@ -274,8 +269,8 @@ onMounted(async () => {
 const echoOnMessage = (i: Websocket, ev: MessageEvent) => {
   const data = JSON.parse(ev.data)
   let username = data.username === user.value ? 'me' : 'friend'
-  console.log('username', username)
-  onMessageWasSent(0, {
+
+  onMessageWasSent(data.index, {
     type: 'text',
     author: username,
     data: { text: data.message }
@@ -310,8 +305,7 @@ const unblockUser = async (username: string) => {
   } catch (error) {
     console.error('Error unblocking user', error)
   }
-};
-
+}
 </script>
 
 <style scoped>
@@ -425,5 +419,4 @@ const unblockUser = async (username: string) => {
   text-align: center;
   font-family: NunitoBlack, sans-serif;
 }
-
 </style>

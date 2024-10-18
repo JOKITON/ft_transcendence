@@ -14,11 +14,11 @@ def create_room(room):
 
 
 @database_sync_to_async
-def create_message(room_name, message, username):
+def create_message(room_name, message, username, index):
     from .models import Message, Room
 
     room = Room.objects.get(room=room_name)
-    msg = Message.objects.create(room=room, message=message, user=username)
+    msg = Message.objects.create(room=room, message=message, user=username, index=index)
     msg.save()
     return msg
 
