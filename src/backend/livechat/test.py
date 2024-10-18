@@ -26,7 +26,7 @@ def on_open(ws):
 
 if __name__ == "__main__":
     ws = websocket.WebSocketApp(
-        "ws://localhost:80/api/v1/livechat/ws/chat/room/",
+        "ws://localhost/api/v1/livechat/ws/chat/room/",
         on_message=on_message,
         on_error=on_error,
         on_close=on_close,
