@@ -114,7 +114,7 @@ async function loadFont() {
       new Color('white'),
       new Vector3(-16, 3.5, 0)
     )
-    helpTextPlayerTwo = new HelpText('AI', new Color('white'), new Vector3(16, 3.5, 0))
+    helpTextPlayerTwo = new HelpText(player2Name.value, new Color('white'), new Vector3(16, 3.5, 0))
 
     finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font.value)
   })
@@ -126,8 +126,7 @@ let variableScoreTwo = 0
 let playerScores: Array<Array<number>> = [[]]
 playerScores = Array.from({ length: playerCount }, () => [])
 
-let playerHits: Array<Array<number>> = [[]]
-  playerHits = Array.from({ length: playerCount }, () => [])
+let playerHits: Array<number> = new Array(playerCount).fill(0)
 
 let posPlayers: Array<number> = new Array(8).fill(0) // Assuming an array of size 8
 
@@ -341,8 +340,8 @@ function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: n
     playerScores[oldPlayerIndex].push(variableScoreOne)
     playerScores[oldPlayerIndex + 1].push(variableScoreTwo)
 
-    playerHits[oldPlayerIndex].push(playerOne.getHits())
-    playerHits[oldPlayerIndex].push(playerTwo.getHits())
+    playerHits[oldPlayerIndex] += (playerOne.getHits())
+    playerHits[oldPlayerIndex + 1] += (playerTwo.getHits())
 
     // Set the semi-final positions
     setSemiPositions(oldPlayerIndex, 5 - matchIndex, losingPlayer)
@@ -397,6 +396,8 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
       const playerIndex = players.findIndex((p) => p.player === player)
       if (playerIndex !== -1) {
         playerScores[playerIndex].push(score)
+        if (player == playerOne.getName()) playerHits[playerIndex] += (playerOne.getHits())
+        else if (player == playerTwo.getName()) playerHits[playerIndex] += (playerTwo.getHits())
       }
     }
 
@@ -422,7 +423,7 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
           name: player.player,
           scores: playerScores[index],
           time_played: Math.floor(dateEnd - dateStart),
-          player_hits: playersHits,
+          player_hits: playerHits[index],
           position: posPlayers[index]
         })),
         final_round: {

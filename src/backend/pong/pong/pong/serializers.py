@@ -75,6 +75,7 @@ class PongGameSerializer(serializers.ModelSerializer):
         tournament = PongGame.objects.create(
             player1=p1,
             player2=p2,
+            player_ids=player_ids,
             player_hits=player_hits[0] + player_hits[1],
             player_names=player_names,
             player_scores=player_scores,

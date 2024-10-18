@@ -135,11 +135,15 @@ function setupScene() {
   isAnimating.value = false;
 }
 
+let timeElapsed = 0;
+
 function update() {
   if (!isAnimating.value) return;
   let isTaken : boolean = true;
+  let now = Date.now();
 
-  if (Date.now() % 5000 < 50) {
+  if ((now - timeElapsed) > 5000) {
+    timeElapsed = now;
     luckySphere.randomizePosition();
     three.addScene(luckySphere.get());
     isTaken = true;
@@ -151,8 +155,10 @@ function update() {
     } else {
       isTaken = luckySphere.update(ball, player);
     }
-    if (isTaken)
+    if (isTaken) {
       three.removeScene(luckySphere.get());
+      timeElapsed = now;
+    }
     isTaken = false;
   }
 

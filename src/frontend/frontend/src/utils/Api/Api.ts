@@ -8,7 +8,7 @@ export default class Api implements IApi {
 
   constructor(
     withCredentials: boolean = false,
-    url: string = 'http://localhost/api/v1',
+    url: string = 'http://localhost:3000/api/v1',
     headers: { [key: string]: string } = {
     }
   ) {

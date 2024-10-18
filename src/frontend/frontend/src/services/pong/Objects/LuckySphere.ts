@@ -67,12 +67,13 @@ export default class LuckySphere {
     }
   }
 
-  private lastUpdateTime: number = 0;
+  private timeElapsed : number = 0;
 
   public update(ball: Sphere, player: Player): number {
-    const currentTime = Date.now();
-    if (this.intersects(ball) && currentTime - this.lastUpdateTime > 1000) {
-      this.lastUpdateTime = currentTime;
+    const now = Date.now()
+    
+    if (this.intersects(ball) && (now - this.timeElapsed) > 5000) {
+      this.timeElapsed = now;
       this.applyEffects(ball, player);
       return 1;
     } else {

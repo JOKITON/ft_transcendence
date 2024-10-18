@@ -20,7 +20,7 @@ const props = defineProps({
 
 const emit = defineEmits(['gameOver']);
 
-const gameStart = Date.now() / 1000;
+const dateStart = Date.now() / 1000;
 
 // Extract initial players for the current game
 let player1Name = ref(props.players[0].player);
@@ -71,7 +71,7 @@ async function loadFont() {
     helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
 
     helpTextPlayerOne = new HelpText(player1Name.value, new Color('white'), new Vector3(-16, 3.5, 0));
-    helpTextPlayerTwo = new HelpText('AI', new Color('white'), new Vector3(16, 3.5, 0));
+    helpTextPlayerTwo = new HelpText(player2Name.value, new Color('white'), new Vector3(16, 3.5, 0));
 
     finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font.value);
   });
@@ -226,7 +226,7 @@ const endGame = (winningPlayer: string) => {
     let scores = [numScorePlayerOne, numScorePlayerTwo];
     let ids = [props.players[0].id, props.players[1].id];
     const dateEnd = Date.now() / 1000;
-    let playersHits = [player.getHits(), playerAI.getHits()];
+    let playersHits = [player.getHits(), player2.getHits()];
 
     // Emit the tournament data to the parent component
     emit('gameOver', {

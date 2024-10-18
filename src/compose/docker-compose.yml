@@ -5,8 +5,8 @@ services:
     container_name: proxy
     build: ../proxy/
     ports:
-      - 80:80
-      - 443:443
+      - 3000:3000
+      - 3443:3443
     restart: always
     volumes:
       - proxy:/proxy

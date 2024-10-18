@@ -14,7 +14,7 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 80,
+    port: 3000,
     proxy: {
       '/api/v1/auth/': {
         target: 'http://auth:80',
