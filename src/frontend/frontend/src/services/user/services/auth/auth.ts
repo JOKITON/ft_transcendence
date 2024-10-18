@@ -66,6 +66,10 @@ export default class auth implements IAuth {
         data
       )
       if (response.status === 201) {
+        let userId = response.id;
+        let userDataArray = [userId, data.nickname];
+        console.log(userDataArray);
+        this.crtPongTable(userDataArray);
         return true
       } else {
         throw (response.code);
@@ -101,10 +105,45 @@ export default class auth implements IAuth {
     }
   }
 
+  public async crtPongTable(data: Record<string, any>): Promise<boolean> {
+    try {
+      const response: ApiResponse<userResponse> = await this.api.post<userResponse>(
+        'pong/register/' + data[0] + '/',
+        { id: data[0], name: data[1] }
+      )
+      if (response.status === 200) {
+        return true
+      }
+    }
+    catch (error: any) {
+      console.error('Error registering pong data:', error)
+      return false
+    }
+  }
+
   public async whoami(): Promise<boolean> {
     try {
       const response: ApiResponse<Record<string, any>> = await this.api.get(
         'auth/whoami'
+      )
+
+      if (response && response?.status === 200) {
+        return (response)
+      } else {
+        console.error('Error getting username:', response)
+        return false
+      }
+    } catch (error: any) {
+      console.error('Error getting username:', error)
+      return false
+    }
+  }
+
+  public async pongData(id: number): Promise<boolean> {
+    try {
+      const response: ApiResponse<Record<string, any>> = await this.api.get(
+        'pong/user/' + id + '/',
+        id,
       )
 
       if (response && response?.status === 200) {

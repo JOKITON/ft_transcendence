@@ -31,13 +31,13 @@ class AllUsers(APIView):
             .objects.values(
                 "id",
                 "username",
+                "nickname",
                 "status",  # Assuming status is a field on your User model
             )
             .exclude(id=request.user.id)  # Exclude the current user
         )
         
-        return Response(data=users, status=status.HTTP_200_OK)
-
+        return Response({"data": users}, status=status.HTTP_200_OK)
 
 
 class FriendsView(APIView):
@@ -59,6 +59,7 @@ class InviteFriendView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request: Request) -> Response:
+        print("request ", request)
         serializer = InviteFriendSerializer(
             data=request.data, context={"request": request}
         )
@@ -151,6 +152,7 @@ class AcceptFriendRequestView(APIView):
         try:
             friendship = Friendship.objects.get(id=request_id, friend=user, status=Friendship.PENDING)
             friendship.status = Friendship.ACCEPTED
+            friendship.room = str(User.objects.get(id=request_id).username) +  '<-->' + str(friendship.friend.username)
             friendship.save()
 
             return Response(
@@ -162,6 +164,7 @@ class AcceptFriendRequestView(APIView):
                 {"error": "Friend request not found or already processed"},
                 status=status.HTTP_404_NOT_FOUND
             )
+
 class RejectFriendRequestView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -372,3 +375,22 @@ class UnlockUserView(APIView):
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class GetRoomView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request: Request) -> Response:
+        print(request)
+        friend_id = request.data.get("friend_id")
+        user_id = request.data.get("user_id")
+        
+        print(friend_id, user_id)
+        room = (
+            Friendship.objects.get(
+                models.Q(friend_id=friend_id, user_id=user_id) | 
+                models.Q(friend_id=user_id, user_id=friend_id)
+            ).room
+        )
+        
+        return Response({"data": room}, status=status.HTTP_200_OK)

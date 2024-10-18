@@ -1,26 +1,30 @@
 <script setup lang="ts">
-import { Vector3, Color, Mesh } from 'three'
-import { onMounted, onBeforeUnmount, ref, defineProps } from 'vue'
-import ThreeService from '../../../services/pong/ThreeService'
-import Player from '../../../services/pong/Player'
-import Sphere from '../../../services/pong/Objects/Sphere'
-import DashedWall from '../../../services/pong/Objects/DashedWall'
-import Score from '../../../services/pong/Objects/Score'
-import HelpText from '../../../services/pong/Objects/HelpText'
-import GameOver from '../../../services/pong/Objects/GameOver'
-import Wall from '../../../services/pong/Wall'
-import { handleCollisions } from '../../../services/pong/Utils'
+
+import { Vector3, Color, Mesh } from 'three';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+import ThreeService from '../../../services/pong/ThreeService';
+import Player from '../../../services/pong/Objects/Player';
+import Sphere from '../../../services/pong/Objects/Sphere';
+import DashedWall from '../../../services/pong/Objects/Text/DashedWall';
+import Score from '../../../services/pong/Objects/Text/Score';
+import HelpText from '../../../services/pong/Objects/Text/HelpText';
+import GameOver from '../../../services/pong/Objects/Text/GameOver';
+import Wall from '../../../services/pong/Objects/Wall';
+import { handleCollisions } from '../../../services/pong/Objects/Utils/Utils';
+import FontService from '../../../services/pong/Objects/Text/FontService';
+import LuckySphere from '../../../services/pong/Objects/LuckySphere';
 
 const props = defineProps({
   players: Array<Object>,
 });
+
 const emit = defineEmits(['gameOver']);
 
-// Extract initial players for the current game
-let player1Name = ref(props.players[0].player1Name)
-let player2Name = ref(props.players[0].player2Name)
+const dateStart = Date.now() / 1000;
 
-console.log('Players:', props.players[0].player1Name, props.players[0].player2Name)
+// Extract initial players for the current game
+let player1Name = ref(props.players[0].player);
+let player2Name = ref(props.players[1].player);
 
 const three = new ThreeService(window.innerWidth, window.innerHeight);
 
@@ -38,18 +42,48 @@ const vecHorizWall = new Vector3(33, 0.3, 1)
 const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'))
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'))
 
-// Vertical dashed wall
-const wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1));
+const ballGeometry2 = [0.66, 10, 10];
+const luckySphere = new LuckySphere(ballGeometry2, new Color('yellow'), new Vector3(0, 0, 0));
+
+const font = ref(undefined);
+
+let wallMid: DashedWall; // Vertical dashed wall
+let scorePlayer1: Score;
+let scorePlayer2: Score;
+let helpText: GameOver;
+
+let helpTextSpace: HelpText;
+let helpTextPlayerOne: HelpText;
+let helpTextPlayerTwo: HelpText;
+
+let finalScore: GameOver;
+
+async function loadFont() {
+  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((font) => {
+    font.value = font;  
+
+    // Vertical dashed wall
+    wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1), font.value);
+    scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font.value);
+    scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font.value);
+    helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font.value);
+
+    helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
+
+    helpTextPlayerOne = new HelpText(player1Name.value, new Color('white'), new Vector3(-16, 3.5, 0));
+    helpTextPlayerTwo = new HelpText(player2Name.value, new Color('white'), new Vector3(16, 3.5, 0));
+
+    finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font.value);
+  });
+}
 
 // Player objects (to be initialized later)
 let player: Player
 let player2: Player
 
 // Scores
-let numScorePlayerOne = 0
-let numScorePlayerTwo = 0
-const scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0))
-const scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0))
+let numScorePlayerOne = 0;
+let numScorePlayerTwo = 0;
 
 const isAnimating = ref(true)
 const isGameOver = ref(false)
@@ -73,41 +107,43 @@ player2 = new Player(
   player2Name.value
 )
 
-const helpTextSpace = new HelpText(
-  'Press space to start',
-  new Color('white'),
-  new Vector3(0, 3.5, 0)
-)
-
-const helpTextPlayerOne = new HelpText(
-  player1Name.value,
-  new Color('white'),
-  new Vector3(-16, 3.5, 0)
-)
-const helpTextPlayerTwo = new HelpText(
-  player2Name.value,
-  new Color('white'),
-  new Vector3(16, 3.5, 0)
-)
-
 function setupScene() {
-  three.addScene(helpTextSpace.get())
-  three.addScene(helpTextPlayerOne.get())
-  three.addScene(helpTextPlayerTwo.get())
-  three.addScene(horizWallUp.get())
-  three.addScene(horizWallDown.get())
-  three.addScene(wallMid.get())
-  three.addScene(player.get())
-  three.addScene(player2.get())
-  three.addScene(ball.get())
-  three.addScene(scorePlayer1.get())
-  three.addScene(scorePlayer2.get())
+  three.addScene(helpTextSpace.get());
+  three.addScene(helpTextPlayerOne.get());
+  three.addScene(helpTextPlayerTwo.get());
+  three.addScene(horizWallUp.get());
+  three.addScene(horizWallDown.get());
+  three.addScene(wallMid.get());
+  three.addScene(player.get());
+  three.addScene(player2.get());
+  three.addScene(ball.get());
+  three.addScene(scorePlayer1.get());
+  three.addScene(scorePlayer2.get());
+  three.addScene(luckySphere.get());
 
   isAnimating.value = false
 }
 
 function update() {
   if (!isAnimating.value) return;
+  let isTaken : boolean = true;
+
+if (Date.now() % 5000 < 50) {
+  luckySphere.randomizePosition();
+  three.addScene(luckySphere.get());
+  isTaken = true;
+}
+
+if (isTaken) {
+  if (ball.getVelocity().x < 0) {
+    isTaken = luckySphere.update(ball, player2);
+  } else {
+    isTaken = luckySphere.update(ball, player);
+  }
+  if (isTaken)
+    three.removeScene(luckySphere.get());
+  isTaken = false;
+}
   
   player.update();
   player2.update();
@@ -161,8 +197,9 @@ function blinkObject(mesh: Mesh) {
 }
 
 function returnObjectsToPlace() {
-  player.returnToPlace()
-  player2.returnToPlace()
+  ball.returnToPlace();
+  player.returnToPlace();
+  player2.returnToPlace();
 }
 
 let debounceTimeout: number | undefined;
@@ -187,32 +224,39 @@ function toggleAnimation(event: KeyboardEvent) {
 }
 
 const endGame = (winningPlayer: string) => {
-  const finalScore = new GameOver(
-    winningPlayer + ' won!',
-    new Color('white'),
-    new Vector3(0, 0.5, 0)
-  )
-  three.addScene(finalScore.get())
-  blinkObject(finalScore.get())
+  window.removeEventListener("keydown", toggleAnimation);
+  three.removeScene(luckySphere.get());
+  finalScore.updateScore(winningPlayer + ' wins!');
+  three.addScene(finalScore.get());
+  blinkObject(finalScore.get());
   setTimeout(() => {
     finalScore.updateScore('Returning to home...')
   }, 2000)
   setTimeout(() => {
     winner.value = winningPlayer;
     isGameOver.value = true;
+
+    let players = [player1Name.value, player2Name.value];
+    let scores = [numScorePlayerOne, numScorePlayerTwo];
+    let ids = [props.players[0].id, props.players[1].id];
+    const dateEnd = Date.now() / 1000;
+    let playersHits = [player.getHits(), player2.getHits()];
+
     // Emit the tournament data to the parent component
     emit('gameOver', {
       winner: winningPlayer,
-      name_player1: player1Name.value,
-      name_player2: player2Name.value,
-      score_player1: numScorePlayerOne,
-      score_player2: numScorePlayerTwo,
-      tournament_type: '2P'
+      player_names: players,
+      player_scores: scores,
+      player_ids: ids,
+      player_hits: playersHits,
+      time_played: Math.floor(dateEnd - dateStart),
+      tournament_type: '2P',
     });
   }, 5000);
-};
+}
 
-onMounted(() => {
+onMounted(async () => {
+  await loadFont();
   setupScene()
   setTimeout(() => {
     three.removeScene(helpTextPlayerOne.get());

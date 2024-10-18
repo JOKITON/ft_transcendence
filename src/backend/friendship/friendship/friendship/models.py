@@ -37,6 +37,8 @@ class Friendship(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
+    
+    room = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         unique_together: Tuple[str, str] = ("user", "friend")

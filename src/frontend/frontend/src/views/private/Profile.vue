@@ -1,39 +1,40 @@
 <!-- ** FALTA AÑADIR LA PARTE DE LA LISTA DE AMIGOS ** -->
 <template>
-
-  <!-- NAV DE LA PAGINA -->
-  <NavHome></NavHome>
+  <div class="pruebas">
+    <NavHome></NavHome>
+  </div>
   <div class="container">
-      <div class="row gutters-sm my-3">
+    <div class="row gutters-sm my-3">
+      
+      <!-- CARD DEL USUARIO -->
+      <div class="col-md-4 d-flex align-items-stretch user-card-container">
+        <div class="user-card w-100 m-3 d-flex justify-content-center">
+          <div class="d-flex flex-column justify-content-center align-items-center text-center">
+            <h2 class="user-name pb-3 px-3">{{ user.username }}</h2>
+            <img :src="user.avatarUrl" alt="User Avatar" class="rounded-circle m-3" width="50%">
+            <p class="user-data pt-3 pb-1">{{ user.nickname }}</p>
+            <p class="user-data pb-3 pt-1">{{ user.email }}</p>
 
-        <!-- CARD DEL USUARIO -->
-        <div class="col-md-4 d-flex align-items-stretch">
-          <div class="user-card w-100 m-3 d-flex justify-content-center">
-            <div class="d-flex flex-column justify-content-center align-items-center text-center">
-              <h2 class="user-name pb-3 px-3">{{ user.username }}</h2>
-              <img :src="user.avatarUrl" alt="User Avatar" class="rounded-circle m-3" width="50%">
-              <p class="user-data pt-3 pb-1">{{ user.nickname }}</p>
-              <p class="user-data pb-3 pt-1">{{ user.email }}</p>
-
-              <!-- BOTONES PARA EDITAR LA INFORMACION O EL AVATAR -->
-              <div>
-                <button class="btn background-button mt-3 mx-2" @click="goToEditAvatar">Edit avatar</button>
-                <button class="btn border-button mt-3 mx-2" @click="goToEditProfile">Edit profile</button>
-              </div>
+            <!-- BOTONES PARA EDITAR LA INFORMACION O EL AVATAR -->
+            <div>
+              <button class="btn background-button mt-3 mx-2" @click="goToEditAvatar">Edit avatar</button>
+              <button class="btn border-button mt-3 mx-2" @click="goToEditProfile">Edit profile</button>
             </div>
           </div>
         </div>
 
-        <!-- ESTADISTICAS DEL USUARIO -->
-        <div class="col-md-8 d-flex">
-            <Stats></Stats>
-        </div>
       </div>
-      
-    <!-- LISTA DE AMIGOS-->
-    <FriendList :userId="user.id"></FriendList>
+      <!-- ESTADISTICAS DEL USUARIO -->
+      <div class="col-md-8 d-flex stats-container">
+          <Stats v-if="userLoaded" :userId="user.id"></Stats>
+      </div>
+    </div>
+    
+    <!-- LISTA DE AMIGOS -->
+    <FriendList v-if="userLoaded" :userId="user.id" class="friend-list"></FriendList>
   </div>
 </template>
+
 
 <script setup lang="ts">
 
@@ -56,7 +57,7 @@ const Auth: auth = new auth(api)
 const router = useRouter()
 
 const user = ref({
-  id: '0',
+  id: 2,
   username: '',
   email: '',
   nickname: '',
@@ -65,11 +66,12 @@ const user = ref({
   losses: '0',
 });
 
+const userLoaded = ref(false);
 /* ----- FETCH INFORMATION ----- */
 
-async function fetchPongData() {
+/* async function fetchPongData() {
   try {
-    const response = await api.get("pong/data");
+    const response = await Auth.pongData(user.id);
     // console.log('Data sent successfully:', response.data);
     console.log(response);
   } catch (error) {
@@ -91,12 +93,12 @@ async function fetchPongData() {
       alert('Request to the backend failed. Please try again later.');
     }
   }
-};
+}; */
 
 async function fetchUserData() {
   try {
     const response = await Auth.whoami();
-    console.log(response)
+    console.log(response);
     user.value = {
       id: response.id,
       username: response.username,
@@ -104,20 +106,21 @@ async function fetchUserData() {
       nickname: response.nickname,
       avatarUrl: response.avatar ? response.avatar : avatar,
     };
-    console.log("agjhsesfejs")
-    console.log(user)
+    console.log('User data loaded:', user.value);
     user.value.avatarUrl = '/src/assets/' + user.value.avatarUrl;
 
     if (user.value.avatarUrl === '/src/assets/avatars/pepe.png') {
-      console.log("Using default avatar");
+      console.log('Using default avatar');
     } else {
       await fetchUserAvatar();
     }
+
+    // Indicar que los datos del usuario han sido cargados
+    userLoaded.value = true;
   } catch (error: any) {
     console.error('Error fetching user data:', error.message);
   }
 }
-
 async function fetchUserAvatar() {
   try {
     const response = await api.get('auth/get-avatar');
@@ -134,7 +137,7 @@ async function fetchUserAvatar() {
 
 onMounted(async () => {
   await fetchUserData();
-  await fetchPongData();
+  // await fetchPongData();
 });
 
 
@@ -163,6 +166,16 @@ const goToEditProfile = () => {
   color:#ebd2ff;
   margin-bottom: 0px;
   font-size: 1.2em;
+
 }
-  
+
+.stats-container {
+  position: relative;
+  z-index: 1; /* Mantiene las estadísticas debajo de la tarjeta */
+}
+
+.pruebas {
+  position: relative;
+  z-index: 100;
+}
 </style>

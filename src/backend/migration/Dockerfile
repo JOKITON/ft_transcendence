@@ -6,15 +6,11 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/14 23:02:29 by jaizpuru          #+#    #+#              #
-#    Updated: 2024/10/02 17:44:50 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/17 16:18:53 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM alpine:3.20
-
-LABEL traefik.enable=true
-LABEL traefik.http.routers.migration.rule="Host(`localhost`) && PathPrefix(`/api/v1/migration`)"
-LABEL traefik.http.services.migration.loadbalancer.server.port=80
 
 RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3
 

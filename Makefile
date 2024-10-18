@@ -10,7 +10,7 @@ DOCKER_IMAGES = $(addprefix ft_transcendence-,$(IMAGES))
 DOCKER_IMAGES_BACKEND = $(addprefix ft_transcendence_backend-,$(IMAGES_BACKEND))
 DOCKER_IMAGES_METRICS = $(addprefix ft_transcendence_metrics-,$(IMAGES_METRICS))
 # Add here the container names
-IMAGES = frontend reverse-proxy
+IMAGES = frontend proxy
 IMAGES_BACKEND = keys admin pong db auth migration friendship
 IMAGES_METRICS = grafana prometheus
 
@@ -37,7 +37,7 @@ VOLUMES = volumes/db volumes/dependencies
 all : up
 
 $(NETWORKS) :
-	@$(DOCKER) network inspect traefik >/dev/null 2>&1 || $(DOCKER) network create traefik && echo "Created metrics network."
+	@$(DOCKER) network inspect proxy >/dev/null 2>&1 || $(DOCKER) network create proxy && echo "Created metrics network."
 
 $(VOLUMES) :
 	@mkdir -p $(VOLUMES)
@@ -53,9 +53,9 @@ logs-backend:
 logs-metrics:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) logs
 down:
-	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) down --volumes
-	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) down --volumes
-	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) down --volumes
+	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) down --remove-orphans --volumes
+	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) down --remove-orphans --volumes
+	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) down --remove-orphans --volumes 
 clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES)
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES_BACKEND)
@@ -67,7 +67,7 @@ clean:
 fclean: down clean
 	@$(DOCKER) system prune --all --volumes --force
 
-re: down clean up
+re: down up
 
 curl: 
 	curl -X POST \

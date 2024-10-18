@@ -10,7 +10,8 @@ from .views import (
     GetFriendsById,
     RejectFriendRequestView,
     BlockUserView,
-    UnlockUserView
+    UnlockUserView,
+    GetRoomView,
     
 )
 from django.urls import path
@@ -27,5 +28,7 @@ urlpatterns = [
     path("rejectFriendReq", RejectFriendRequestView.as_view(), name="rejectFriendReq"),
     path("blockFriend", BlockUserView.as_view(), name="blockFriend"),
     path("unblockFriend", UnlockUserView.as_view(), name="unblockFriend"),
+    # Livechat
+    path("room", GetRoomView.as_view(), name="room"),
 ]
 

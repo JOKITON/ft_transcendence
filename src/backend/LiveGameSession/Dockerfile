@@ -6,16 +6,12 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/05 20:54:09 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/20 13:36:48 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/17 16:23:06 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM alpine:3:20 as builder 
 # mas adelante con el builder podriamos en una imagen posterior compilar el codigo para distribuirlo
-
-LABEL traefik.enable=true
-LABEL traefik.http.routers.LiveGameSession.rule="Host(`localhost`) && PathPrefix(`/api/v1/live`)"
-LABEL traefik.http.service.LiveGameSession.loadbalancer.server.port=80
 
 RUN apk add --no-cache \
     curl \

@@ -1,28 +1,32 @@
 <script setup lang="ts">
 
 import { Vector3, Color, Mesh } from 'three';
-import { onMounted, onBeforeUnmount, ref, defineProps, defineEmits } from 'vue';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
 import ThreeService from '../../../services/pong/ThreeService';
-import Player from '../../../services/pong/Player';
+import Player from '../../../services/pong/Objects/Player';
 import Sphere from '../../../services/pong/Objects/Sphere';
-import DashedWall from '../../../services/pong/Objects/DashedWall';
-import Score from '../../../services/pong/Objects/Score';
-import HelpText from '../../../services/pong/Objects/HelpText';
-import GameOver from '../../../services/pong/Objects/GameOver';
-import Wall from '../../../services/pong/Wall';
-import { handleCollisions } from '../../../services/pong/Utils';
+import DashedWall from '../../../services/pong/Objects/Text/DashedWall';
+import Score from '../../../services/pong/Objects/Text/Score';
+import HelpText from '../../../services/pong/Objects/Text/HelpText';
+import GameOver from '../../../services/pong/Objects/Text/GameOver';
+import Wall from '../../../services/pong/Objects/Wall';
+import { handleCollisions } from '../../../services/pong/Objects/Utils/Utils';
+import FontService from '../../../services/pong/Objects/Text/FontService';
+import LuckySphere from '../../../services/pong/Objects/LuckySphere';
 
 const props = defineProps({
-  players: Array<Object>,
-  aiDifficulty: Number,
+  isAudioEnabled: Boolean,
+  players: Array,
+  aiDifficulty: Number
 });
+
+const dateStart = Date.now() / 1000;
 
 const emit = defineEmits(['gameOver']);
 
-
 // Extract initial players for the current game
-let player1Name = ref(props.players[0].player1Name);
-console.log('Player:', props.players[0].player1Name);
+let player1Name = ref(props.players[0].player);
+console.log('Player:', props.players[0].player);
 
 const songElement = ref(null); // Reference to the audio element
 
@@ -61,8 +65,40 @@ const vecHorizWall = new Vector3(33, 0.3, 1);
 const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'));
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
 
-// Vertical dashed wall
-const wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1));
+const ballGeometry2 = [0.66, 10, 10];
+const luckySphere = new LuckySphere(ballGeometry2, new Color('yellow'), new Vector3(0, 0, 0));
+
+const font = ref(undefined);
+
+let wallMid: DashedWall; // Vertical dashed wall
+let scorePlayer1: Score;
+let scorePlayerAI: Score;
+let helpText: GameOver;
+
+let helpTextSpace: HelpText;
+let helpTextPlayerOne: HelpText;
+let helpTextPlayerTwo: HelpText;
+
+let finalScore: GameOver;
+
+async function loadFont() {
+  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((font) => {
+    font.value = font;  
+
+    // Vertical dashed wall
+    wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1), font.value);
+    scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font.value);
+    scorePlayerAI = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font.value);
+    helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font.value);
+
+    helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
+
+    helpTextPlayerOne = new HelpText(player1Name.value, new Color('white'), new Vector3(-16, 3.5, 0));
+    helpTextPlayerTwo = new HelpText('AI', new Color('white'), new Vector3(16, 3.5, 0));
+
+    finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font.value);
+  });
+}
 
 // Player objects (to be initialized later)
 let player: Player;
@@ -71,10 +107,6 @@ let playerAI: Player;
 // Scores
 let numScorePlayerOne = 0;
 let numScorePlayerTwo = 0;
-const scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0));
-const scorePlayerAI = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0));
-
-const helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0));
 
 const isAnimating = ref(true);
 const isGameOver = ref(false);
@@ -84,11 +116,6 @@ const winner = ref('');
 player = new Player(new Vector3(0.4, 3, 0.5), new Color('red'), new Vector3(-16, 0, 0), 'ArrowUp', 'ArrowDown', player1Name.value);
 playerAI = new Player(new Vector3(0.4, 3, 0.5), new Color('blue'), new Vector3(16, 0, 0), '', '', 'AI');
 playerAI.setAiDifficulty(Number(props.aiDifficulty));
-
-const helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
-
-const helpTextPlayerOne = new HelpText(player1Name.value, new Color('white'), new Vector3(-16, 3.5, 0));
-const helpTextPlayerTwo = new HelpText('AI', new Color('white'), new Vector3(16, 3.5, 0));
 
 function setupScene() {
   three.addScene(helpTextSpace.get());
@@ -103,12 +130,37 @@ function setupScene() {
   three.addScene(ball.get());
   three.addScene(scorePlayer1.get());
   three.addScene(scorePlayerAI.get());
+  three.addScene(luckySphere.get());
 
   isAnimating.value = false;
 }
 
+let timeElapsed = 0;
+
 function update() {
   if (!isAnimating.value) return;
+  let isTaken : boolean = true;
+  let now = Date.now();
+
+  if ((now - timeElapsed) > 5000) {
+    timeElapsed = now;
+    luckySphere.randomizePosition();
+    three.addScene(luckySphere.get());
+    isTaken = true;
+  }
+
+  if (isTaken) {
+    if (ball.getVelocity().x < 0) {
+      isTaken = luckySphere.update(ball, playerAI);
+    } else {
+      isTaken = luckySphere.update(ball, player);
+    }
+    if (isTaken) {
+      three.removeScene(luckySphere.get());
+      timeElapsed = now;
+    }
+    isTaken = false;
+  }
 
   let check = ball.update();
   if (check) {
@@ -165,6 +217,7 @@ function blinkObject(mesh: Mesh) {
 }
 
 function returnObjectsToPlace() {
+  ball.returnToPlace();
   player.returnToPlace();
   playerAI.returnToPlace();
 }
@@ -192,7 +245,8 @@ function toggleAnimation(event: KeyboardEvent) {
 
 const endGame = (winningPlayer: string) => {
   window.removeEventListener("keydown", toggleAnimation);
-  const finalScore = new GameOver(winningPlayer + ' won!', new Color('white'), new Vector3(0, 0.5, 0));
+  three.removeScene(luckySphere.get());
+  finalScore.updateScore(winningPlayer + ' wins!');
   three.addScene(finalScore.get());
   blinkObject(finalScore.get());
   setTimeout(() => {
@@ -202,19 +256,27 @@ const endGame = (winningPlayer: string) => {
     winner.value = winningPlayer;
     isGameOver.value = true;
 
+    let players = [player1Name.value, 'AI'];
+    let ids = [props.players[0].id, 0];
+    let scores = [numScorePlayerOne, numScorePlayerTwo];
+    const dateEnd = Date.now() / 1000;
+    let playersHits = [player.getHits(), playerAI.getHits()];
+
     // Emit the tournament data to the parent component
     emit('gameOver', {
       winner: winningPlayer,
-      player1: player1Name.value,
-      player2: 'AI',
-      score_player1: numScorePlayerOne,
-      score_player2: numScorePlayerTwo,
-      tournament_type: 'AI'
+      player_names: players,
+      player_scores: scores,
+      player_ids: ids,
+      player_hits: playersHits,
+      time_played: Math.floor(dateEnd - dateStart),
+      tournament_type: 'AI',
     });
   }, 5000);
 };
 
-onMounted(() => {
+onMounted(async () => {
+  await loadFont();
   setupScene()
   setTimeout(() => {
     three.removeScene(helpTextPlayerOne.get());
@@ -241,11 +303,14 @@ onBeforeUnmount(() => {
   helpTextPlayerOne.dispose();
   helpTextPlayerTwo.dispose();
 });
+
 </script>
 
 <template>
-  <audio ref="songElement" preload="auto" style="display: none">
-    <source src="/src/assets/songs/ping-pong.mp3" type="audio/mp3">
-  </audio>
+  <div>
+    <audio controls autoplay v-if="props.isAudioEnabled == true" ref="songElement" preload="auto" style="display: none">
+      <source src="/src/assets/songs/opening-movie.mp3" type="audio/mp3">
+    </audio>
+  </div>
   <div></div>
 </template>

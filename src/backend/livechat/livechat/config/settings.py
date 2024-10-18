@@ -38,10 +38,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:80",
-    "https://localhost:443",
+    "http://localhost:3000",
+    "https://localhost:3443",
     "http://localhost",
     "https://localhost",
 ]
@@ -63,7 +62,6 @@ SIMPLE_JWT = {
 }
 
 ASGI_APPLICATION = "livechat.asgi.application"
-
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_HTTPONLY = True
@@ -77,12 +75,11 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [
-                ("127.0.0.1", 6379)
-            ],  # Asegúrate de que Redis esté ejecutándose en esta dirección
+            "hosts": [("redis", 6379)],
         },
     },
 }
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -101,9 +98,17 @@ TEMPLATES = [
 
 ASGI_APPLICATION = "config.asgi.application"
 
-
-DATABASES = {"default": dj_database_url.config(
-    default=os.environ.get("DATABASE_URL"))}
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("POSTGRES_DB"),
+        "USER": os.environ.get("POSTGRES_USER"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+        "HOST": os.environ.get("POSTGRES_HOST"),
+        "PORT": os.environ.get("POSTGRES_PORT"),
+    }
+}
+# DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [

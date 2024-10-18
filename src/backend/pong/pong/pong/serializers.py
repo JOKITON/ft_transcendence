@@ -1,77 +1,97 @@
 from rest_framework import serializers
 from .models import PongGame, Tournament8P
-from .models import Player, FinalRound, SemiFinal, Tournament8P
-
-"""     def to_internal_value(self, data):
-        # Convert player1, player2, and winner nicknames to Player instances
-        data = data.copy()  # Make a mutable copy of the data
-
-        data['player1'] = self.get_player_by_name(data.get('player1'))
-        data['player2'] = self.get_player_by_name(data.get('player2'))
-        data['winner'] = self.get_player_by_name(data.get('winner'))
-
-        return super().to_internal_value(data) """
+from .models import Player, FinalRound, SemiFinal, Tournament8P, Tournament4P
 
 class PongGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = PongGame
-        fields = ['winner', 'name_player1', 'name_player2', 'id_player1', 'id_player2', 'score_player1', 'score_player2', 'tournament_type']
+        fields = ['winner', 'player_ids', 'player_names', 'player_scores', 'player_hits', 'time_played', 'tournament_type']
 
-    def get_player_by_id(self, player_id):
-        try:
-            # Fetch the Player instance by its ID
-            return Player.objects.get(id=player_id)
-        except Player.DoesNotExist:
-            raise serializers.ValidationError(f"Player with ID '{player_id}' does not exist.")
-    
-    def create_players(self, player_data):
-        player1 = self.get_player_by_id(player_data['id_player1'])
-        player2 = self.get_player_by_id(player_data['id_player2'])
+    def create_player(self, player_data):
+        player, created = Player.objects.get_or_create(
+            id=player_data['id'],  # Match by ID
+            defaults={
+                'name': player_data['name_player'],
+                'total_games': 0,
+                'total_score': 0,
+            }
+        )
 
-        # Update scores and stats
-        player1.score += player_data['score_player1']
-        player2.score += player_data['score_player2']
-
-        if player_data['winner'] == player_data['name_player1']:
-            player1.wins += 1
-            player2.losses += 1
+        if not created:
+            # Calculate the new average score considering the new game's score
+            player.scores.append(player_data['score_player'])
+            player.total_score += player_data['score_player']
+            player.time_played += player_data['time_played']
+            player.hits += player_data['player_hits']
         else:
-            player2.wins += 1
-            player1.losses += 1
+            # For a new player, the average score is the current score
+            player.scores.append(player_data['score_player'])
+            player.total_score = player_data['score_player']
+            player.time_played = player_data['time_played']
+            player.hits = player_data['player_hits']
 
-        player1.total_games += 1
-        player2.total_games += 1
+        # Update wins, losses, and total games
+        if player_data['winner'] == player_data['name_player']:
+            player.wins += 1
+        else:
+            player.losses += 1
 
-        player1.save()
-        player2.save()
+        player.total_games += 1
+        player.save()
 
-        return player1, player2
+        return player
 
     def create(self, validated_data):
-        # Extract and remove player info from validated_data
-        player_data = {
-            'id_player1': validated_data.pop('id_player1'),
-            'id_player2': validated_data.pop('id_player2'),
-            'name_player1': validated_data['name_player1'],
-            'name_player2': validated_data['name_player2'],
-            'score_player1': validated_data['score_player1'],
-            'score_player2': validated_data['score_player2'],
-            'winner': validated_data['winner']
-        }
+        # Extract lists of player IDs, names, and scores
+        player_ids = validated_data['player_ids']
+        player_names = validated_data['player_names']
+        player_scores = validated_data['player_scores']
+        time_played = validated_data['time_played']
+        player_hits = validated_data['player_hits']
+        winner = validated_data['winner']
+        tournament_type = validated_data['tournament_type']
         
-        # Create or update players
-        p1, p2 = self.create_players(player_data)
+        players = []
+
+        # Iterate over the lists to create player_data dictionaries
+        for i in range(len(player_ids)):
+            player_data = {
+                'id': player_ids[i],
+                'name_player': player_names[i],
+                'score_player': player_scores[i],
+                'time_played': time_played,
+                'player_hits': player_hits[i],
+                'winner': winner
+            }
+            print(player_data)  # Example operation
+
+            # Create or update player instances
+            player = self.create_player(player_data)
+            players.append(player)
         
-        # Create the PongGame instance with proper Player foreign keys
+        p1, p2 = players;
+
+        # Create the PongGame instance with the Player ForeignKey relations
         tournament = PongGame.objects.create(
-            id_player1=p1, id_player2=p2, **validated_data
+            player1=p1,
+            player2=p2,
+            player_ids=player_ids,
+            player_hits=player_hits[0] + player_hits[1],
+            player_names=player_names,
+            player_scores=player_scores,
+            winner=winner,
+            tournament_type=tournament_type,
         )
+
         return tournament
 
 class PlayerSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)  # Ensure id is included and not required
+    position = serializers.IntegerField(source='last_position')  # Map 'last_position' to 'position' in the model
+
     class Meta:
         model = Player
-        fields = ['name', 'score', 'position']
+        fields = ['id', 'name', 'scores', 'position']
 
 class FinalRoundSerializer(serializers.ModelSerializer):
     class Meta:
@@ -79,7 +99,7 @@ class FinalRoundSerializer(serializers.ModelSerializer):
         fields = ['player_one', 'player_two', 'winner', 'loser']
 
 class SemiFinalSerializer(serializers.ModelSerializer):
-    class Meta:
+    class Meta: 
         model = SemiFinal
         fields = ['semi_one', 'semi_two', 'semi_three', 'semi_four']
 
@@ -118,6 +138,7 @@ class Tournament8PSerializer(serializers.ModelSerializer):
 
         # Create Tournament
         tournament = Tournament8P.objects.create(
+            players=players,
             final_round=final_round,
             semi_finals=semi_finals,
             tournament_type=validated_data.get('tournament_type', '8P')
@@ -125,3 +146,88 @@ class Tournament8PSerializer(serializers.ModelSerializer):
         tournament.players.set(players)  # Assign players to the tournament
 
         return tournament
+
+class Tournament4PSerializer(serializers.ModelSerializer):
+    players = PlayerSerializer(many=True)
+    final_round = FinalRoundSerializer()
+
+    class Meta:
+        model = Tournament4P
+        fields = ['players', 'final_round', 'tournament_type']
+        
+    def create_player(self, player_data):
+        player, created = Player.objects.get_or_create(
+            id=player_data['id'],
+            defaults={
+                'name': player_data['name'],
+                'total_games': 0,
+                'total_score': 0,
+            }
+        )
+
+        if not created:
+            # Append the new scores to the existing scores array
+            player.scores = player.scores + player_data['scores']
+            player.total_score += sum(player_data['scores'])
+            player.total_games += len(player_data['scores'])
+            player.hits += player_data['player_hits']
+            player.time_played += player_data['time_played']
+            
+            # Update the position to create the average
+            player.avg_position = (player.avg_position + player_data['last_position']) / 2
+        else:
+            # Initialize the scores array with the current scores
+            player.scores = player_data['scores']
+            player.total_score = sum(player_data['scores'])
+            player.total_games = len(player_data['scores'])
+            player.hits = player_data['player_hits']
+            # Create first position
+            player.avg_position = player_data['last_position']
+            player.time_played = player_data['time_played']
+
+        player.last_position=player_data['last_position']
+        # Update wins &  losses
+        if player_data['last_position'] == 1:
+            player.wins += 2
+        if player_data['last_position'] == 2:
+            player.wins += 1
+            player.losses += 1
+        if player_data['last_position'] > 2:
+            player.losses += 1
+
+        player.save()
+        return player
+
+    def create(self, validated_data):
+        players_data = validated_data.pop('players')
+        final_round_data = validated_data.pop('final_round')
+
+        # Create Players
+        players = []
+        for player_data in players_data:
+            player = self.create_player(player_data)
+            players.append(player)
+
+        # Create Final Round
+        final_round = FinalRound.objects.create(
+            player_one=final_round_data['player_one'],
+            player_two=final_round_data['player_two'],
+            winner=final_round_data['winner'],
+            loser=final_round_data['loser'],
+        )
+
+        # Create Tournament
+        tournament = Tournament4P.objects.create(
+            final_round=final_round,
+            tournament_type=validated_data.get('tournament_type', '4P')
+        )
+        tournament.players.set(players)  # Assign players to the tournament
+
+        return tournament
+
+class LeaderBoardSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Player
+        fields = ['id', 'name', 'wins']
+    

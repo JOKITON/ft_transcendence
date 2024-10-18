@@ -1,5 +1,5 @@
 import { Color, Mesh, MeshBasicMaterial, SphereGeometry, Vector3, Sphere as ThreeSphere } from 'three';
-import Player from './../Player'
+import Player from './Player'
 
 export default class Sphere {
   protected mesh: Mesh;
@@ -45,6 +45,10 @@ export default class Sphere {
 
   public getVelocity(): boolean {
     return (this.velocity.x > 0);
+  }
+
+  public resize(size: number): void {
+    this.mesh.scale.set(size, size, size);
   }
 
   update(): number {
@@ -103,7 +107,10 @@ export default class Sphere {
   public intersects(other: Player): boolean {
     const thisSphere = this.getBoundingSphere();
     const otherSphere = other.getBoundingSphere();
-    return thisSphere.intersectsSphere(otherSphere);
+    const ret : boolean = thisSphere.intersectsSphere(otherSphere);
+    if (ret)
+      other.addHit();
+    return ret;
   }
 
   public invertVelocity(): void {
@@ -116,6 +123,13 @@ export default class Sphere {
       this.velocity.y -= (randNum * 0.1);
     else  
       this.velocity.y += (randNum * 0.1);
+  }
+
+  public returnToPlace(): void {
+    this.mesh.position.x = 0;
+    this.mesh.position.y = 0;
+    this.mesh.position.z = 0;
+    this.mesh.scale.set(1, 1, 1);
   }
 
   public setPosition(pos: Vector3) {

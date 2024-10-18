@@ -1,4 +1,4 @@
-import type Player from '../Player'
+import type Player from '../Objects/Player'
 import type TreeService from '../ThreeService'
 
 export default interface IPongGame {

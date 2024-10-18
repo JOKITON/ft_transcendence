@@ -20,19 +20,77 @@
 
 /* ----- IMPORTS ----- */
 
-import { ref } from 'vue';
+import type Api from '@/utils/Api/Api'
+import auth from '../../services/user/services/auth/auth.ts'
+import { useRouter } from 'vue-router'
+import { onMounted, ref, inject } from 'vue';
 import { Carousel, Slide, Pagination } from 'vue3-carousel';
 import avatar from '../../assets/avatars/pepe.png';
 import img1 from '../../assets/avatars/trofeo.png';
 import img2 from '../../assets/avatars/perder.png';
 import img3 from '../../assets/avatars/maquina-de-arcade.png';
 
-const items = ref([
-  { category: 'Victorias', value: '10', image: ref(img1) },
-  { category: 'Derrotas', value: '10', image: ref(img2) },
-  { category: 'Partidas Jugadas', value: '10', image: ref(img3) },
-  { category: 'Duracion de Partida', value: '10', image: ref(avatar) }
-]);
+const api: Api = inject('$api') as Api;
+const Auth: auth = new auth(api)
+
+const props = defineProps({
+  userId: {
+    type: Number,
+    required: true
+  }
+});
+
+const userPongData = ref({
+  name: '',
+  wins: 0,
+  losses: 0,
+  total_games: 0,
+  avg_score: 0,
+});
+
+const items = ref([]);
+
+onMounted(async () => {
+  await fetchPongData();
+  await updateItems();
+});
+
+async function updateItems() {
+  items.value = [
+    { category: 'Victorias', value: userPongData.value.wins, image: ref(img1) },
+    { category: 'Derrotas', value: userPongData.value.losses, image: ref(img2) },
+    { category: 'Partidas Jugadas', value: userPongData.value.total_games, image: ref(img3) },
+    { category: 'Media de puntuacion', value: userPongData.value.avg_score, image: ref(avatar) },
+    { category: 'Duracion de Partida', value: userPongData.value.time_played, image: ref(avatar) },
+    { category: 'Remates', value: userPongData.value.hits, image: ref(avatar) },
+  ];
+}
+
+async function fetchPongData() {
+  try {
+    const response = await Auth.pongData(props.userId);
+    // console.log('Data sent successfully:', response.data);
+    userPongData.value = response;
+  } catch (error) {
+    console.error('Error sending data:', error);
+
+    if (error.response) {
+      const message = error.response.data.message || 'An error occurred.';
+      const errors = error.response.data.errors || {};
+
+      let errorMessage = `Request failed. ${message}`;
+      if (Object.keys(errors).length > 0) {
+        errorMessage += '\nErrors:\n';
+        for (const [field, msgs] of Object.entries(errors)) {
+          errorMessage += `${field}: ${msgs.join(', ')}\n`;
+        }
+      }
+      alert(errorMessage);
+    } else {
+      alert('Request to the backend failed. Please try again later.');
+    }
+  }
+};
 
 </script>
 
@@ -40,6 +98,8 @@ const items = ref([
 
 .carousel * {
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 .stat-title{
@@ -63,6 +123,7 @@ const items = ref([
   justify-content: center;
   align-items: center;
   position: relative;
+  z-index: 1; 
 }
 
 .shield {
@@ -101,17 +162,18 @@ const items = ref([
 .carousel__slide--active {
   opacity: 1;
   transform: scale(1);
+  z-index: 1; 
 }
 
 .carousel__slide--sliding {
   transition: 0.5s ease;
 }
 
-::v-deep .carousel__pagination-button::after {
+:deep(.carousel__pagination-button::after) {
   background-color:rgba(19, 14, 43, 0.9);
 }
 
-::v-deep .carousel__pagination-button--active::after {
+:deep(.carousel__pagination-button--active::after) {
   background-color: #e74c3c;
 }
 

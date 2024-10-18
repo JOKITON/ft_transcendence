@@ -1,14 +1,45 @@
 <template>
-  <NavHome></NavHome>
-  <main class="px-3">
-    <h1>Hello {{ username }},</h1>
-    <p class="lead">
-      Cover is a one-page template for building simple and beautiful home pages. Download, edit the
-      text, and add your own fullscreen background photo to make it your own.
-    </p>
-    <p class="lead">
-      <a href="" class="btn btn-lg btn-light fw-bold border-white bg-white">Learn more</a>
-    </p>
+  <div class="pruebas">
+    <NavHome></NavHome>
+  </div>
+  <main class="home-wrapper">
+    <!-- Sección de bienvenida con el tema de Pong -->
+    <section class="welcome-section">
+      <div class="overlay"></div>
+      <div class="welcome-content">
+        <h1>Welcome to Magic Super Mega Pong, {{ username }}</h1>
+        <p>Challenge yourself and compete with players from around the world.</p>
+        <button @click="goToPong" class="btn btn-lg btn-primary">Start Playing</button>
+      </div>
+    </section>
+
+    <!-- Sección de información personalizada -->
+    <section class="info-section">
+      <div class="info-card">
+        <div class="icon">
+          <i class="fas fa-gamepad"></i>
+        </div>
+        <h2>Play a Game</h2>
+        <p>Jump into a match and test your skills.</p>
+        <button @click="goToPong" class="btn btn-outline-light">Play Now</button>
+      </div>
+      <div class="info-card">
+        <div class="icon">
+          <i class="fas fa-user-friends"></i>
+        </div>
+        <h2>Challenge Friends</h2>
+        <p>Invite your friends and see who comes out on top.</p>
+        <button @click="goToFriends" class="btn btn-outline-light">Challenge Friends</button>
+      </div>
+      <div class="info-card">
+        <div class="icon">
+          <i class="fas fa-cog"></i>
+        </div>
+        <h2>Profile Settings</h2>
+        <p>Customize your avatar and update your profile information.</p>
+        <button @click="goToSettings" class="btn btn-outline-light">Edit Profile</button>
+      </div>
+    </section>
   </main>
 </template>
 
@@ -18,10 +49,11 @@ import { useRouter } from 'vue-router'
 import NavHome from './NavHome.vue'
 import auth from '../../services/user/services/auth/auth.ts'
 import type Api from '@/utils/Api/Api'
+
 // Variables reactivas
 const isProfileVisible = ref(false)
 const isDropdownVisible = ref(false)
-const username = ref('User') // Valor por defecto, será actualizado más adelante
+const username = ref('PongPlayer') // Valor inicial personalizado
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 const router = useRouter()
@@ -49,20 +81,31 @@ const logoutUser = async () => {
 const fetchUsername = async () => {
   try {
     const response = await Auth.whoami()
-    username.value = response.username // Reemplazar con la estructura real de tu respuesta
+    username.value = response.username
   } catch (error) {
     console.error('Error fetching username:', error.response ? error.response.data : error.message)
   }
 }
 
-// Función para alternar el menú desplegable
-const toggleDropdown = () => {
-  isDropdownVisible.value = !isDropdownVisible.value
+// Funciones de navegación
+const goToHome = () => { 
+  router.push('/home')
 }
 
-// Funciones de manejo de perfil y configuración
-const openSettings = () => {
-  alert('Settings clicked')
+const goToPong = () => {
+  router.push('/pong')
+}
+
+const goToSettings = () => {
+  router.push('/edit-profile')
+}
+
+const goToProfile = () => {
+  router.push('/profile')
+}
+
+const goToFriends = () => {
+  router.push('/friends')
 }
 
 // Lifecycle hook similar a `created` en Options API
@@ -70,94 +113,140 @@ onMounted(async () => {
   await fetchUsername()
 })
 </script>
-<style>
-@import url('https://cdn.jsdelivr.net/npm/@docsearch/css@3');
 
-header {
-  background-color: white;
+<style scoped>
+.home-wrapper {
+  font-family: 'Nunito', sans-serif;
+  color: #ffffff;
 }
 
-main {
-  background-color: #343a40;
-  color: whitesmoke;
+/* Sección de bienvenida */
+.welcome-section {
+  position: relative;
+  background-image: url('https://your-background-image-url.jpg'); /* Cambia por tu imagen */
+  background-size: cover;
+  background-position: center;
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
 }
 
-.bd-placeholder-img {
-  font-size: 1.125rem;
-  text-anchor: middle;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6); /* Efecto de oscurecimiento */
+  z-index: 1;
 }
 
-@media (min-width: 768px) {
-  .bd-placeholder-img-lg {
-    font-size: 3.5rem;
-  }
-}
-
-.b-example-divider {
-  width: 100%;
-  height: 3rem;
-  background-color: rgba(0, 0, 0, 0.1);
-  border: solid rgba(0, 0, 0, 0.15);
-  border-width: 1px 0;
-  box-shadow:
-    inset 0 0.5em 1.5em rgba(0, 0, 0, 0.1),
-    inset 0 0.125em 0.5em rgba(0, 0, 0, 0.15);
-}
-
-.b-example-vr {
-  flex-shrink: 0;
-  width: 1.5rem;
-  height: 100vh;
-}
-
-.bi {
-  vertical-align: -0.125em;
-  fill: currentColor;
-}
-
-.nav-scroller {
+.welcome-content {
   position: relative;
   z-index: 2;
-  height: 2.75rem;
-  overflow-y: hidden;
 }
 
-.nav-scroller .nav {
+.welcome-content h1 {
+  font-family: Titulo, sans-serif;
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.welcome-content p {
+  font-family: Titulo, sans-serif;
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+
+.welcome-content button {
+  font-family: Titulo, sans-serif;
+  font-size: 1.1rem;
+  padding: 10px 30px;
+  cursor: pointer;
+}
+
+/* Sección de información */
+.info-section {
   display: flex;
-  flex-wrap: nowrap;
-  padding-bottom: 1rem;
-  margin-top: -1px;
-  overflow-x: auto;
+  justify-content: space-around;
+  padding: 40px 20px;
+  background-color: #223d5a;
+  flex-wrap: wrap;
+}
+
+.info-card {
+  background-color: #2c506f;
   text-align: center;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
+  padding: 20px;
+  border-radius: 10px;
+  width: 22%;
+  margin: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.btn-bd-primary {
-  --bd-violet-bg: #712cf9;
-  --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
-
-  --bs-btn-font-weight: 600;
-  --bs-btn-color: var(--bs-white);
-  --bs-btn-bg: var(--bd-violet-bg);
-  --bs-btn-border-color: var(--bd-violet-bg);
-  --bs-btn-hover-color: var(--bs-white);
-  --bs-btn-hover-bg: #6528e0;
-  --bs-btn-hover-border-color: #6528e0;
-  --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
-  --bs-btn-active-color: var(--bs-btn-hover-color);
-  --bs-btn-active-bg: #5a23c8;
-  --bs-btn-active-border-color: #5a23c8;
+.info-card .icon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
 }
 
-.bd-mode-toggle {
-  z-index: 1500;
+.info-card h2 {
+  font-family: Titulo, sans-serif;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
 }
 
-.bd-mode-toggle .dropdown-menu .active .bi {
-  display: block !important;
+.info-card p {
+  font-family: Titulo, sans-serif;
+  margin-bottom: 20px;
+}
+
+.info-card button {
+  font-family: Titulo, sans-serif;
+  font-size: 1rem;
+  padding: 8px 20px;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.info-card button:hover {
+  background-color: #ffffff;
+  color: #223d5a;
+}
+
+.play-card .icon {
+  color: #28a745; /* Verde para el icono de juego */
+}
+
+.play-card button {
+  font-family: Titulo, sans-serif;
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.play-card button:hover {
+  background-color: #218838;
+  border-color: #218838;
+}
+
+/* Estilo de los botones */
+.btn-primary {
+  font-family: Titulo, sans-serif;
+  background-color: #ff8c42;
+  border-color: #ff8c42;
+}
+
+.btn-primary:hover {
+  background-color: #ff6f1f;
+  border-color: #ff6f1f;
+}
+
+.pruebas {
+  position: relative;
+  z-index: 100;
 }
 </style>
