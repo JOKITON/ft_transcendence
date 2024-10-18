@@ -1,6 +1,7 @@
 <template>
     <div class="form-container">
         <div class="form-content">
+            <h2 class="title">Play Menu</h2>
             <form @submit.prevent="startGame" class="game-form">
                 <div class="d-flex justify-content-center mt-4">
                     <!-- Toggle buttons for Online/Offline mode -->
@@ -98,10 +99,14 @@
                     v-if="gameMode && (gameMode === 'onePlayer' || (gameMode === 'twoPlayer' && users.length >= 2) || (gameMode === 'eightPlayer' && (users.length == 4 || users.length == 8)))"
                     type="submit" class="btn btn-primary mt-4">Start Game</button>
             </form>
-
+             </div>
+            <div class="trophy-container">
+		        <img :src="img1" alt="Trophy" class="trophy-image" />
+	        </div>
             <!-- Leaderboard Section -->
-            <div v-if="gameMode == false" class="leaderboard mt-10000">
-                <h6 class="d-flex align-items-center mb-3">Leaderboard</h6>
+            <div class="leaderboard-container">
+            <div v-if="gameMode == false" class="leaderboard">
+                <h6 class="leaderboard-title">Leaderboard</h6>
                 <ul class="list-group">
                     <li v-for="(user, index) in leaderboard" :key="user.id"
                         class="list-group-item d-flex justify-content-between align-items-center">
@@ -115,14 +120,15 @@
                     </li>
                 </ul>
             </div>
+            </div>
         </div>
-    </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, computed, inject } from 'vue';
 import type Api from '@/utils/Api/Api'
 import auth from '../../../services/user/services/auth/auth.ts'
+import img1 from '../../../assets/avatars/trofeo.png';
 
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
@@ -297,10 +303,31 @@ const startGame = () => {
 }
 
 .form-content {
-	background-color: white;
-	padding: 20px;
-	border-radius: 8px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	background-color: #f9f9f9;
+	padding: 30px;
+	border-radius: 16px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+	width: 100%;
+	max-width: 500px;
+	font-family: Titulo, sans-serif;
+}
+
+.title {
+	font-family: Titulo, sans-serif;
+	font-size: 2rem;
+	color: #007bff;
+	margin-bottom: 1.5rem;
+	text-align: center;
+}
+
+.game-form {
+	width: 100%;
+}
+.toggle-btn {
+	font-size: 1.2rem;
+	font-weight: bold;
+	padding: 0.75rem 1.5rem;
+	border-radius: 12px;
 }
 
 h3 {
@@ -379,14 +406,21 @@ h3 {
 }
 
 .leaderboard {
-	margin-top: 2rem;
+	background-color: #2c3e50;
+	padding: 1.5rem;
+	border-radius: 20px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+	width: 100%;
+	max-width: 500px;
+}
+.list-group-item {
+	background-color: #34495e;
+	border-radius: 12px;
+	color: #ecf0f1;
+	border: none;
+	margin-bottom: 0.5rem;
 }
 
-.list-group-item {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
 
 .status-indicator {
 	display: inline-block;
@@ -403,4 +437,28 @@ h3 {
 .bg-danger {
 	background-color: #dc3545;
 }
+.trophy-image {
+	width: 150px;
+	height: auto;
+    justify-content: center;
+}
+.trophy-container {
+	margin-top: 2rem;
+    justify-content: center;
+}
+.leaderboard-container {
+	margin-top: 2rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.leaderboard-title {
+	font-family: Titulo, sans-serif;
+	font-size: 1.5rem;
+	color: #ecf0f1;
+	text-align: center;
+	margin-bottom: 1rem;
+}
+
+
 </style>
