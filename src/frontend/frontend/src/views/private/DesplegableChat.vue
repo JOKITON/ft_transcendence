@@ -158,31 +158,38 @@ const toggleDropdown = () => {
 
 const openChat = async (friend: Friend) => {
   const whoami = await api.get('auth/whoami')
-  console.log('My Id:', whoami.id)
-  console.log('lastOpenedChat:', lastOpenedChat.value)
-  console.log('Friend:', friend)
-
+  console.log('Whoamiantes de room:', whoami)
+  console.log('Friend antes de room:', friend)
   const response2 = await api.post('friendship/room', {
     friend_id: friend.id,
     user_id: whoami.id
   })
-  console.log('Room:', response2)
+  console.log('response2:', response2)
   room.value = response2.room
   room_id.value = response2.room_id
-  console.log('Opening chat with:', friend.username)
-  if (!friend) {
-    friend = lastOpenedChat.value
-  }
+
   // Cierra todos los chats abiertos
   activeChats.value.forEach((chat) => {
+    if (chat.socket) {
+      chat.socket.close()
+      chat.socket = null
+    }
     chat.isOpen = false
+    chat.messages = []
   })
 
-  // Verifica si ya existe un chat con ese amigo
+  // Busca si ya existe un chat con este amigo
   const existingChat = activeChats.value.find((chat) => chat.id === room_id.value)
 
   if (existingChat) {
     existingChat.isOpen = true
+    if (!existingChat.socket) {
+      // Conecta solo si el socket no está abierto
+      existingChat.socket = new Socket()
+      existingChat.socket.open(room_id.value)
+      connectWebSocket(existingChat.socket)
+    }
+    existingChat.messages = [];
   } else {
     const chat = {
       id: room_id.value,
@@ -190,79 +197,77 @@ const openChat = async (friend: Friend) => {
       messages: [],
       isOpen: true,
       newMessagesCount: 0,
-      socket: null
+      socket: new Socket()
     }
-    console.log('chat que guardas:', chat)
+    chat.socket.open(room_id.value)
+    connectWebSocket(chat.socket)
     activeChats.value.push(chat)
-
-    if (!chat.socket) {
-      socket.open(room.value)
-      chat.socket = socket
-    }
   }
 
-  console.log('Active chats:', activeChats.value)
-  connectWebSocket()
-  // Guarda el último amigo con el que se abrió el chat
   lastOpenedChat.value = friend
-  console.log('Chat opened with:', lastOpenedChat.value)
 }
+
 
 // Función para cerrar el chat
 const handleChatClose = (chatId: number) => {
   const chat = activeChats.value.find((chat) => chat.id === chatId)
   chat.isOpen = false
+  if (chat.socket) {
+  chat.socket.close()
+  chat.socket = null
+  }
+  chat.messages = []
   //activeChats.value[chatId].isOpen = false
 }
 
 const closeChat = (chatId: number) => {
   const chat = activeChats.value.find((chat) => chat.id === chatId)
-  chat.isOpen = false
-  //activeChats.value[chatId].isOpen = false
-  socket.close()
-}
 
+  if (chat) {
+    chat.isOpen = false
+    if (chat.socket) {
+      chat.socket.close()
+      chat.socket = null
+    }
+    chat.messages = []
+  }
+}
 // Función para abrir el chat
 const handleChatOpen = (chatId: number) => {
   const chat = activeChats.value.find((chat) => chat.id === chatId)
   chat.isOpen = true
-  //activeChats.value[chatIndex].isOpen = true
 }
 // Método para enviar mensajes
 const sendMessage = (chatId: number, message: any) => {
-  console.log('chatid:', chatId)
-  console.log('message', message)
-  //const chat = activeChats.value[chatId]
   const chat = activeChats.value.find((chat) => chat.id === chatId)
-  console.log('chat que abre:', chat)
-  const friend = chat.friend
-
-  // Validar si tú o el amigo están bloqueados
-  if (friend.is_blocked_by_user || friend.is_blocked_by_friend) {
-    console.error('No puedes enviar mensajes. Tú o tu amigo están bloqueados.')
+  if (!chat || !chat.socket) {
+    console.error('Socket no disponible para este chat.')
     return
   }
-
-  console.log('Sending message:', message, chatId)
-  if (message && message.data.text) {
-    const text = message.data.text
-    if (text.length > 0) {
-      chat.newMessagesCount = chat.isOpen ? chat.newMessagesCount : chat.newMessagesCount + 1
-      socket.send(user.value, text, chatId)
-    }
+  console.log('message para guardaaaaar:', message)
+  const text = message.data.text
+  if (text.length > 0) {
+    chat.newMessagesCount = chat.isOpen ? chat.newMessagesCount : chat.newMessagesCount + 1
+    chat.socket.send(user.value, text, chatId) // Envía el mensaje a través del socket
   }
 }
 
-// Función para agregar el mensaje a la lista de mensajes
+
 const onMessageWasSent = (chatId: number, message: Message) => {
-  console.log('entra en onMessageWasSent')
-  console.log('ChatId:', chatId)
-  console.log('Message:', message)
   const chat = activeChats.value.find((chat) => chat.id === chatId)
-  //const chat = activeChats.value[chatId]
-  chat.messages = [...chat.messages, message]
-  console.log('Message added: ', message)
-}
+  
+  if (!chat) return;
+
+  // Evitar duplicar el mensaje si ya está en la lista
+  const isDuplicate = chat.messages.some(
+    (msg) => msg.data.text === message.data.text && msg.author === message.author
+  );
+
+  if (!isDuplicate) {
+    chat.messages = [...chat.messages, message];
+  }
+};
+
 
 // Carga la lista de amigos al montar el componente
 onMounted(async () => {
@@ -289,20 +294,22 @@ onMounted(async () => {
 })
 
 const echoOnMessage = (i: Websocket, ev: MessageEvent) => {
-  console.log('Message received dentro de echoOnMessage:', ev.data)
   const data = JSON.parse(ev.data)
-  let username = data.username === user.value ? 'me' : 'friend'
-
-  onMessageWasSent(data.index, {
-    type: 'text',
-    author: username,
-    data: { text: data.message }
-  })
+  const chatId = data.index
+  const chat = activeChats.value.find((chat) => chat.id === chatId)
+console.log('al entrar en echoOnMessage')
+  if (chat) {
+    onMessageWasSent(chatId, {
+      type: 'text',
+      author: data.username === user.value ? 'me' : 'friend',
+      data: { text: data.message }
+    })
+  }
 }
 
-const connectWebSocket = () => {
+const connectWebSocket = (socketInstance: Socket) => {
   console.log('Connecting to websocket')
-  socket.AddEventListener(WebsocketEvent.message, echoOnMessage)
+  socketInstance.AddEventListener(WebsocketEvent.message, echoOnMessage)
 }
 
 // Función para bloquear un amigo

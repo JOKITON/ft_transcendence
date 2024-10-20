@@ -157,23 +157,25 @@ class AcceptFriendRequestView(APIView):
                 id=request_id, friend=user, status=Friendship.PENDING
             )
             friendship.status = Friendship.ACCEPTED
-            friendship.room = (
-                str(User.objects.get(id=request_id).username)
-                + "_"
-                + str(friendship.friend.username)
-            )
-            friendship.room_id = generate_chat_id(user.id, friendship.friend.id)
+            friend_user = friendship.user 
+            print("friend_user ", friend_user)
+            friendship.room = f"{user.username}_{friend_user.username}"  # Crear el nombre de la sala basado en los nombres de usuario
+
+            # Generar un room_id único usando los IDs de los usuarios
+            friendship.room_id = generate_chat_id(user.id, friend_user.id)
+
+            # Guardar los cambios
             friendship.save()
 
             return Response(
-                {"message": "Friend request accepted"}, status=status.HTTP_200_OK
+                {"message": "Friend request accepted", "room_id": friendship.room_id},
+                status=status.HTTP_200_OK
             )
         except Friendship.DoesNotExist:
             return Response(
                 {"error": "Friend request not found or already processed"},
                 status=status.HTTP_404_NOT_FOUND,
             )
-
 
 class RejectFriendRequestView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -389,6 +391,8 @@ class GetRoomView(APIView):
     def post(self, request: Request) -> Response:
         friend_id = request.data.get("friend_id")
         user_id = request.data.get("user_id")
+        print("friend_id ", friend_id)
+        print("user_id ", user_id)
         room = Friendship.objects.get(
             models.Q(friend_id=friend_id, user_id=user_id)
             | models.Q(friend_id=user_id, user_id=friend_id)
@@ -397,4 +401,10 @@ class GetRoomView(APIView):
             models.Q(friend_id=friend_id, user_id=user_id)
             | models.Q(friend_id=user_id, user_id=friend_id)
         ).room_id
+        all_room_ids = Friendship.objects.values_list('room_id', flat=True)
+        all_room = Friendship.objects.values_list('room', flat=True)
+        print("Todos los objetos Friendship:", all_room_ids)
+        print("Todos los objetos Friendship:", all_room)
+        print("room ", room)
+        print("room_id ", room_id)
         return Response({"room": room, "room_id": room_id}, status=status.HTTP_200_OK)
