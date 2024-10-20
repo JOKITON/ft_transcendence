@@ -11,7 +11,7 @@ import type ISocket from '../ISocket'
 export default class Socket implements ISocket {
   private ws: Websocket | null = null
 
-  constructor(url: string = 'ws://localhost/api/v1/livechat/ws/chat/', room: string = 'test_room') {
+  constructor(url: string = 'ws://localhost:7104/api/v1/livechat/ws/chat/', room: string = 'test_room') {
     this.initializeWebSocket(url, room)
   }
 
