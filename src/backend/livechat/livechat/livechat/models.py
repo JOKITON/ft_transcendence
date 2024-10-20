@@ -14,7 +14,7 @@ class Message(models.Model):
         Room, on_delete=models.CASCADE, related_name="messages")
     user = models.CharField(max_length=100)
     message = models.TextField()
-    index = models.IntegerField(null=True)
+    index = models.CharField(null=True)
 
     def __str__(self):
         return f"{self.user}: {self.message}"

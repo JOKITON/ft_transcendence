@@ -177,7 +177,7 @@ const openChat = async (friend: Friend) => {
   activeChats.value.forEach((chat) => {
     chat.isOpen = false
   })
-  
+
   // Verifica si ya existe un chat con ese amigo
   const existingChat = activeChats.value.find((chat) => chat.id === room_id.value)
 
@@ -233,8 +233,8 @@ const sendMessage = (chatId: number, message: any) => {
   console.log('chatid:', chatId)
   console.log('message', message)
   //const chat = activeChats.value[chatId]
-  const chat = activeChats.value.find((chat) => chat.id === chatId);
-  console.log('chat que abre:',chat)
+  const chat = activeChats.value.find((chat) => chat.id === chatId)
+  console.log('chat que abre:', chat)
   const friend = chat.friend
 
   // Validar si tú o el amigo están bloqueados
@@ -251,7 +251,6 @@ const sendMessage = (chatId: number, message: any) => {
       socket.send(user.value, text, chatId)
     }
   }
-  onMessageWasSent(chatId, message);
 }
 
 // Función para agregar el mensaje a la lista de mensajes
@@ -259,7 +258,7 @@ const onMessageWasSent = (chatId: number, message: Message) => {
   console.log('entra en onMessageWasSent')
   console.log('ChatId:', chatId)
   console.log('Message:', message)
-  const chat = activeChats.value.find((chat) => chat.id === chatId);
+  const chat = activeChats.value.find((chat) => chat.id === chatId)
   //const chat = activeChats.value[chatId]
   chat.messages = [...chat.messages, message]
   console.log('Message added: ', message)
