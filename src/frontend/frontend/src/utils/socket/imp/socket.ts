@@ -24,7 +24,7 @@ export default class Socket implements ISocket {
     }
     this.ws = new WebsocketBuilder(this.url + this.room)
       .withBuffer(new ArrayQueue()) // Buffer messages when disconnected
-      .withBackoff(new ConstantBackoff(1000)) // Retry every 1s
+      .withBackoff(new ConstantBackoff(3)) // Retry every 1s
       .build()
     this.ws.addEventListener(WebsocketEvent.open, this.onOpen.bind(this))
     this.ws.addEventListener(WebsocketEvent.close, this.onClose.bind(this))
@@ -75,6 +75,7 @@ export default class Socket implements ISocket {
   }
 
   private onError(): void {
+    this.ws?.close()
     console.log('WebSocket connection error')
   }
 }

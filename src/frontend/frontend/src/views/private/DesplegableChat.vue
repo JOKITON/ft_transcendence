@@ -55,21 +55,22 @@
     </div>
 
     <!-- Mostrar chats abiertos -->
-    <div v-for="(chat, index) in activeChats" :key="chat.id" class="chat-container">
+
+    <div v-for="chat in activeChats" :key="chat.id" class="chat-container">
       <beautiful-chat
         :participants="[{ id: chat.friend.id, name: chat.friend.username }]"
         :messageList="chat.messages"
         :is-open="chat.isOpen"
-        @open="handleChatOpen(index)"
-        @close="handleChatClose(index)"
-        @send-message="sendMessage(index, $event)"
+        @open="handleChatOpen(chat.id)"
+        @close="handleChatClose(chat.id)"
+        @send-message="sendMessage(chat.id, $event)"
         :placeholder="'Escribe un mensaje...'"
         :colors="colors"
         :alwaysScrollToBottom="true"
         :messageStyling="true"
         :open="() => openChat(lastOpenedChat.value)"
-        :close="() => closeChat(index)"
-        :onMessageWasSent="(message) => sendMessage(index, message)"
+        :close="() => closeChat(chat.id)"
+        :onMessageWasSent="(message) => sendMessage(chat.id, message)"
       />
     </div>
   </div>
@@ -111,6 +112,7 @@ interface ChatInstance {
   messages: Message[]
   isOpen: boolean
   newMessagesCount: number
+  socket?: Socket
 }
 
 const api = inject('$api') as any
@@ -118,10 +120,11 @@ const friends = ref<Friend[]>([])
 const activeChats = ref<ChatInstance[]>([])
 const isDropdownVisible = ref(false)
 const lastOpenedChat = ref<Friend | null>(null)
-const size = ref(1)
 const socket = new Socket()
+const size = ref(1)
 const user = ref('')
 const room = ref('')
+const room_id = ref('')
 //const socket = inject('socket') as Socket | null
 
 const colors = {
@@ -161,9 +164,9 @@ const openChat = async (friend: Friend) => {
     friend_id: friend.id,
     user_id: whoami.id
   })
-  console.log('Room:', response2.data)
-  room.value = response2.data
-
+  console.log('Room:', response2)
+  room.value = response2.room
+  room_id.value = response2.data
   console.log('Opening chat with:', friend.username)
   if (!friend) {
     friend = lastOpenedChat.value
@@ -174,47 +177,51 @@ const openChat = async (friend: Friend) => {
   })
 
   // Verifica si ya existe un chat con ese amigo
-  const existingChat = activeChats.value.find((chat) => chat.friend.id === friend.id)
+  const existingChat = activeChats.value.find((chat) => chat.id === room_id.value)
 
   if (existingChat) {
     existingChat.isOpen = true
   } else {
-    // Rellenar con mensajes de ejemplo
-    // aqui se podrian cargar los mensajes del chat
-    const messageList: Message[] = [
-      //{ type: 'text', author: 'me', data: { text: 'Say yes!' } },
-      //{ type: 'text', author: 'friend', data: { text: 'No.' } }
-    ]
-
-    activeChats.value.push({
-      id: friend.id,
+    const chat = {
+      id: room_id.value,
       friend,
-      messages: messageList,
+      messages: [],
       isOpen: true,
-      newMessagesCount: 0
-    })
+      newMessagesCount: 0,
+      socket: null
+    }
+    activeChats.value.push(chat)
+
+    if (!chat.socket) {
+      socket.open(room.value)
+      chat.socket = socket
+    }
   }
+
+  console.log('Active chats:', activeChats.value)
+  connectWebSocket()
   // Guarda el último amigo con el que se abrió el chat
   lastOpenedChat.value = friend
   console.log('Chat opened with:', lastOpenedChat.value)
 }
 
 // Función para cerrar el chat
-const handleChatClose = (chatIndex: number) => {
-  activeChats.value[chatIndex].isOpen = false
+const handleChatClose = (chatId: number) => {
+  activeChats.value[chatId].isOpen = false
 }
 
-const closeChat = (chatIndex: number) => {
-  activeChats.value[chatIndex].isOpen = false
+const closeChat = (chatId: number) => {
+  activeChats.value[chatId].isOpen = false
+  socket.close()
 }
 
 // Función para abrir el chat
-const handleChatOpen = (chatIndex: number) => {
+const handleChatOpen = (chatId: number) => {
   activeChats.value[chatIndex].isOpen = true
 }
 // Método para enviar mensajes
-const sendMessage = (index: number, message: any) => {
-  const chat = activeChats.value[index]
+const sendMessage = (chatId: number, message: any) => {
+  const chat = activeChats.value[chatId]
   const friend = chat.friend
 
   // Validar si tú o el amigo están bloqueados
@@ -223,10 +230,10 @@ const sendMessage = (index: number, message: any) => {
     return
   }
 
+  console.log('Sending message:', message, chatId)
   if (message && message.data.text) {
     const text = message.data.text
     if (text.length > 0) {
-      console.log('index hasta aqui', index)
       chat.newMessagesCount = chat.isOpen ? chat.newMessagesCount : chat.newMessagesCount + 1
       socket.send(user.value, text, index)
     }
@@ -234,8 +241,8 @@ const sendMessage = (index: number, message: any) => {
 }
 
 // Función para agregar el mensaje a la lista de mensajes
-const onMessageWasSent = (chatIndex: number, message: Message) => {
-  const chat = activeChats.value[chatIndex]
+const onMessageWasSent = (chatId: number, message: Message) => {
+  const chat = activeChats.value[chatId]
   chat.messages = [...chat.messages, message]
   console.log('Message added: ', message)
 }
@@ -253,8 +260,6 @@ onMounted(async () => {
       openChat(data.friend)
     })
     // Convertir isOnline a booleano
-    socket.open(room.value)
-    connectWebSocket()
     friends.value = (response.friends || []).map((friend) => ({
       ...friend,
       isOnline: friend.isOnline === 'True' // Convertir a booleano
