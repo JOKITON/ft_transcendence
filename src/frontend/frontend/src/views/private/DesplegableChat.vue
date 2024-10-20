@@ -68,7 +68,7 @@
         :colors="colors"
         :alwaysScrollToBottom="true"
         :messageStyling="true"
-        :open="() => openChat(lastOpenedChat.value)"
+        :open="() => openChat(lastOpenedChat)"
         :close="() => closeChat(chat.id)"
         :onMessageWasSent="(message) => sendMessage(chat.id, message)"
       />
@@ -159,6 +159,8 @@ const toggleDropdown = () => {
 const openChat = async (friend: Friend) => {
   const whoami = await api.get('auth/whoami')
   console.log('My Id:', whoami.id)
+  console.log('lastOpenedChat:', lastOpenedChat.value)
+  console.log('Friend:', friend)
 
   const response2 = await api.post('friendship/room', {
     friend_id: friend.id,
@@ -166,7 +168,7 @@ const openChat = async (friend: Friend) => {
   })
   console.log('Room:', response2)
   room.value = response2.room
-  room_id.value = response2.data
+  room_id.value = response2.room_id
   console.log('Opening chat with:', friend.username)
   if (!friend) {
     friend = lastOpenedChat.value
@@ -175,7 +177,7 @@ const openChat = async (friend: Friend) => {
   activeChats.value.forEach((chat) => {
     chat.isOpen = false
   })
-
+  
   // Verifica si ya existe un chat con ese amigo
   const existingChat = activeChats.value.find((chat) => chat.id === room_id.value)
 
@@ -190,6 +192,7 @@ const openChat = async (friend: Friend) => {
       newMessagesCount: 0,
       socket: null
     }
+    console.log('chat que guardas:', chat)
     activeChats.value.push(chat)
 
     if (!chat.socket) {
@@ -207,21 +210,31 @@ const openChat = async (friend: Friend) => {
 
 // Función para cerrar el chat
 const handleChatClose = (chatId: number) => {
-  activeChats.value[chatId].isOpen = false
+  const chat = activeChats.value.find((chat) => chat.id === chatId)
+  chat.isOpen = false
+  //activeChats.value[chatId].isOpen = false
 }
 
 const closeChat = (chatId: number) => {
-  activeChats.value[chatId].isOpen = false
+  const chat = activeChats.value.find((chat) => chat.id === chatId)
+  chat.isOpen = false
+  //activeChats.value[chatId].isOpen = false
   socket.close()
 }
 
 // Función para abrir el chat
 const handleChatOpen = (chatId: number) => {
-  activeChats.value[chatIndex].isOpen = true
+  const chat = activeChats.value.find((chat) => chat.id === chatId)
+  chat.isOpen = true
+  //activeChats.value[chatIndex].isOpen = true
 }
 // Método para enviar mensajes
 const sendMessage = (chatId: number, message: any) => {
-  const chat = activeChats.value[chatId]
+  console.log('chatid:', chatId)
+  console.log('message', message)
+  //const chat = activeChats.value[chatId]
+  const chat = activeChats.value.find((chat) => chat.id === chatId);
+  console.log('chat que abre:',chat)
   const friend = chat.friend
 
   // Validar si tú o el amigo están bloqueados
@@ -235,14 +248,19 @@ const sendMessage = (chatId: number, message: any) => {
     const text = message.data.text
     if (text.length > 0) {
       chat.newMessagesCount = chat.isOpen ? chat.newMessagesCount : chat.newMessagesCount + 1
-      socket.send(user.value, text, index)
+      socket.send(user.value, text, chatId)
     }
   }
+  onMessageWasSent(chatId, message);
 }
 
 // Función para agregar el mensaje a la lista de mensajes
 const onMessageWasSent = (chatId: number, message: Message) => {
-  const chat = activeChats.value[chatId]
+  console.log('entra en onMessageWasSent')
+  console.log('ChatId:', chatId)
+  console.log('Message:', message)
+  const chat = activeChats.value.find((chat) => chat.id === chatId);
+  //const chat = activeChats.value[chatId]
   chat.messages = [...chat.messages, message]
   console.log('Message added: ', message)
 }
@@ -272,6 +290,7 @@ onMounted(async () => {
 })
 
 const echoOnMessage = (i: Websocket, ev: MessageEvent) => {
+  console.log('Message received dentro de echoOnMessage:', ev.data)
   const data = JSON.parse(ev.data)
   let username = data.username === user.value ? 'me' : 'friend'
 
@@ -283,6 +302,7 @@ const echoOnMessage = (i: Websocket, ev: MessageEvent) => {
 }
 
 const connectWebSocket = () => {
+  console.log('Connecting to websocket')
   socket.AddEventListener(WebsocketEvent.message, echoOnMessage)
 }
 
