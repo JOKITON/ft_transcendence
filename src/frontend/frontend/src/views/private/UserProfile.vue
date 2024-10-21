@@ -23,21 +23,30 @@
               </button>
 
               <button
-                v-if="userData.friendRequestSent && !userData.isFriend"
+              v-else-if="userData.friendRequestSent && !userData.isFriend"
                 class="btn background-button mt-3 mx-2"
                 disabled
               >
                 Friend Request Sent
               </button>
-
+              
+              
               <button
-                v-if="userData.isFriend"
+              v-else-if="userData.is_blocked"
+              class="btn background-button mt-3 mx-2"
+              disabled
+              >
+              Blocked user
+              </button>
+            
+              <button
+                v-else-if="userData.isFriend"
                 class="btn background-button mt-3 mx-2"
                 disabled
-              >
+                >
                 Already Friends
               </button>
-
+            
               <button class="btn border-button mt-3 mx-2" @click="handleSendMessage(userData)">
                 Message
               </button>
@@ -85,7 +94,8 @@ const userData = ref({
   email: '',
   avatar: '',
   isFriend: false,
-  friendRequestSent: false
+  friendRequestSent: false,
+  is_blocked: false
 });
 const userLoaded = ref(false);
 
@@ -113,10 +123,18 @@ const checkIfFriend = (friends: Friend[], userId: number) => {
   return friends.some(friend => friend.id === userId);
 };
 
+const checkIfBloked = (friends: Friend[], userId: number) => {
+  console.log('Checking if user is blocked:', friends, userId);
+  return friends.some(friend => 
+    friend.id === userId && (friend.is_blocked_by_user || friend.is_blocked_by_friend)
+  );
+};
 // Función para cargar los datos del usuario
 const fetchUserData = async (id: number) => {
   try {
     const response = await api.get(`auth/search-user-id/${id}/`);
+    console.log("peter")
+    console.log(response)
     userData.value = {
       id: response.user_data.id,
       username: response.user_data.username,
@@ -124,8 +142,11 @@ const fetchUserData = async (id: number) => {
       email: response.user_data.email,
       avatar: response.user_data.avatar,
       isFriend: checkIfFriend(friends.value, response.user_data.id),
-      friendRequestSent: false
+      is_blocked: checkIfBloked(friends.value, response.user_data.id),
+
     };
+    console.log("user data")
+    console.log(userData)
     userLoaded.value = true;
   } catch (error) {
     console.error('Error fetching user data:', error);

@@ -10,9 +10,11 @@ class Room(models.Model):
 
 
 class Message(models.Model):
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="messages")
+    room = models.ForeignKey(
+        Room, on_delete=models.CASCADE, related_name="messages")
     user = models.CharField(max_length=100)
     message = models.TextField()
+    index = models.CharField(null=True)
 
     def __str__(self):
         return f"{self.user}: {self.message}"

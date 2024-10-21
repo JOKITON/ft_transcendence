@@ -14,10 +14,23 @@ def create_room(room):
 
 
 @database_sync_to_async
-def create_message(room_name, message, username):
+def create_message(room_name, message, username, index):
     from .models import Message, Room
 
     room = Room.objects.get(room=room_name)
-    msg = Message.objects.create(room=room, message=message, user=username)
+    msg = Message.objects.create(room=room, message=message, user=username, index=index)
     msg.save()
     return msg
+
+
+@database_sync_to_async
+def get_messages(room_name):
+    from .models import Message, Room
+
+    try:
+        room = Room.objects.get(room=room_name)
+        if not room:
+            return []
+        return list(Message.objects.filter(room=room).order_by("id"))
+    except Message.DoesNotExist:
+        return []

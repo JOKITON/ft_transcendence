@@ -5,6 +5,7 @@ from django.db import models
 
 User = get_user_model()
 
+
 class Friendship(models.Model):
     # Estado de la solicitud de amistad
     PENDING: str = "PENDING"
@@ -28,17 +29,19 @@ class Friendship(models.Model):
     )
 
     status = models.CharField(
-        max_length=8, choices=STATUS_CHOICES, default=PENDING
-    )
+        max_length=8, choices=STATUS_CHOICES, default=PENDING)
 
     # Cada campo maneja si uno de los usuarios bloqueó al otro
-    is_blocked_user = models.BooleanField(default=False)  # Bloqueo hecho por `user`
-    is_blocked_friend = models.BooleanField(default=False)  # Bloqueo hecho por `friend`
+    is_blocked_user = models.BooleanField(
+        default=False)  # Bloqueo hecho por `user`
+    is_blocked_friend = models.BooleanField(
+        default=False)  # Bloqueo hecho por `friend`
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
-    
+
     room = models.CharField(max_length=255, blank=True, null=True)
+    room_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         unique_together: Tuple[str, str] = ("user", "friend")
@@ -52,7 +55,9 @@ class Friendship(models.Model):
 
     def clean(self: Any) -> None:
         if self.user == self.friend:
-            raise ValidationError("A user cannot send a friendship request to themselves.")
+            raise ValidationError(
+                "A user cannot send a friendship request to themselves."
+            )
         elif (
             User.objects.filter(pk=self.friend.pk).exists() is False
             or User.objects.filter(pk=self.user.pk).exists() is False
@@ -61,7 +66,9 @@ class Friendship(models.Model):
         elif Friendship.objects.filter(
             user=self.friend, friend=self.user, status=self.ACCEPTED
         ).exists():
-            raise ValidationError("This friendship already exists in the opposite direction and has been accepted.")
+            raise ValidationError(
+                "This friendship already exists in the opposite direction and has been accepted."
+            )
 
     def save(self: Any, *args: Any, **kwargs: Any) -> None:
         self.clean()
@@ -75,7 +82,7 @@ class Friendship(models.Model):
             self.is_blocked_friend = True
         else:
             raise ValidationError("Invalid user for blocking.")
-        
+
         self.status = self.BLOCKED
         self.save()
 
@@ -91,5 +98,5 @@ class Friendship(models.Model):
         # Solo cambiar el estado a ACCEPTED si ambos usuarios están desbloqueados
         if not self.is_blocked_user and not self.is_blocked_friend:
             self.status = self.ACCEPTED
-        
+
         self.save()

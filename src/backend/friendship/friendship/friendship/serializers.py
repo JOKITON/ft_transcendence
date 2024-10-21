@@ -3,9 +3,10 @@ from django.db.models.base import ModelBase
 from friendship.models import Friendship
 from rest_framework import serializers
 from typing import List, Dict, Any, Type
-from django.db import models  
+from django.db import models
 
 User: Type[ModelBase] = get_user_model()
+
 
 class InviteFriendSerializer(serializers.Serializer):
     friend = serializers.CharField(
@@ -27,6 +28,7 @@ class InviteFriendSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("El usuario no existe")
         return Friendship.objects.create(user=user, friend=friend)
+
 
 class InviteStatusSerializer(serializers.Serializer):
     friend = serializers.CharField(
@@ -51,13 +53,16 @@ class InviteStatusSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("El usuario amigo no existe")
         except Friendship.DoesNotExist:
-            raise serializers.ValidationError("No existe una solicitud de amistad con este usuario")
+            raise serializers.ValidationError(
+                "No existe una solicitud de amistad con este usuario"
+            )
         return attrs
 
     def update(self, instance, validated_data: Dict[str, Any]) -> Friendship:
         instance.status = validated_data.get("status", instance.status)
         instance.save()
         return instance
+
 
 class DeleteFriendSerializer(serializers.ModelSerializer):
     friend = serializers.CharField(
@@ -95,18 +100,17 @@ class DeleteFriendSerializer(serializers.ModelSerializer):
         except Friendship.DoesNotExist:
             raise serializers.ValidationError("No existe una amistad con este usuario")
 
+
 class FriendRequestSerializer(serializers.ModelSerializer):
     friend = serializers.SerializerMethodField()
 
     class Meta:
         model = Friendship
-        fields = ['id', 'friend']
+        fields = ["id", "friend"]
 
     def get_friend(self, obj):
-        return {
-            'username': obj.user.username,
-            'email': obj.user.email
-        }
+        return {"username": obj.user.username, "email": obj.user.email}
+
 
 class FriendSerializer(serializers.ModelSerializer):
     is_blocked = serializers.SerializerMethodField()
@@ -114,13 +118,36 @@ class FriendSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'is_blocked']
+        fields = ["id", "username", "email", "is_blocked"]
 
     def get_is_blocked(self, obj):
-        request_user = self.context['request'].user
+        request_user = self.context["request"].user
         friendship = Friendship.objects.filter(
-            models.Q(user=request_user, friend=obj) | models.Q(user=obj, friend=request_user),
-            status=Friendship.BLOCKED).exists()
+            models.Q(user=request_user, friend=obj)
+            | models.Q(user=obj, friend=request_user),
+            status=Friendship.BLOCKED,
+        ).exists()
         print("friendship:", friendship)
 
         return friendship
+
+
+"""
+class GetRoomSerializer(serializers.ModelSerializer):
+    friend = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Friendship
+        fields = ["id", "friend"]
+
+    def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
+        user = self.context["request"].user
+        try:
+            friend = User.objects.get(username=attrs["friend"])
+            friendship = Friendship.objects.get(user=user, friend=friend)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("El usuario amigo no existe")
+        except Friendship.DoesNotExist:
+            raise serializers.ValidationError("No existe una amistad con este usuario")
+        return attrs
+"""

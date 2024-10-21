@@ -65,9 +65,9 @@
             </span>
           </a>
           <!-- Desplegable de notificaciones -->
-          <ul class="dropdown-menu text-small" :class="{ show: isDropdownNotificationsVisible }">
-            <li v-if="friendRequests.length === 0" class="dropdown-item">No new friend requests</li>
-            <li v-for="request in friendRequests" :key="request.id" class="dropdown-item" @click="goToFriends">
+          <ul class="dropdown-menu text-small nav-drop" :class="{ show: isDropdownNotificationsVisible }">
+            <li v-if="friendRequests.length === 0" class="dropdown-item nav-drop-item">No new friend requests</li>
+            <li v-for="request in friendRequests" :key="request.id" class="dropdown-item nav-drop-item" @click="goToFriends">
               <span v-if="request.friend">
                 <strong>{{ request.friend.username }}</strong> has sent you a friend request
               </span>

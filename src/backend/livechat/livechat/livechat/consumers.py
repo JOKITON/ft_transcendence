@@ -1,6 +1,5 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.db import database_sync_to_async
-from .db import create_room, create_message
+from .db import create_room, create_message, get_messages
 import json
 
 
@@ -11,7 +10,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await create_room(self.room_name)
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
-        # await self.send_historical_messages()
+        await self.send_historical_messages()
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
@@ -21,6 +20,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             text_data_json = json.loads(text_data)
             username = text_data_json.get("username", "Anonymous")
             message = text_data_json.get("message")
+            index = text_data_json.get("index")
             if not message:
                 await self.send(
                     text_data=json.dumps({"error": "El mensaje no puede estar vacío."})
@@ -29,7 +29,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             await self.channel_layer.group_send(
                 self.room_group_name,
-                {"type": "chat_message", "username": username, "message": message},
+                {
+                    "type": "chat_message",
+                    "username": username,
+                    "message": message,
+                    "index": index,
+                },
             )
 
         except json.JSONDecodeError:
@@ -44,33 +49,29 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
     async def send_historical_messages(self):
-        messages = await self.get_messages(self.room_name)
+        messages = await get_messages(self.room_name)
         for message in messages:
+            print(message)
             text_data = json.dumps(
                 {
                     "event": "message",
-                    "username": message.username,
+                    "username": message.user,
                     "message": message.message,
+                    "index": message.index,
                 }
             )
             await self.send(text_data=text_data)
 
-    @database_sync_to_async
-    def get_messages(self, room_name):
-        from .models import Message
-
-        try:
-            return Message.objects.filter(room=room_name).order_by("created_at")
-        except Message.DoesNotExist:
-            return []
-
     async def chat_message(self, event):
-        await create_message(self.room_name, event["message"], event["username"])
+        await create_message(
+            self.room_name, event["message"], event["username"], event["index"]
+        )
         text_data = json.dumps(
             {
                 "event": "message",
                 "username": event["username"],
                 "message": event["message"],
+                "index": event["index"],
             }
         )
         await self.send(text_data=text_data)
