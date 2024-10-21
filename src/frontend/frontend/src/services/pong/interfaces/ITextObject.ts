@@ -8,9 +8,10 @@ export default interface ITextObject {
 	material: MeshPhongMaterial
 	font?: Font
 	textGeometry?: TextGeometry
+	size: number
 
-	constructor(score: string, color: Color, initialPos: Vector3) : void
-	loadFont() : Promise<void>
+	constructor(score: string, color: Color, initialPos: Vector3, fontType: string, size: number) : void
+	loadFont(fontType: string) : Promise<void>
 	updateText(score: string): void
 	updateScore(numScore: number) : void
 	get(): Mesh

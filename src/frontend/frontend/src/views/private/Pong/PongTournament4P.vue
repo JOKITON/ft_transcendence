@@ -13,19 +13,26 @@ import { handleCollisions } from '../../../services/pong/Objects/Utils/Utils'
 import FontService from '../../../services/pong/Objects/Text/FontService'
 import LuckySphere from '../../../services/pong/Objects/LuckySphere'
 
+import {
+  dateStart,
+  ballGeometry,
+  ballGeometry2,
+  vecHorizWall,
+  ballVelocity,
+  bounds
+} from '../../../services/pong/Objects/Utils/pongVariables'
+import { BIT_FONT, MONTSERRAT_FONT } from '../../../services/pong/Objects/Utils/pongVariables'
+
 const props = defineProps({
   players: Array<Object>
 })
 
-const dateStart = Date.now() / 1000;
-
-// console.log('Ids: ', props.players[0].id);
-
 const players = props.players
 // console.log('Players: ', players);
+// console.log('Ids: ', props.players[0].id);
 
 const playerCount = props.players.length
-console.log('Player count:', playerCount)
+// console.log('Player count:', playerCount)
 
 const emit = defineEmits(['gameOver'])
 
@@ -46,13 +53,7 @@ props.players.forEach((player, index) => {
 
 const three = new ThreeService(window.innerWidth, window.innerHeight)
 
-// Define bounds of the Pong game
-const bounds = { minX: -16.2, maxX: 16.2, minY: -9.2, maxY: 9.2, minZ: 0, maxZ: 0 }
-
 // Ball object
-const ballVectorY = Math.random() * 0.2 - 0.1
-const ballVelocity = new Vector3(0.5, ballVectorY, 0)
-const ballGeometry = [0.5, 10, 10]
 const ball = new Sphere(
   ballGeometry,
   new Color('white'),
@@ -62,14 +63,10 @@ const ball = new Sphere(
 )
 
 // Horizontal walls
-const vecHorizWall = new Vector3(33, 0.3, 1)
 const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'))
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'))
 
-const ballGeometry2 = [0.66, 10, 10];
-const luckySphere = new LuckySphere(ballGeometry2, new Color('yellow'), new Vector3(0, 0, 0));
-
-const font = ref(undefined)
+const luckySphere = new LuckySphere(ballGeometry2, new Color('yellow'));
 
 let wallMid: DashedWall // Vertical dashed wall
 let scorePlayer1: Score
@@ -80,43 +77,65 @@ let helpTextSpace: HelpText
 let helpTextPlayerOne: HelpText
 let helpTextPlayerTwo: HelpText
 
+let helpTextControlsOne: HelpText
+let helpTextControlsTwo: HelpText
+
 let finalScore: GameOver
 
 async function loadFont() {
-  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((font) => {
-    font.value = font
+  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((loadedFont) => {
+    const font = loadedFont;
 
     // Vertical dashed wall
     wallMid = new DashedWall(
       '- - - - - - - -',
       new Color('green'),
       new Vector3(0, 0, -1),
-      font.value
+      font
     )
     scorePlayer1 = new Score(
       variableScoreOne,
       new Color('white'),
       new Vector3(-2, 7.5, 0),
-      font.value
+      font
     )
     scorePlayer2 = new Score(
       variableScoreTwo,
       new Color('white'),
       new Vector3(2, 7.5, 0),
-      font.value
+      font
     )
-    helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font.value)
+    helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font)
 
-    helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0))
+    helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0), BIT_FONT, 1)
 
+    // Set text for the player names
     helpTextPlayerOne = new HelpText(
       player1Name.value,
-      new Color('white'),
-      new Vector3(-16, 3.5, 0)
+      new Color('blue'),
+      new Vector3(-16, 5.5, 0),
+      BIT_FONT,
+      1
     )
-    helpTextPlayerTwo = new HelpText(player2Name.value, new Color('white'), new Vector3(16, 3.5, 0))
+    helpTextPlayerTwo = new HelpText('AI', new Color('red'), new Vector3(16, 5.5, 0), BIT_FONT, 1)
 
-    finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font.value)
+    // Set the text for the controls
+    helpTextControlsOne = new HelpText(
+      'W\n\n\n\n\nS',
+      new Color('white'),
+      new Vector3(-16, 0, 0),
+      BIT_FONT,
+      1
+    )
+    helpTextControlsTwo = new HelpText(
+      '↑\n\n\n↓',
+      new Color('white'),
+      new Vector3(16, 0, 0),
+      MONTSERRAT_FONT,
+      1
+    )
+
+    finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font)
   })
 }
 
@@ -152,6 +171,25 @@ const playerTwo = new Player(
   player2Name.value
 )
 
+function setHelpText() {
+  helpTextPlayerOne.updateScore(player1Name.value)
+  helpTextPlayerTwo.updateScore(player2Name.value)
+  three.addScene(helpTextSpace.get())
+  three.addScene(helpTextPlayerOne.get())
+  three.addScene(helpTextPlayerTwo.get())
+  three.addScene(helpTextControlsOne.get())
+  three.addScene(helpTextControlsTwo.get())
+  setTimeout(() => {
+    three.removeScene(helpTextPlayerOne.get())
+    three.removeScene(helpTextPlayerTwo.get())
+    three.removeScene(helpTextSpace.get())
+  }, 3000)
+  setTimeout(() => {
+    three.removeScene(helpTextControlsOne.get())
+    three.removeScene(helpTextControlsTwo.get())
+  }, 6000)
+}
+
 function setupScene() {
   setHelpText()
   three.addScene(horizWallUp.get())
@@ -165,19 +203,6 @@ function setupScene() {
   three.addScene(luckySphere.get());
 
   isAnimating.value = false
-}
-
-function setHelpText() {
-  helpTextPlayerOne.updateScore(player1Name.value)
-  helpTextPlayerTwo.updateScore(player2Name.value)
-  three.addScene(helpTextSpace.get())
-  three.addScene(helpTextPlayerOne.get())
-  three.addScene(helpTextPlayerTwo.get())
-  setTimeout(() => {
-    three.removeScene(helpTextPlayerOne.get())
-    three.removeScene(helpTextPlayerTwo.get())
-    three.removeScene(helpTextSpace.get())
-  }, 3000)
 }
 
 function update() {
@@ -423,7 +448,7 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
           name: player.player,
           scores: playerScores[index],
           time_played: Math.floor(dateEnd - dateStart),
-          player_hits: playerHits[index],
+          hits: playerHits[index],
           position: posPlayers[index]
         })),
         final_round: {

@@ -91,7 +91,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ['id', 'name', 'scores', 'position']
+        fields = ['id', 'name', 'scores', 'position', 'time_played', 'hits']
 
 class FinalRoundSerializer(serializers.ModelSerializer):
     class Meta:
@@ -156,6 +156,7 @@ class Tournament4PSerializer(serializers.ModelSerializer):
         fields = ['players', 'final_round', 'tournament_type']
         
     def create_player(self, player_data):
+        print(player_data)
         player, created = Player.objects.get_or_create(
             id=player_data['id'],
             defaults={
@@ -165,12 +166,13 @@ class Tournament4PSerializer(serializers.ModelSerializer):
             }
         )
 
+        # print('Inside second function: ' + player_data)
         if not created:
             # Append the new scores to the existing scores array
             player.scores = player.scores + player_data['scores']
             player.total_score += sum(player_data['scores'])
             player.total_games += len(player_data['scores'])
-            player.hits += player_data['player_hits']
+            player.hits += player_data['hits']
             player.time_played += player_data['time_played']
             
             # Update the position to create the average
@@ -180,7 +182,7 @@ class Tournament4PSerializer(serializers.ModelSerializer):
             player.scores = player_data['scores']
             player.total_score = sum(player_data['scores'])
             player.total_games = len(player_data['scores'])
-            player.hits = player_data['player_hits']
+            player.hits = player_data['hits']
             # Create first position
             player.avg_position = player_data['last_position']
             player.time_played = player_data['time_played']
@@ -205,6 +207,7 @@ class Tournament4PSerializer(serializers.ModelSerializer):
         # Create Players
         players = []
         for player_data in players_data:
+            print(player_data)
             player = self.create_player(player_data)
             players.append(player)
 
