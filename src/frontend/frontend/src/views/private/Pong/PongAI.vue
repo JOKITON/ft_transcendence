@@ -83,16 +83,9 @@ async function loadFont() {
 
     // Set the text for the controls
     helpTextControlsOne = new HelpText(
-      'W\n\n\n\n\nS',
-      new Color('white'),
-      new Vector3(-16, 0, 0),
-      BIT_FONT,
-      1
-    )
-    helpTextControlsTwo = new HelpText(
       '↑\n\n\n↓',
       new Color('white'),
-      new Vector3(16, 0, 0),
+      new Vector3(-16, 0, 0),
       MONTSERRAT_FONT,
       1
     )
@@ -153,12 +146,11 @@ playerAI.setAiDifficulty(Number(props.aiDifficulty))
 
 function setHelpText() {
   helpTextPlayerOne.updateScore(player1Name.value)
-  helpTextPlayerTwo.updateScore(player2Name.value)
+  helpTextPlayerTwo.updateScore('AI')
   three.addScene(helpTextSpace.get())
   three.addScene(helpTextPlayerOne.get())
   three.addScene(helpTextPlayerTwo.get())
   three.addScene(helpTextControlsOne.get())
-  three.addScene(helpTextControlsTwo.get())
   setTimeout(() => {
     three.removeScene(helpTextPlayerOne.get())
     three.removeScene(helpTextPlayerTwo.get())
@@ -166,7 +158,6 @@ function setHelpText() {
   }, 3000)
   setTimeout(() => {
     three.removeScene(helpTextControlsOne.get())
-    three.removeScene(helpTextControlsTwo.get())
   }, 6000)
 }
 
