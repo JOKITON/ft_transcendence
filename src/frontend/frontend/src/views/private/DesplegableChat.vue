@@ -236,6 +236,7 @@ const closeChat = (chatId: number) => {
 const handleChatOpen = (chatId: number) => {
   const chat = activeChats.value.find((chat) => chat.id === chatId)
   chat.isOpen = true
+  //activeChats.value[chatIndex].isOpen = true
 }
 // Método para enviar mensajes
 const sendMessage = (chatId: number, message: any) => {
@@ -250,18 +251,28 @@ const sendMessage = (chatId: number, message: any) => {
     chat.newMessagesCount = chat.isOpen ? chat.newMessagesCount : chat.newMessagesCount + 1
     chat.socket.send(user.value, text, chatId) // Envía el mensaje a través del socket
   }
+  console.log('user, text, chatId:', user.value, text, chatId)
 }
-
-
-const onMessageWasSent = (chatId: number, message: Message) => {
+// Función para agregar el mensaje a la lista de mensajes
+/*const onMessageWasSent = (chatId: number, message: Message) => {
+  console.log('entra en onMessageWasSent')
+  console.log('ChatId:', chatId)
+  console.log('Message:', message)
   const chat = activeChats.value.find((chat) => chat.id === chatId)
+  //const chat = activeChats.value[chatId]
+  chat.messages = [...chat.messages, message]
+  console.log('Message added: ', message)
+}
+*/
+const onMessageWasSent = (chatId: number, message: Message) => {
+  const chat = activeChats.value.find((chat) => chat.id === chatId);
   
   if (!chat) return;
 
-  // Evitar duplicar el mensaje si ya está en la lista
-  const isDuplicate = chat.messages.some(
-    (msg) => msg.data.text === message.data.text && msg.author === message.author
-  );
+  const lastMessage = chat.messages[chat.messages.length - 1];
+
+  // Verificar si el último mensaje es igual al nuevo
+  const isDuplicate = lastMessage?.data.text === message.data.text && lastMessage?.author === message.author;
 
   if (!isDuplicate) {
     chat.messages = [...chat.messages, message];
@@ -273,7 +284,12 @@ const onMessageWasSent = (chatId: number, message: Message) => {
 onMounted(async () => {
   try {
     const response = await api.get<{ friends: Friend[] }>('friendship/friends')
-
+    activeChats.value.forEach((chat) => {
+    if (chat.socket) {
+      chat.socket.close();
+      chat.socket = null;
+    }
+  });
     const Iam = await api.get('auth/iam')
     user.value = Iam.username
     console.log('User:', user.value)

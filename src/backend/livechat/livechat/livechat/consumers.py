@@ -63,9 +63,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.send(text_data=text_data)
 
     async def chat_message(self, event):
+        print('holaaaaaaaaaaaa seeeelf', event)
+        user = self.scope["user"]
+        print('usuario que crea', user)
+        #f not user.is_authenticated:
+        #    print("El usuario es anónimo, mensaje no creado.")
+        #    return
         await create_message(
             self.room_name, event["message"], event["username"], event["index"]
         )
+        print('usuariosssssssssss')
         text_data = json.dumps(
             {
                 "event": "message",
