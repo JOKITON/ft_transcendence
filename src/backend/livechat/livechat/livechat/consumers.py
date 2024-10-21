@@ -67,8 +67,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         user = self.scope["user"]
         print('usuario que crea', user)
         #f not user.is_authenticated:
-        #    print("El usuario es anónimo, mensaje no creado.")
-        #    return
+        #    printreturn("El usuario es anónimo, mensaje no creado.")
+        #    
         await create_message(
             self.room_name, event["message"], event["username"], event["index"]
         )

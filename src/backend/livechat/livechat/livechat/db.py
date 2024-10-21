@@ -38,10 +38,6 @@ def create_message(room_name, message, username, index):
     
     # Buscar el último mensaje en esa sala
     last_message = Message.objects.filter(room=room).order_by('-id').first()
-    print('last_message', last_message)
-    print('full_message', full_message)
-    print('last_message.message', last_message.message)
-    # Verificar si el mensaje es diferente al último añadido
     if last_message and last_message.message == full_message:
         print('El nuevo mensaje es igual al último, no se añade.')
         return None
