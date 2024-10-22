@@ -39,7 +39,8 @@ class InviteStatusSerializer(serializers.Serializer):
         trim_whitespace=True,
     )
 
-    status = serializers.ChoiceField(choices=Friendship.STATUS_CHOICES, required=True)
+    status = serializers.ChoiceField(
+        choices=Friendship.STATUS_CHOICES, required=True)
 
     class Meta:
         model: Type[ModelBase] = Friendship
@@ -85,7 +86,8 @@ class DeleteFriendSerializer(serializers.ModelSerializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("El usuario amigo no existe")
         except Friendship.DoesNotExist:
-            raise serializers.ValidationError("No existe una amistad con este usuario")
+            raise serializers.ValidationError(
+                "No existe una amistad con este usuario")
         return attrs
 
     def delete(self, validated_data: Dict[str, Any]) -> Friendship:
@@ -98,7 +100,8 @@ class DeleteFriendSerializer(serializers.ModelSerializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("El usuario amigo no existe")
         except Friendship.DoesNotExist:
-            raise serializers.ValidationError("No existe una amistad con este usuario")
+            raise serializers.ValidationError(
+                "No existe una amistad con este usuario")
 
 
 class FriendRequestSerializer(serializers.ModelSerializer):
@@ -130,6 +133,14 @@ class FriendSerializer(serializers.ModelSerializer):
         print("friendship:", friendship)
 
         return friendship
+
+
+class NoDataAllowedSerializer(serializers.Serializer):
+    def validate(self, data):
+        if data:
+            raise serializers.ValidationError(
+                "No se permiten datos en esta vista.")
+        return data
 
 
 """

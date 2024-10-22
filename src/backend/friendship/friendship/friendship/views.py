@@ -5,6 +5,7 @@ from .serializers import (
     InviteStatusSerializer,
     DeleteFriendSerializer,
     FriendRequestSerializer,
+    NoDataAllowedSerializer,
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -25,6 +26,12 @@ class AllUsers(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request: Request) -> Response:
+        serializer = NoDataAllowedSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                {"message": "no se permiten datos en la solicitud"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         users = (
             get_user_model()
             .objects.values(
@@ -44,6 +51,12 @@ class FriendsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request: Request) -> Response:
+        serializer = NoDataAllowedSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                {"message": "no se permiten datos en la solicitud"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         user = request.user
         friends = Friendship.objects.filter(user=user)
         if not friends:
@@ -58,11 +71,9 @@ class InviteFriendView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request: Request) -> Response:
-        print("request ", request)
         serializer = InviteFriendSerializer(
             data=request.data, context={"request": request}
         )
-        print("holaa")
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -128,6 +139,12 @@ class PendingFriendRequestsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        serializer = NoDataAllowedSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                {"message": "No data allowed in request"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         user = request.user
         pending_requests = Friendship.objects.filter(
             friend=user, status=Friendship.PENDING
@@ -157,25 +174,24 @@ class AcceptFriendRequestView(APIView):
                 id=request_id, friend=user, status=Friendship.PENDING
             )
             friendship.status = Friendship.ACCEPTED
-            friend_user = friendship.user 
-            print("friend_user ", friend_user)
-            friendship.room = f"{user.username}_{friend_user.username}"  # Crear el nombre de la sala basado en los nombres de usuario
+            friend_user = friendship.user
+            friendship.room = f"{user.username}_{friend_user.username}"
 
-            # Generar un room_id único usando los IDs de los usuarios
             friendship.room_id = generate_chat_id(user.id, friend_user.id)
 
-            # Guardar los cambios
             friendship.save()
 
             return Response(
-                {"message": "Friend request accepted", "room_id": friendship.room_id},
-                status=status.HTTP_200_OK
+                {"message": "Friend request accepted",
+                    "room_id": friendship.room_id},
+                status=status.HTTP_200_OK,
             )
         except Friendship.DoesNotExist:
             return Response(
                 {"error": "Friend request not found or already processed"},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
 
 class RejectFriendRequestView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -212,12 +228,19 @@ class GetFriendsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        serializer = NoDataAllowedSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                {"message": "No data allowed in request"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         user = request.user
 
         # Filtrar amistades aceptadas o bloqueadas
         friendships = Friendship.objects.filter(
             models.Q(user=user) | models.Q(friend=user),
-            models.Q(status=Friendship.ACCEPTED) | models.Q(status=Friendship.BLOCKED),
+            models.Q(status=Friendship.ACCEPTED) | models.Q(
+                status=Friendship.BLOCKED),
         )
 
         friends = []
@@ -254,12 +277,19 @@ class GetFriendsById(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, user_id: int) -> Response:
+        serializer = NoDataAllowedSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                {"message": "No data allowed in request"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         user = User.objects.get(id=user_id)
 
         # Filtrar amistades aceptadas o bloqueadas
         friendships = Friendship.objects.filter(
             models.Q(user=user) | models.Q(friend=user),
-            models.Q(status=Friendship.ACCEPTED) | models.Q(status=Friendship.BLOCKED),
+            models.Q(status=Friendship.ACCEPTED) | models.Q(
+                status=Friendship.BLOCKED),
         )
 
         friends = []
@@ -309,7 +339,8 @@ class BlockUserView(APIView):
             friend = User.objects.get(username=friend_username)
             # Buscar la amistad en ambas direcciones
             friendship = Friendship.objects.filter(
-                models.Q(user=user, friend=friend) | models.Q(user=friend, friend=user)
+                models.Q(user=user, friend=friend) | models.Q(
+                    user=friend, friend=user)
             ).first()
 
             if not friendship:
@@ -355,7 +386,8 @@ class UnlockUserView(APIView):
             friend = User.objects.get(username=friend_username)
             # Buscar la amistad en ambas direcciones
             friendship = Friendship.objects.filter(
-                models.Q(user=user, friend=friend) | models.Q(user=friend, friend=user)
+                models.Q(user=user, friend=friend) | models.Q(
+                    user=friend, friend=user)
             ).first()
 
             if not friendship:
@@ -391,8 +423,6 @@ class GetRoomView(APIView):
     def post(self, request: Request) -> Response:
         friend_id = request.data.get("friend_id")
         user_id = request.data.get("user_id")
-        print("friend_id ", friend_id)
-        print("user_id ", user_id)
         room = Friendship.objects.get(
             models.Q(friend_id=friend_id, user_id=user_id)
             | models.Q(friend_id=user_id, user_id=friend_id)
@@ -401,10 +431,4 @@ class GetRoomView(APIView):
             models.Q(friend_id=friend_id, user_id=user_id)
             | models.Q(friend_id=user_id, user_id=friend_id)
         ).room_id
-        all_room_ids = Friendship.objects.values_list('room_id', flat=True)
-        all_room = Friendship.objects.values_list('room', flat=True)
-        print("Todos los objetos Friendship:", all_room_ids)
-        print("Todos los objetos Friendship:", all_room)
-        print("room ", room)
-        print("room_id ", room_id)
         return Response({"room": room, "room_id": room_id}, status=status.HTTP_200_OK)
