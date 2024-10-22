@@ -37,7 +37,13 @@ class PongGame(models.Model):
         ('4P', '4 Player'),
         ('8P', '8 Player'),
     ]
+    
+    status_choices = [
+        ('P', 'Pending'),
+        ('C', 'Completed'),
+    ]
 
+    status = models.CharField(max_length=1, choices=status_choices, default='P')
     tournament_type = models.CharField(max_length=2, choices=tournament_type_choices, default='2P')
     winner = models.CharField(max_length=255)
     player1 = models.ForeignKey(Player, on_delete=models.DO_NOTHING, related_name='player1_data', null=True, blank=True)
@@ -71,6 +77,12 @@ class SemiFinal(models.Model):
         return "Semi Final Round"
 
 class Tournament4P(models.Model):
+    status_choices = [
+        ('P', 'Pending'),
+        ('C', 'Completed'),
+    ]
+
+    status = models.CharField(max_length=1, choices=status_choices, default='P')
     players = models.ManyToManyField(Player)
     final_round = models.OneToOneField(FinalRound, on_delete=models.CASCADE)
     tournament_type = models.CharField(max_length=3, default='4P')
@@ -80,6 +92,12 @@ class Tournament4P(models.Model):
 
 
 class Tournament8P(models.Model):
+    status_choices = [
+        ('P', 'Pending'),
+        ('C', 'Completed'),
+    ]
+
+    status = models.CharField(max_length=1, choices=status_choices, default='P')
     players = models.ManyToManyField(Player)
     final_round = models.OneToOneField(FinalRound, on_delete=models.CASCADE)
     semi_finals = models.OneToOneField(SemiFinal, on_delete=models.CASCADE)

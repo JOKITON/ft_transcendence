@@ -5,7 +5,7 @@ from .models import Player, FinalRound, SemiFinal, Tournament8P, Tournament4P
 class PongGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = PongGame
-        fields = ['winner', 'player_ids', 'player_names', 'player_scores', 'player_hits', 'time_played', 'tournament_type']
+        fields = ['status', 'winner', 'player_ids', 'player_names', 'player_scores', 'player_hits', 'time_played', 'tournament_type']
 
     def create_player(self, player_data):
         player, created = Player.objects.get_or_create(
@@ -50,6 +50,7 @@ class PongGameSerializer(serializers.ModelSerializer):
         player_hits = validated_data['player_hits']
         winner = validated_data['winner']
         tournament_type = validated_data['tournament_type']
+        status = validated_data['status']
         
         players = []
 
@@ -73,6 +74,7 @@ class PongGameSerializer(serializers.ModelSerializer):
 
         # Create the PongGame instance with the Player ForeignKey relations
         tournament = PongGame.objects.create(
+            status=status,
             player1=p1,
             player2=p2,
             player_ids=player_ids,
@@ -110,9 +112,10 @@ class Tournament8PSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tournament8P
-        fields = ['players', 'final_round', 'semi_finals', 'tournament_type']
+        fields = ['status', 'players', 'final_round', 'semi_finals', 'tournament_type']
 
     def create(self, validated_data):
+        status = validated_data['status']
         players_data = validated_data.pop('players')
         final_round_data = validated_data.pop('final_round')
         semi_finals_data = validated_data.pop('semi_finals')
@@ -138,6 +141,7 @@ class Tournament8PSerializer(serializers.ModelSerializer):
 
         # Create Tournament
         tournament = Tournament8P.objects.create(
+            status=status,
             players=players,
             final_round=final_round,
             semi_finals=semi_finals,
@@ -153,7 +157,7 @@ class Tournament4PSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tournament4P
-        fields = ['players', 'final_round', 'tournament_type']
+        fields = ['status', 'players', 'final_round', 'tournament_type']
         
     def create_player(self, player_data):
         print(player_data)
@@ -203,6 +207,7 @@ class Tournament4PSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         players_data = validated_data.pop('players')
         final_round_data = validated_data.pop('final_round')
+        status = validated_data['status']
 
         # Create Players
         players = []
@@ -221,6 +226,7 @@ class Tournament4PSerializer(serializers.ModelSerializer):
 
         # Create Tournament
         tournament = Tournament4P.objects.create(
+            status=status,
             final_round=final_round,
             tournament_type=validated_data.get('tournament_type', '4P')
         )

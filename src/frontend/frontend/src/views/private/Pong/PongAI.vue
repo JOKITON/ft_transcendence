@@ -307,6 +307,7 @@ const endGame = (winningPlayer: string) => {
 
     // Emit the tournament data to the parent component
     emit('gameOver', {
+      status: 'C',
       winner: winningPlayer,
       player_names: players,
       player_scores: scores,

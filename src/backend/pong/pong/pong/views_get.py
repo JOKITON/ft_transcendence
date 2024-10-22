@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/30 22:18:38 by jaizpuru          #+#    #+#              #
-#    Updated: 2024/10/17 20:21:18 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/21 16:14:01 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,6 +28,32 @@ class UserDataView(APIView):
         # Fetch the player data for the current user
         try:
             player = Player.objects.get(id=pk or request.user.id)
+        except Player.DoesNotExist:
+            return Response(data={"message": "Player not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        player_data = {
+            "id": player.id,
+            "username": player.name,
+            "wins": player.wins,
+            "losses": player.losses,
+            "avg_score": player.avg_score,
+            "total_games": player.total_games,
+            "time_played": player.time_played,
+            "hits": player.hits,
+            # Add other fields as necessary
+        }
+        print(player_data)
+        return Response(data=player_data, status=status.HTTP_200_OK)
+    
+class PongGameDataView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, pk=None):
+        print(request)
+        # Fetch the player data for the current user
+        try:
+            player = PongGame.objects.get(id=pk or request.user.id)
         except Player.DoesNotExist:
             return Response(data={"message": "Player not found"}, status=status.HTTP_404_NOT_FOUND)
         
