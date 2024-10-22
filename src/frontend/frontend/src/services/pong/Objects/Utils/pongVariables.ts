@@ -6,7 +6,7 @@ export const dateStart = Date.now() / 1000;
 export const bounds = { minX: -16.2, maxX: 16.2, minY: -9.2, maxY: 9.2, minZ: 0, maxZ: 0 };
 
 // Ball and walls
-const ballVectorY = Math.random() * 0.2 - 0.1;
+export const ballVectorY = Math.random() * 0.2 - 0.1;
 
 let ballVelocityX = -0.25;
 export let ballVelocity = new Vector3(ballVelocityX, ballVectorY, 0);;
@@ -39,5 +39,8 @@ export const ballGeometry2 = [0.66, 10, 10];
 
 export const vecHorizWall = new Vector3(33, 0.3, 1);
 
+export const SCORE_TO_WIN = 5;
+export const IS_STATE = 'P';
+export const IS_COMPLETED = 'C';
 export const BIT_FONT = './src/assets/fonts/Bit5x3_Regular.json';
 export const MONTSERRAT_FONT = './src/assets/fonts/Montserrat.json';

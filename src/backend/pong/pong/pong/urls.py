@@ -2,6 +2,7 @@ from django.urls import path
 from .views import (
     CreateDefaultPlayerView,
     TournamentAIView,
+    TournamentAIStateView,
     Tournament2PView,
     Tournament4P,
     Tournament8P,
@@ -13,6 +14,7 @@ from .views_get import (
 )
 
 urlpatterns = [
+    path("ai/state", TournamentAIStateView.as_view(), name="post-ai-state"),
     path("ai", TournamentAIView.as_view(), name="post-ai"),
     path("2p", Tournament2PView.as_view(), name="post-2p"),
     path("4p", Tournament4P.as_view(), name="post-4p"),

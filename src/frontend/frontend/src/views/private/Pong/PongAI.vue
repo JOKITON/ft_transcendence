@@ -9,7 +9,7 @@ import Score from '../../../services/pong/Objects/Text/Score'
 import HelpText from '../../../services/pong/Objects/Text/HelpText'
 import GameOver from '../../../services/pong/Objects/Text/GameOver'
 import Wall from '../../../services/pong/Objects/Wall'
-import { handleCollisions } from '../../../services/pong/Objects/Utils/Utils'
+import { handleCollisions, blinkObject } from '../../../services/pong/Objects/Utils/Utils'
 import FontService from '../../../services/pong/Objects/Text/FontService'
 import LuckySphere from '../../../services/pong/Objects/LuckySphere'
 
@@ -20,9 +20,10 @@ import {
   ballGeometry2,
   ballVelocity,
   vecHorizWall,
-  bounds
+  bounds,
+  ballVectorY
 } from '../../../services/pong/Objects/Utils/pongVariables'
-import { BIT_FONT, MONTSERRAT_FONT } from '../../../services/pong/Objects/Utils/pongVariables'
+import { IS_STATE, IS_COMPLETED, SCORE_TO_WIN, BIT_FONT, MONTSERRAT_FONT } from '../../../services/pong/Objects/Utils/pongVariables'
 
 const props = defineProps({
   isAudioEnabled: Boolean,
@@ -37,6 +38,13 @@ const emit = defineEmits(['gameOver'])
 // Extract initial players for the current game
 let player1Name = ref(props.players[0].player)
 console.log('Player:', props.players[0].player)
+
+// Game variables to emit later
+const gamePlayers = [player1Name.value, 'AI']
+const ids = [props.players[0].id, 0]
+let scores : Array;
+let dateEnd : number;
+let playersHits : Array;
 
 // Ball object
 setBallVelocity(props.aiDifficulty)
@@ -56,14 +64,13 @@ const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('
 let wallMid: DashedWall
 let scorePlayer1: Score
 let scorePlayerAI: Score
-let helpText: GameOver
 
+let helpText: HelpText
 let helpTextSpace: HelpText
 let helpTextPlayerOne: HelpText
 let helpTextPlayerTwo: HelpText
 
 let helpTextControlsOne: HelpText
-let helpTextControlsTwo: HelpText
 
 let finalScore: GameOver
 
@@ -178,14 +185,43 @@ function setupScene() {
   isAnimating.value = false
 }
 
+function scoreTracker(score : number) {
+  // Player two won the point
+  if (score === 1) {
+      numScorePlayerTwo += 1
+      scorePlayerAI.updateScore(numScorePlayerTwo)
+      blinkObject(scorePlayerAI.get())
+      // Player two won the game
+      if (numScorePlayerTwo == SCORE_TO_WIN) {
+        console.log(`${player.getName()} lost!`)
+        endGame(playerAI.getName())
+      }
+    } else if (score === 2) { // Player one won the point
+      numScorePlayerOne += 1
+      scorePlayer1.updateScore(numScorePlayerOne)
+      blinkObject(scorePlayer1.get())
+      // Player one won the game
+      if (numScorePlayerOne == SCORE_TO_WIN) {
+        console.log(`${playerAI.getName()} lost!`)
+        endGame(player.getName())
+      }
+    } else {
+      console.error('Unexpected check value')
+    }
+    emitData(IS_STATE);
+    returnObjectsToPlace()
+    isAnimating.value = false
+    return
+}
+
 let timeElapsed = 0
 
 function update() {
   if (!isAnimating.value) return
-  let isTaken: boolean = true
+  let isTaken: boolean = true // Variable that works as semaphore for luckySphere
   let now = Date.now()
 
-  if (now - timeElapsed > 5000) {
+  if (now - timeElapsed > 5000) { // Every 5s, the luckySphere will be repositioned
     timeElapsed = now
     luckySphere.randomizePosition()
     three.addScene(luckySphere.get())
@@ -198,43 +234,16 @@ function update() {
     } else {
       isTaken = luckySphere.update(ball, player)
     }
-    if (isTaken) {
+    if (isTaken) { // Afert applying effects remove luckySphere
       three.removeScene(luckySphere.get())
       timeElapsed = now
     }
     isTaken = false
   }
 
-  let check = ball.update()
-  if (check) {
-    if (check === 1) {
-      numScorePlayerTwo += 1
-      scorePlayerAI.updateScore(numScorePlayerTwo)
-      blinkObject(scorePlayerAI.get())
-      if (numScorePlayerTwo == 5) {
-        console.log(`${player.getName()} lost!`)
-        endGame(playerAI.getName())
-      }
-      ball.invertVelocity()
-    } else if (check === 2) {
-      numScorePlayerOne += 1
-      scorePlayer1.updateScore(numScorePlayerOne)
-      blinkObject(scorePlayer1.get())
-      if (numScorePlayerOne == 1) {
-        console.log(`${playerAI.getName()} lost!`)
-        endGame(player.getName())
-      }
-    } else {
-      console.error('Unexpected check value')
-    }
-    returnObjectsToPlace()
-    const ballVectorY = Math.random() * 0.2 - 0.1
-    ball.setVelocityY(ballVectorY)
-    isAnimating.value = false
-    setTimeout(() => {
-      playerAI.returnToPlace()
-    }, 300)
-    return
+  let score = ball.update()
+  if (score) { // Someone scored a point
+    scoreTracker(score);
   }
 
   player.update()
@@ -242,25 +251,10 @@ function update() {
   handleCollisions(ball, player, playerAI)
 }
 
-// Blinking effect for the score when a player loses
-function blinkObject(mesh: Mesh) {
-  let visible = true
-  const blinkDuration = 800
-  const blinkInterval = 200
-
-  const intervalId = setInterval(() => {
-    visible = !visible
-    mesh.visible = visible
-
-    setTimeout(() => {
-      clearInterval(intervalId)
-      mesh.visible = true
-    }, blinkDuration)
-  }, blinkInterval)
-}
-
 function returnObjectsToPlace() {
   ball.returnToPlace()
+  ball.setVelocityY(ballVectorY)
+  ball.invertVelocity()
   player.returnToPlace()
   playerAI.returnToPlace()
 }
@@ -286,6 +280,27 @@ function toggleAnimation(event: KeyboardEvent) {
   }
 }
 
+function emitData(status: string) {
+  setTimeout(() => {
+    scores = [numScorePlayerOne, numScorePlayerTwo]
+    dateEnd = Date.now() / 1000
+    playersHits = [player.getHits(), playerAI.getHits()]
+    // winner.value = 'none';
+
+    // Emit the tournament data to the parent component
+    emit('gameOver', {
+      status: status,
+      winner: winner.value,
+      player_names: gamePlayers,
+      player_scores: scores,
+      player_ids: ids,
+      player_hits: playersHits,
+      time_played: Math.floor(dateEnd - dateStart),
+      tournament_type: 'AI'
+    })
+  }, 1000)
+}
+
 const endGame = (winningPlayer: string) => {
   window.removeEventListener('keydown', toggleAnimation)
   three.removeScene(luckySphere.get())
@@ -295,28 +310,9 @@ const endGame = (winningPlayer: string) => {
   setTimeout(() => {
     finalScore.updateScore('Returning to home...')
   }, 2000)
-  setTimeout(() => {
-    winner.value = winningPlayer
-    isGameOver.value = true
-
-    let players = [player1Name.value, 'AI']
-    let ids = [props.players[0].id, 0]
-    let scores = [numScorePlayerOne, numScorePlayerTwo]
-    const dateEnd = Date.now() / 1000
-    let playersHits = [player.getHits(), playerAI.getHits()]
-
-    // Emit the tournament data to the parent component
-    emit('gameOver', {
-      status: 'C',
-      winner: winningPlayer,
-      player_names: players,
-      player_scores: scores,
-      player_ids: ids,
-      player_hits: playersHits,
-      time_played: Math.floor(dateEnd - dateStart),
-      tournament_type: 'AI'
-    })
-  }, 5000)
+  winner.value = winningPlayer
+  isGameOver.value = true
+  emitData(IS_COMPLETED);
 }
 
 onMounted(async () => {

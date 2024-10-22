@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db.models import Q
 from .models import PongGame, Tournament8P
 from .models import Player, FinalRound, SemiFinal, Tournament8P, Tournament4P
 
@@ -52,6 +53,9 @@ class PongGameSerializer(serializers.ModelSerializer):
         tournament_type = validated_data['tournament_type']
         status = validated_data['status']
         
+        if status != 'C':
+            raise serializers.ValidationError("Status must be 'C'")
+        
         players = []
 
         # Iterate over the lists to create player_data dictionaries
@@ -85,6 +89,93 @@ class PongGameSerializer(serializers.ModelSerializer):
             tournament_type=tournament_type,
         )
 
+        return tournament
+    
+class PongGameStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PongGame
+        fields = ['status', 'player_ids', 'player_names', 'player_scores', 'player_hits', 'time_played', 'tournament_type']
+
+    def create_player(self, player_data):
+        player, created = Player.objects.get_or_create(
+            id=player_data['id'],  # Match by ID
+            defaults={
+                'name': player_data['name_player'],
+                'total_games': 0,
+                'total_score': 0,
+            }
+        )
+
+        if not created:
+            # Calculate the new average score considering the new game's score
+            player.time_played += player_data['time_played']
+            player.hits += player_data['player_hits']
+        else:
+            # For a new player, the average score is the current score
+            player.time_played = player_data['time_played']
+            player.hits = player_data['player_hits']
+
+        player.save()
+
+        return player
+
+    def create(self, validated_data):
+        print(validated_data)
+        # Extract lists of player IDs, names, and scores
+        player_ids = validated_data['player_ids']
+        player_names = validated_data['player_names']
+        player_scores = validated_data['player_scores']
+        time_played = validated_data['time_played']
+        player_hits = validated_data['player_hits']
+        tournament_type = validated_data['tournament_type']
+        status = validated_data['status']
+
+        if status != 'P':
+            raise serializers.ValidationError("Status must be 'P'")
+        
+        players = []
+
+        # Iterate over the lists to create/update player_data dictionaries
+        for i in range(len(player_ids)):
+            player_data = {
+                'id': player_ids[i],
+                'name_player': player_names[i],
+                'time_played': time_played,
+                'player_hits': player_hits[i],
+            }
+            print(player_data)  # Example operation
+
+            # Create or update player instances
+            player = self.create_player(player_data)
+            players.append(player)
+        
+        p1, p2 = players;
+
+        # Create the PongGame instance with the Player ForeignKey relations
+        tournament, created = PongGame.objects.get_or_create(
+            player_ids=player_ids,
+            tournament_type=tournament_type,
+            status=status,
+            defaults={
+                'status': status,
+                'player1': p1,
+                'player2': p2,
+                'player_hits': player_hits[0] + player_hits[1],
+                'player_names': player_names,
+                'player_scores': player_scores,
+                'time_played': time_played,
+                'tournament_type': tournament_type,
+            }
+        )
+        
+        if not created:
+            tournament.player_hits = player_hits[0] + player_hits[1]
+            tournament.player_scores = player_scores
+            tournament.time_played = time_played
+            tournament.save()
+        else:
+            tournament.player_ids = player_ids
+            tournament.save()
         return tournament
 
 class PlayerSerializer(serializers.ModelSerializer):

@@ -70,10 +70,18 @@ const handleStartGame = (data) => {
   stopAudio();
 };
 
+const IS_STATE = 'P';
+const IS_COMPLETED = 'C';
+
 // Send tournament data to backend
 const sendAIData = async (tournamentResults) => {
   try {
-    const response = await api.post("pong/ai", tournamentResults);
+    let url : string;
+    if (tournamentResults.status === IS_STATE) {
+      url = "pong/ai/state";
+    } else if (tournamentResults.status === IS_COMPLETED) {
+      url = "pong/ai"; }
+    const response = await api.post(url, tournamentResults);
     console.log('Data sent successfully:', response.data);
   } catch (error) {
     console.error('Error sending data:', error);
@@ -194,10 +202,12 @@ const handleGameOver = (tournamentResults) => {
       break ;
   }
 
-  // Reset the state to return to the menu
-  showMenu.value = true;
-  selectedGame.value = null;
-  resumeAudio();
+  if (tournamentResults.status === IS_COMPLETED) {
+    // Reset the state to return to the menu
+    showMenu.value = true;
+    selectedGame.value = null;
+    resumeAudio();
+  }
 };
 
 </script>
