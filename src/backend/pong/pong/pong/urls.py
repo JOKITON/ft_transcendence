@@ -1,9 +1,8 @@
 from django.urls import path
 from .views import (
     CreateDefaultPlayerView,
-    TournamentAIView,
-    TournamentAIStateView,
-    Tournament2PView,
+    PostGameView,
+    PostGameStateView,
     Tournament4P,
     Tournament8P,
 )
@@ -11,12 +10,14 @@ from .views_get import (
     TournamentListView,
     LeaderBoardView,
     UserDataView,
+    PongGameDataView,
 )
 
 urlpatterns = [
-    path("ai/state", TournamentAIStateView.as_view(), name="post-ai-state"),
-    path("ai", TournamentAIView.as_view(), name="post-ai"),
-    path("2p", Tournament2PView.as_view(), name="post-2p"),
+    path("get-state/<int:pk>/", PongGameDataView.as_view(), name="get-state"),
+    path("post-state", PostGameStateView.as_view(), name="post-ai-state"),
+    path("ai", PostGameView.as_view(), name="post-ai"),
+    path("2p", PostGameView.as_view(), name="post-2p"),
     path("4p", Tournament4P.as_view(), name="post-4p"),
     path("8p", Tournament8P.as_view(), name="post-8p"),
     

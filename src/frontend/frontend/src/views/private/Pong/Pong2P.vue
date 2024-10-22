@@ -1,38 +1,89 @@
 <script setup lang="ts">
-
-import { Vector3, Color, Mesh } from 'three';
-import { onMounted, onBeforeUnmount, ref } from 'vue';
-import ThreeService from '../../../services/pong/ThreeService';
-import Player from '../../../services/pong/Objects/Player';
-import Sphere from '../../../services/pong/Objects/Sphere';
-import DashedWall from '../../../services/pong/Objects/Text/DashedWall';
-import Score from '../../../services/pong/Objects/Text/Score';
-import HelpText from '../../../services/pong/Objects/Text/HelpText';
-import GameOver from '../../../services/pong/Objects/Text/GameOver';
-import Wall from '../../../services/pong/Objects/Wall';
-import { handleCollisions } from '../../../services/pong/Objects/Utils/Utils';
-import FontService from '../../../services/pong/Objects/Text/FontService';
-import LuckySphere from '../../../services/pong/Objects/LuckySphere';
+import { Vector3, Color, Mesh } from 'three'
+import { onMounted, onBeforeUnmount, ref } from 'vue'
+import ThreeService from '../../../services/pong/ThreeService'
+import Player from '../../../services/pong/Objects/Player'
+import Sphere from '../../../services/pong/Objects/Sphere'
+import DashedWall from '../../../services/pong/Objects/Text/DashedWall'
+import Score from '../../../services/pong/Objects/Text/Score'
+import HelpText from '../../../services/pong/Objects/Text/HelpText'
+import GameOver from '../../../services/pong/Objects/Text/GameOver'
+import Wall from '../../../services/pong/Objects/Wall'
+import { handleCollisions, blinkObject } from '../../../services/pong/Objects/Utils/Utils'
+import FontService from '../../../services/pong/Objects/Text/FontService'
+import LuckySphere from '../../../services/pong/Objects/LuckySphere'
 
 import {
-  dateStart,
+  type intStatePongData,
   ballGeometry,
   ballGeometry2,
-  vecHorizWall,
   ballVelocity,
-  bounds
+  vecHorizWall,
+  bounds,
+  ballVectorY
 } from '../../../services/pong/Objects/Utils/pongVariables'
-import { BIT_FONT, MONTSERRAT_FONT } from '../../../services/pong/Objects/Utils/pongVariables'
+import { IS_STATE, IS_COMPLETED, SCORE_TO_WIN, BIT_FONT, MONTSERRAT_FONT } from '../../../services/pong/Objects/Utils/pongVariables'
 
-const props = defineProps({
-  players: Array<Object>,
-});
+const props = defineProps<{
+  aiDifficulty: number,
+  hasStateData: intStatePongData,
+  isAudioEnabled: boolean,
+  players: Array<{ player: string, id: number }>,
+}>()
+
+console.log(props.hasStateData)
+
+const startTime = Date.now() / 1000;
+let stateTime: number = 0;
 
 const emit = defineEmits(['gameOver']);
 
-// Extract initial players for the current game
-let player1Name = ref(props.players[0].player);
-let player2Name = ref(props.players[1].player);
+const player1Name = ref('');
+const player2Name = ref('');
+
+// Game variables to emit later
+let gamePlayers : Array<string>;
+let ids : Array<number>;
+let scores : Array<number>;
+let playersHits : Array<number>;
+
+// Player objects (to be initialized later)
+let player: Player
+let player2: Player
+
+// Scores
+let numScorePlayerOne = 0
+let numScorePlayerTwo = 0
+
+const isAnimating = ref(true)
+const isGameOver = ref(false)
+const winner = ref('')
+
+if (props.hasStateData.check == true) {
+  let stateData = props.hasStateData;
+  console.log('State data:', stateData)
+  setStatePongDate(stateData);
+}
+else
+  setInitialValues();
+
+function setStatePongDate(data: intStatePongData) {
+  player1Name.value = data.player_names[0]
+  player2Name.value = data.player_names[1]
+  numScorePlayerOne =   data.player_scores[0]
+  numScorePlayerTwo = data.player_scores[1]
+  stateTime = data.time_played
+  gamePlayers = data.player_names
+  ids = data.player_ids
+}
+
+function setInitialValues() {
+  player1Name.value = (props.players[0].player)
+  player2Name.value = (props.players[1].player)
+  console.log('Player:', player1Name.value)
+  gamePlayers = [player1Name.value, player2Name.value]
+  ids = [props.players[0].id, 0]
+}
 
 const three = new ThreeService(window.innerWidth, window.innerHeight);
 
@@ -95,23 +146,12 @@ async function loadFont() {
       BIT_FONT,
       1
     )
-    helpTextPlayerTwo = new HelpText('AI', new Color('red'), new Vector3(16, 5.5, 0), BIT_FONT, 1)
+    helpTextPlayerTwo = new HelpText(player2Name.value, new Color('red'), new Vector3(16, 5.5, 0), BIT_FONT, 1)
 
     finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font);
   });
 }
 
-// Player objects (to be initialized later)
-let player: Player
-let player2: Player
-
-// Scores
-let numScorePlayerOne = 0;
-let numScorePlayerTwo = 0;
-
-const isAnimating = ref(true)
-const isGameOver = ref(false)
-const winner = ref('')
 
 // Initialize players with the provided names
 player = new Player(
@@ -167,82 +207,85 @@ function setupScene() {
   isAnimating.value = false
 }
 
-function update() {
-  if (!isAnimating.value) return;
-  let isTaken : boolean = true;
-
-if (Date.now() % 5000 < 50) {
-  luckySphere.randomizePosition();
-  three.addScene(luckySphere.get());
-  isTaken = true;
-}
-
-if (isTaken) {
-  if (ball.getVelocity().x < 0) {
-    isTaken = luckySphere.update(ball, player2);
-  } else {
-    isTaken = luckySphere.update(ball, player);
-  }
-  if (isTaken)
-    three.removeScene(luckySphere.get());
-  isTaken = false;
-}
-  
-  player.update();
-  player2.update();
-  handleCollisions(ball, player, player2);
-  let check = ball.update();
-  if (check) {
-    if (check === 1) {
-      numScorePlayerTwo += 1;
-      scorePlayer2.updateScore(numScorePlayerTwo);
-      blinkObject(scorePlayer2.get());
-      if (numScorePlayerTwo == 1) {
-        console.log(`${player.getName()} lost!`);
-        endGame(player2.getName());
+function scoreTracker(score : number) {
+  // Player two won the point
+  if (score === 1) {
+      numScorePlayerTwo += 1
+      scorePlayer2.updateScore(numScorePlayerTwo)
+      blinkObject(scorePlayer2.get())
+      // Player two won the game
+      if (numScorePlayerTwo == SCORE_TO_WIN) {
+        console.log(`${player.getName()} lost!`)
+        endGame(player2.getName())
       }
-      ball.invertVelocity()
-    } else if (check === 2) {
-      numScorePlayerOne += 1;
-      scorePlayer1.updateScore(numScorePlayerOne);
-      blinkObject(scorePlayer1.get());
-      if (numScorePlayerOne == 1) {
-        console.log(`${player2.getName()} lost!`);
-        endGame(player.getName());
+      else
+        emitData(IS_STATE);
+    } else if (score === 2) { // Player one won the point
+      numScorePlayerOne += 1
+      scorePlayer1.updateScore(numScorePlayerOne)
+      blinkObject(scorePlayer1.get())
+      // Player one won the game
+      if (numScorePlayerOne == SCORE_TO_WIN) {
+        console.log(`${player2.getName()} lost!`)
+        endGame(player.getName())
       }
+      else
+        emitData(IS_STATE);
     } else {
       console.error('Unexpected check value')
     }
     returnObjectsToPlace()
-    const ballVectorY = Math.random() * 0.2 - 0.1
-    ball.setVelocityY(ballVectorY)
     isAnimating.value = false
-    return
-  }
-
 }
 
-// Blinking effect for the score when a player loses
-function blinkObject(mesh: Mesh) {
-  let visible = true
-  const blinkDuration = 800
-  const blinkInterval = 200
+let timeElapsed = 0
 
-  const intervalId = setInterval(() => {
-    visible = !visible
-    mesh.visible = visible
+function update() {
+  if (!isAnimating.value) return;
+  let isTaken : boolean = true;
+  let now = Date.now()
 
+  if (now - timeElapsed > 5000) { // Every 5s, the luckySphere will be repositioned
+    timeElapsed = now
+    luckySphere.randomizePosition()
+    three.addScene(luckySphere.get())
+    isTaken = true
+  }
+
+  if (isTaken) {
+    if (ball.getVelocity().x < 0) {
+      isTaken = luckySphere.update(ball, player2)
+    } else {
+      isTaken = luckySphere.update(ball, player)
+    }
+    if (isTaken) { // Afert applying effects remove luckySphere
+      three.removeScene(luckySphere.get())
+      timeElapsed = now
+    }
+    isTaken = false
+  }
+  
+  let score = ball.update()
+  if (score) { // Someone scored a point
+    scoreTracker(score);
+    window.removeEventListener('keydown', toggleAnimation)
     setTimeout(() => {
-      clearInterval(intervalId)
-      mesh.visible = true
-    }, blinkDuration)
-  }, blinkInterval)
+    window.addEventListener('keydown', toggleAnimation)
+  }, 1000)
+  }
+
+  player.update()
+  player2.update()
+  handleCollisions(ball, player, player2)
+
 }
 
 function returnObjectsToPlace() {
-  ball.returnToPlace();
-  player.returnToPlace();
-  player2.returnToPlace();
+  ball.returnToPlace()
+  ball.setVelocityY(ballVectorY)
+  ball.invertVelocity()
+  player.returnToPlace()
+  player2.returnToPlace()
 }
 
 let debounceTimeout: number | undefined;
@@ -266,36 +309,40 @@ function toggleAnimation(event: KeyboardEvent) {
   }
 }
 
-const endGame = (winningPlayer: string) => {
-  window.removeEventListener("keydown", toggleAnimation);
-  three.removeScene(luckySphere.get());
-  finalScore.updateScore(winningPlayer + ' wins!');
-  three.addScene(finalScore.get());
-  blinkObject(finalScore.get());
+function emitData(status: string) {
   setTimeout(() => {
-    finalScore.updateScore('Returning to home...')
-  }, 2000)
-  setTimeout(() => {
-    winner.value = winningPlayer;
-    isGameOver.value = true;
-
-    let players = [player1Name.value, player2Name.value];
-    let scores = [numScorePlayerOne, numScorePlayerTwo];
-    let ids = [props.players[0].id, props.players[1].id];
-    const dateEnd = Date.now() / 1000;
-    let playersHits = [player.getHits(), player2.getHits()];
+    scores = [numScorePlayerOne, numScorePlayerTwo]
+    playersHits = [player.getHits(), player2.getHits()]
+    // winner.value = 'none';
 
     // Emit the tournament data to the parent component
+    let time_played = ((Date.now() / 1000) - startTime + stateTime)
+    time_played = Math.floor(time_played);
     emit('gameOver', {
-      winner: winningPlayer,
-      player_names: players,
+      status: status,
+      winner: winner.value,
+      player_names: gamePlayers,
       player_scores: scores,
       player_ids: ids,
       player_hits: playersHits,
-      time_played: Math.floor(dateEnd - dateStart),
-      tournament_type: '2P',
-    });
-  }, 5000);
+      time_played: time_played,
+      tournament_type: '2P'
+    })
+  }, 1000)
+}
+
+const endGame = (winningPlayer: string) => {
+  window.removeEventListener('keydown', toggleAnimation)
+  three.removeScene(luckySphere.get())
+  finalScore.updateScore(winningPlayer + ' wins!')
+  three.addScene(finalScore.get())
+  blinkObject(finalScore.get())
+  setTimeout(() => {
+    finalScore.updateScore('Returning to home...')
+  }, 2000)
+  winner.value = winningPlayer
+  isGameOver.value = true
+  emitData(IS_COMPLETED);
 }
 
 onMounted(async () => {
@@ -325,5 +372,17 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <div>
+    <audio
+      controls
+      autoplay
+      v-if="props.isAudioEnabled == true"
+      ref="songElement"
+      preload="auto"
+      style="display: none"
+    >
+      <source src="/src/assets/songs/opening-movie.mp3" type="audio/mp3" />
+    </audio>
+  </div>
   <div></div>
 </template>

@@ -68,13 +68,23 @@ class PongGameSerializer(serializers.ModelSerializer):
                 'player_hits': player_hits[i],
                 'winner': winner
             }
-            print(player_data)  # Example operation
+            # print(player_data)  # Example operation
 
             # Create or update player instances
             player = self.create_player(player_data)
             players.append(player)
         
         p1, p2 = players;
+        
+        # Delete any existing PongGame instances that match the given data
+        to_deleted_games = PongGame.objects.filter(
+            player_ids=player_ids,
+            tournament_type=tournament_type,
+            status='P',
+        )
+        deleted_game_ids = list(to_deleted_games.values_list('id', flat=True))
+        to_deleted_games.delete()
+        print(f"Deleted PongGame IDs: {deleted_game_ids}")
 
         # Create the PongGame instance with the Player ForeignKey relations
         tournament = PongGame.objects.create(
@@ -85,6 +95,7 @@ class PongGameSerializer(serializers.ModelSerializer):
             player_hits=player_hits[0] + player_hits[1],
             player_names=player_names,
             player_scores=player_scores,
+            time_played=time_played,
             winner=winner,
             tournament_type=tournament_type,
         )
@@ -106,21 +117,11 @@ class PongGameStateSerializer(serializers.ModelSerializer):
             }
         )
 
-        if not created:
-            # Calculate the new average score considering the new game's score
-            player.time_played += player_data['time_played']
-            player.hits += player_data['player_hits']
-        else:
-            # For a new player, the average score is the current score
-            player.time_played = player_data['time_played']
-            player.hits = player_data['player_hits']
-
         player.save()
 
         return player
 
     def create(self, validated_data):
-        print(validated_data)
         # Extract lists of player IDs, names, and scores
         player_ids = validated_data['player_ids']
         player_names = validated_data['player_names']
@@ -140,10 +141,8 @@ class PongGameStateSerializer(serializers.ModelSerializer):
             player_data = {
                 'id': player_ids[i],
                 'name_player': player_names[i],
-                'time_played': time_played,
-                'player_hits': player_hits[i],
             }
-            print(player_data)  # Example operation
+            # print(player_data)  # Example operation
 
             # Create or update player instances
             player = self.create_player(player_data)
@@ -251,7 +250,6 @@ class Tournament4PSerializer(serializers.ModelSerializer):
         fields = ['status', 'players', 'final_round', 'tournament_type']
         
     def create_player(self, player_data):
-        print(player_data)
         player, created = Player.objects.get_or_create(
             id=player_data['id'],
             defaults={
@@ -303,7 +301,7 @@ class Tournament4PSerializer(serializers.ModelSerializer):
         # Create Players
         players = []
         for player_data in players_data:
-            print(player_data)
+            # print(player_data)
             player = self.create_player(player_data)
             players.append(player)
 

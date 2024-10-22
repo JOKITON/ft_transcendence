@@ -367,6 +367,8 @@ function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: n
 
     playerHits[oldPlayerIndex] += (playerOne.getHits())
     playerHits[oldPlayerIndex + 1] += (playerTwo.getHits())
+    playerOne.resetHits()
+    playerTwo.resetHits()
 
     // Set the semi-final positions
     setSemiPositions(oldPlayerIndex, 5 - matchIndex, losingPlayer)

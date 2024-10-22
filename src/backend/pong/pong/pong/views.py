@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/17 18:36:34 by jaizpuru          #+#    #+#              #
-#    Updated: 2024/10/22 12:22:59 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/22 22:06:21 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,7 +44,7 @@ class CreateDefaultPlayerView(APIView):
         }
         return Response(response, status=status.HTTP_201_CREATED)
 
-class TournamentAIView(APIView):
+class PostGameView(APIView):
     authentication_classes = [JWTAuthentication]  # Use JWT for authentication
     permission_classes = [IsAuthenticated]  # Ensure user is authenticated
 
@@ -69,39 +69,13 @@ class TournamentAIView(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
         
-class TournamentAIStateView(APIView):
+class PostGameStateView(APIView):
     authentication_classes = [JWTAuthentication]  # Use JWT for authentication
     permission_classes = [IsAuthenticated]  # Ensure user is authenticated
 
     def post(self, request: Request) -> Response:
         print(request.data)
         serializer = PongGameStateSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()  # Save the tournament instance
-            response = {
-                "message": "Tournament game saved successfully",
-                "status": status.HTTP_201_CREATED,
-                "data": serializer.data,  # Return the serialized data
-            }
-            return Response(response, status=status.HTTP_201_CREATED)
-
-        return Response(
-            {
-                "message": "Tournament game not saved",
-                "errors": serializer.errors,  # Return validation errors
-                "status": status.HTTP_400_BAD_REQUEST,
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-class Tournament2PView(APIView):
-    authentication_classes = [JWTAuthentication]  # Use JWT for authentication
-    permission_classes = [IsAuthenticated]  # Ensure user is authenticated
-
-    def post(self, request: Request) -> Response:
-        serializer = PongGameSerializer(data=request.data, context={"request": request})
-        # serializer.create_players(validated_data=request.data)
 
         if serializer.is_valid():
             serializer.save()  # Save the tournament instance

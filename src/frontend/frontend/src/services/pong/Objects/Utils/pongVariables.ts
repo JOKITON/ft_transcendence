@@ -1,5 +1,19 @@
 import { Vector3, Color } from 'three';
 
+export interface intStatePongData {
+	check : boolean,
+	id: number,
+	status: string,
+	tournament_type: string,
+	player_ids: Array<number>,
+	player_names: Array<string>,
+	player_scores: Array<number>,
+	player_hits: Array<number>,
+	time_played: number,
+	// aiDifficulty: number,
+	// isAudioEnabled: boolean,
+  }
+
 export const dateStart = Date.now() / 1000;
 
 // Define bounds of the Pong game

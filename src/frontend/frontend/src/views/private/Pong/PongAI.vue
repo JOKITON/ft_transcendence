@@ -14,8 +14,8 @@ import FontService from '../../../services/pong/Objects/Text/FontService'
 import LuckySphere from '../../../services/pong/Objects/LuckySphere'
 
 import {
+  type intStatePongData,
   setBallVelocity,
-  dateStart,
   ballGeometry,
   ballGeometry2,
   ballVelocity,
@@ -25,29 +25,67 @@ import {
 } from '../../../services/pong/Objects/Utils/pongVariables'
 import { IS_STATE, IS_COMPLETED, SCORE_TO_WIN, BIT_FONT, MONTSERRAT_FONT } from '../../../services/pong/Objects/Utils/pongVariables'
 
-const props = defineProps({
-  isAudioEnabled: Boolean,
-  players: Array,
-  aiDifficulty: Number
-})
+const props = defineProps<{
+  hasStateData: intStatePongData,
+  isAudioEnabled: boolean,
+  players: Array<{ player: string, id: number }>,
+  aiDifficulty: number
+}>()
+
+console.log(props.hasStateData)
 
 const three = new ThreeService(window.innerWidth, window.innerHeight)
 
-const emit = defineEmits(['gameOver'])
+const startTime = Date.now() / 1000;
+let stateTime: number = 0;
 
-// Extract initial players for the current game
-let player1Name = ref(props.players[0].player)
-console.log('Player:', props.players[0].player)
+const emit = defineEmits(['gameOver'])
+const player1Name = ref('');
 
 // Game variables to emit later
-const gamePlayers = [player1Name.value, 'AI']
-const ids = [props.players[0].id, 0]
-let scores : Array;
-let dateEnd : number;
-let playersHits : Array;
+let gamePlayers : Array<string>;
+let ids : Array<number>;
+let scores : Array<number>;
+let playersHits : Array<number>;
+
+// Player objects (to be initialized later)
+let player: Player
+let playerAI: Player
+
+// Scores
+let numScorePlayerOne = 0
+let numScorePlayerTwo = 0
+
+const isAnimating = ref(true)
+const isGameOver = ref(false)
+const winner = ref('')
+
+if (props.hasStateData.check == true) {
+  let stateData = props.hasStateData;
+  console.log('State data:', stateData)
+  setStatePongDate(stateData);
+}
+else
+  setInitialValues();
+
+function setStatePongDate(data: intStatePongData) {
+  player1Name.value = data.player_names[0]
+  numScorePlayerOne =   data.player_scores[0]
+  numScorePlayerTwo = data.player_scores[1]
+  stateTime = data.time_played
+  gamePlayers = data.player_names
+  ids = data.player_ids
+}
+
+function setInitialValues() {
+  player1Name.value = (props.players[0].player)
+  console.log('Player:', player1Name.value)
+  gamePlayers = [player1Name.value, 'AI']
+  ids = [props.players[0].id, 0]
+  setBallVelocity(props.aiDifficulty)
+}
 
 // Ball object
-setBallVelocity(props.aiDifficulty)
 const ball = new Sphere(
   ballGeometry,
   new Color('white'),
@@ -60,7 +98,7 @@ const luckySphere = new LuckySphere(ballGeometry2, new Color('yellow'))
 const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'));
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
 
-// Other variables
+// Objects to create later
 let wallMid: DashedWall
 let scorePlayer1: Score
 let scorePlayerAI: Score
@@ -119,18 +157,6 @@ async function loadFont() {
     finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font)
   })
 }
-
-// Player objects (to be initialized later)
-let player: Player
-let playerAI: Player
-
-// Scores
-let numScorePlayerOne = 0
-let numScorePlayerTwo = 0
-
-const isAnimating = ref(true)
-const isGameOver = ref(false)
-const winner = ref('')
 
 // Initialize players with the provided names
 player = new Player(
@@ -196,6 +222,8 @@ function scoreTracker(score : number) {
         console.log(`${player.getName()} lost!`)
         endGame(playerAI.getName())
       }
+      else
+        emitData(IS_STATE);
     } else if (score === 2) { // Player one won the point
       numScorePlayerOne += 1
       scorePlayer1.updateScore(numScorePlayerOne)
@@ -205,10 +233,11 @@ function scoreTracker(score : number) {
         console.log(`${playerAI.getName()} lost!`)
         endGame(player.getName())
       }
+      else
+        emitData(IS_STATE);
     } else {
       console.error('Unexpected check value')
     }
-    emitData(IS_STATE);
     returnObjectsToPlace()
     isAnimating.value = false
     return
@@ -244,6 +273,10 @@ function update() {
   let score = ball.update()
   if (score) { // Someone scored a point
     scoreTracker(score);
+    window.removeEventListener('keydown', toggleAnimation)
+    setTimeout(() => {
+    window.addEventListener('keydown', toggleAnimation)
+  }, 1000)
   }
 
   player.update()
@@ -283,11 +316,12 @@ function toggleAnimation(event: KeyboardEvent) {
 function emitData(status: string) {
   setTimeout(() => {
     scores = [numScorePlayerOne, numScorePlayerTwo]
-    dateEnd = Date.now() / 1000
     playersHits = [player.getHits(), playerAI.getHits()]
     // winner.value = 'none';
 
     // Emit the tournament data to the parent component
+    let time_played = ((Date.now() / 1000) - startTime + stateTime)
+    time_played = Math.floor(time_played);
     emit('gameOver', {
       status: status,
       winner: winner.value,
@@ -295,7 +329,7 @@ function emitData(status: string) {
       player_scores: scores,
       player_ids: ids,
       player_hits: playersHits,
-      time_played: Math.floor(dateEnd - dateStart),
+      time_played: time_played,
       tournament_type: 'AI'
     })
   }, 1000)
@@ -321,7 +355,9 @@ onMounted(async () => {
   window.addEventListener('resize', () => {
     three.resize(window.innerWidth, window.innerHeight)
   })
-  window.addEventListener('keydown', toggleAnimation)
+  setTimeout(() => {
+    window.addEventListener('keydown', toggleAnimation)
+  }, 1000)
   three.startAnimation(update)
 })
 

@@ -21,15 +21,15 @@
                     <h3 class="mb-3">Choose Game Mode:</h3>
                     <div class="game-mode-options">
                         <label v-if="isOnline === 'Offline'" class="game-mode-label">
-                            <input v-model="gameMode" type="radio" value="onePlayer" required />
+                            <input v-model="gameMode" type="radio" value="AI" required />
                             One Player (vs AI)
                         </label>
                         <label class="game-mode-label">
-                            <input v-model="gameMode" type="radio" value="twoPlayer" required />
+                            <input v-model="gameMode" type="radio" value="2P" required />
                             Two Player
                         </label>
                         <label class="game-mode-label">
-                            <input v-model="gameMode" type="radio" value="eightPlayer" required />
+                            <input v-model="gameMode" type="radio" value="4P" required />
                             Tournament (4|8 Player)
                         </label>
                     </div>
@@ -37,7 +37,7 @@
 
                 <!-- Player Input Fields -->
                 <div v-if="gameMode" class="player-inputs">
-                    <span v-if="gameMode === 'onePlayer'" class="vs-text">
+                    <span v-if="gameMode === 'AI'" class="vs-text">
                         {{ userOne.nickname }} VS AI
                         <div class="form-check form-switch" style="margin-left: 10px;">
                             <input class="form-check-input" type="checkbox" v-model="isAudioEnabled" id="audioSwitch">
@@ -45,10 +45,10 @@
                         </div>
                     </span>
                 
-                    <div v-if="gameMode !== 'onePlayer'" class="player-group">
+                    <div v-if="gameMode !== 'AI'" class="player-group">
                         <div class="player-group">
                             <!-- Inside your player group for two-player mode -->
-                            <div v-if="gameMode === 'twoPlayer'" class="player-group">
+                            <div v-if="gameMode === '2P'" class="player-group">
                                 <span class="player-nickname">{{ userOne.nickname }}</span>
                                 <span class="vs-text">VS</span>
                                 <select class="form-select" required>
@@ -60,7 +60,7 @@
                             </div>
                 
                             <!-- Inside your player group for eight-player mode -->
-                            <div v-if="gameMode === 'eightPlayer' && (users.length == 4 || users.length == 8)">
+                            <div v-if="gameMode === '4P' && (users.length == 4 || users.length == 8)">
                                 <div v-for="(user, index) in users" :key="index" class="player-group">
                                     <!-- The player that should be in the left side of the column for the Tournament -->
                                     <div v-if="index % 2 == 0" class="player-select-wrapper" style="display: flex; align-items: center;">
@@ -84,7 +84,7 @@
                     </div>
 
                     <!-- AI Difficulty Selection for One Player Mode -->
-                    <div v-if="gameMode === 'onePlayer'" class="ai-difficulty">
+                    <div v-if="gameMode === 'AI'" class="ai-difficulty">
                         <select v-model="aiDifficulty" class="form-select" required>
                             <option value="">Choose difficulty...</option>
                             <option value="0.3">Easy</option>
@@ -96,7 +96,7 @@
                 </div>
 
                 <button
-                    v-if="gameMode && (gameMode === 'onePlayer' || (gameMode === 'twoPlayer' && users.length >= 2) || (gameMode === 'eightPlayer' && (users.length == 4 || users.length == 8)))"
+                    v-if="gameMode && (gameMode === 'AI' || (gameMode === '2P' && users.length >= 2) || (gameMode === '4P' && (users.length == 4 || users.length == 8)))"
                     type="submit" class="btn btn-primary mt-4">Start Game</button>
             </form>
              </div>
@@ -254,13 +254,13 @@ const startGame = () => {
         isAudioEnabled: isAudioEnabled.value,
     };
 
-    if (gameMode.value === 'onePlayer') {
+    if (gameMode.value === 'AI') {
         data.players.push({
             player: userOne.value.nickname,
             id: userOne.value.id,
         });
         data.aiDifficulty = aiDifficulty.value;
-    } else if (gameMode.value === 'twoPlayer') {
+    } else if (gameMode.value === '2P') {
         const selectedOpponent = document.querySelector('.player-group select').value;
         const opponent = users.value.find(user => user.nickname === selectedOpponent);
         if (opponent) {
@@ -273,7 +273,7 @@ const startGame = () => {
                 id: opponent.id,
             });
         }
-    } else if (gameMode.value === 'eightPlayer') {
+    } else if (gameMode.value === '4P') {
         const selects = document.querySelectorAll('.player-select-wrapper select');
         selects.forEach(select => {
             const selectedNickname = select.value;
