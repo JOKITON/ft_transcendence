@@ -76,7 +76,7 @@ const handleStartGame = async (data) => {
     player_hits: [],
     time_played: 0
   }
-  await fetchStateData()
+  await fetchStateData(gameMode)
   if (statePongData.value.tournament_type === gameMode)
     statePongData.value.check = true;
   // gameMode == statePongData?.tournament_type
@@ -103,11 +103,11 @@ const handleStartGame = async (data) => {
 const IS_STATE = 'P'
 const IS_COMPLETED = 'C'
 
-const fetchStateData = async () => {
+const fetchStateData = async (gameMode : string) => {
   try {
     const responseWhoAmI = await Auth.whoami()
     user.value.id = responseWhoAmI.id
-    const responseState = await api.get<intStatePongData>('/pong/get-state/' + user.value.id + '/')
+    const responseState = await api.get<intStatePongData>('/pong/get-state/' + gameMode + '/' + user.value.id + '/')
     if (responseState.data) {
       statePongData.value = responseState.data
     } else if (responseState.data === undefined) {

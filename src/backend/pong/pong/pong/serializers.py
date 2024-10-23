@@ -92,7 +92,7 @@ class PongGameSerializer(serializers.ModelSerializer):
             player1=p1,
             player2=p2,
             player_ids=player_ids,
-            player_hits=player_hits[0] + player_hits[1],
+            player_hits=player_hits,
             player_names=player_names,
             player_scores=player_scores,
             time_played=time_played,
@@ -159,7 +159,7 @@ class PongGameStateSerializer(serializers.ModelSerializer):
                 'status': status,
                 'player1': p1,
                 'player2': p2,
-                'player_hits': player_hits[0] + player_hits[1],
+                'player_hits': player_hits,
                 'player_names': player_names,
                 'player_scores': player_scores,
                 'time_played': time_played,
@@ -168,7 +168,7 @@ class PongGameStateSerializer(serializers.ModelSerializer):
         )
         
         if not created:
-            tournament.player_hits = player_hits[0] + player_hits[1]
+            tournament.player_hits = player_hits
             tournament.player_scores = player_scores
             tournament.time_played = time_played
             tournament.save()

@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/30 22:18:38 by jaizpuru          #+#    #+#              #
-#    Updated: 2024/10/22 19:20:47 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/23 11:36:39 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -72,6 +72,32 @@ class PongGameDataView(APIView):
         print(game_data)
         return Response({"data": game_data}, status=status.HTTP_200_OK)
 
+class AnyPongGameDataView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk=None, tournament_type=None):
+        print(request)
+        # Fetch the player data for the current user
+        try:
+            game = PongGame.objects.get((Q(player1_id=pk) | Q(player2_id=pk)) & Q(tournament_type=tournament_type, status='P'))
+        except PongGame.DoesNotExist:
+            return Response(data={"message": "Game not found"}, status=status.HTTP_200_OK)
+        
+        game_data = {
+            "id": game.id,
+            "status": game.status,
+            "tournament_type": game.tournament_type,
+            "player_ids": game.player_ids,
+            "player_names": game.player_names,
+            "player_scores": game.player_scores,
+            "player_hits": game.player_hits,
+            "time_played": game.time_played,
+            # Add other fields as necessary
+        }
+        print(game_data)
+        return Response({"data": game_data}, status=status.HTTP_200_OK)
+
 class LeaderBoardView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -79,6 +105,8 @@ class LeaderBoardView(APIView):
     def get(self, request):
         # Query all Player objects
         players = Player.objects.all().order_by('-wins')
+        if not players:
+            return Response(data={"message": "No players found"}, status=status.HTTP_404_NOT_FOUND)
 
         # Use the serializer to serialize the player data
         serializer = LeaderBoardSerializer(players, many=True)

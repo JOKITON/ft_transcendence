@@ -59,9 +59,9 @@ let numScorePlayerTwo = 0
 const isAnimating = ref(true)
 const isGameOver = ref(false)
 const winner = ref('')
+const stateData = props.hasStateData
 
-if (props.hasStateData.check == true) {
-  let stateData = props.hasStateData;
+if (stateData.check == true) {
   console.log('State data:', stateData)
   setStatePongDate(stateData);
 }
@@ -176,6 +176,10 @@ playerAI = new Player(
   'AI'
 )
 playerAI.setAiDifficulty(Number(props.aiDifficulty))
+if (stateData.check == true && stateData.player_hits.length > 0) {
+  player.setHits(stateData.player_hits[0])
+  playerAI.setHits(stateData.player_hits[1])
+}
 
 function setHelpText() {
   helpTextPlayerOne.updateScore(player1Name.value)

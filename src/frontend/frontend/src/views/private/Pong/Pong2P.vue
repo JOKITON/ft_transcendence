@@ -82,7 +82,7 @@ function setInitialValues() {
   player2Name.value = (props.players[1].player)
   console.log('Player:', player1Name.value)
   gamePlayers = [player1Name.value, player2Name.value]
-  ids = [props.players[0].id, 0]
+  ids = [props.players[0].id, props.players[1].id]
 }
 
 const three = new ThreeService(window.innerWidth, window.innerHeight);

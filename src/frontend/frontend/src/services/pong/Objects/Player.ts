@@ -188,6 +188,10 @@ export default class Player extends Box implements IPlayer {
     this.hits = 0;
   }
 
+  public setHits(hits: number) : void {
+    this.hits = hits;
+  }
+
   public getHits() : number {
     return this.hits;
   }
