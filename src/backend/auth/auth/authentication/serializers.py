@@ -6,6 +6,9 @@ from UserModel.models import User
 from typing import List
 import logging
 import re
+import os
+import base64
+from django.core.files.storage import default_storage
 from django.contrib.auth import get_user_model
 
 logger = logging.getLogger(__name__)
@@ -194,7 +197,6 @@ class GetUsersSerializer(serializers.Serializer):
         
         users = User.objects.filter(username__icontains=query).exclude(id=user.id)
         
-        # Uso de UserSerializer para serializar solo los campos necesarios
         user_list = []
         for user in users:
             user_list.append({
@@ -226,3 +228,47 @@ class GetUserByIdSerializer(serializers.Serializer):
             "email": user.email,
             "avatar": str(user.avatar),
         }
+    
+class UpdateAvatarSerializer(serializers.Serializer):
+    image: serializers.ImageField = serializers.ImageField(required=True)
+
+    def validate_image(self, image):
+        valid_mime_types = ['image/jpeg', 'image/png', 'image/jpg']
+        if image.content_type not in valid_mime_types:
+            raise serializers.ValidationError('Unsupported file type.')
+        if image.size > 5 * 1024 * 1024:
+            raise serializers.ValidationError('File too large. Size should not exceed 5 MB.')
+
+        if os.path.exists(f'avatars/{image.name}'):
+            raise serializers.ValidationError('Avatar with this name already exists.')
+        
+        return image
+
+    def save(self, user):
+        image = self.validated_data['image']
+        """ file_extension = image.name.split('.')[-1]
+        unique_filename = f'{uuid.uuid4()}.{file_extension}'
+        file_path = os.path.join('avatars', unique_filename)
+
+        filename = default_storage.save(file_path, image) """
+        filename = default_storage.save(f'avatars/{image.name}', image)
+        user.avatar = filename
+        user.save()
+
+        return user
+
+class GetAvatarSerializer(serializers.Serializer):
+    avatar = serializers.CharField(read_only=True)
+
+    def get_avatar(self):
+        user = self.context['user']
+
+        if user.avatar:
+            avatar_path = user.avatar.path
+            if os.path.exists(avatar_path):
+                with open(avatar_path, 'rb') as avatar_file:
+                    return {"avatar_base64": base64.b64encode(avatar_file.read()).decode('utf-8')}
+            else:
+                raise serializers.ValidationError("Avatar file does not exist.")
+        else:
+            raise serializers.ValidationError("User has no avatar.")
