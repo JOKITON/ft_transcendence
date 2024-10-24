@@ -23,21 +23,30 @@
               </button>
 
               <button
-                v-if="userData.friendRequestSent && !userData.isFriend"
+              v-else-if="userData.friendRequestSent && !userData.isFriend"
                 class="btn background-button mt-3 mx-2"
                 disabled
               >
                 Friend Request Sent
               </button>
-
+              
+              
               <button
-                v-if="userData.isFriend"
+              v-else-if="userData.is_blocked"
+              class="btn background-button mt-3 mx-2"
+              disabled
+              >
+              Blocked user
+              </button>
+            
+              <button
+                v-else-if="userData.isFriend"
                 class="btn background-button mt-3 mx-2"
                 disabled
-              >
+                >
                 Already Friends
               </button>
-
+            
               <button class="btn border-button mt-3 mx-2" @click="handleSendMessage(userData)">
                 Message
               </button>
@@ -55,7 +64,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, inject, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import NavHome from './NavHome.vue';
 import Stats from './Stats.vue';
 import FriendList from './FriendList.vue';
@@ -73,6 +82,7 @@ interface Friend {
 
 const api = inject('$api') as Api;
 const route = useRoute();
+const router = useRouter();
 
 // Variables reactivas
 const userId = ref<number | null>(null);
@@ -85,7 +95,8 @@ const userData = ref({
   email: '',
   avatar: '',
   isFriend: false,
-  friendRequestSent: false
+  friendRequestSent: false,
+  is_blocked: false
 });
 const userLoaded = ref(false);
 
@@ -113,23 +124,36 @@ const checkIfFriend = (friends: Friend[], userId: number) => {
   return friends.some(friend => friend.id === userId);
 };
 
+const checkIfBloked = (friends: Friend[], userId: number) => {
+  console.log('Checking if user is blocked:', friends, userId);
+  return friends.some(friend => 
+    friend.id === userId && (friend.is_blocked_by_user || friend.is_blocked_by_friend)
+  );
+};
 // Función para cargar los datos del usuario
 const fetchUserData = async (id: number) => {
   try {
     const response = await api.get(`auth/search-user-id/${id}/`);
-    userData.value = {
-      id: response.user_data.id,
-      username: response.user_data.username,
-      nickname: response.user_data.nickname,
-      email: response.user_data.email,
-      avatar: response.user_data.avatar,
-      isFriend: checkIfFriend(friends.value, response.user_data.id),
-      friendRequestSent: false
-    };
-    userLoaded.value = true;
+    console.log(response)
+    if (response.status === 200) {
+      userData.value = {
+        id: response.user_data.id,
+        username: response.user_data.username,
+        nickname: response.user_data.nickname,
+        email: response.user_data.email,
+        avatar: response.user_data.avatar,
+        isFriend: checkIfFriend(friends.value, response.user_data.id),
+        is_blocked: checkIfBloked(friends.value, response.user_data.id),
+  
+      };
+      userLoaded.value = true;
+    } else {
+      handleUserNotFound();
+    }
   } catch (error) {
     console.error('Error fetching user data:', error);
     errorMessage.value = 'Error al cargar los datos del usuario';
+    handleUserNotFound();
   }
 };
 
@@ -158,7 +182,7 @@ watch(() => route.params.id, (newId: string) => {
 // Cargar amigos y datos del usuario cuando se monta el componente
 onMounted(async () => {
   try {
-    userId.value = parseInt(route.params.id, 10);
+    userId.value = parseInt(route.params.id, 10); // COMPARAR QUE ESTA ID NO SEA LA NUESTRA
     if (userId.value) {
       // Cargar lista de amigos
       const response = await api.get<{ friends: Friend[] }>(`friendship/friends`);
@@ -175,9 +199,13 @@ onMounted(async () => {
     console.error('Error al cargar los amigos o datos del usuario:', error);
   }
 });
-</script>
 
-  
+const handleUserNotFound = () => {
+  alert('El ID no pertenece a ningún usuario.');
+  router.push('/home');
+};
+
+</script>
   
 <style scoped>
 

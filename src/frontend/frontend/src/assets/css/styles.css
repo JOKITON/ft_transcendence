@@ -124,6 +124,20 @@
   color: rgba(19, 14, 43, 0.9) !important;
 }
 
+.txoinas-button{
+  border: 2px solid rgb(206, 29, 82) !important;
+  color:#ebd2ff !important;
+  font-family: Titulo !important;
+  margin: 10px !important;
+  font-size: 1.2em !important;
+  padding: 0.4em 0.7em !important;
+}
+
+.txoinas-button:hover {
+  background-color: rgb(206, 29, 82) !important;
+  color: rgba(19, 14, 43, 0.9) !important;
+}
+
 /* ESTILOS PARA EL TITULO DEL REGISTRO Y EL LOGIN */
 
 .data-card-title {

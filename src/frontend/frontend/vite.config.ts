@@ -14,29 +14,7 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 3000,
-    proxy: {
-      '/api/v1/auth/': {
-        target: 'http://auth:80',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/auth/, '/api/auth'),
-      },
-      '/api/v1/pong/': {
-        target: 'http://pong:80',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/pong/, '/api/pong'),
-      },
-      '/api/v1/friendship/': {
-        target: 'http://friendship:80',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/admin/, '/api/admin'),
-      },
-      '/api/v1/livechat/ws/': {
-        target: 'http://livechat:80',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/admin/, '/api/admin'),
-      },
-    },
+    port: 80,
     open: true,
     cors: true
   }

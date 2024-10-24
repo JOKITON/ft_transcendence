@@ -1,6 +1,7 @@
 <template>
     <div class="form-container">
         <div class="form-content">
+            <h2 class="title">Play Menu</h2>
             <form @submit.prevent="startGame" class="game-form">
                 <div class="d-flex justify-content-center mt-4">
                     <!-- Toggle buttons for Online/Offline mode -->
@@ -20,15 +21,15 @@
                     <h3 class="mb-3">Choose Game Mode:</h3>
                     <div class="game-mode-options">
                         <label v-if="isOnline === 'Offline'" class="game-mode-label">
-                            <input v-model="gameMode" type="radio" value="onePlayer" required />
+                            <input v-model="gameMode" type="radio" value="AI" required />
                             One Player (vs AI)
                         </label>
                         <label class="game-mode-label">
-                            <input v-model="gameMode" type="radio" value="twoPlayer" required />
+                            <input v-model="gameMode" type="radio" value="2P" required />
                             Two Player
                         </label>
                         <label class="game-mode-label">
-                            <input v-model="gameMode" type="radio" value="eightPlayer" required />
+                            <input v-model="gameMode" type="radio" value="4P" required />
                             Tournament (4|8 Player)
                         </label>
                     </div>
@@ -36,7 +37,7 @@
 
                 <!-- Player Input Fields -->
                 <div v-if="gameMode" class="player-inputs">
-                    <span v-if="gameMode === 'onePlayer'" class="vs-text">
+                    <span v-if="gameMode === 'AI'" class="vs-text">
                         {{ userOne.nickname }} VS AI
                         <div class="form-check form-switch" style="margin-left: 10px;">
                             <input class="form-check-input" type="checkbox" v-model="isAudioEnabled" id="audioSwitch">
@@ -44,10 +45,10 @@
                         </div>
                     </span>
                 
-                    <div v-if="gameMode !== 'onePlayer'" class="player-group">
+                    <div v-if="gameMode !== 'AI'" class="player-group">
                         <div class="player-group">
                             <!-- Inside your player group for two-player mode -->
-                            <div v-if="gameMode === 'twoPlayer'" class="player-group">
+                            <div v-if="gameMode === '2P'" class="player-group">
                                 <span class="player-nickname">{{ userOne.nickname }}</span>
                                 <span class="vs-text">VS</span>
                                 <select class="form-select" required>
@@ -59,7 +60,7 @@
                             </div>
                 
                             <!-- Inside your player group for eight-player mode -->
-                            <div v-if="gameMode === 'eightPlayer' && (users.length == 4 || users.length == 8)">
+                            <div v-if="gameMode === '4P' && (users.length == 4 || users.length == 8)">
                                 <div v-for="(user, index) in users" :key="index" class="player-group">
                                     <!-- The player that should be in the left side of the column for the Tournament -->
                                     <div v-if="index % 2 == 0" class="player-select-wrapper" style="display: flex; align-items: center;">
@@ -83,7 +84,7 @@
                     </div>
 
                     <!-- AI Difficulty Selection for One Player Mode -->
-                    <div v-if="gameMode === 'onePlayer'" class="ai-difficulty">
+                    <div v-if="gameMode === 'AI'" class="ai-difficulty">
                         <select v-model="aiDifficulty" class="form-select" required>
                             <option value="">Choose difficulty...</option>
                             <option value="0.3">Easy</option>
@@ -95,13 +96,17 @@
                 </div>
 
                 <button
-                    v-if="gameMode && (gameMode === 'onePlayer' || (gameMode === 'twoPlayer' && users.length >= 2) || (gameMode === 'eightPlayer' && (users.length == 4 || users.length == 8)))"
+                    v-if="gameMode && (gameMode === 'AI' || (gameMode === '2P' && users.length >= 2) || (gameMode === '4P' && (users.length == 4 || users.length == 8)))"
                     type="submit" class="btn btn-primary mt-4">Start Game</button>
             </form>
-
+             </div>
+            <div class="trophy-container">
+		        <img :src="img1" alt="Trophy" class="trophy-image" />
+	        </div>
             <!-- Leaderboard Section -->
-            <div v-if="gameMode == false" class="leaderboard mt-10000">
-                <h6 class="d-flex align-items-center mb-3">Leaderboard</h6>
+            <div class="leaderboard-container">
+            <div v-if="gameMode == false" class="leaderboard">
+                <h6 class="leaderboard-title">Leaderboard</h6>
                 <ul class="list-group">
                     <li v-for="(user, index) in leaderboard" :key="user.id"
                         class="list-group-item d-flex justify-content-between align-items-center">
@@ -115,14 +120,15 @@
                     </li>
                 </ul>
             </div>
+            </div>
         </div>
-    </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, computed, inject } from 'vue';
 import type Api from '@/utils/Api/Api'
 import auth from '../../../services/user/services/auth/auth.ts'
+import img1 from '../../../assets/avatars/trofeo.png';
 
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
@@ -248,13 +254,13 @@ const startGame = () => {
         isAudioEnabled: isAudioEnabled.value,
     };
 
-    if (gameMode.value === 'onePlayer') {
+    if (gameMode.value === 'AI') {
         data.players.push({
             player: userOne.value.nickname,
             id: userOne.value.id,
         });
         data.aiDifficulty = aiDifficulty.value;
-    } else if (gameMode.value === 'twoPlayer') {
+    } else if (gameMode.value === '2P') {
         const selectedOpponent = document.querySelector('.player-group select').value;
         const opponent = users.value.find(user => user.nickname === selectedOpponent);
         if (opponent) {
@@ -267,7 +273,7 @@ const startGame = () => {
                 id: opponent.id,
             });
         }
-    } else if (gameMode.value === 'eightPlayer') {
+    } else if (gameMode.value === '4P') {
         const selects = document.querySelectorAll('.player-select-wrapper select');
         selects.forEach(select => {
             const selectedNickname = select.value;
@@ -297,10 +303,31 @@ const startGame = () => {
 }
 
 .form-content {
-	background-color: white;
-	padding: 20px;
-	border-radius: 8px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	background-color: #f9f9f9;
+	padding: 30px;
+	border-radius: 16px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+	width: 100%;
+	max-width: 500px;
+	font-family: Titulo, sans-serif;
+}
+
+.title {
+	font-family: Titulo, sans-serif;
+	font-size: 2rem;
+	color: #007bff;
+	margin-bottom: 1.5rem;
+	text-align: center;
+}
+
+.game-form {
+	width: 100%;
+}
+.toggle-btn {
+	font-size: 1.2rem;
+	font-weight: bold;
+	padding: 0.75rem 1.5rem;
+	border-radius: 12px;
 }
 
 h3 {
@@ -379,14 +406,21 @@ h3 {
 }
 
 .leaderboard {
-	margin-top: 2rem;
+	background-color: #2c3e50;
+	padding: 1.5rem;
+	border-radius: 20px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+	width: 100%;
+	max-width: 500px;
+}
+.list-group-item {
+	background-color: #34495e;
+	border-radius: 12px;
+	color: #ecf0f1;
+	border: none;
+	margin-bottom: 0.5rem;
 }
 
-.list-group-item {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
 
 .status-indicator {
 	display: inline-block;
@@ -403,4 +437,28 @@ h3 {
 .bg-danger {
 	background-color: #dc3545;
 }
+.trophy-image {
+	width: 150px;
+	height: auto;
+    justify-content: center;
+}
+.trophy-container {
+	margin-top: 2rem;
+    justify-content: center;
+}
+.leaderboard-container {
+	margin-top: 2rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.leaderboard-title {
+	font-family: Titulo, sans-serif;
+	font-size: 1.5rem;
+	color: #ecf0f1;
+	text-align: center;
+	margin-bottom: 1rem;
+}
+
+
 </style>

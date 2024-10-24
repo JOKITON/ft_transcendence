@@ -47,7 +47,7 @@
     </div>
     <!-- Solicitudes de amistad -->
     <div class="col-sm-6 mb-3">
-      <div class="card h-100 card-scrollable">
+      <div class="user-card  h-100 card-scrollable">
         <div class="card-body card-body2">
           <h6 class="d-flex align-items-center mb-3">Friend Requests</h6>
           <div class="d-flex flex-column">

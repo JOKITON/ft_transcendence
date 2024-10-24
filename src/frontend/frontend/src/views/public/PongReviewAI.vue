@@ -13,19 +13,24 @@ import Wall from '../../services/pong/Objects/Wall';
 import { handleCollisions } from '../../services/pong/Objects/Utils/Utils';
 import FontService from '../../services/pong/Objects/Text/FontService';
 
-const three = new ThreeService(1200, 700);
+import {
+  setBallVelocity,
+  dateStart,
+  ballGeometry,
+  ballGeometry2,
+  ballVelocity,
+  vecHorizWall,
+  bounds
+} from '../../services/pong/Objects/Utils/pongVariables'
+import { BIT_FONT, MONTSERRAT_FONT } from '../../services/pong/Objects/Utils/pongVariables'
 
-// Define bounds of the Pong game
-const bounds = { minX: -16.2, maxX: 16.2, minY: -9.2, maxY: 9.2, minZ: 0, maxZ: 0 };
+const three = new ThreeService(800, 500);
+;
 
 // Ball object
-const ballVectorY = Math.random() * 0.2 - 0.1;
-const ballVelocity = new Vector3(0.25, ballVectorY, 0);
-const ballGeometry = [0.33, 10, 10];
 const ball = new Sphere(ballGeometry, new Color('white'), new Vector3(0, 0, 0), ballVelocity, bounds);
 
 // Horizontal walls
-const vecHorizWall = new Vector3(33, 0.3, 1);
 const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'));
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
 
@@ -43,21 +48,21 @@ let helpTextPlayerTwo: HelpText;
 let finalScore: GameOver;
 
 async function loadFont() {
-  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((font) => {
-    font.value = font;  
+  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((loadedFont) => {
+    const font = loadedFont;  
 
     // Vertical dashed wall
-    wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1), font.value);
-    scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font.value);
-    scorePlayerAI = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font.value);
-    helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font.value);
+    wallMid = new DashedWall("- - - - - - - -", new Color('green'), new Vector3(0, 0, -1), font);
+    scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font);
+    scorePlayerAI = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font);
+    helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font);
 
-    helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0));
+    helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0) , BIT_FONT, 1);
 
-    helpTextPlayerOne = new HelpText('AI', new Color('white'), new Vector3(-16, 3.5, 0));
-    helpTextPlayerTwo = new HelpText('AI', new Color('white'), new Vector3(16, 3.5, 0));
+    helpTextPlayerOne = new HelpText('AI', new Color('white'), new Vector3(-16, 3.5, 0), BIT_FONT, 1);
+    helpTextPlayerTwo = new HelpText('AI', new Color('white'), new Vector3(16, 3.5, 0), BIT_FONT, 1);
 
-    finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font.value);
+    finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font);
   });
 }
 

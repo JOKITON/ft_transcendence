@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from UserModel.models import User
 from typing import List
 import logging
+import re
 from django.contrib.auth import get_user_model
 
 logger = logging.getLogger(__name__)
@@ -139,6 +140,7 @@ class UserDataSerializer(serializers.Serializer):
         user.save()
         return user
 
+
 class PasswdSerializer(serializers.Serializer):
     currentPassword: serializers.CharField = serializers.CharField(required=True)
     newPassword: serializers.CharField = serializers.CharField(required=True)
@@ -149,10 +151,7 @@ class PasswdSerializer(serializers.Serializer):
         fields: List = ["currentPasswd", "newPasswd", "confirmPasswd"]
 
     def validate(self, attrs):
-        #
-        print(attrs)
         user = self.context['request'].user
-        print(self.context['request'])
 
         # Obtener los campos de la solicitud
         current_password = attrs.get('currentPassword')
@@ -179,3 +178,51 @@ class PasswdSerializer(serializers.Serializer):
         user.password = make_password(new_password)
         user.save()
         return user
+
+
+class GetUsersSerializer(serializers.Serializer):
+    query = serializers.CharField(required=True)
+
+    def validate_query(self, value):
+        if not re.match(r'^[\w\s]+$', value):
+            raise serializers.ValidationError("La consulta solo puede contener letras, números y espacios.")
+        return value
+
+    def get_users(self):
+        user = self.context['request'].user
+        query = self.validated_data.get('query', '')
+        
+        users = User.objects.filter(username__icontains=query).exclude(id=user.id)
+        
+        # Uso de UserSerializer para serializar solo los campos necesarios
+        user_list = []
+        for user in users:
+            user_list.append({
+                "id": user.id,
+                "username": user.username
+            })
+        
+        return user_list
+
+
+class GetUserByIdSerializer(serializers.Serializer):
+    user_id: serializers.IntegerField = serializers.IntegerField(required=True)
+
+    def validate_user_id(self, value):
+        authenticated_user = self.context['request'].user
+        if not User.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Usuario no encontrado")
+        if value == authenticated_user.id:
+            raise serializers.ValidationError("No puedes usar tu propio ID.")
+        return value
+
+    def get_user_data(self):
+        user_id = self.validated_data.get('user_id')
+        user = User.objects.get(id=user_id)
+        return {
+            "id": user.id,
+            "username": user.username,
+            "nickname": user.nickname,
+            "email": user.email,
+            "avatar": str(user.avatar),
+        }

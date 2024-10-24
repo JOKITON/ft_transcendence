@@ -65,9 +65,9 @@
             </span>
           </a>
           <!-- Desplegable de notificaciones -->
-          <ul class="dropdown-menu text-small" :class="{ show: isDropdownNotificationsVisible }">
-            <li v-if="friendRequests.length === 0" class="dropdown-item">No new friend requests</li>
-            <li v-for="request in friendRequests" :key="request.id" class="dropdown-item" @click="goToFriends">
+          <ul class="dropdown-menu text-small nav-drop" :class="{ show: isDropdownNotificationsVisible }">
+            <li v-if="friendRequests.length === 0" class="dropdown-item nav-drop-item">No new friend requests</li>
+            <li v-for="request in friendRequests" :key="request.id" class="dropdown-item nav-drop-item" @click="goToFriends">
               <span v-if="request.friend">
                 <strong>{{ request.friend.username }}</strong> has sent you a friend request
               </span>
@@ -138,19 +138,29 @@ interface FriendRequest {
 interface FriendRequestsResponse {
   pending_requests: FriendRequest[];
 }
+
+
 /* ----- BUSCAR USUARIO ----- */
 
 const performSearch = async (): Promise<void> => {
   if (searchQuery.value.length > 0) {
     try {
       const response = await api.get(`auth/search-users?q=${searchQuery.value}`)
-      console.log(response)
-      searchResults.value = response.user_list // Se asignan los resultados de la búsqueda al array de usuarios
+      if (response.status === 200) {
+        searchResults.value = response.user_list
+      } else {
+        window.alert(response.message)
+        searchQuery.value = "";
+        searchResults.value = []
+      }
     } catch (error: any) {
-      console.error('Error searching users:', error)
+      console.error('Error searching users:', error)// ????
+      window.alert("Error searching users")
+      searchQuery.value = "";
+      searchResults.value = []
     }
   } else {
-    searchResults.value = []  // Si no hay búsqueda, vaciamos los resultados
+    searchResults.value = []
   }
 }
 
