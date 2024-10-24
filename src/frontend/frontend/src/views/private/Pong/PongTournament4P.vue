@@ -9,51 +9,88 @@ import Score from '../../../services/pong/Objects/Text/Score'
 import HelpText from '../../../services/pong/Objects/Text/HelpText'
 import GameOver from '../../../services/pong/Objects/Text/GameOver'
 import Wall from '../../../services/pong/Objects/Wall'
-import { handleCollisions } from '../../../services/pong/Objects/Utils/Utils'
+import { blinkObject, handleCollisions } from '../../../services/pong/Objects/Utils/Utils'
 import FontService from '../../../services/pong/Objects/Text/FontService'
 import LuckySphere from '../../../services/pong/Objects/LuckySphere'
 
 import {
-  dateStart,
+  type intStatePongData,
   ballGeometry,
   ballGeometry2,
-  vecHorizWall,
   ballVelocity,
-  bounds
+  vecHorizWall,
+  bounds,
+  ballVectorY
 } from '../../../services/pong/Objects/Utils/pongVariables'
-import { BIT_FONT, MONTSERRAT_FONT } from '../../../services/pong/Objects/Utils/pongVariables'
+import {
+  IS_STATE,
+  IS_COMPLETED,
+  SCORE_TO_WIN,
+  BIT_FONT,
+  MONTSERRAT_FONT
+} from '../../../services/pong/Objects/Utils/pongVariables'
+
+const emit = defineEmits(['gameOver'])
 
 const props = defineProps({
   players: Array<Object>
 })
-
 const players = props.players
-// console.log('Players: ', players);
-// console.log('Ids: ', props.players[0].id);
+const playerCount: number = players.length
 
-const playerCount = props.players.length
-// console.log('Player count:', playerCount)
+// Data to return
+let ids: Array<number>
+let player_names: Array<string>
+let player_scores: Array<Array<number>> = [[]]
+let startTime: number
+let stateTime: number = 0
 
-const emit = defineEmits(['gameOver'])
+ids = players.map((player) => player.id)
+player_names = players.map((player) => player.player)
+player_scores = Array.from({ length: playerCount }, () => Array(1).fill(0))
+startTime = Date.now() / 1000
 
-// Index to track the current game in the tournament
-let indexGame = 0
+/* 
+console.log('Ids: ', ids);
+console.log('Player names: ', player_names);
+ */
+
+/* console.log('Player count:', playerCount) */
 
 // Extract initial players for the current game
-let player1Name = ref(props.players?.[0]?.player || 'Player 1')
-let player2Name = ref(props.players?.[1]?.player || 'Player 2')
+let player1Name = ref(player_names[0])
+let player2Name = ref(player_names[1])
 
-props.players.forEach((player, index) => {
-  if (index % 2 === 0 && index + 1 < props.players.length) {
+// To store scores of each player
+let numScorePlayerOne = 0
+let numScorePlayerTwo = 0
+
+/* Player positions */
+let finalOne = ''
+let finalTwo = ''
+let winner : string | null = null
+let loser : string | null = null
+
+// Reactive variables
+const isAnimating = ref(true)
+const isGameOver = ref(false)
+
+/*
+// Print all the player matches
+players.forEach((player, index) => {
+  if (index % 2 === 0 && index + 1 < playerCount) {
     const player1 = player
-    const player2 = props.players[index + 1]
+    const player2 = players[index + 1]
     console.log('{', player1.player, '} vs {', player2.player, '}')
   }
 })
+*/
 
 const three = new ThreeService(window.innerWidth, window.innerHeight)
 
-// Ball object
+const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'))
+const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'))
+
 const ball = new Sphere(
   ballGeometry,
   new Color('white'),
@@ -62,16 +99,11 @@ const ball = new Sphere(
   bounds
 )
 
-// Horizontal walls
-const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'))
-const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'))
-
-const luckySphere = new LuckySphere(ballGeometry2, new Color('yellow'));
+const luckySphere = new LuckySphere(ballGeometry2, new Color('yellow'))
 
 let wallMid: DashedWall // Vertical dashed wall
 let scorePlayer1: Score
 let scorePlayer2: Score
-let helpText: GameOver
 
 let helpTextSpace: HelpText
 let helpTextPlayerOne: HelpText
@@ -84,30 +116,20 @@ let finalScore: GameOver
 
 async function loadFont() {
   await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((loadedFont) => {
-    const font = loadedFont;
+    const font = loadedFont
 
     // Vertical dashed wall
-    wallMid = new DashedWall(
-      '- - - - - - - -',
-      new Color('green'),
-      new Vector3(0, 0, -1),
-      font
-    )
-    scorePlayer1 = new Score(
-      variableScoreOne,
-      new Color('white'),
-      new Vector3(-2, 7.5, 0),
-      font
-    )
-    scorePlayer2 = new Score(
-      variableScoreTwo,
-      new Color('white'),
-      new Vector3(2, 7.5, 0),
-      font
-    )
-    helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font)
+    wallMid = new DashedWall('- - - - - - - -', new Color('green'), new Vector3(0, 0, -1), font)
+    scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font)
+    scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font)
 
-    helpTextSpace = new HelpText('Press space to start', new Color('white'), new Vector3(0, 3.5, 0), BIT_FONT, 1)
+    helpTextSpace = new HelpText(
+      'Press space to start',
+      new Color('white'),
+      new Vector3(0, 3.5, 0),
+      BIT_FONT,
+      1
+    )
 
     // Set text for the player names
     helpTextPlayerOne = new HelpText(
@@ -117,7 +139,13 @@ async function loadFont() {
       BIT_FONT,
       1
     )
-    helpTextPlayerTwo = new HelpText('AI', new Color('red'), new Vector3(16, 5.5, 0), BIT_FONT, 1)
+    helpTextPlayerTwo = new HelpText(
+      player2Name.value,
+      new Color('red'),
+      new Vector3(16, 5.5, 0),
+      BIT_FONT,
+      1
+    )
 
     // Set the text for the controls
     helpTextControlsOne = new HelpText(
@@ -139,19 +167,9 @@ async function loadFont() {
   })
 }
 
-// Scores
-let variableScoreOne = 0
-let variableScoreTwo = 0
-let playerScores: Array<Array<number>> = [[]]
-playerScores = Array.from({ length: playerCount }, () => [])
-
-let playerHits: Array<number> = new Array(playerCount).fill(0)
+let player_hits: Array<number> = new Array(playerCount).fill(0)
 
 let posPlayers: Array<number> = new Array(8).fill(0) // Assuming an array of size 8
-
-const isAnimating = ref(true)
-const isGameOver = ref(false)
-const winner = ref('')
 
 // Initialize players with the provided names
 const playerOne = new Player(
@@ -200,16 +218,53 @@ function setupScene() {
   three.addScene(ball.get())
   three.addScene(scorePlayer1.get())
   three.addScene(scorePlayer2.get())
-  three.addScene(luckySphere.get());
+  three.addScene(luckySphere.get())
 
   isAnimating.value = false
 }
 
+function scoreTracker(score: number) {
+  updatePlayerData(IS_STATE)
+  // Player two won the point
+  if (score === 1) {
+    numScorePlayerTwo += 1
+    scorePlayer2.updateScore(numScorePlayerTwo)
+    blinkObject(scorePlayer2.get())
+    // Player two won the game
+    if (numScorePlayerTwo === SCORE_TO_WIN) {
+      console.log(`${playerOne.getName()} lost!`)
+      endGame(playerTwo.getName(), playerOne.getName())
+    }
+    else emitData(IS_STATE);
+  } else if (score === 2) {
+    // Player one won the point
+    numScorePlayerOne += 1
+    scorePlayer1.updateScore(numScorePlayerOne)
+    blinkObject(scorePlayer1.get())
+    // Player one won the game
+    if (numScorePlayerOne === SCORE_TO_WIN) {
+      console.log(`${playerTwo.getName()} lost!`)
+      endGame(playerOne.getName(), playerTwo.getName())
+    }
+    else emitData(IS_STATE);
+  } else {
+    console.error('Unexpected check value')
+  }
+  returnObjectsToPlace()
+  isAnimating.value = false
+  return
+}
+
+let timeElapsed = 0
+
 function update() {
   if (!isAnimating.value) return
-  let isTaken: boolean = true
+  let isTaken: boolean = true // Variable that works as semaphore for luckySphere
+  let now = Date.now()
 
-  if (Date.now() % 5000 < 50) {
+  if (now - timeElapsed > 5000) {
+    // Every 5s, the luckySphere will be repositioned
+    timeElapsed = now
     luckySphere.randomizePosition()
     three.addScene(luckySphere.get())
     isTaken = true
@@ -221,37 +276,22 @@ function update() {
     } else {
       isTaken = luckySphere.update(ball, playerOne)
     }
-    if (isTaken) three.removeScene(luckySphere.get())
+    if (isTaken) {
+      // Afert applying effects remove luckySphere
+      three.removeScene(luckySphere.get())
+      timeElapsed = now
+    }
     isTaken = false
   }
 
-  const check = ball.update()
-  if (check) {
-    if (check === 1) {
-      variableScoreTwo += 1
-      scorePlayer2.updateScore(variableScoreTwo)
-      blinkObject(scorePlayer2.get())
-      if (variableScoreTwo === 1) {
-        console.log(`${playerOne.getName()} lost!`)
-        endGame(playerTwo.getName(), playerOne.getName())
-      }
-      ball.invertVelocity()
-    } else if (check === 2) {
-      variableScoreOne += 1
-      scorePlayer1.updateScore(variableScoreOne)
-      blinkObject(scorePlayer1.get())
-      if (variableScoreOne === 1) {
-        console.log(`${playerTwo.getName()} lost!`)
-        endGame(playerOne.getName(), playerTwo.getName())
-      }
-    } else {
-      console.error('Unexpected check value')
-    }
-    returnObjectsToPlace()
-    const ballVectorY = Math.random() * 0.2 - 0.1
-    ball.setVelocityY(ballVectorY)
-    isAnimating.value = false
-    return
+  let score = ball.update()
+  if (score) {
+    // Someone scored a point
+    scoreTracker(score)
+    window.removeEventListener('keydown', toggleAnimation)
+    setTimeout(() => {
+      window.addEventListener('keydown', toggleAnimation)
+    }, 1000)
   }
 
   playerOne.update()
@@ -259,25 +299,10 @@ function update() {
   handleCollisions(ball, playerOne, playerTwo)
 }
 
-// Blinking effect for the score when a player loses
-function blinkObject(mesh: Mesh) {
-  let visible = true
-  const blinkDuration = 800
-  const blinkInterval = 200
-
-  const intervalId = setInterval(() => {
-    visible = !visible
-    mesh.visible = visible
-  }, blinkInterval)
-
-  setTimeout(() => {
-    clearInterval(intervalId)
-    mesh.visible = true // Ensure the mesh is visible after blinking ends
-  }, blinkDuration)
-}
-
 function returnObjectsToPlace() {
   ball.returnToPlace()
+  ball.setVelocityY(ballVectorY)
+  ball.invertVelocity()
   playerOne.returnToPlace()
   playerTwo.returnToPlace()
 }
@@ -306,49 +331,60 @@ function toggleAnimation(event: KeyboardEvent) {
 function resetScores(): void {
   scorePlayer1.updateScore(0)
   scorePlayer2.updateScore(0)
-  variableScoreOne = 0
-  variableScoreTwo = 0
+  numScorePlayerOne = 0
+  numScorePlayerTwo = 0
 }
 
-/* Player positions */
-let finalOne = ''
-let finalTwo = ''
-
-// Simplified function to update player names
-function setNewTournamentNames(newPlayer1Name: string, newPlayer2Name: string): void {
-  player1Name.value = newPlayer1Name
-  player2Name.value = newPlayer2Name
-}
-
+let userIndex = 0;
 // Function to handle semi-final position updates
-function setSemiPositions(indexPosPlayer: number, posPlayer: number, losingPlayer: string): void {
+function setSemiPositions(losingPlayer: string): void {
   const player1 = player1Name.value
   const player2 = player2Name.value
+  const posPlayer = (5 - indexGame)
 
   if (losingPlayer === player1) {
-    posPlayers[indexPosPlayer] = posPlayer
-    console.log(`Player: ${player1}, IndexPos: ${indexPosPlayer}, Position: ${posPlayer}`)
+    posPlayers[userIndex] = posPlayer
+    console.log(`Player: ${player1}, IndexPos: ${userIndex}, Position: ${posPlayer}`)
   } else if (losingPlayer === player2) {
-    posPlayers[indexPosPlayer + 1] = posPlayer
-    console.log(`Player: ${player2}, IndexPos: ${indexPosPlayer + 1}, Position: ${posPlayer}`)
+    posPlayers[userIndex + 1] = posPlayer
+    console.log(`Player: ${player2}, IndexPos: ${userIndex + 1}, Position: ${posPlayer}`)
   }
+  userIndex += 2;
 }
 
 // Function to handle final match position updates
-function setFinalPositions(losingPlayer: string, indexMatch: number): void {
-  console.log(`Setting final position for: ${losingPlayer}, Match Index: ${indexMatch}`)
-  const playerIndex = props.players.findIndex(
+function setFinalPositions(losingPlayer: string): void {
+  console.log(`Setting final position for: ${player1Name.value}, Match Index: ${indexGame}`)
+  console.log(`Setting final position for: ${player2Name.value}, Match Index: ${indexGame}`)
+  const playerOneIndex = props.players.findIndex(
     (
       data // Find the player index
-    ) => data.player === losingPlayer || data.player === losingPlayer
+    ) => data.player === player1Name.value
+  )
+  const playerTwoIndex = props.players.findIndex(
+    (
+      data // Find the player index
+    ) => data.player === player2Name.value
   )
 
-  console.log(`Player Index Found: ${playerIndex}`)
-  if (playerIndex !== -1) {
-    posPlayers[playerIndex] = indexMatch
-    console.log(`Player: ${losingPlayer}, IndexPos: ${playerIndex}, Position: ${indexMatch}`)
+  let pos = (5 - indexGame);
+
+  console.log(`Player Indexes Found: ${playerOneIndex} ${playerTwoIndex}`)
+  if (playerOneIndex !== -1 && playerTwoIndex !== -1) {
+    if (player1Name.value === losingPlayer) { // Player two won
+      posPlayers[playerOneIndex] = pos
+      posPlayers[playerTwoIndex] = pos - 1
+    }
+    else
+    { // Player one won
+      posPlayers[playerOneIndex] = pos -1
+      posPlayers[playerTwoIndex] = pos
+    }
+    console.log(`Player: ${player1Name.value}, IndexPos: ${playerOneIndex}, Position: ${posPlayers[playerOneIndex]}`)
+    console.log(`Player: ${player2Name.value}, IndexPos: ${playerTwoIndex}, Position: ${posPlayers[playerTwoIndex]}`)
   } else {
-    console.error(`Player ${losingPlayer} not found in the tournament`)
+    console.error(`Player ${player1Name.value} not found in the tournament`)
+    console.error(`Player ${player2Name.value} not found in the tournament`)
   }
 }
 
@@ -357,39 +393,67 @@ function setFinalNames() {
   player2Name.value = finalTwo
 }
 
+const updatePlayerData = (storeType: string) => {
+  const playerOneName = player1Name.value
+  const playerTwoName = player2Name.value
+  // Find given player inside the players array
+  const playerOneIndex = players.findIndex((p) => p.player === playerOneName)
+  if (playerOneIndex !== -1) { // Update data for the given player
+    const score = numScorePlayerOne
+    let len = player_scores[playerOneIndex].length
+    // Subtract one from len if it is greater than one
+    if (indexGame < 2 || len === 2)
+      len = len > 0 ? len - 1 : len
+    console.log(len)
+    console.log(indexGame)
+    if (storeType == IS_STATE) {
+      player_scores[playerOneIndex][len] = (score)
+    }
+    else {
+      player_scores[playerOneIndex].pop()
+      player_scores[playerOneIndex].push(score)
+    }
+    player_hits[playerOneIndex] += playerOne.getHits()
+  }
+  const playerTwoIndex = players.findIndex((p) => p.player == playerTwoName)
+  if (playerTwoIndex !== -1) { // Update data for the given player
+    const score = numScorePlayerTwo
+
+    let len = player_scores[playerTwoIndex].length
+    // Subtract one from len if it is greater than one
+    if (indexGame < 2 || len === 2)
+      len = len > 0 ? len - 1 : len
+    console.log(len)
+    if (storeType == IS_STATE) {
+      player_scores[playerTwoIndex][len] = (score)
+    }
+    else {
+      player_scores[playerTwoIndex].pop()
+      player_scores[playerTwoIndex].push(score)
+    }
+    player_hits[playerTwoIndex] += playerTwo.getHits()
+  }
+  playerOne.resetHits()
+  playerTwo.resetHits()
+}
+
 // Main function to manage the tournament flow
 function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: number): void {
-  console.log(`Results: {${variableScoreOne}} {${variableScoreTwo}}`)
-
-  const updateScoresAndNames = (oldPlayerIndex: number, newPlayerIndex: number) => {
-    playerScores[oldPlayerIndex].push(variableScoreOne)
-    playerScores[oldPlayerIndex + 1].push(variableScoreTwo)
-
-    playerHits[oldPlayerIndex] += (playerOne.getHits())
-    playerHits[oldPlayerIndex + 1] += (playerTwo.getHits())
-    playerOne.resetHits()
-    playerTwo.resetHits()
-
-    // Set the semi-final positions
-    setSemiPositions(oldPlayerIndex, 5 - matchIndex, losingPlayer)
-
-    // If the match is the final, set the final names
-    if (newPlayerIndex == -1) setFinalNames()
-    // Set the next match players
-    else {
-      player1Name.value = props.players[newPlayerIndex].player
-      player2Name.value = props.players[newPlayerIndex + 1].player
-    }
-  }
+  console.log(`Results: {${numScorePlayerOne}} {${numScorePlayerTwo}}`)
 
   switch (matchIndex) {
     case 1:
       finalOne = winPlayer
-      updateScoresAndNames(0, 2)
+      updatePlayerData(IS_COMPLETED)
+      setSemiPositions(losingPlayer)
+      player1Name.value = player_names[2]
+      player2Name.value = player_names[3]
       break
     case 2:
       finalTwo = winPlayer
-      updateScoresAndNames(2, -1)
+      updatePlayerData(IS_COMPLETED)
+      setSemiPositions(losingPlayer)
+      setFinalNames()
       break
     default:
       console.error('Invalid match index')
@@ -400,17 +464,54 @@ function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: n
   playerOne.setName(player1Name.value)
 }
 
+function emitData(status: string) {
+  setTimeout(() => {
+    const tournament_type = playerCount === 4 ? '4P' : '8P'
+    // Emit the tournament data to the parent component
+    let time_played = Date.now() / 1000 - startTime + stateTime
+    time_played = Math.floor(time_played)
+    // Emit the tournament data to the parent component
+    emit('gameOver', {
+      status: status,
+      tournament_type: tournament_type,
+      time_played: time_played,
+      player_ids: ids,
+      player_names: player_names,
+      player_scores: player_scores,
+      player_hits: player_hits,
+      players: status === IS_STATE ? [] : players.map((player, index) => ({
+        id: player.id,
+        name_player: player.player,
+        scores: player_scores[index],
+        time_played: time_played,
+        hits: player_hits[index],
+        position: posPlayers[index]
+      })),
+      final_round: status === IS_STATE ? [] : {
+        player_one: finalOne,
+        player_two: finalTwo,
+        winner: winner,
+        loser: loser
+      },
+    })
+  }, 1000)
+}
+
+// Index to track the current game in the tournament
+let indexGame = 0
+
 const endGame = (winningPlayer: string, losingPlayer: string) => {
   // Remove the ability to start the game for a short period
   window.removeEventListener('keydown', toggleAnimation)
   three.removeScene(luckySphere.get())
-  three.addScene(finalScore.get())
   finalScore.updateScore(winningPlayer + ' wins!')
+  three.addScene(finalScore.get())
   blinkObject(finalScore.get())
   isAnimating.value = false
 
   indexGame += 1
   if (indexGame < playerCount - 1) {
+    // Tournament is not finished
     manageTournament(winningPlayer, losingPlayer, indexGame)
     setTimeout(() => {
       three.removeScene(finalScore.get())
@@ -418,51 +519,18 @@ const endGame = (winningPlayer: string, losingPlayer: string) => {
       resetScores()
       setHelpText()
     }, 2000)
+    // Tournament is finished
   } else if (indexGame === playerCount - 1) {
-    const updatePlayerScores = (player: string, score: number) => {
-      const playerIndex = players.findIndex((p) => p.player === player)
-      if (playerIndex !== -1) {
-        playerScores[playerIndex].push(score)
-        if (player == playerOne.getName()) playerHits[playerIndex] += (playerOne.getHits())
-        else if (player == playerTwo.getName()) playerHits[playerIndex] += (playerTwo.getHits())
-      }
-    }
-
-    updatePlayerScores(winningPlayer, variableScoreOne)
-    updatePlayerScores(losingPlayer, variableScoreTwo)
-
-    setFinalPositions(losingPlayer, 2)
-    setFinalPositions(winningPlayer, 1)
+    updatePlayerData(IS_COMPLETED)
+    setFinalPositions(losingPlayer)
 
     setTimeout(() => {
       finalScore.updateScore('Returning to home...')
     }, 2000)
-    winner.value = winningPlayer
+    winner = winningPlayer
+    loser = losingPlayer
     isGameOver.value = true
-    setTimeout(() => {
-      const tournament_type = playerCount === 4 ? '4P' : '8P'
-      const dateEnd = Date.now() / 1000;
-
-      // Emit the tournament data to the parent component
-      emit('gameOver', {
-        players: players.map((player, index) => ({
-          id: props.players[index].id,
-          name: player.player,
-          scores: playerScores[index],
-          time_played: Math.floor(dateEnd - dateStart),
-          hits: playerHits[index],
-          position: posPlayers[index]
-        })),
-        final_round: {
-          player_one: finalOne,
-          player_two: finalTwo,
-          winner: winningPlayer,
-          loser: losingPlayer
-        },
-        tournament_type: tournament_type
-      })
-      window.addEventListener('keydown', toggleAnimation)
-    }, 5000)
+    emitData(IS_COMPLETED)
   }
 }
 

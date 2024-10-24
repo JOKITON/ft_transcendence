@@ -3,7 +3,8 @@ from .views import (
     CreateDefaultPlayerView,
     PostGameView,
     PostGameStateView,
-    Tournament4P,
+    Tournament4PStateView,
+    Tournament4PView,
     Tournament8P,
 )
 from .views_get import (
@@ -18,12 +19,13 @@ urlpatterns = [
     # Get/Post game state
     path("get-state/<int:pk>/", PongGameDataView.as_view(), name="get-state"),
     path("get-state/<str:tournament_type>/<int:pk>/", AnyPongGameDataView.as_view(), name="get-state"),
-    path("post-state", PostGameStateView.as_view(), name="post-ai-state"),
+    path("post-state", PostGameStateView.as_view(), name="post-ai/2p-state"),
+    path("4p/post-state", Tournament4PStateView.as_view(), name="post-4p-state"),
     
     # Store complete game data
     path("ai", PostGameView.as_view(), name="post-ai"),
     path("2p", PostGameView.as_view(), name="post-2p"),
-    path("4p", Tournament4P.as_view(), name="post-4p"),
+    path("4p", Tournament4PView.as_view(), name="post-4p"),
     path("8p", Tournament8P.as_view(), name="post-8p"),
     
     # Create initial table for User

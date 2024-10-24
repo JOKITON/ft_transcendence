@@ -34,8 +34,6 @@ class PongGame(models.Model):
     tournament_type_choices = [
         ('AI', 'AI Game'),
         ('2P', '2 Player'),
-        ('4P', '4 Player'),
-        ('8P', '8 Player'),
     ]
     
     status_choices = [
@@ -81,11 +79,22 @@ class Tournament4P(models.Model):
         ('P', 'Pending'),
         ('C', 'Completed'),
     ]
+    
+    tournament_type_choices = [
+        ('4P', '4 Player'),
+        ('8P', '8 Player'),
+    ]
 
     status = models.CharField(max_length=1, choices=status_choices, default='P')
+    tournament_type = models.CharField(max_length=3, choices=tournament_type_choices, default='4P')
+    time_played = models.IntegerField(default=0)
+    player_ids = ArrayField(models.IntegerField(), default=list)
+    player_names = ArrayField(models.CharField(), default=list)
+    player_scores = ArrayField(ArrayField(models.IntegerField(), null=True, blank=True, size=4), default=list, null=True, blank=True)
+    player_hits = ArrayField(models.IntegerField(), default=list)
+
     players = models.ManyToManyField(Player)
-    final_round = models.OneToOneField(FinalRound, on_delete=models.CASCADE)
-    tournament_type = models.CharField(max_length=3, default='4P')
+    final_round = models.OneToOneField(FinalRound, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Tournament {self.tournament_type} with {self.players.count()} players"

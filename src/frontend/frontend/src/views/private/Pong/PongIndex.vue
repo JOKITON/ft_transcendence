@@ -91,7 +91,7 @@ const handleStartGame = async (data) => {
     selectedGame.value = markRaw(PongAI)
   } else if (gameMode === '2P') {
     selectedGame.value = markRaw(Pong2P)
-  } else if (gameMode === '8P') {
+  } else if (gameMode === '4P') {
     selectedGame.value = markRaw(PongTournament)
   }
 
@@ -180,7 +180,12 @@ const sendPongData = async (tournamentResults) => {
 // Send tournament data to backend
 const sendTournamentData4P = async (tournamentResults) => {
   try {
-    const response = await api.post('pong/4p', tournamentResults)
+    let url: string = 'pong/4p'
+    if (tournamentResults.status === IS_STATE) {
+      url = 'pong/4p/post-state'
+    }
+    console.log('Data to send:', tournamentResults)
+    const response = await api.post(url, tournamentResults)
     console.log('Data sent successfully:', response.data)
   } catch (error) {
     console.error('Error sending data:', error)
