@@ -32,9 +32,11 @@ import {
 
 const emit = defineEmits(['gameOver'])
 
-const props = defineProps({
-  players: Array<Object>
-})
+const props = defineProps<{
+  hasStateData: intStatePongData,
+  isAudioEnabled: boolean,
+  players: Array<{ player: string, id: number }>,
+}>()
 const players = props.players
 const playerCount: number = players.length
 
@@ -45,21 +47,12 @@ let player_scores: Array<Array<number>> = [[]]
 let startTime: number
 let stateTime: number = 0
 
-ids = players.map((player) => player.id)
-player_names = players.map((player) => player.player)
-player_scores = Array.from({ length: playerCount }, () => Array(1).fill(0))
-startTime = Date.now() / 1000
-
 /* 
 console.log('Ids: ', ids);
 console.log('Player names: ', player_names);
  */
 
 /* console.log('Player count:', playerCount) */
-
-// Extract initial players for the current game
-let player1Name = ref(player_names[0])
-let player2Name = ref(player_names[1])
 
 // To store scores of each player
 let numScorePlayerOne = 0
@@ -68,12 +61,48 @@ let numScorePlayerTwo = 0
 /* Player positions */
 let finalOne = ''
 let finalTwo = ''
-let winner : string | null = null
-let loser : string | null = null
+let winner: string | null = null
+let loser: string | null = null
 
 // Reactive variables
 const isAnimating = ref(true)
 const isGameOver = ref(false)
+
+// Extract initial players for the current game
+let player1Name = ref('')
+let player2Name = ref('')
+
+// Index to track the current game in the tournament
+let indexGame = 0
+
+const stateData = props.hasStateData
+startTime = Date.now() / 1000
+
+if (stateData.check == true) {
+  console.log('State data:', stateData)
+  setStatePongDate(stateData)
+} else setInitialValues()
+
+
+function setStatePongDate(data: intStatePongData) {
+  // player1Name.value = data.player_names[0]
+  // numScorePlayerOne = data.player_scores[0][0]
+  // numScorePlayerTwo = data.player_scores[1][0]
+  stateTime = data.time_played
+  indexGame = data.game_index
+  player_scores = data.player_scores
+  player_names = data.player_names
+  ids = data.player_ids
+}
+
+function setInitialValues() {
+  player1Name.value = props.players[0].player
+  player2Name.value = props.players[1].player
+  console.log('Player:', player1Name.value)
+  player_names = players.map((player) => player.player)
+  ids = players.map((player) => player.id)
+  player_scores = Array.from({ length: playerCount }, () => Array(2).fill(0))
+}
 
 /*
 // Print all the player matches
@@ -188,6 +217,10 @@ const playerTwo = new Player(
   'KeyS',
   player2Name.value
 )
+if (stateData.check == true && stateData.player_hits.length > 0) {
+  playerOne.setHits(stateData.player_hits[0])
+  playerTwo.setHits(stateData.player_hits[1])
+}
 
 function setHelpText() {
   helpTextPlayerOne.updateScore(player1Name.value)
@@ -224,29 +257,32 @@ function setupScene() {
 }
 
 function scoreTracker(score: number) {
-  updatePlayerData(IS_STATE)
   // Player two won the point
   if (score === 1) {
     numScorePlayerTwo += 1
     scorePlayer2.updateScore(numScorePlayerTwo)
     blinkObject(scorePlayer2.get())
+    updatePlayerData(IS_STATE)
     // Player two won the game
     if (numScorePlayerTwo === SCORE_TO_WIN) {
       console.log(`${playerOne.getName()} lost!`)
       endGame(playerTwo.getName(), playerOne.getName())
     }
-    else emitData(IS_STATE);
+    console.log(`Results: {${numScorePlayerOne}} {${numScorePlayerTwo}}`)
+    emitData(IS_STATE)
   } else if (score === 2) {
     // Player one won the point
     numScorePlayerOne += 1
     scorePlayer1.updateScore(numScorePlayerOne)
     blinkObject(scorePlayer1.get())
+    updatePlayerData(IS_STATE)
     // Player one won the game
     if (numScorePlayerOne === SCORE_TO_WIN) {
       console.log(`${playerTwo.getName()} lost!`)
       endGame(playerOne.getName(), playerTwo.getName())
     }
-    else emitData(IS_STATE);
+    console.log(`Results: {${numScorePlayerOne}} {${numScorePlayerTwo}}`)
+    emitData(IS_STATE)
   } else {
     console.error('Unexpected check value')
   }
@@ -335,12 +371,12 @@ function resetScores(): void {
   numScorePlayerTwo = 0
 }
 
-let userIndex = 0;
+let userIndex = 0
 // Function to handle semi-final position updates
 function setSemiPositions(losingPlayer: string): void {
   const player1 = player1Name.value
   const player2 = player2Name.value
-  const posPlayer = (5 - indexGame)
+  const posPlayer = 5 - indexGame
 
   if (losingPlayer === player1) {
     posPlayers[userIndex] = posPlayer
@@ -349,7 +385,7 @@ function setSemiPositions(losingPlayer: string): void {
     posPlayers[userIndex + 1] = posPlayer
     console.log(`Player: ${player2}, IndexPos: ${userIndex + 1}, Position: ${posPlayer}`)
   }
-  userIndex += 2;
+  userIndex += 2
 }
 
 // Function to handle final match position updates
@@ -367,21 +403,25 @@ function setFinalPositions(losingPlayer: string): void {
     ) => data.player === player2Name.value
   )
 
-  let pos = (5 - indexGame);
+  let pos = 5 - indexGame
 
   console.log(`Player Indexes Found: ${playerOneIndex} ${playerTwoIndex}`)
   if (playerOneIndex !== -1 && playerTwoIndex !== -1) {
-    if (player1Name.value === losingPlayer) { // Player two won
+    if (player1Name.value === losingPlayer) {
+      // Player two won
       posPlayers[playerOneIndex] = pos
       posPlayers[playerTwoIndex] = pos - 1
-    }
-    else
-    { // Player one won
-      posPlayers[playerOneIndex] = pos -1
+    } else {
+      // Player one won
+      posPlayers[playerOneIndex] = pos - 1
       posPlayers[playerTwoIndex] = pos
     }
-    console.log(`Player: ${player1Name.value}, IndexPos: ${playerOneIndex}, Position: ${posPlayers[playerOneIndex]}`)
-    console.log(`Player: ${player2Name.value}, IndexPos: ${playerTwoIndex}, Position: ${posPlayers[playerTwoIndex]}`)
+    console.log(
+      `Player: ${player1Name.value}, IndexPos: ${playerOneIndex}, Position: ${posPlayers[playerOneIndex]}`
+    )
+    console.log(
+      `Player: ${player2Name.value}, IndexPos: ${playerTwoIndex}, Position: ${posPlayers[playerTwoIndex]}`
+    )
   } else {
     console.error(`Player ${player1Name.value} not found in the tournament`)
     console.error(`Player ${player2Name.value} not found in the tournament`)
@@ -398,39 +438,26 @@ const updatePlayerData = (storeType: string) => {
   const playerTwoName = player2Name.value
   // Find given player inside the players array
   const playerOneIndex = players.findIndex((p) => p.player === playerOneName)
-  if (playerOneIndex !== -1) { // Update data for the given player
+  if (playerOneIndex !== -1) {
+    // Update data for the given player
     const score = numScorePlayerOne
-    let len = player_scores[playerOneIndex].length
+    let len = indexGame - 1
     // Subtract one from len if it is greater than one
-    if (indexGame < 2 || len === 2)
-      len = len > 0 ? len - 1 : len
-    console.log(len)
-    console.log(indexGame)
-    if (storeType == IS_STATE) {
-      player_scores[playerOneIndex][len] = (score)
-    }
-    else {
-      player_scores[playerOneIndex].pop()
-      player_scores[playerOneIndex].push(score)
-    }
+    len = len < 0 ? len + 1 : len
+    if (indexGame === 3) len = 1
+    player_scores[playerOneIndex][len] = score
     player_hits[playerOneIndex] += playerOne.getHits()
   }
   const playerTwoIndex = players.findIndex((p) => p.player == playerTwoName)
-  if (playerTwoIndex !== -1) { // Update data for the given player
+  if (playerTwoIndex !== -1) {
+    // Update data for the given player
     const score = numScorePlayerTwo
 
-    let len = player_scores[playerTwoIndex].length
+    let len = indexGame - 1
     // Subtract one from len if it is greater than one
-    if (indexGame < 2 || len === 2)
-      len = len > 0 ? len - 1 : len
-    console.log(len)
-    if (storeType == IS_STATE) {
-      player_scores[playerTwoIndex][len] = (score)
-    }
-    else {
-      player_scores[playerTwoIndex].pop()
-      player_scores[playerTwoIndex].push(score)
-    }
+    len = len < 0 ? len + 1 : len
+    if (indexGame === 3) len = 1
+    player_scores[playerTwoIndex][len] = score
     player_hits[playerTwoIndex] += playerTwo.getHits()
   }
   playerOne.resetHits()
@@ -444,14 +471,18 @@ function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: n
   switch (matchIndex) {
     case 1:
       finalOne = winPlayer
+      indexGame -= 1
       updatePlayerData(IS_COMPLETED)
+      indexGame += 1
       setSemiPositions(losingPlayer)
       player1Name.value = player_names[2]
       player2Name.value = player_names[3]
       break
     case 2:
       finalTwo = winPlayer
+      indexGame -= 1
       updatePlayerData(IS_COMPLETED)
+      indexGame += 1
       setSemiPositions(losingPlayer)
       setFinalNames()
       break
@@ -473,32 +504,36 @@ function emitData(status: string) {
     // Emit the tournament data to the parent component
     emit('gameOver', {
       status: status,
+      game_index: indexGame,
       tournament_type: tournament_type,
       time_played: time_played,
       player_ids: ids,
       player_names: player_names,
       player_scores: player_scores,
       player_hits: player_hits,
-      players: status === IS_STATE ? [] : players.map((player, index) => ({
-        id: player.id,
-        name_player: player.player,
-        scores: player_scores[index],
-        time_played: time_played,
-        hits: player_hits[index],
-        position: posPlayers[index]
-      })),
-      final_round: status === IS_STATE ? [] : {
-        player_one: finalOne,
-        player_two: finalTwo,
-        winner: winner,
-        loser: loser
-      },
+      players:
+        status === IS_STATE
+          ? []
+          : players.map((player, index) => ({
+              id: player.id,
+              name: player.player,
+              scores: player_scores[index],
+              time_played: time_played,
+              hits: player_hits[index],
+              position: posPlayers[index]
+            })),
+      final_round:
+        status === IS_STATE
+          ? []
+          : {
+              player_one: finalOne,
+              player_two: finalTwo,
+              winner: winner,
+              loser: loser
+            }
     })
   }, 1000)
 }
-
-// Index to track the current game in the tournament
-let indexGame = 0
 
 const endGame = (winningPlayer: string, losingPlayer: string) => {
   // Remove the ability to start the game for a short period
