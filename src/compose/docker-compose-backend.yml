@@ -86,6 +86,18 @@ services:
     depends_on:
       - auth
 
+  livegame:
+    container_name: livegame
+    build: ../backend/livegame/
+    env_file: ../backend/.env-dev
+    restart: always
+    volumes:
+      - livegame:/livegame
+    networks:
+      - proxy
+    depends_on:
+      - auth
+
 networks:
   proxy:
     external: true
@@ -127,3 +139,9 @@ volumes:
       type: none
       o: bind
       device: ../backend/livechat/livechat
+  livegame:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../backend/livegame/livegame/

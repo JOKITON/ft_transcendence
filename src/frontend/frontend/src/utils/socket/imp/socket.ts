@@ -13,7 +13,10 @@ export default class Socket implements ISocket {
   private url: string
   private room: string
 
-  constructor(url: string = 'ws://localhost:7104/api/v1/livechat/ws/chat/', room: string = 'test_room') {
+  constructor(
+    url: string = 'ws://localhost:7104/api/v1/livechat/ws/chat/',
+    room: string = 'test_room'
+  ) {
     this.url = url
     this.room = room
   }
@@ -37,12 +40,10 @@ export default class Socket implements ISocket {
     }
   }
 
-  public send(username: string, message: string, index: number): void {
+  public send(json: Record<string, unknown>): void {
     if (this.ws) {
-      console.log('index en metodo de enviar:', index)
-      const response = JSON.stringify({ username: username, message: message, index: index })
-      console.log('Sending message:', response)
-      this.ws.send(response)
+      console.log('Sending message:', json)
+      this.ws.send(JSON.stringify(json))
     } else {
       console.error('WebSocket is not open. Cannot send message.')
     }

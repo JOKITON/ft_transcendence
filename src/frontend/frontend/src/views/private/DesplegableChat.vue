@@ -189,7 +189,7 @@ const openChat = async (friend: Friend) => {
       existingChat.socket.open(room_id.value)
       connectWebSocket(existingChat.socket)
     }
-    existingChat.messages = [];
+    existingChat.messages = []
   } else {
     const chat = {
       id: room_id.value,
@@ -207,14 +207,13 @@ const openChat = async (friend: Friend) => {
   lastOpenedChat.value = friend
 }
 
-
 // Función para cerrar el chat
 const handleChatClose = (chatId: number) => {
   const chat = activeChats.value.find((chat) => chat.id === chatId)
   chat.isOpen = false
   if (chat.socket) {
-  chat.socket.close()
-  chat.socket = null
+    chat.socket.close()
+    chat.socket = null
   }
   chat.messages = []
   //activeChats.value[chatId].isOpen = false
@@ -249,47 +248,37 @@ const sendMessage = (chatId: number, message: any) => {
   const text = message.data.text
   if (text.length > 0) {
     chat.newMessagesCount = chat.isOpen ? chat.newMessagesCount : chat.newMessagesCount + 1
-    chat.socket.send(user.value, text, chatId) // Envía el mensaje a través del socket
+    chat.socket.send({ username: user.value, message: text, index: chatId })
   }
   console.log('user, text, chatId:', user.value, text, chatId)
 }
-// Función para agregar el mensaje a la lista de mensajes
-/*const onMessageWasSent = (chatId: number, message: Message) => {
-  console.log('entra en onMessageWasSent')
-  console.log('ChatId:', chatId)
-  console.log('Message:', message)
-  const chat = activeChats.value.find((chat) => chat.id === chatId)
-  //const chat = activeChats.value[chatId]
-  chat.messages = [...chat.messages, message]
-  console.log('Message added: ', message)
-}
-*/
-const onMessageWasSent = (chatId: number, message: Message) => {
-  const chat = activeChats.value.find((chat) => chat.id === chatId);
-  
-  if (!chat) return;
 
-  const lastMessage = chat.messages[chat.messages.length - 1];
+const onMessageWasSent = (chatId: number, message: Message) => {
+  const chat = activeChats.value.find((chat) => chat.id === chatId)
+
+  if (!chat) return
+
+  const lastMessage = chat.messages[chat.messages.length - 1]
 
   // Verificar si el último mensaje es igual al nuevo
-  const isDuplicate = lastMessage?.data.text === message.data.text && lastMessage?.author === message.author;
+  const isDuplicate =
+    lastMessage?.data.text === message.data.text && lastMessage?.author === message.author
 
   if (!isDuplicate) {
-    chat.messages = [...chat.messages, message];
+    chat.messages = [...chat.messages, message]
   }
-};
-
+}
 
 // Carga la lista de amigos al montar el componente
 onMounted(async () => {
   try {
     const response = await api.get<{ friends: Friend[] }>('friendship/friends')
     activeChats.value.forEach((chat) => {
-    if (chat.socket) {
-      chat.socket.close();
-      chat.socket = null;
-    }
-  });
+      if (chat.socket) {
+        chat.socket.close()
+        chat.socket = null
+      }
+    })
     const Iam = await api.get('auth/iam')
     user.value = Iam.username
     console.log('User:', user.value)
@@ -313,7 +302,7 @@ const echoOnMessage = (i: Websocket, ev: MessageEvent) => {
   const data = JSON.parse(ev.data)
   const chatId = data.index
   const chat = activeChats.value.find((chat) => chat.id === chatId)
-console.log('al entrar en echoOnMessage')
+  console.log('al entrar en echoOnMessage')
   if (chat) {
     onMessageWasSent(chatId, {
       type: 'text',
