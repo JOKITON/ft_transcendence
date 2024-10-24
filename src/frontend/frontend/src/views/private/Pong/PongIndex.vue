@@ -77,8 +77,7 @@ const handleStartGame = async (data) => {
     time_played: 0
   }
   await fetchStateData(gameMode)
-  if (statePongData.value.tournament_type === gameMode)
-    statePongData.value.check = true;
+  if (statePongData.value.tournament_type === gameMode) statePongData.value.check = true
   // gameMode == statePongData?.tournament_type
 
   // Store player names and optionally AI difficulty
@@ -93,6 +92,8 @@ const handleStartGame = async (data) => {
     selectedGame.value = markRaw(Pong2P)
   } else if (gameMode === '4P') {
     selectedGame.value = markRaw(PongTournament)
+  } else if (gameMode === 'Online') {
+    selectedGame.value = markRaw(PongOnline)
   }
 
   // Hide menu and show game
@@ -103,11 +104,13 @@ const handleStartGame = async (data) => {
 const IS_STATE = 'P'
 const IS_COMPLETED = 'C'
 
-const fetchStateData = async (gameMode : string) => {
+const fetchStateData = async (gameMode: string) => {
   try {
     const responseWhoAmI = await Auth.whoami()
     user.value.id = responseWhoAmI.id
-    const responseState = await api.get<intStatePongData>('/pong/get-state/' + gameMode + '/' + user.value.id + '/')
+    const responseState = await api.get<intStatePongData>(
+      '/pong/get-state/' + gameMode + '/' + user.value.id + '/'
+    )
     if (responseState.data) {
       statePongData.value = responseState.data
     } else if (responseState.data === undefined) {
@@ -149,6 +152,9 @@ const sendPongData = async (tournamentResults) => {
         break
       case 'AI':
         url = 'pong/ai'
+        break
+      case 'Online':
+        url = 'pong/online'
         break
     }
     if (tournamentResults.status === IS_STATE) {
@@ -243,6 +249,9 @@ const handleGameOver = async (tournamentResults) => {
       break
     case '4P':
       await sendTournamentData4P(tournamentResults)
+      break
+    case 'Online':
+      await sendPongData(tournamentResults)
       break
     default:
       await sendPongData(tournamentResults)
