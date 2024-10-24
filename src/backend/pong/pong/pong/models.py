@@ -87,11 +87,12 @@ class Tournament4P(models.Model):
 
     status = models.CharField(max_length=1, choices=status_choices, default='P')
     tournament_type = models.CharField(max_length=3, choices=tournament_type_choices, default='4P')
-    time_played = models.IntegerField(default=0)
     player_ids = ArrayField(models.IntegerField(), default=list)
     player_names = ArrayField(models.CharField(), default=list)
-    player_scores = ArrayField(ArrayField(models.IntegerField(), null=True, blank=True, size=4), default=list, null=True, blank=True)
+    player_scores = ArrayField(ArrayField(models.IntegerField(), null=True, blank=True), default=list, null=True, blank=True, size=4)
     player_hits = ArrayField(models.IntegerField(), default=list)
+    game_index = ArrayField(models.IntegerField(), default=0)
+    time_played = models.IntegerField(default=0)
 
     players = models.ManyToManyField(Player)
     final_round = models.OneToOneField(FinalRound, null=True, on_delete=models.CASCADE)

@@ -10,6 +10,7 @@ export interface intStatePongData {
 	player_scores: Array<number>,
 	player_hits: Array<number>,
 	time_played: number,
+	game_index: number,
 	// aiDifficulty: number,
 	// isAudioEnabled: boolean,
   }
@@ -53,7 +54,7 @@ export const ballGeometry2 = [0.66, 10, 10];
 
 export const vecHorizWall = new Vector3(33, 0.3, 1);
 
-export const SCORE_TO_WIN = 5;
+export const SCORE_TO_WIN = 1;
 export const IS_STATE = 'P';
 export const IS_COMPLETED = 'C';
 export const BIT_FONT = './src/assets/fonts/Bit5x3_Regular.json';
