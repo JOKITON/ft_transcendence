@@ -140,7 +140,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: src/redis/
+      device: src/backend/redis/
   db:
     driver: local
     driver_opts:
@@ -154,7 +154,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: src/dependencies/
+      device: src/backend/dependencies/
   pong:
     driver: local
     driver_opts:
@@ -166,7 +166,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: src/backend/auth/authentication
+      device: src/backend/auth/auth
   friendship:
     driver: local
     driver_opts:
