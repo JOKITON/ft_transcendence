@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/10/27 08:43:20 by Dugonzal         ###   ########.fr        #
+#    Updated: 2024/10/27 10:35:38 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,4 +29,3 @@ RUN python -m venv /opt/venv && source /opt/venv/bin/activate \
   && pip install --no-cache-dir -r utils/requirements.txt
 
 CMD ["zsh", "utils/init.sh"]
-# CMD ["sleep", "infinity"]

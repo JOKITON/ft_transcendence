@@ -1,0 +1,181 @@
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: src/frontend/
+      dockerfile: Dockerfile #.prod
+    networks:
+      - proxy
+    volumes:
+      - node_modules:/frontend/node_modules
+      - frontend:/frontend
+    restart: always
+    depends_on:
+      - proxy
+  redis:
+    container_name: redis
+    build: src/backend/redis/
+    restart: always
+    volumes:
+      - redis:/redis
+    networks:
+      - proxy
+    ports:
+      - 6379
+  db:
+    container_name: db
+    build: src/database/
+    env_file: src/backend/.env-dev
+    ports:
+      - 5432
+    volumes:
+      - db:/var/lib/postgresql/data
+    restart: always
+    shm_size: 128mb
+    networks:
+      - proxy
+  proxy:
+    container_name: proxy
+    build: src/proxy/
+    ports:
+      - 7104:7104
+      - 7102:7102
+    restart: always
+    volumes:
+      - proxy:/proxy
+    networks:
+      - proxy
+  # backend
+  auth:
+    container_name: auth
+    build: src/backend/auth/
+    env_file: src/backend/.env-dev
+    restart: always
+    volumes:
+      - auth:/auth
+      - dependencies:/opt/venv/
+    networks:
+      - proxy
+    depends_on:
+      - db
+  migration:
+    container_name: migration
+    build: src/backend/migration/
+    env_file: src/backend/.env-dev
+    restart: always
+    volumes:
+      - auth:/usr/src/app/auth
+      - pong:/usr/src/app/pong
+      - friendship:/usr/src/app/friendship
+      - dependencies:/opt/venv/
+    networks:
+      - proxy
+    depends_on:
+      - db
+      - auth
+
+  pong:
+    container_name: pong
+    build: src/backend/pong
+    env_file: src/backend/.env-dev
+    restart: always
+    volumes:
+      - pong:/pong
+      - dependencies:/opt/venv/
+    networks:
+      - proxy
+    depends_on:
+      - db
+      - auth
+      - migration
+
+  friendship:
+    container_name: friendship
+    build: src/backend/friendship/
+    env_file: src/backend/.env-dev
+    restart: always
+    volumes:
+      - friendship:/friendship
+      - dependencies:/opt/venv/
+    networks:
+      - proxy
+    depends_on:
+      - db
+      - auth
+      - pong
+      - migration
+
+  livechat:
+    container_name: livechat
+    build: src/backend/livechat/
+    env_file: src/backend/.env-dev
+    restart: always
+    volumes:
+      - livechat:/livechat
+    networks:
+      - proxy
+    depends_on:
+      - auth
+
+networks:
+  proxy:
+    name: proxy
+    driver: bridge
+
+volumes:
+  proxy:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${USER}/volumes/proxy/
+  frontend:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${USER}/volumes/frontend/
+  redis:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${USER}/volumes/redis/
+  db:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${USER}/volumes/db
+  node_modules:
+  # backend
+  dependencies:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${USER}/volumes/dependencies
+  pong:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${USER}/volumes/pong/
+  auth:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${USER}/volumes/auth/
+  friendship:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${USER}/volumes/friendship/
+  livechat:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${USER}/volumes/livechat
