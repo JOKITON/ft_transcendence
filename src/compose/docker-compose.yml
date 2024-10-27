@@ -15,7 +15,9 @@ services:
 
   frontend:
     container_name: frontend
-    build: ../frontend/
+    build:
+      context: ../frontend/
+      dockerfile: Dockerfile.prod
     networks:
       - proxy
     volumes:
@@ -34,8 +36,9 @@ services:
       - proxy
     ports:
       - 6379
-#secrets:
-#  auth_traefik:
+
+include:
+  - docker-compose-backend.yml
 
 networks:
   proxy:

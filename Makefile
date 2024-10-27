@@ -44,18 +44,20 @@ $(VOLUMES) :
 
 up : $(NETWORKS) $(VOLUMES)
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) up --build -d  --remove-orphans
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) up --build -d  --remove-orphans
-	# $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) up --build -d  --remove-orphans
+
 logs:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) logs
+
 logs-backend:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) logs
+
 logs-metrics:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) logs
+
 down:
 	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) down --remove-orphans --volumes
 	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) down --remove-orphans --volumes
-	@$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) down --remove-orphans --volumes 
+
 clean:
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES)
 	@$(DOCKER) rmi -f $(DOCKER_IMAGES_BACKEND)
@@ -64,38 +66,8 @@ clean:
 	sudo rm -rf volumes/
 	@$(DOCKER) network prune --force
 	@$(DOCKER) image prune --force
+
 fclean: down clean
 	@$(DOCKER) system prune --all --volumes --force
 
 re: down up
-
-curl: 
-	curl -X POST \
-		http://localhost/api/pong/rounds/ \
-	 -H 'Content-Type: application/json' \
-  -d '{ "player1": "1", "player2": "2", "score1": 10, "score2": 8 }'
-
-info:
-	@sudo docker ps
-	@sudo docker images
-	@sudo docker volume ls
-	@sudo docker network ls
-	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE) ps
-	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) ps
-	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) ps
-	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE) images
-	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) images
-	@sudo $(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) images
-
-# Help target
-help:
-	@echo "Usage: make [TARGET]"
-	@echo ""
-	@echo "Targets:"
-	@echo "  all       : Build and start the containers (default)"
-	@echo "  up		   : Build and start the Docker containers"
-	@echo "  down      : Stop and remove the Docker containers"
-	@echo "  clean     : Clean up the Docker volumes"
-	@echo "  info      : List information about containers"
-	@echo "  help      : Show this help message"
-	@echo "  re        : Redoes the whole project"

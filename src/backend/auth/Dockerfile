@@ -6,11 +6,11 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:13:42 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/10/17 16:17:44 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/27 08:43:20 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20 as builder
+FROM alpine:3.20
 
 RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3
 

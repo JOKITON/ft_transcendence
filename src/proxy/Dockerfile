@@ -1,15 +1,13 @@
-FROM nginx:alpine
+FROM alpine:3.20
 
-RUN apk add openssl
+RUN apk add openssl nginx --no-cache
 
-# Change configuration for Nginx
 COPY nginx.conf /etc/nginx/nginx.conf
-# COPY default.conf /etc/nginx/conf.d/default.conf
 
 RUN mkdir -p /etc/nginx/certs
 
 RUN openssl req -x509 -out /etc/nginx/certs/localhost.crt -keyout /etc/nginx/certs/localhost.key \
--newkey rsa:2048 -nodes -sha256 \
--subj '/CN=localhost'
+  -newkey rsa:2048 -nodes -sha256 \
+  -subj '/CN=localhost'
 
 CMD ["nginx", "-g", "daemon off;"]

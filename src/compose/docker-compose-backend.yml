@@ -86,10 +86,6 @@ services:
     depends_on:
       - auth
 
-networks:
-  proxy:
-    external: true
-
 volumes:
   db-data:
     driver: local
