@@ -128,25 +128,25 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: src/proxy/
+      device: ${USER}/volumes/proxy/
   frontend:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/frontend/frontend
+      device: ${USER}/volumes/frontend/
   redis:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/redis/
+      device: ${USER}/volumes/redis/
   db:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/database/db
+      device: ${USER}/volumes/db
   node_modules:
   # backend
   dependencies:
@@ -154,28 +154,28 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: src/dependencies/
+      device: ${USER}/volumes/dependencies
   pong:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/backend/pong/pong
+      device: ${USER}/volumes/pong/
   auth:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/backend/auth/authentication
+      device: ${USER}/volumes/auth/
   friendship:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/backend/friendship/friendship
+      device: ${USER}/volumes/friendship/
   livechat:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/backend/livechat/livechat
+      device: ${USER}/volumes/livechat

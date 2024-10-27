@@ -62,7 +62,7 @@ class RegisterUserView(APIView):
                 return Response(response, status=status.HTTP_201_CREATED)
         return Response(
             {
-                "message": "User not created",
+                "message": "User not created, error occurred.",
                 "code": "unexpected",
                 "status": status.HTTP_400_BAD_REQUEST,
             },
@@ -72,7 +72,8 @@ class RegisterUserView(APIView):
 
 class LoginUserView(APIView):
     def post(self, request: Request) -> Response:
-        serializer = UserSerializer(data=request.data, context={"request": request})
+        serializer = UserSerializer(
+            data=request.data, context={"request": request})
         if serializer.is_valid():
             user: User = serializer.validated_data
             login(request, user)
@@ -88,15 +89,15 @@ class LoginUserView(APIView):
                 },
             }
             return Response(response, status=status.HTTP_200_OK)
-
-        return Response(
-            {
-                "message": "Invalid credentials",
-                "status": status.HTTP_400_BAD_REQUEST,
-                "token": None,
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+        else:
+            return Response(
+                {
+                    "message": "Invalid credentials",
+                    "status": status.HTTP_400_BAD_REQUEST,
+                    "token": None,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class LogoutView(APIView):

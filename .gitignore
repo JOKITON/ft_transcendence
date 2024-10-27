@@ -2,7 +2,7 @@
 .vscode/
 volumes/
 networks/
-
+.env.dev
 # BackEnd
 venv/
 migrations/
