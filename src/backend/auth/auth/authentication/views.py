@@ -1,23 +1,15 @@
-import base64
-import logging
-import os
-from typing import Any, Dict
-
-from django.conf import settings
-from django.contrib.auth import login, logout
-from django.core.files.base import ContentFile
-from django.http import FileResponse, HttpResponse
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView, Request
+from .serializers import UserSerializer, UserSerializerRegister
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken, Token
+from rest_framework_simplejwt.tokens import RefreshToken, Token
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView, Request
+from django.contrib.auth import login, logout
+from rest_framework.response import Response
+from django.http import HttpResponse
 from UserModel.models import User
-
-from .serializers import PasswdSerializer, UserSerializer, UserSerializerRegister
-
-logger: logging.Logger = logging.getLogger(__name__)
+from rest_framework import status
+from django.conf import settings
+from typing import Any, Dict
 
 
 class RegisterUserView(APIView):
@@ -80,8 +72,7 @@ class RegisterUserView(APIView):
 
 class LoginUserView(APIView):
     def post(self, request: Request) -> Response:
-        serializer = UserSerializer(
-            data=request.data, context={"request": request})
+        serializer = UserSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             user: User = serializer.validated_data
             login(request, user)
