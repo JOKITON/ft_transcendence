@@ -92,11 +92,6 @@ interface Friend {
   is_blocked_by_friend: boolean
 }
 
-const props = defineProps({
-  friend: {
-    required: true
-  }
-})
 
 interface Message {
   type: string

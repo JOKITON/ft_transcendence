@@ -32,9 +32,7 @@ urlpatterns = [
     path("update-profile", UpdateUserData.as_view(), name="update_profile"),
     path("change-password", UpdatePassword.as_view(), name="update_password"),
     # path('change-password', ChangePassword.as_view(), name='update_password'),
-    path(
-        "update-avatar", UpdateAvatar.as_view(), name="updateAvatar"
-    ),  # + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path("update-avatar", UpdateAvatar.as_view(), name="updateAvatar"),  # + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     path("get-avatar", GetAvatar.as_view(), name="getAvatar"),
     path("get-avatar-id/<int:user_id>/",
          GetAvatarById.as_view(), name="getAvatarById"),

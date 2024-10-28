@@ -105,7 +105,7 @@
 	        </div>
             <!-- Leaderboard Section -->
             <div class="leaderboard-container">
-            <div v-if="gameMode == false" class="leaderboard">
+            <div class="leaderboard">
                 <h6 class="leaderboard-title">Leaderboard</h6>
                 <ul class="list-group">
                     <li v-for="(user, index) in leaderboard" :key="user.id"
@@ -292,173 +292,128 @@ const startGame = () => {
 };
 </script>
 
+
 <style scoped>
 .form-container {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: space-between;
-	padding: 2rem;
-	padding-top: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border-top: solid 2px #ff3974;
+  box-shadow: 0px -10px 5px rgba(249, 36, 100, 1);
 }
 
 .form-content {
-	background-color: #f9f9f9;
-	padding: 30px;
-	border-radius: 16px;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-	width: 100%;
-	max-width: 500px;
-	font-family: Titulo, sans-serif;
+  background-color: rgba(19, 14, 43, 1);
+  color: #ebd2ff;
+  border-radius: 10px;
+  padding: 2em;
+  box-shadow: -4px 4px 10px rgba(249, 36, 100, 0.8);
+  width: 100%;
+  max-width: 600px; /* Ajusta el ancho máximo */
 }
 
 .title {
-	font-family: Titulo, sans-serif;
-	font-size: 2rem;
-	color: #007bff;
-	margin-bottom: 1.5rem;
-	text-align: center;
-}
-
-.game-form {
-	width: 100%;
-}
-.toggle-btn {
-	font-size: 1.2rem;
-	font-weight: bold;
-	padding: 0.75rem 1.5rem;
-	border-radius: 12px;
-}
-
-h3 {
-	font-family: 'Roboto', sans-serif;
-	font-weight: 500;
-	color: #333;
-}
-
-.game-mode-options {
-	display: flex;
-	justify-content: space-between;
-	gap: 10px;
-}
-
-.game-mode-label {
-	font-family: 'Roboto', sans-serif;
-	font-size: 1rem;
-	cursor: pointer;
-	color: #495057;
-	transition: color 0.2s ease;
-}
-
-.game-mode-label:hover {
-	color: #007bff;
+  text-align: center;
+  font-family: Titulo, sans-serif;
+  margin-bottom: 20px;
 }
 
 .player-inputs {
-	margin-top: 1rem;
+  margin-top: 20px;
 }
 
-.player-group {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 1rem;
+.game-mode-label {
+  margin-right: 20px;
 }
 
-.form-control {
-	flex: 1;
-	padding: 0.5rem;
-	border: 1px solid #ced4da;
-	border-radius: 8px;
-	font-size: 1rem;
-	transition: border-color 0.2s ease;
+.ai-difficulty {
+  margin-top: 20px;
 }
 
-.form-control:focus {
-	border-color: #007bff;
-	box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-	outline: none;
+.trophy-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-.vs-text {
-	font-weight: bold;
-	font-size: 1.2rem;
-	color: #495057;
-	margin: 0 10px;
+.trophy-image {
+  width: 100px; /* Ajusta el tamaño de la imagen del trofeo */
 }
 
-.btn {
-	width: 100%;
-	border-radius: 8px;
-	padding: 0.75rem;
-	font-size: 1.25rem;
-	font-weight: 500;
-	transition: background-color 0.2s ease;
+.leaderboard-container {
+  margin-top: 30px;
+  width: 100%; /* Ocupa todo el ancho disponible */
+  max-width: 400px; /* Ajusta el ancho máximo para que sea más estrecho */
+  background-color: rgba(19, 14, 43, 1); /* Fondo del leaderboard */
+  border-radius: 10px;
+  padding: 1.5em; /* Espaciado interno */
+  box-shadow: -4px 4px 10px rgba(249, 36, 100, 0.8); /* Sombra */
+  margin-left: auto; /* Centrar el contenedor */
+  margin-right: auto; /* Centrar el contenedor */
+}
+
+.leaderboard-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: Titulo, sans-serif;
+  color: #ff3974;
+  font-size: 1.5em;
+}
+
+.list-group {
+  list-style: none;
+  padding: 0;
+}
+
+.list-group-item {
+  background-color: rgba(30, 30, 30, 0.8); /* Fondo de los elementos de la lista */
+  color: #ebd2ff; /* Color del texto */
+  border-radius: 8px; /* Esquinas redondeadas */
+  margin: 5px 0; /* Espaciado entre los elementos */
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Alinear contenido */
+  padding: 10px 15px; /* Espaciado interno */
+  transition: background-color 0.3s; /* Transición suave */
+}
+
+.list-group-item:hover {
+  background-color: rgba(249, 36, 100, 0.9); /* Cambio de color al pasar el mouse */
+}
+
+.badge {
+  background-color: #ff3974; /* Color de las insignias */
+  color: #fff; /* Color del texto de las insignias */
+  padding: 5px 10px; /* Espaciado interno */
+  border-radius: 12px; /* Esquinas redondeadas para las insignias */
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
 }
 
 .btn-primary {
-	background-color: #007bff;
-	border: none;
+  background-color: #ff3974;
+  border: none;
 }
 
-.btn-primary:hover {
-	background-color: #0056b3;
+.btn-outline-primary {
+  border-color: #ff3974;
+  color: #ff3974;
 }
 
-.leaderboard {
-	background-color: #2c3e50;
-	padding: 1.5rem;
-	border-radius: 20px;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-	width: 100%;
-	max-width: 500px;
-}
-.list-group-item {
-	background-color: #34495e;
-	border-radius: 12px;
-	color: #ecf0f1;
-	border: none;
-	margin-bottom: 0.5rem;
+.btn-secondary {
+  background-color: #6c757d;
+  border: none;
 }
 
-
-.status-indicator {
-	display: inline-block;
-	width: 10px;
-	height: 10px;
-	border-radius: 50%;
-	margin-right: 10px;
+.btn-outline-secondary {
+  border-color: #6c757d;
+  color: #6c757d;
 }
-
-.bg-success {
-	background-color: #28a745;
-}
-
-.bg-danger {
-	background-color: #dc3545;
-}
-.trophy-image {
-	width: 150px;
-	height: auto;
-    justify-content: center;
-}
-.trophy-container {
-	margin-top: 2rem;
-    justify-content: center;
-}
-.leaderboard-container {
-	margin-top: 2rem;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-.leaderboard-title {
-	font-family: Titulo, sans-serif;
-	font-size: 1.5rem;
-	color: #ecf0f1;
-	text-align: center;
-	margin-bottom: 1rem;
-}
-
-
 </style>

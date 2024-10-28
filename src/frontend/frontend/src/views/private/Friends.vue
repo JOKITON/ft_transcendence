@@ -1,92 +1,71 @@
 <template>
   <div class="pruebas">
-    <NavHome ></NavHome>
+    <NavHome />
   </div>
-  <div class="row gutters-sm">
-    <div class="col-sm-6 mb-3">
-      <div class="card h-100 card-scrollable">
-        <div class="card-body">
-          <h6 class="d-flex align-items-center mb-3">Friends List</h6>
-          <ul class="list-group friends-list">
-            <li
-              v-for="friend in friends"
-              :key="friend.id"
-              class="list-group-item d-flex justify-content-between align-items-center"
-            >
-              <span>
-                <span
-                  :class="['status-indicator', friend.isOnline ? 'bg-success' : 'bg-danger']"
-                ></span>
-                {{ friend.username }}
-                <span v-if="friend.is_blocked_by_user" class="text-danger">(Bloqueado por ti)</span>
-                <span v-if="friend.is_blocked_by_friend" class="text-warning"
-                  >(Te ha bloqueado)</span
-                >
-              </span>
-              <div class="btn-group">
-                <button class="btn btn-primary btn-sm" @click="handleSendMessage(friend)" :disabled="friend.is_blocked_by_friend">Mensaje</button>
+  <section class="info-section row flex-row-nowrap">
+    <div class="info-card d-flex flex-column justify-content-center col-md-6 col-sm-12">
+      <h2 class="pt-2">Friends List</h2>
+      <div class="card-content">
+        <ul class="list-group friends-list">
+          <li v-if="friends.length === 0" class="list-group-item text-center">
+            No friends available.
+          </li>
+          <li
+            v-for="friend in friends"
+            :key="friend.id"
+            class="list-group-item d-flex justify-content-between align-items-center"
+          >
+            <span>
+              <span :class="['status-indicator', friend.isOnline ? 'bg-success' : 'bg-danger']"></span>
+              {{ friend.username }}
+              <span v-if="friend.is_blocked_by_user" class="text-danger">(Bloqueado)</span>
+              <span v-if="friend.is_blocked_by_friend" class="text-warning">(Te ha bloqueado)</span>
+            </span>
+            <div class="btn-group">
+              <button class="btn btn-outline-primary btn-sm" @click="handleSendMessage(friend)">📩</button>
+              <button v-if="friend.is_blocked_by_user" class="btn btn-outline-warning btn-sm" @click="unblockUser(friend.username)">
+                🔓
+              </button>
+              <button v-else class="btn btn-outline-danger btn-sm" @click="blockUser(friend.username)">🔒</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
 
-                <button v-if="friend.is_blocked_by_user" class="btn btn-warning btn-sm" @click="unblockUser(friend.username)">
-                  Desbloquear
-                </button>
-                <button v-else class="btn btn-danger btn-sm" @click="blockUser(friend.username)" :disabled="friend.is_blocked_by_friend">
-                  Bloquear
-                </button>
-                <button
-                  class="btn btn-success btn-sm"
-                  @click="inviteUser(friend.username)"
-                  :disabled="friend.is_blocked_by_friend"
-                >
-                  Invitar
-                </button>
-              </div>
-            </li>
-          </ul>
-        </div>
+    <!-- Tarjeta de Solicitudes de Amistad -->
+    <div class="info-card d-flex flex-column justify-content-center col-md-6 col-sm-12">
+      <h2 class="pt-2">Friend Requests</h2>
+      <div class="card-content">
+        <ul class="list-group">
+          <li
+            v-for="request in friendRequests"
+            :key="request.id"
+            class="list-group-item d-flex justify-content-between align-items-center"
+          >
+            <span>{{ request.friend.username }}</span>
+            <div class="btn-group">
+              <button class="btn btn-outline-success btn-sm" @click="acceptFriendRequest(request.id)">✔️</button>
+              <button class="btn btn-outline-danger btn-sm" @click="declineFriendRequest(request.id)">❌</button>
+            </div>
+          </li>
+        </ul>
       </div>
-    </div>
-    <!-- Solicitudes de amistad -->
-    <div class="col-sm-6 mb-3">
-      <div class="user-card  h-100 card-scrollable">
-        <div class="card-body card-body2">
-          <h6 class="d-flex align-items-center mb-3">Friend Requests</h6>
-          <div class="d-flex flex-column">
-            <ul class="list-group">
-              <li
-                v-for="request in friendRequests"
-                :key="request.id"
-                class="list-group-item d-flex justify-content-between align-items-center"
-              >
-                <span>
-                  <span class="status-indicator bg-success"></span>
-                  {{ request.friend.username }}
-                </span>
-                <div class="btn-group">
-                  <button class="btn btn-success btn-sm" @click="acceptFriendRequest(request.id)">
-                    Aceptar
-                  </button>
-                  <button class="btn btn-danger btn-sm" @click="declineFriendRequest(request.id)">
-                    Rechazar
-                  </button>
-                </div>
-              </li>
-            </ul>
-          </div>
-          <div class="search-friend mt-4">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Buscar usuario..."
-              v-model="searchQuery"
-            />
-            <button class="btn btn-primary mt-2 w-100" @click="sendFriendRequest">Enviar</button>
-          </div>
-          <div v-if="feedbackMessage" class="alert" :class="feedbackClass">{{ feedbackMessage }}</div>
-        </div>
+      <!-- Búsqueda de Amigos -->
+      <div class="search-friend mt-4">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Find user..."
+          v-model="searchQuery"
+        />
+        <button class="btn btn-primary mt-2 w-100" @click="sendFriendRequest">Enviar Solicitud</button>
       </div>
+      <div v-if="feedbackMessage" class="alert mt-2" :class="feedbackClass">{{ feedbackMessage }}</div>
     </div>
-  </div>
+  </section>
 </template>
+
 
 <script setup lang="ts">
 
@@ -247,9 +226,33 @@ const declineFriendRequest = async (requestId: number) => {
 </script>
 
 <style scoped>
-.friends-list {
+.info-section {
+  display: flex;
+  justify-content: space-between;
+  padding: 40px 20px;
+  border-top: solid 2px #ff3974;
+  box-shadow: 0px -10px 5px rgba(249,36,100,1);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.info-card {
+  background-color: rgba(19, 14, 43, 1);
+  color: #ebd2ff;
+  text-align: center;
+  padding: 1.3em;
+  border-radius: 10px;
+  margin: 0.8em;
+font-family: Titulo, sans-serif;
+  box-shadow: -4px 4px 10px rgba(249, 36, 100, 0.8);
+  min-width: 400px;
+  flex: 0 0 45%;
+}
+
+.card-content {
   max-height: 200px;
   overflow-y: auto;
+  margin-top: 10px;
 }
 
 .status-indicator {
@@ -257,30 +260,30 @@ const declineFriendRequest = async (requestId: number) => {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  margin-right: 5px;
+  margin-right: 8px;
 }
 
-.bg-success {
-  background-color: green;
+.search-friend {
+  list-style: none;
+  padding: 0;
 }
 
-.bg-danger {
-  background-color: red;
-}
-.pruebas {
-  position: relative;
-  z-index: 100;
+.btn-group button {
+  font-size: 14px;
+  margin: 0 2px;
 }
 
 .alert-success {
-  color: #155724;
   background-color: #d4edda;
   border-color: #c3e6cb;
 }
+
 .alert-danger {
-  color: #721c24;
   background-color: #f8d7da;
   border-color: #f5c6cb;
 }
 
+.search-friend input {
+  border-radius: 0.25rem;
+}
 </style>

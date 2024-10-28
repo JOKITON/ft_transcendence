@@ -6,7 +6,7 @@
         <!-- PAGINAS PRINCIPALES NAV -->
         <ul class="nav col-lg-auto me-lg-auto mb-md-0 nav-flex">
           <li>
-            <img src="../../assets/images/logo.png" width="30" height="30" class="d-inline-block align-top" alt="" />
+            <img src="../../assets/images/logoPong.png" class="d-inline-block mylogo align-top" />
           </li>
           <li><a @click="goToHome" class="nav-link px-4 nav-item">Home</a></li>
           <li><a @click="goToPong" class="nav-link px-4 nav-item">Pong</a></li>
@@ -317,6 +317,11 @@ const fetchFriendRequests = async () => {
   padding-bottom: 0px !important;
   padding-top: 5px !important;
   margin-top: 17px !important;
+}
+
+.mylogo {
+  width: 50px;
+  height: 50px;
 }
 
 .nav-drop-item {

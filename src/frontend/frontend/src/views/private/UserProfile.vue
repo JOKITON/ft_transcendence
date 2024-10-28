@@ -80,6 +80,13 @@ interface Friend {
   is_blocked_by_friend: boolean;
 }
 
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
+  }
+});
+
 const api = inject('$api') as Api;
 const route = useRoute();
 const router = useRouter();
