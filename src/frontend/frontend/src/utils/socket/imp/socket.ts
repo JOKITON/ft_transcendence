@@ -13,7 +13,10 @@ export default class Socket implements ISocket {
   private url: string
   private room: string
 
-  constructor(url: string = 'ws://localhost:7104/api/v1/livechat/ws/chat/', room: string = 'test_room') {
+  constructor(
+    url: string = 'wss://localhost:7102/api/v1/livechat/ws/chat/',
+    room: string = 'test_room'
+  ) {
     this.url = url
     this.room = room
   }
