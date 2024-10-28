@@ -5,7 +5,6 @@ if [ ! -d /auth/secrets ]; then
 fi
 
 # Check if the private key exists, if not, generate it
-if [ ! -f /auth/secrets/private.pem ]; then
   echo "Generating private key..."
   openssl genrsa -out /auth/secrets/private.pem 2048
 
@@ -18,10 +17,8 @@ if [ ! -f /auth/secrets/private.pem ]; then
   fi
 else
   echo "Private key already exists"
-fi
 
 # Check if the public key exists, if not, generate it
-if [ ! -f /auth/secrets/public.pem ]; then
   echo "Generating public key..."
   openssl rsa -in /auth/secrets/private.pem -pubout -out /auth/secrets/public.pem
 
@@ -34,4 +31,3 @@ if [ ! -f /auth/secrets/public.pem ]; then
   fi
 else
   echo "Public key already exists"
-fi
