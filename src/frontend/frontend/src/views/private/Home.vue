@@ -110,7 +110,6 @@ onMounted(async () => {
 /* Sección de bienvenida */
 .welcome-section {
   position: relative;
-  background-image: url('https://your-background-image-url.jpg'); /* Cambia por tu imagen */
   background-size: cover;
   background-position: center;
   height: 70vh;
