@@ -11,11 +11,11 @@ fi
 KEY_DIR="/livechat/secrets"
 mkdir -p "$KEY_DIR"
 
-# curl -o $KEY_DIR/public.pem http://auth/api/v1/auth/public
-# if ! openssl rsa -pubin -in /livechat/secrets/public.pem -text -noout >/dev/null 2>&1; then
-#   echo "Error: Fetched public key is not valid."
-#   exit 1
-# fi
+ curl -o $KEY_DIR/public.pem http://auth/api/v1/auth/public
+ if ! openssl rsa -pubin -in /livechat/secrets/public.pem -text -noout >/dev/null 2>&1; then
+   echo "Error: Fetched public key is not valid."
+   exit 1
+ fi
 echo "Applying database migrations..."
 if ! python3 manage.py makemigrations livechat --noinput; then
   echo "Migrations failed"
