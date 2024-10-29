@@ -78,11 +78,15 @@
 
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue'
-import Chat from 'vue3-beautiful-chat' // Importa el componente de chat
 import Socket from '../../utils/socket/imp/socket'
 import { WebsocketEvent } from 'websocket-ts'
 
 import { eventBus } from './eventbus.js'
+
+declare module './eventbus.js' {
+  const eventBus: any;
+  export default eventBus;
+}
 
 interface Friend {
   id: number
@@ -115,7 +119,8 @@ const friends = ref<Friend[]>([])
 const activeChats = ref<ChatInstance[]>([])
 const isDropdownVisible = ref(false)
 const lastOpenedChat = ref<Friend | null>(null)
-const socket = new Socket()
+const socket: Socket | null = new Socket();
+
 const size = ref(1)
 const user = ref('')
 const room = ref('')

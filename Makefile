@@ -16,7 +16,10 @@ VOLUMES = ${USER}/volumes/db ${USER}/volumes/dependencies ${USER}/volumes/redis 
 
 all:
 	@mkdir -p $(VOLUMES)
-	$(DOCKER_COMPOSE_CMD) up --build -d --remove-orphans
+	$(DOCKER_COMPOSE_CMD) -f docker-compose.yml.prod up --build -d --remove-orphans
+
+front:
+	$(DOCKER_COMPOSE_CMD) -f docker-compose.yml.prod up --build -d --remove-orphans frontend
 
 logs:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) logs
