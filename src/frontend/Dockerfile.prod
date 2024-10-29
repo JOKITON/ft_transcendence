@@ -18,6 +18,8 @@ WORKDIR /frontend
 
 COPY frontend .
 
+RUN npm i http-server -g
+
 RUN npm i && npm run build-only
 
 CMD http-server dist -p 80
