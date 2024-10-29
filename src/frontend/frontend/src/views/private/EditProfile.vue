@@ -126,7 +126,7 @@ import NavHome from './NavHome.vue';
 
 /* ----- VARIABLES ----- */
 
-const api: Api = inject('$api') as Api;
+const api = inject('$api') as any;
 const Auth: auth = new auth(api)
 const router = useRouter()
 
@@ -154,7 +154,7 @@ const originalUserData = ref<userDataRequest>({
 
 const updatePassword: () => Promise<void> = async () => {
   try {
-    const response = await api.post<passwdResponse>("auth/change-password",formPasswd.value)
+    const response = await api.post("auth/change-password",formPasswd.value)
     if (response.status == 400) {
       window.alert('An error occurred while submitting the form')
       resetPasswdForm()
@@ -170,7 +170,7 @@ const updatePassword: () => Promise<void> = async () => {
 
 const updateUserData: () => Promise<void> = async() => {
   try {
-    const response = await api.post<userDataResponse>("auth/update-profile",formUserData.value)
+    const response = await api.post("auth/update-profile",formUserData.value)
     if (response.status == 200) {
       router.push('/profile')
     } else {
