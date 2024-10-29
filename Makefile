@@ -9,9 +9,7 @@ else
     DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_MAC)
 endif
 
-VOLUMES = ${USER}/volumes/db ${USER}/volumes/dependencies ${USER}/volumes/redis \
-	${USER}/volumes/proxy ${USER}/volumes/frontend ${USER}/volumes/db  ${USER}/volumes/pong \
-	${USER}/volumes/friendship ${USER}/volumes/auth ${USER}/volumes/livechat
+VOLUMES = ${USER}/volumes/db ${USER}/volumes/dependencies ${USER}/volumes/redis
 
 
 all:
@@ -31,7 +29,6 @@ logs-metrics:
 	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) logs
 
 clean:
-	sudo rm -rf $(USER)
 	@$(DOCKER_COMPOSE_CMD)  down --remove-orphans --volumes
 	#docker volume rm $(docker volume ls -qf dangling=true)
 	

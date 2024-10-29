@@ -91,7 +91,7 @@ class Tournament4P(models.Model):
     player_names = ArrayField(models.CharField(), default=list)
     player_scores = ArrayField(ArrayField(models.IntegerField(), null=True, blank=True), default=list, null=True, blank=True, size=4)
     player_hits = ArrayField(models.IntegerField(), default=list)
-    game_index = ArrayField(models.IntegerField(), default=0)
+    game_index = models.IntegerField(default=0)
     time_played = models.IntegerField(default=0)
 
     players = models.ManyToManyField(Player)
