@@ -47,7 +47,7 @@ import NavHome from './NavHome.vue';
 import Stats from './Stats.vue';
 import FriendList from './FriendList.vue';
 import type Api from '@/utils/Api/Api'
-import auth from '../../services/user/services/auth/auth.ts'
+import auth from '../../services/user/services/auth/auth'
 
 
 /* ----- VARIABLES ----- */
@@ -73,7 +73,7 @@ async function fetchUserData() {
     const response = await Auth.whoami();
     console.log(response);
     user.value = {
-      id: response.id,
+      id: parseInt(response.id, 10),
       username: response.username,
       email: response.email,
       nickname: response.nickname,
@@ -89,7 +89,7 @@ async function fetchUserData() {
 }
 async function fetchUserAvatar() {
   try {
-    const response = await api.get('auth/get-avatar');
+    const response = await api.get('auth/get-avatar') as { status: number, avatar_base64: string , data: string};
     if (response.status === 200) {
       const avatarBase64 = response.avatar_base64;
       user.value.avatarUrl = `data:image/jpeg;base64,${avatarBase64}`;

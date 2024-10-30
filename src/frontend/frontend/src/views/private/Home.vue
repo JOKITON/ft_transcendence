@@ -38,7 +38,7 @@
 import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import NavHome from './NavHome.vue'
-import auth from '../../services/user/services/auth/auth.ts'
+import auth from '../../services/user/services/auth/auth'
 import type Api from '@/utils/Api/Api'
 
 // Variables reactivas

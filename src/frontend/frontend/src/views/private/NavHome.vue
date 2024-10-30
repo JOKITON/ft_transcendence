@@ -93,7 +93,6 @@ import { useRouter } from 'vue-router'
 import type Api from '../../services/Api/api'
 import auth from '../../services/user/services/auth/auth'
 import ChatDropdown from './DesplegableChat.vue';
-import Friendss from './Friends.vue';
 
 
 
@@ -110,7 +109,7 @@ const user = ref({
   avatarUrl: '',
 });
 const unreadNotifications = ref(0);
-const friendRequests = ref([{ id: 1, username: 'JohnDoe' }, { id: 2, username: 'JaneSmith' }]);
+const friendRequests = ref<FriendRequest[]>([]); // Casteamos a FriendRequest[]
 const userLoaded = ref(false);
 
 /* ----- VARIABLES REACTIVAS ----- */
@@ -169,14 +168,24 @@ const performSearch = async (): Promise<void> => {
 
 const logoutUser = async () => {
   try {
-    const response: boolean = await Auth.logout()
-    console.log('Logout successful:', response.data)
-    router.push('/login')
-  } catch (error) {
-    console.error('Logout error:', error.response ? error.response.data : error.message)
-    alert('Logout failed. ' + (error.response ? error.response.data.message : error.message))
+    const response: boolean = await Auth.logout();
+    if (response) {
+      console.log('Logout successful');
+      router.push('/login');
+    } else {
+      console.error('Logout failed');
+      alert('Logout failed. Please try again.');
+    }
+  } catch (error: any) {
+    console.error(
+      'Logout error:', 
+      error.response ? error.response.data : error.message
+    );
+    alert(
+      'Logout failed. ' + (error.response ? error.response.data.message : error.message)
+    );
   }
-}
+};
 
 
 /* ----- FETCH INFORMATION ----- */
@@ -203,7 +212,7 @@ async function fetchUserAvatar() {
     } else {
       console.error('Failed to fetch avatar:', response.data);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching user avatar:', error.message);
   }
 }
