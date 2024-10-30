@@ -304,7 +304,7 @@ onMounted(async () => {
     }))
 
     console.log('Friends loaded:', friends.value)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching friends:', error)
   }
 })
@@ -336,7 +336,7 @@ const blockUser = async (username: string) => {
     friends.value = friends.value.map((friend) =>
       friend.username === username ? { ...friend, is_blocked_by_user: true } : friend
     )
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error blocking user', error)
   }
 }
@@ -349,7 +349,7 @@ const unblockUser = async (username: string) => {
     friends.value = friends.value.map((friend) =>
       friend.username === username ? { ...friend, is_blocked_by_user: false } : friend
     )
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error unblocking user', error)
   }
 }

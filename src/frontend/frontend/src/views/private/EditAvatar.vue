@@ -81,7 +81,7 @@ const uploadAvatar = async () => {
       if (response.status === 200) {
         router.push('/profile');
       }
-    } catch (error) {
+    } catch (error: any)  {
       console.error('Error uploading avatar:', error);
       alert('An error occurred while uploading the avatar.');
     }

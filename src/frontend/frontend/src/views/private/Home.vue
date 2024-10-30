@@ -42,45 +42,20 @@ import auth from '../../services/user/services/auth/auth.ts'
 import type Api from '@/utils/Api/Api'
 
 // Variables reactivas
-const isProfileVisible = ref(false)
-const isDropdownVisible = ref(false)
 const username = ref('PongPlayer') // Valor inicial personalizado
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 const router = useRouter()
 
-// Función para cerrar sesión
-const logoutUser = async () => {
-  try {
-    const response = await Auth.logout()
-    if (response.status === 200) {
-      console.log('Logout successful:', response.data)
-      Auth.removeAccessToken()
-      router.push('/login')
-    } else {
-      console.error('Logout failed:', response.data)
-      alert('Logout failed. ' + response.data.message)
-      Auth.removeAccessToken()
-    }
-  } catch (error) {
-    console.error('Logout error:', error.response ? error.response.data : error.message)
-    alert('Logout failed. ' + (error.response ? error.response.data.message : error.message))
-  }
-}
 
 // Función para obtener el nombre de usuario
 const fetchUsername = async () => {
   try {
     const response = await Auth.whoami()
     username.value = response.username
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching username:', error.response ? error.response.data : error.message)
   }
-}
-
-// Funciones de navegación
-const goToHome = () => { 
-  router.push('/home')
 }
 
 const goToPong = () => {
@@ -89,10 +64,6 @@ const goToPong = () => {
 
 const goToSettings = () => {
   router.push('/edit-profile')
-}
-
-const goToProfile = () => {
-  router.push('/profile')
 }
 
 const goToFriends = () => {

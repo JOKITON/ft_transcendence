@@ -8,6 +8,6 @@ COPY frontend .
 
 RUN npm i vite -g
 
-RUN npm i && npm run build-only
+RUN npm i && npm run build
 
 CMD vite preview --port 80
