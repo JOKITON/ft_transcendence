@@ -13,7 +13,7 @@ VOLUMES = ${USER}/volumes/db ${USER}/volumes/dependencies ${USER}/volumes/redis
 
 
 all:
-	./init.sh
+	./scripts/init.sh
 	$(DOCKER_COMPOSE_CMD) -f docker-compose.yml.prod up --build -d --remove-orphans
 
 front:
