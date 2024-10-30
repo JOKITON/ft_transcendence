@@ -34,7 +34,7 @@ clean:
 	
 fclean: clean
 	sudo rm -rf ${USER}
-	
+
 	docker system prune --all --volumes --force
 
 re: fclean all

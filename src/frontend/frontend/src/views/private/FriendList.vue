@@ -67,11 +67,6 @@ import avatar from '../../assets/avatars/pepe.png';
 const api = inject('$api') as Api;
 const router = useRouter();
 
-const user = ref({
-    username: '',
-    avatarUrl: ref(avatar),
-});
-
 const friends = ref<Friend[]>([]);
 
 const props = defineProps({
