@@ -13,7 +13,7 @@ VOLUMES = ${USER}/volumes/db ${USER}/volumes/dependencies ${USER}/volumes/redis
 
 
 all:
-	./init.sh
+	bash ./init.sh
 	$(DOCKER_COMPOSE_CMD) -f docker-compose.yml.prod up --build -d --remove-orphans
 
 front:
@@ -33,7 +33,8 @@ clean:
 	#docker volume rm $(docker volume ls -qf dangling=true)
 	
 fclean: clean
-	rm -rf ${USER}
+	sudo rm -rf ${USER}
+	
 	docker system prune --all --volumes --force
 
 re: fclean all

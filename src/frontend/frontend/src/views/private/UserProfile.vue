@@ -148,7 +148,7 @@ const fetchUserData = async (id: number) => {
         username: response.user_data.username,
         nickname: response.user_data.nickname,
         email: response.user_data.email,
-        avatar: response.user_data.avatar,
+        avatar: '',
         isFriend: checkIfFriend(friends.value, response.user_data.id),
         is_blocked: checkIfBloked(friends.value, response.user_data.id),
         friendRequestSent: false 

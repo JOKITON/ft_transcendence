@@ -1,5 +1,5 @@
 <template>
-  <header class="p-3 nav-background">
+  <header v-if="userLoaded" class="p-3 nav-background">
     <div class="container">
       <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
 
@@ -111,7 +111,7 @@ const user = ref({
 });
 const unreadNotifications = ref(0);
 const friendRequests = ref([{ id: 1, username: 'JohnDoe' }, { id: 2, username: 'JaneSmith' }]);
-
+const userLoaded = ref(false);
 
 /* ----- VARIABLES REACTIVAS ----- */
 
@@ -186,7 +186,7 @@ async function fetchUsername() {
     const response = await Auth.whoami();
     user.value = {
       username: response.username,
-      avatarUrl: response.avatar ? response.avatar : 'avatars/pepe.png',
+      avatarUrl: '',
     };
       await fetchUserAvatar();
   } catch (error: any) {
@@ -257,6 +257,7 @@ onMounted(async () => {
 
   await fetchUsername()
   await fetchFriendRequests();
+  userLoaded.value = true;
 })
 
 
