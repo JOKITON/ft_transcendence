@@ -2,29 +2,39 @@
 /* FUENTES PERSONALIZADAS */
 
 @font-face {
+  font-family: 'Bit-Font';
+  src: url('../fonts/Bit5x3_Regular.json');
+}
+
+@font-face {
+  font-family: 'Montserrat-Font';
+  src: url('../fonts/Montserrat.json');
+}
+
+@font-face {
   font-family: 'NunitoBlack';
-  src: url('../../assets/fonts/NunitoBlack.otf');
+  src: url('../fonts/NunitoBlack.otf');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Titulo';
-  src: url('../../assets/fonts/Titulo.ttf');
+  src: url('../fonts/Titulo.ttf');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'NunitoItalic';
-  src: url('../../assets/fonts/NunitoItalic.otf');
+  src: url('../fonts/NunitoItalic.otf');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Nunito';
-  src: url('../../assets/fonts/Nunito.otf');
+  src: url('../fonts/Nunito.otf');
   font-weight: normal;
   font-style: normal;
 }
@@ -186,7 +196,7 @@
 html,
 body {
   height: 100%;
-  background-image: url('../../assets/images/fondo.png');
+  background-image: url('../images/fondo.png');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;

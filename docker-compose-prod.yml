@@ -41,8 +41,6 @@ services:
       - 7104:7104
       - 7102:7102
     restart: always
-    volumes:
-      - proxy:/proxy
     networks:
       - proxy
   # backend
@@ -123,12 +121,6 @@ networks:
     driver: bridge
 
 volumes:
-  proxy:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${USER}/volumes/proxy/
   frontend:
     driver: local
     driver_opts:

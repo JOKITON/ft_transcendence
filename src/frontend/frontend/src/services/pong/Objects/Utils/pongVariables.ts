@@ -47,6 +47,7 @@ export function setBallVelocity (aiDiff: number) {
 	console.log('AI Speed: ', ballVelocityX);
 	ballVelocity = new Vector3(ballVelocityX, ballVectorY, 0);
 }
+console.log('i-debug1')
 
 export const ballGeometry = [0.33, 10, 10];
 
@@ -57,5 +58,7 @@ export const vecHorizWall = new Vector3(33, 0.3, 1);
 export const SCORE_TO_WIN = 1;
 export const IS_STATE = 'P';
 export const IS_COMPLETED = 'C';
-export const BIT_FONT = './src/assets/fonts/Bit5x3_Regular.json';
-export const MONTSERRAT_FONT = './src/assets/fonts/Montserrat.json';
+console.log('i-debug2')
+export const BIT_FONT = '../../../../assets/fonts/Bit5x3_Regular.json';
+export const MONTSERRAT_FONT = '../../../../assets/fonts/Montserrat.json';
+console.log('i-debug3')

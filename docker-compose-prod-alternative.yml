@@ -3,7 +3,7 @@ services:
     container_name: frontend
     build:
       context: src/frontend/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     networks:
       - proxy
     volumes:
@@ -41,6 +41,8 @@ services:
       - 7104:7104
       - 7102:7102
     restart: always
+    volumes:
+      - proxy:/proxy
     networks:
       - proxy
   # backend
@@ -122,37 +124,12 @@ networks:
 
 volumes:
   frontend:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/src/frontend/frontend
   redis:
   db:
   node_modules:
   # backend
   dependencies:
   pong:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/src/backend/pong/pong
   auth:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/src/backend/auth/auth
   friendship:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/src/backend/friendship/friendship
   livechat:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/src/backend/livechat/livechat

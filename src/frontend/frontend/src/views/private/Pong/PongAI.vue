@@ -23,7 +23,9 @@ import {
   bounds,
   ballVectorY
 } from '../../../services/pong/Objects/Utils/pongVariables'
+console.log('debug1')
 import { IS_STATE, IS_COMPLETED, SCORE_TO_WIN, BIT_FONT, MONTSERRAT_FONT } from '../../../services/pong/Objects/Utils/pongVariables'
+console.log('debug2')
 
 const props = defineProps<{
   hasStateData: intStatePongData,
@@ -113,7 +115,7 @@ let helpTextControlsOne: HelpText
 let finalScore: GameOver
 
 async function loadFont() {
-  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((loadedFont) => {
+  await FontService.loadFont('../../../../assets/fonts/Bit5x3_Regular.json').then((loadedFont) => {
     const font = loadedFont
 
     // Vertical dashed wall

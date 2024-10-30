@@ -11,10 +11,13 @@ endif
 
 VOLUMES = ${USER}/volumes/db ${USER}/volumes/dependencies ${USER}/volumes/redis
 
-
 all:
 	bash ./scripts/init.sh
-	$(DOCKER_COMPOSE_CMD) -f docker-compose.yml.prod up --build -d --remove-orphans
+	$(DOCKER_COMPOSE_CMD) -f docker-compose-prod.yml up --build -d --remove-orphans
+prod-alternative:
+	$(DOCKER_COMPOSE_CMD) -f docker-compose-prod-alternative.yml up --build -d --remove-orphans
+dev:
+	$(DOCKER_COMPOSE_CMD) -f docker-compose.yml up --build -d --remove-orphans
 
 front:
 	$(DOCKER_COMPOSE_CMD) -f docker-compose.yml.prod up --build -d --remove-orphans frontend
@@ -33,8 +36,8 @@ clean:
 	#docker volume rm $(docker volume ls -qf dangling=true)
 	
 fclean: clean
-	sudo rm -rf ${USER}
-
+	rm -rf ${USER}
+	./scripts/clean.sh
 	docker system prune --all --volumes --force
 
 re: fclean all

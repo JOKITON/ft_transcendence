@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/10/17 16:22:58 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/30 19:05:38 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,6 +18,8 @@ WORKDIR /frontend
 
 COPY frontend .
 
-RUN npm i
+RUN npm i vite -g
 
-CMD npm  run dev -- --host
+RUN npm i && npm run build-only
+
+CMD vite preview --port 80
