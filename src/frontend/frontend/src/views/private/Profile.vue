@@ -104,7 +104,7 @@ async function fetchUserData() {
       username: response.username,
       email: response.email,
       nickname: response.nickname,
-      avatarUrl: response.avatar ? response.avatar : avatar,
+      avatarUrl: ''
     };
       await fetchUserAvatar();
 

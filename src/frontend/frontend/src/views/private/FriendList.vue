@@ -112,17 +112,11 @@ const goToUserProfile = (userId: number) => {
 onMounted(async () => {
     try {
     // Fetch friends and user data
-        console.log("useridididid")
-        console.log(props.userId)
         const fetchFriendsResponse = await api.get<Friend[]>(`friendship/friends-id/${props.userId}/`)
         friends.value = fetchFriendsResponse.friends || [];
-        console.log('lista de amigos')
-        console.log(friends.value)
         friends.value.forEach(friend => {
             fetchUserAvatar(friend);
         });
-        console.log('lista de amigos')
-        console.log(friends.value)
     } catch (error) {
         console.error('Error fetching data:', error);
     }
