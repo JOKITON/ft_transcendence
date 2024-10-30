@@ -116,7 +116,7 @@ const fetchStateData = async (gameMode : string) => {
     }
     console.log('State data : ' + statePongData.value)
     return true
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending data:', error)
 
     if (error.response) {
@@ -156,7 +156,7 @@ const sendPongData = async (tournamentResults) => {
     }
     const response = await api.post(url, tournamentResults)
     console.log('Data sent successfully:', response.data)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending data:', error)
 
     if (error.response) {
@@ -187,7 +187,7 @@ const sendTournamentData4P = async (tournamentResults) => {
     console.log('Data to send:', tournamentResults)
     const response = await api.post(url, tournamentResults)
     console.log('Data sent successfully:', response.data)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending data:', error)
 
     if (error.response) {
@@ -213,7 +213,7 @@ const sendTournamentData8P = async (tournamentResults) => {
   try {
     const response = await api.post('pong/8p', tournamentResults)
     console.log('Data sent successfully:', response.data)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending data:', error)
 
     if (error.response) {

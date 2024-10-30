@@ -95,7 +95,7 @@ const fetchUserAvatar = async (friend: Friend) => {
     } else {
       console.error('Failed to fetch avatar:', response.data);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching user avatar:', error.message);
   }
 };
@@ -112,7 +112,7 @@ onMounted(async () => {
         friends.value.forEach(friend => {
             fetchUserAvatar(friend);
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching data:', error);
     }
 });

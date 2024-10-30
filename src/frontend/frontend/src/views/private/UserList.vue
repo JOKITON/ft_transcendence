@@ -53,7 +53,7 @@ const fetchUserList = async () => {
 		const response = await api.get('friendship/users');
 		const data = Object.values(response.data);
 		users.value = data.filter(user => typeof user === 'object' && user.id && user.username);
-	} catch (error) {
+	} catch (error: any) {
 		console.error('Error fetching users:', error.response ? error.response.data : error.message);
 		router.push('/home');
 	}

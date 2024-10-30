@@ -71,7 +71,7 @@ async function fetchPongData() {
     const response = await Auth.pongData(props.userId);
     // console.log('Data sent successfully:', response.data);
     userPongData.value = response;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending data:', error);
 
     if (error.response) {

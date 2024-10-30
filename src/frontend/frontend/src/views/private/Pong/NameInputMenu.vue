@@ -194,7 +194,7 @@ const fetchLeaderboard = async () => {
                 }
             }
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching leaderboard:', error.response ? error.response.data : error.message);
     }
 }
@@ -214,7 +214,7 @@ const fetchUserList = async () => {
         /* users.value.forEach(user => {
             console.log(user.username);
         }); */
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching users:', error.response ? error.response.data : error.message);
     }
 }

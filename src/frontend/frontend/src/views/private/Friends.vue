@@ -87,7 +87,7 @@ const searchQuery = ref('');
 const feedbackMessage = ref('');
 const feedbackClass = ref('');
 
-const handleSendMessage = (friend) => {
+const handleSendMessage = (friend: Friend) => {
   console.log('Sending message to:', friend);
   eventBus.emit('messageSent', { friend: friend });
 }
@@ -123,8 +123,8 @@ onMounted(async () => {
   try {
     // Fetch friends and user data
     const [fetchFriendsResponse, userResponse] = await Promise.all([
-      api.get<Friend[]>('friendship/friends'),
-      api.get<{ username: string; email: string; nickname: string }>('auth/whoami')
+      api.get('friendship/friends'),
+      api.get('auth/whoami')
     ])
 
     // Asigna el estado correctamente, incluyendo los nuevos campos de bloqueo
@@ -143,7 +143,7 @@ onMounted(async () => {
 
 const fetchFriendRequests = async () => {
   try {
-    const response = await api.get<FriendRequestsResponse>('friendship/pendingReq')
+    const response = await api.get('friendship/pendingReq')
     friendRequests.value = response.pending_requests || []
   } catch (error: any) {
     console.error('Error fetching friend requests:', error.message)
@@ -196,7 +196,7 @@ const sendFriendRequest = async () => {
       feedbackMessage.value = `Error al enviar solicitud de amistad`;
       feedbackClass.value = 'alert-danger';
     }
-  } catch (error) {
+  } catch (error: any) {
     feedbackMessage.value = `Error al enviar solicitud de amistad: ${error.message}`;
     feedbackClass.value = 'alert-danger';
   }
