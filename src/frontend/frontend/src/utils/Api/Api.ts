@@ -8,7 +8,7 @@ export default class Api implements IApi {
 
   constructor(
     withCredentials: boolean = false,
-    url: string = 'http://localhost:7104/api/v1',
+    url: string = 'https://localhost:7102/api/v1',
     headers: { [key: string]: string } = {
     }
   ) {
@@ -32,8 +32,8 @@ export default class Api implements IApi {
     request: ResponseKey[] = ['data', 'status'],
     headers?: { [key: string]: string } | Record<string, any>
   ): Promise<ApiResponse<TResponse>> {
-    const accessToken = localStorage.getItem('access_token');
-    this.setAccessToken(accessToken);
+    const accessToken = localStorage.getItem('access_token')
+    this.setAccessToken(accessToken)
     return await this.api
       .get<TResponse>(url, { headers: headers })
       .then((response) => this.formatResponse(response, request))

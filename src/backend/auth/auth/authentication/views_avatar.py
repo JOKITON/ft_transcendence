@@ -39,14 +39,14 @@ class GetAvatar(APIView):
 
 
 class UpdateAvatar(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+
 
     def post(self, request):
         user = request.user
         serializer = UpdateAvatarSerializer(data=request.FILES)
 
         try:
+            print("entraaaaa aca")
             serializer.is_valid(raise_exception=True)
             serializer.save(user=user)
             return Response({"message": "Avatar updated successfully"}, status=status.HTTP_200_OK)

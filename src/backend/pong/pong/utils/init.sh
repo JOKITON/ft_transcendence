@@ -17,13 +17,6 @@ if ! python manage.py makemigrations --noinput; then
   exit 1
 fi
 
-# Collect static files
-echo "Collecting static files..."
-if ! python manage.py collectstatic --no-input; then
-  echo "Collectstatic failed"
-  exit 1
-fi
-
 # Start the Django development server
 echo "Starting Django development server..."
 exec gunicorn --bind 0.0.0.0:80 --workers=3 config.wsgi:application --reload --timeout 120

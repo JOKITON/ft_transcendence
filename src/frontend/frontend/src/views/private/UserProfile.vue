@@ -55,10 +55,10 @@
         </div>
       </div>
       <div class="col-md-8 d-flex">
-          <Stats v-if="userLoaded" :userId="userData.id"></Stats>
+          <Stats v-if="userLoaded" :userId=userData.id></Stats>
       </div>
     </div>
-    <FriendList v-if="userLoaded" :userId="userData.id"></FriendList>
+    <FriendList v-if="userLoaded" :userId=userData.id></FriendList>
   </div>
 </template>
 
@@ -80,7 +80,14 @@ interface Friend {
   is_blocked_by_friend: boolean;
 }
 
-const api = inject('$api') as Api;
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
+  }
+});
+
+const api = inject('$api') as any;
 const route = useRoute();
 const router = useRouter();
 
@@ -144,6 +151,7 @@ const fetchUserData = async (id: number) => {
         avatar: response.user_data.avatar,
         isFriend: checkIfFriend(friends.value, response.user_data.id),
         is_blocked: checkIfBloked(friends.value, response.user_data.id),
+        friendRequestSent: false 
   
       };
       userLoaded.value = true;
@@ -171,21 +179,24 @@ const fetchUserAvatar = async (id: number) => {
 };
 
 // Observar cambios en los parámetros de la ruta
-watch(() => route.params.id, (newId: string) => {
-  userId.value = parseInt(newId, 10)
-  if (userId.value) {
-    fetchUserData(userId.value);
-    fetchUserAvatar(userId.value);
+watch(() => route.params.id, (newId) => {
+  if (typeof newId === 'string') {
+    userId.value = parseInt(newId, 10);
+    if (userId.value) {
+      fetchUserData(userId.value);
+      fetchUserAvatar(userId.value);
+    }
   }
 });
 
 // Cargar amigos y datos del usuario cuando se monta el componente
 onMounted(async () => {
   try {
-    userId.value = parseInt(route.params.id, 10); // COMPARAR QUE ESTA ID NO SEA LA NUESTRA
+    const routeId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
+    userId.value = parseInt(routeId, 10);
     if (userId.value) {
       // Cargar lista de amigos
-      const response = await api.get<{ friends: Friend[] }>(`friendship/friends`);
+      const response = await api.get(`friendship/friends`);
       friends.value = (response.friends || []).map(friend => ({
         ...friend,
         isOnline: friend.isOnline === 'True'

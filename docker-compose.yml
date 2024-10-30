@@ -1,36 +1,65 @@
-name: ft_transcendence_backend
-
 services:
+  frontend:
+    container_name: frontend
+    build:
+      context: src/frontend/
+      dockerfile: Dockerfile
+    networks:
+      - network
+    volumes:
+      - node_modules:/frontend/node_modules
+      - frontend:/frontend
+    restart: always
+    depends_on:
+      - proxy
+  redis:
+    container_name: redis
+    build: src/backend/redis/
+    restart: always
+    volumes:
+      - redis:/data
+    networks:
+      - network
+    ports:
+      - 6379
   db:
     container_name: db
-    build: ../database/
-    env_file: ../backend/.env-dev
+    build: src/database/
+    env_file: src/backend/.env.dev
     ports:
       - 5432
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
     restart: always
     shm_size: 128mb
     networks:
-      - proxy
-
+      - network
+  proxy:
+    container_name: proxy
+    build: src/proxy/
+    ports:
+      - 7104:7104
+      - 7102:7102
+    restart: always
+    networks:
+      - network
+  # backend
   auth:
     container_name: auth
-    build: ../backend/auth/
-    env_file: ../backend/.env-dev
+    build: src/backend/auth/
+    env_file: src/backend/.env.dev
     restart: always
     volumes:
       - auth:/auth
       - dependencies:/opt/venv/
     networks:
-      - proxy
+      - network
     depends_on:
       - db
-
   migration:
     container_name: migration
-    build: ../backend/migration/
-    env_file: ../backend/.env-dev
+    build: src/backend/migration/
+    env_file: src/backend/.env.dev
     restart: always
     volumes:
       - auth:/usr/src/app/auth
@@ -38,21 +67,21 @@ services:
       - friendship:/usr/src/app/friendship
       - dependencies:/opt/venv/
     networks:
-      - proxy
+      - network
     depends_on:
       - db
       - auth
 
   pong:
     container_name: pong
-    build: ../backend/pong
-    env_file: ../backend/.env-dev
+    build: src/backend/pong
+    env_file: src/backend/.env.dev
     restart: always
     volumes:
       - pong:/pong
       - dependencies:/opt/venv/
     networks:
-      - proxy
+      - network
     depends_on:
       - db
       - auth
@@ -60,14 +89,14 @@ services:
 
   friendship:
     container_name: friendship
-    build: ../backend/friendship/
-    env_file: ../backend/.env-dev
+    build: src/backend/friendship/
+    env_file: src/backend/.env.dev
     restart: always
     volumes:
       - friendship:/friendship
       - dependencies:/opt/venv/
     networks:
-      - proxy
+      - network
     depends_on:
       - db
       - auth
@@ -76,54 +105,54 @@ services:
 
   livechat:
     container_name: livechat
-    build: ../backend/livechat/
-    env_file: ../backend/.env-dev
+    build: src/backend/livechat/
+    env_file: src/backend/.env.dev
     restart: always
     volumes:
       - livechat:/livechat
     networks:
-      - proxy
+      - network
     depends_on:
       - auth
 
 networks:
-  proxy:
-    external: true
+  network:
+    name: proxy
+    driver: bridge
 
 volumes:
-  db-data:
+  frontend:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../../volumes/db
+      device: ${PWD}/src/frontend/frontend
+  redis:
+  db:
+  node_modules:
+  # backend
   dependencies:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../../volumes/dependencies
   pong:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../backend/pong/pong/
+      device: ${PWD}/src/backend/pong/pong
   auth:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../backend/auth/auth/
+      device: ${PWD}/src/backend/auth/auth
   friendship:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../backend/friendship/friendship/
+      device: ${PWD}/src/backend/friendship/friendship
   livechat:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ../backend/livechat/livechat
+      device: ${PWD}/src/backend/livechat/livechat

@@ -13,3 +13,4 @@ RUN openssl req -x509 -out /etc/nginx/certs/localhost.crt -keyout /etc/nginx/cer
 -subj '/CN=localhost'
 
 CMD ["nginx", "-g", "daemon off;"]
+# CMD ["sleep", "infinity"]

@@ -10,6 +10,7 @@ export interface intStatePongData {
 	player_scores: Array<number>,
 	player_hits: Array<number>,
 	time_played: number,
+	game_index: number,
 	// aiDifficulty: number,
 	// isAudioEnabled: boolean,
   }

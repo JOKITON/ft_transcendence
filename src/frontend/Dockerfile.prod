@@ -1,24 +1,25 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Dockerfile                                         :+:      :+:    :+:    #
+#    Dockerfile.prod                                    :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/06/09 15:44:01 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/04 11:15:23 by jaizpuru         ###   ########.fr        #
+#    Created: 2024/06/25 20:40:21 by Dugonzal          #+#    #+#              #
+#    Updated: 2024/10/27 08:38:14 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20.2
+FROM alpine:3.20
 
-LABEL traefik.enable=true
-LABEL traefik.http.routers.prometheus.rule=Host(`prometheus.localhost`)
-LABEL traefik.http.services.prometheus.loadbalancer.server.port=9090
+RUN apk add --no-cache nodejs npm
 
-RUN apk update --no-cache  \
-  && apk upgrade --no-cache && apk add  prometheus --no-cache
+WORKDIR /frontend
 
-COPY conf/prometheus.yml /etc/prometheus/prometheus.yml
+COPY frontend .
 
-CMD prometheus --config.file=/etc/prometheus/prometheus.yml
+RUN npm i http-server -g
+
+RUN npm i && npm run build-only
+
+CMD http-server dist -p 80

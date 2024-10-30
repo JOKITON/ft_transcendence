@@ -44,7 +44,7 @@ import NavHome from './NavHome.vue';
 
 /* ----- VARIABLES ----- */
 
-const api: Api = inject('$api') as Api;
+const api = inject('$api') as any;
 const router = useRouter();
 const avatarPreview = ref('');
 const selectedFile = ref<File | null>(null);
