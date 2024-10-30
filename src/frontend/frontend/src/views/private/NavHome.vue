@@ -188,16 +188,7 @@ async function fetchUsername() {
       username: response.username,
       avatarUrl: response.avatar ? response.avatar : 'avatars/pepe.png',
     };
-    user.value.avatarUrl = '/src/assets/' + user.value.avatarUrl;
-    // console.log(user.value.avatarUrl )
-
-    // Check if avatarUrl is set to the default '/src/assets/avatars/pepe.png'
-    if (user.value.avatarUrl === '/src/assets/avatars/pepe.png') {
-      // Use the default local avatar
-    } else {
-      // Retrieve avatar from the backend
       await fetchUserAvatar();
-    }
   } catch (error: any) {
     console.error('Error fetching user data:', error.message);
   }

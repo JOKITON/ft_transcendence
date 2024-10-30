@@ -106,14 +106,7 @@ async function fetchUserData() {
       nickname: response.nickname,
       avatarUrl: response.avatar ? response.avatar : avatar,
     };
-    console.log('User data loaded:', user.value);
-    user.value.avatarUrl = '/src/assets/' + user.value.avatarUrl;
-
-    if (user.value.avatarUrl === '/src/assets/avatars/pepe.png') {
-      console.log('Using default avatar');
-    } else {
       await fetchUserAvatar();
-    }
 
     // Indicar que los datos del usuario han sido cargados
     userLoaded.value = true;
