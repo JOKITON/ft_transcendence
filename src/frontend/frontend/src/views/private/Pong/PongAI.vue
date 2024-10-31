@@ -74,6 +74,8 @@ if (stateData.check == true) {
 
 function setStatePongDate(data: intStatePongData) {
   player1Name.value = data.player_names[0]
+  player.setHits(data.player_hits[0])
+  playerAI.setHits(data.player_hits[1])
   numScorePlayerOne = data.player_scores[0]
   numScorePlayerTwo = data.player_scores[1]
   stateTime = data.time_played

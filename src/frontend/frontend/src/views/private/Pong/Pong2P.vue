@@ -81,6 +81,11 @@ function setStatePongDate(data: intStatePongData) {
   ids = data.player_ids
 }
 
+function setHits() {
+  player.setHits(props.hasStateData.player_hits[0])
+  player2.setHits(props.hasStateData.player_hits[1])
+}
+
 function setInitialValues() {
   player1Name.value = props.players[0].player
   player2Name.value = props.players[1].player
@@ -174,18 +179,18 @@ async function loadFont() {
 // Initialize players with the provided names
 player = new Player(
   new Vector3(0.4, 3, 0.5),
-  new Color('red'),
-  new Vector3(16, 0, 0),
-  'ArrowUp',
-  'ArrowDown',
-  player1Name.value
-)
-player2 = new Player(
-  new Vector3(0.4, 3, 0.5),
   new Color('blue'),
   new Vector3(-16, 0, 0),
   'KeyW',
   'KeyS',
+  player1Name.value
+)
+player2 = new Player(
+  new Vector3(0.4, 3, 0.5),
+  new Color('red'),
+  new Vector3(16, 0, 0),
+  'ArrowUp',
+  'ArrowDown',
   player2Name.value
 )
 
@@ -209,6 +214,9 @@ function setHelpText() {
 }
 
 function setupScene() {
+  if (props.hasStateData.check == true) {
+    setHits();
+  }
   setHelpText()
 
   three.addScene(horizWallUp.get())

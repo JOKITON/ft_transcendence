@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/30 22:18:38 by jaizpuru          #+#    #+#              #
-#    Updated: 2024/10/24 17:44:59 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/31 21:59:50 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -76,10 +76,10 @@ class AnyPongGameDataView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     
-    def get_tournament(self, pk=None, tournament_type=None):
+    def get_tournament(self, id1=None, tournament_type=None):
         # Fetch the player data for the current user
         try:
-            tournament = Tournament4P.objects.get((Q(player_ids__contains=[pk])) & Q(tournament_type=tournament_type, status='P'))
+            tournament = Tournament4P.objects.get((Q(player_ids__contains=[id1])) & Q(tournament_type=tournament_type, status='P'))
         except Tournament4P.DoesNotExist:
             return Response(data={"message": "Game not found"}, status=status.HTTP_200_OK)
         
@@ -92,19 +92,50 @@ class AnyPongGameDataView(APIView):
             "player_scores": tournament.player_scores,
             "player_hits": tournament.player_hits,
             "time_played": tournament.time_played,
+            "game_index": tournament.game_index,
+            "final_players": tournament.final_players,
             # Add other fields as necessary
         }
         print(tournament_data)
         return Response({"data": tournament_data}, status=status.HTTP_200_OK)
 
 
-    def get(self, request, pk=None, tournament_type=None):
+    def get(self, request, id1=None, tournament_type=None):
         print(request)
         # Fetch the player data for the current user
         if (tournament_type == '4P' or tournament_type == '8P'):
-            return self.get_tournament(pk, tournament_type)
+            return self.get_tournament(id1, tournament_type)
         try:
-            game = PongGame.objects.get((Q(player1_id=pk) | Q(player2_id=pk)) & Q(tournament_type=tournament_type, status='P'))
+            game = PongGame.objects.get((Q(player1_id=id1) | Q(player2_id=id1)) & Q(tournament_type=tournament_type, status='P'))
+        except PongGame.DoesNotExist:
+            return Response(data={"message": "Game not found"}, status=status.HTTP_200_OK)
+        
+        game_data = {
+            "id": game.id,
+            "status": game.status,
+            "tournament_type": game.tournament_type,
+            "player_ids": game.player_ids,
+            "player_names": game.player_names,
+            "player_scores": game.player_scores,
+            "player_hits": game.player_hits,
+            "time_played": game.time_played,
+            # Add other fields as necessary
+        }
+        print(game_data)
+        return Response({"data": game_data}, status=status.HTTP_200_OK)
+    
+class Pong2PGameDataView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id1=None, id2=None, tournament_type=None):
+        print(request)
+        # Fetch the player data for the current user
+        try:
+            game = PongGame.objects.get((
+                (Q(player1_id=id1) & Q(player2_id=id2)) |
+                (Q(player1_id=id2) & Q(player2_id=id1))) &
+                Q(tournament_type=tournament_type, status='P'))
         except PongGame.DoesNotExist:
             return Response(data={"message": "Game not found"}, status=status.HTTP_200_OK)
         

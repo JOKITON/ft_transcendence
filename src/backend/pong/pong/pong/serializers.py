@@ -305,8 +305,11 @@ class Tournament4PStateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tournament4P
-        fields = ['status', 'tournament_type', 'game_index', 'time_played', 'player_scores', 'player_ids', 'player_names', 'player_hits']
-        
+        fields = ['status', 'tournament_type', 'game_index', 'final_players', 'time_played', 'player_scores', 'player_ids', 'player_names', 'player_hits']
+        extra_kwargs = {
+            'final_players': {'required': False, 'allow_null': True}
+        }
+ 
     def create_player(self, player_data):
         player, created = Player.objects.get_or_create(
             id=player_data['id'],  # Match by ID
@@ -322,13 +325,14 @@ class Tournament4PStateSerializer(serializers.ModelSerializer):
         return player
 
     def create(self, validated_data):
+        # print(player_scores)
+        final_players = validated_data['final_players']
         player_ids = validated_data['player_ids']
         status = validated_data['status']
         player_names = validated_data['player_names']
         player_scores = validated_data['player_scores']
-        # print(player_scores)
-        game_index = validated_data['game_index']
         player_hits = validated_data['player_hits']
+        game_index = validated_data['game_index']
         time_played = validated_data['time_played']
         tournament_type = validated_data['tournament_type']
         
@@ -358,6 +362,7 @@ class Tournament4PStateSerializer(serializers.ModelSerializer):
                 'player_hits': player_hits,
                 'time_played': time_played,
                 'tournament_type': tournament_type,
+                'final_players': final_players,
             }
         )
         
@@ -365,6 +370,8 @@ class Tournament4PStateSerializer(serializers.ModelSerializer):
             tournament.player_hits = player_hits
             tournament.player_scores = player_scores
             tournament.time_played = time_played
+            tournament.game_index = game_index
+            tournament.final_players = final_players
         tournament.player_scores = player_scores
         tournament.players.set(players)  # Assign players to the tournament
         tournament.save()

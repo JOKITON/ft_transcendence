@@ -12,13 +12,15 @@ from .views_get import (
     LeaderBoardView,
     UserDataView,
     AnyPongGameDataView,
+    Pong2PGameDataView,
     PongGameDataView,
 )
 
 urlpatterns = [
     # Get/Post game state
     path("get-state/<int:pk>/", PongGameDataView.as_view(), name="get-state"),
-    path("get-state/<str:tournament_type>/<int:pk>/", AnyPongGameDataView.as_view(), name="get-state"),
+    path("get-state/<str:tournament_type>/<int:id1>/", AnyPongGameDataView.as_view(), name="get-state"),
+    path("get-state/<str:tournament_type>/<int:id1>/<int:id2>/", Pong2PGameDataView.as_view(), name="get-state"),
     path("post-state", PostGameStateView.as_view(), name="post-ai/2p-state"),
     path("4p/post-state", Tournament4PStateView.as_view(), name="post-4p-state"),
     

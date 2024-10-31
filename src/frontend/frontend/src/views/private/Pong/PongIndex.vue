@@ -76,7 +76,7 @@ const handleStartGame = async (data) => {
     player_hits: [],
     time_played: 0
   }
-  await fetchStateData(gameMode)
+  await fetchStateData(gameMode, players)
   if (statePongData.value.tournament_type === gameMode) statePongData.value.check = true
   // gameMode == statePongData?.tournament_type
 
@@ -84,6 +84,8 @@ const handleStartGame = async (data) => {
   aiDif.value = Number(aiDifficulty)
   arPlayers.value = players
   isAudioEnabledTemp = isAudioEnabled
+
+  // console.log(arPlayers.value)
 
   // Select appropriate game component
   if (gameMode === 'AI') {
@@ -102,20 +104,27 @@ const handleStartGame = async (data) => {
 const IS_STATE = 'P'
 const IS_COMPLETED = 'C'
 
-const fetchStateData = async (gameMode: string) => {
+const fetchStateData = async (gameMode: string, players) => {
   try {
     const responseWhoAmI = await Auth.whoami()
     user.value.id = responseWhoAmI.id
-    const responseState = await api.get<intStatePongData>(
-      '/pong/get-state/' + gameMode + '/' + user.value.id + '/'
-    )
+    let responseState;
+    if (gameMode == 'AI' || gameMode == '4P') {
+      responseState = await api.get<intStatePongData>(
+        '/pong/get-state/' + gameMode + '/' + user.value.id + '/'
+      )
+    }
+    else if (gameMode == '2P') {
+      responseState = await api.get<intStatePongData>(
+        '/pong/get-state/' + gameMode + '/' + user.value.id + '/' + players[1].id + '/'
+      )
+    }
     if (responseState.data) {
       statePongData.value = responseState.data
     } else if (responseState.data === undefined) {
       console.log('There is no state data, all good.')
       return
     }
-    console.log('State data : ' + statePongData.value)
     return true
   } catch (error: any) {
     console.error('Error sending data:', error)
@@ -186,8 +195,8 @@ const sendTournamentData4P = async (tournamentResults) => {
       url = 'pong/4p/post-state'
     }
     console.log('Data to send:', tournamentResults)
-    const response = await api.post(url, tournamentResults)
-    console.log('Data sent successfully:', response.data)
+    await api.post(url, tournamentResults)
+    // console.log('Data sent successfully.')
   } catch (error: any) {
     console.error('Error sending data:', error)
 
