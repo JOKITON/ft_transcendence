@@ -2,6 +2,7 @@
 .vscode/
 volumes/
 networks/
+secrets/
 .env.dev
 # BackEnd
 venv/

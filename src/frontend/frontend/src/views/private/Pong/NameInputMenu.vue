@@ -172,7 +172,7 @@
 import { onMounted, ref, computed, inject } from 'vue'
 import type Api from '@/utils/Api/Api'
 import auth from '../../../services/user/services/auth/auth.ts'
-import img1 from '../../../assets/avatars/trofeo.png'
+import img1 from '../../../assets/avatars/trophy.png';
 
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)

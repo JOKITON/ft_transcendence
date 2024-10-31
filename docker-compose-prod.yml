@@ -1,3 +1,5 @@
+#probar a cambiar user por pwd
+
 services:
   frontend:
     container_name: frontend

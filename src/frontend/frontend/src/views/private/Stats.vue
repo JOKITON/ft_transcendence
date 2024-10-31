@@ -19,15 +19,18 @@
 <script setup lang="ts">
 /* ----- IMPORTS ----- */
 
-import type Api from '@/utils/Api/Api'
-import auth from '../../services/user/services/auth/auth.ts'
-import { useRouter } from 'vue-router'
-import { onMounted, ref, inject } from 'vue'
-import { Carousel, Slide, Pagination } from 'vue3-carousel'
-import avatar from '../../assets/avatars/pepe.png'
-import img1 from '../../assets/avatars/trofeo.png'
-import img2 from '../../assets/avatars/perder.png'
-import img3 from '../../assets/avatars/maquina-de-arcade.png'
+import type Api from '@/utils/Api/Api';
+import auth from '../../services/user/services/auth/auth';
+import { useRouter } from 'vue-router';
+import { onMounted, ref, inject } from 'vue';
+import { Carousel, Slide, Pagination } from 'vue3-carousel';
+import avatar from '../../assets/avatars/pepe.png';
+import trophy from '../../assets/avatars/trophy.png';
+import loose from '../../assets/avatars/loose.png';
+import arcade from '../../assets/avatars/arcade.png';
+import score from '../../assets/avatars/score.png';
+import time from '../../assets/avatars/time.png';
+import spike from '../../assets/avatars/spike.png';
 
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
@@ -40,14 +43,22 @@ const props = defineProps({
 })
 
 const userPongData = ref({
-  name: '',
   wins: 0,
   losses: 0,
   total_games: 0,
-  avg_score: 0
-})
+  avg_score: 0,
+  time_played: 0,
+  hits: 0
+});
 
-const items = ref([])
+
+interface Item {
+  category: string;
+  value: number;
+  image: string;
+};
+
+const items = ref<Item[]>([]);
 
 onMounted(async () => {
   await fetchPongData()
@@ -56,13 +67,13 @@ onMounted(async () => {
 
 async function updateItems() {
   items.value = [
-    { category: 'Victorias', value: userPongData.value.wins, image: ref(img1) },
-    { category: 'Derrotas', value: userPongData.value.losses, image: ref(img2) },
-    { category: 'Partidas Jugadas', value: userPongData.value.total_games, image: ref(img3) },
-    { category: 'Media de puntuacion', value: userPongData.value.avg_score, image: ref(avatar) },
-    { category: 'Duracion de Partida', value: userPongData.value.time_played, image: ref(avatar) },
-    { category: 'Remates', value: userPongData.value.hits, image: ref(avatar) }
-  ]
+    { category: 'Victorias', value: userPongData.value.wins, image: trophy },
+    { category: 'Derrotas', value: userPongData.value.losses, image: loose },
+    { category: 'Partidas Jugadas', value: userPongData.value.total_games, image: arcade },
+    { category: 'Media de puntuacion', value: userPongData.value.avg_score, image: score },
+    { category: 'Duracion de Partida', value: userPongData.value.time_played, image: time },
+    { category: 'Remates', value: userPongData.value.hits, image: spike },
+  ];
 }
 
 async function fetchPongData() {
@@ -81,7 +92,7 @@ async function fetchPongData() {
       if (Object.keys(errors).length > 0) {
         errorMessage += '\nErrors:\n'
         for (const [field, msgs] of Object.entries(errors)) {
-          errorMessage += `${field}: ${msgs.join(', ')}\n`
+          errorMessage += `${field}: ${(msgs as string[]).join(', ')}\n`;
         }
       }
       alert(errorMessage)

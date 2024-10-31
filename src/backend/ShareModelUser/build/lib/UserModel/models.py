@@ -22,14 +22,6 @@ class User(AbstractUser):
     last_update = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True, default="avatars/pepe.png")
-    """ LO HA HECHO JOKIN? """
-    """ profile = models.ImageField(upload_to="profile/", blank=True, null=True) """
-    """ campo para la ruta del avatar """
-    """ upload_to='avatars/': Esto especifica el directorio dentro de MEDIA_ROOT donde 
-    se almacenarán las imágenes cargadas. En este caso, avatars/ es el subdirectorio 
-    dentro de MEDIA_ROOT donde se guardarán las imágenes de los avatares. Si MEDIA_ROOT 
-    está configurado como media/, entonces las imágenes se almacenarán en media/avatars/. """
-    """ avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, max_length=5000, default='avatars/pepe.png') """
     status = models.CharField(
         max_length=7, choices=STATUS_CHOICES, default=Offline)
 

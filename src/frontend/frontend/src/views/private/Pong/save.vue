@@ -113,8 +113,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import img1 from '../../../assets/avatars/trofeo.png' // Import the trophy image
+import { ref, computed } from 'vue';
+import img1 from '../../../assets/avatars/trophy.png'; // Import the trophy image
 
 const isOnline = ref('')
 const gameMode = ref('')
