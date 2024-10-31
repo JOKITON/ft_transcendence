@@ -9,22 +9,26 @@
             <h3 class="mb-4 data-card-title">Upload Avatar</h3>
 
             <!-- Previsualización de la imagen seleccionada -->
-            <img :src="avatarPreview" alt="Avatar Preview" class="mb-4" width="50%">
+            <img :src="avatarPreview" alt="Avatar Preview" class="mb-4" width="50%" />
             <div class="d-flex justify-content-center flex-column">
-
               <!-- Input de archivo para seleccionar la imagen -->
               <div class="custom-file-upload align-items-strech">
                 <label for="file-input" class="custom-file-label">Upload Avatar</label>
-                <input id="file-input" type="file" @change="onFileChange" accept="image/*" class="file-input">
+                <input
+                  id="file-input"
+                  type="file"
+                  @change="onFileChange"
+                  accept="image/*"
+                  class="file-input"
+                />
                 <span v-if="fileName" class="file-name">{{ fileName }}</span>
               </div>
-  
+
               <!-- Botón para guardar la imagen subida o cancelar la accion -->
               <div class="d-flex justify-content-center mt-2">
                 <button class="btn border-button" @click="uploadAvatar">Save Avatar</button>
                 <button class="btn border-button" @click="cancelUpload">Cancel</button>
               </div>
-
             </div>
           </div>
         </div>
@@ -34,42 +38,38 @@
 </template>
 
 <script setup lang="ts">
-
 /* ----- IMPORTS ----- */
 
-import { ref, onMounted, inject } from 'vue';
-import { useRouter } from 'vue-router';
-import NavHome from './NavHome.vue';
-
+import { ref, onMounted, inject } from 'vue'
+import { useRouter } from 'vue-router'
+import NavHome from './NavHome.vue'
 
 /* ----- VARIABLES ----- */
 
-const api = inject('$api') as any;
-const router = useRouter();
-const avatarPreview = ref('');
-const selectedFile = ref<File | null>(null);
-const fileName = ref('Introduce tu imagen aqui');
-
+const api = inject('$api') as any
+const router = useRouter()
+const avatarPreview = ref('')
+const selectedFile = ref<File | null>(null)
+const fileName = ref('Introduce tu imagen aqui')
 
 /* ----- PREVISUALIZACION DE LA IMAGEN SELECCIONADA ----- */
 
 const onFileChange = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files ? target.files[0] : null;
+  const target = event.target as HTMLInputElement
+  const file = target.files ? target.files[0] : null
   if (file) {
-    fileName.value = file.name;
-    selectedFile.value = file;
-    avatarPreview.value = URL.createObjectURL(file); // Previsualización de la imagen seleccionada
+    fileName.value = file.name
+    selectedFile.value = file
+    avatarPreview.value = URL.createObjectURL(file) // Previsualización de la imagen seleccionada
   }
 }
-
 
 /* ----- UPLOAD AVATAR ----- */
 
 const uploadAvatar = async () => {
   if (selectedFile.value) {
-    const formData = new FormData();
-    formData.append('image', selectedFile.value);
+    const formData = new FormData()
+    formData.append('image', selectedFile.value)
 
     // Log form data for debugging
     /*     for (let [key, value] of formData.entries()) {
@@ -77,51 +77,47 @@ const uploadAvatar = async () => {
         } */
 
     try {
-      const response = await api.post('auth/update-avatar', formData);
+      const response = await api.post('auth/update-avatar', formData)
       if (response.status === 200) {
-        router.push('/profile');
+        router.push('/profile')
       }
-    } catch (error: any)  {
-      console.error('Error uploading avatar:', error);
-      alert('An error occurred while uploading the avatar.');
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error)
+      alert('An error occurred while uploading the avatar.')
     }
   } else {
-    alert('Please select a file before uploading.');
+    alert('Please select a file before uploading.')
   }
 }
-
 
 /* ----- CANCELAR LA SUBIDA ----- */
 
 const cancelUpload = () => {
-  router.push('/profile');
+  router.push('/profile')
 }
-
 
 /* ----- FETCH AVATAR ----- */
 
 async function fetchUserAvatar() {
   try {
-    const response = await api.get('auth/get-avatar');
+    const response = await api.get('auth/get-avatar')
     if (response.status === 200) {
-      const avatarBase64 = response.avatar_base64;
-      avatarPreview.value = `data:image/jpeg;base64,${avatarBase64}`; // Set the Base64 image as the src
+      const avatarBase64 = response.avatar_base64
+      avatarPreview.value = `data:image/jpeg;base64,${avatarBase64}` // Set the Base64 image as the src
     } else {
-      console.error('Failed to fetch avatar:', response.data);
+      console.error('Failed to fetch avatar:', response.data)
     }
   } catch (error: any) {
-    console.error('Error fetching user avatar:', error.message);
+    console.error('Error fetching user avatar:', error.message)
   }
 }
 
 onMounted(async () => {
-  await fetchUserAvatar();
-});
-
+  await fetchUserAvatar()
+})
 </script>
 
 <style scoped>
-
 .file-input {
   opacity: 0; /* Oculta el input */
   position: absolute;
@@ -159,5 +155,4 @@ onMounted(async () => {
   font-size: 0.9em;
   border: 2px solid rgb(206, 29, 82);
 }
-
 </style>

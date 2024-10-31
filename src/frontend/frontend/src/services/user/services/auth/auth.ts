@@ -62,8 +62,8 @@ export default class auth {
     try {
       const response = (await this.api.post<userResponse>('auth/register', data)) as userResponse
       if (response.status === 201) {
-        let userId = response.id
-        let userDataArray = [userId, data.nickname]
+        const userId = response.id
+        const userDataArray = [userId, data.nickname]
         console.log(userDataArray)
         this.crtPongTable(userDataArray)
         return true

@@ -1,7 +1,9 @@
 <template>
   <header class="p-3 nav-background">
     <div class="container">
-      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"></div>
+      <div
+        class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
+      ></div>
       <ul class="nav col-lg-auto me-lg-auto mb-md-0 nav-flex">
         <li>
           <img
@@ -21,11 +23,9 @@
 </template>
 
 <script setup lang="ts">
-
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-
 
 /* ----- REDIRECCIONES A VISTAS ----- */
 
@@ -33,7 +33,7 @@ const goToHome = () => {
   router.push('/')
 }
 
-const goToLogin= () => {
+const goToLogin = () => {
   router.push('/login')
 }
 

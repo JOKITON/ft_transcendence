@@ -5,10 +5,11 @@
   "compilerOptions": {
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["./src/*"]
+      "pong/*": ["./src/services/pong/*"],
+      "pong-utils/*": ["./src/services/pong/Objects/Utils/*"],
+      "pong-objects/*": ["./src/services/pong/Objects/*"],
     }
   }
 }

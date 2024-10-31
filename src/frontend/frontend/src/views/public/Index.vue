@@ -15,27 +15,26 @@
       </p>
     </div>
   </div>
-  <button 
-    :class="['pong-review', { 'active': showPongReview }]" 
+  <button
+    :class="['pong-review', { active: showPongReview }]"
     @click="showPongReview = !showPongReview"
   >
     {{ showPongReview ? 'Hide Pong Game' : 'Show Pong Game' }}
   </button>
   <div class="pong-game-container" v-if="showPongReview">
-    <PongReviewAI class="pong-game"/>
+    <PongReviewAI class="pong-game" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import NavIndex from './NavIndex.vue';
-import PongReviewAI from "./PongReviewAI.vue";
+import { ref } from 'vue'
+import NavIndex from './NavIndex.vue'
+import PongReviewAI from './PongReviewAI.vue'
 
-let showPongReview = ref(false);
+let showPongReview = ref(false)
 </script>
 
 <style>
-
 .pong-review {
   display: block;
   margin: 20px auto;
@@ -65,5 +64,4 @@ let showPongReview = ref(false);
   width: 40%;
   text-align: center;
 }
-
 </style>

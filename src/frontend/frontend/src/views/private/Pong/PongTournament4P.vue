@@ -1,41 +1,41 @@
 <script setup lang="ts">
-import { Vector3, Color, Mesh } from 'three'
-import { onMounted, onBeforeUnmount, ref } from 'vue'
-import ThreeService from '../../../services/pong/ThreeService'
-import Player from '../../../services/pong/Objects/Player'
-import Sphere from '../../../services/pong/Objects/Sphere'
-import DashedWall from '../../../services/pong/Objects/Text/DashedWall'
-import Score from '../../../services/pong/Objects/Text/Score'
-import HelpText from '../../../services/pong/Objects/Text/HelpText'
-import GameOver from '../../../services/pong/Objects/Text/GameOver'
-import Wall from '../../../services/pong/Objects/Wall'
-import { blinkObject, handleCollisions } from '../../../services/pong/Objects/Utils/Utils'
-import FontService from '../../../services/pong/Objects/Text/FontService'
-import LuckySphere from '../../../services/pong/Objects/LuckySphere'
+import { Vector3, Color, Mesh } from 'three';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+import ThreeService from 'pong/ThreeService';
+import Player from 'pong-objects/Player';
+import Sphere from 'pong-objects/Sphere';
+import DashedWall from 'pong-objects/Text/DashedWall';
+import Score from 'pong-objects/Text/Score';
+import HelpText from 'pong-objects/Text/HelpText';
+import GameOver from 'pong-objects/Text/GameOver';
+import Wall from 'pong-objects/Wall';
+import { handleCollisions, blinkObject } from 'pong-utils/Utils';
+import LuckySphere from 'pong-objects/LuckySphere';
 
 import {
-  type intStatePongData,
+  type intStateTournamentPongData,
   ballGeometry,
   ballGeometry2,
   ballVelocity,
   vecHorizWall,
   bounds,
-  ballVectorY
-} from '../../../services/pong/Objects/Utils/pongVariables'
+  ballVectorY,
+  font
+} from 'pong-utils/pongVariables'
 import {
   IS_STATE,
   IS_COMPLETED,
   SCORE_TO_WIN,
   BIT_FONT,
   MONTSERRAT_FONT
-} from '../../../services/pong/Objects/Utils/pongVariables'
+} from 'pong-utils/pongVariables'
 
 const emit = defineEmits(['gameOver'])
 
 const props = defineProps<{
-  hasStateData: intStatePongData,
-  isAudioEnabled: boolean,
-  players: Array<{ player: string, id: number }>,
+  hasStateData: intStateTournamentPongData
+  isAudioEnabled: boolean
+  players: Array<{ player: string; id: number }>
 }>()
 const players = props.players
 const playerCount: number = players.length
@@ -83,8 +83,7 @@ if (stateData.check == true) {
   setStatePongDate(stateData)
 } else setInitialValues()
 
-
-function setStatePongDate(data: intStatePongData) {
+function setStatePongDate(data: intStateTournamentPongData) {
   // player1Name.value = data.player_names[0]
   // numScorePlayerOne = data.player_scores[0][0]
   // numScorePlayerTwo = data.player_scores[1][0]
@@ -144,10 +143,7 @@ let helpTextControlsTwo: HelpText
 let finalScore: GameOver
 
 async function loadFont() {
-  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((loadedFont) => {
-    const font = loadedFont
-
-    // Vertical dashed wall
+ // Vertical dashed wall
     wallMid = new DashedWall('- - - - - - - -', new Color('green'), new Vector3(0, 0, -1), font)
     scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font)
     scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font)
@@ -193,7 +189,6 @@ async function loadFont() {
     )
 
     finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font)
-  })
 }
 
 let player_hits: Array<number> = new Array(playerCount).fill(0)

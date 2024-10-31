@@ -84,8 +84,8 @@ import { WebsocketEvent } from 'websocket-ts'
 import { eventBus } from './eventbus.js'
 
 declare module './eventbus.js' {
-  const eventBus: any;
-  export default eventBus;
+  const eventBus: any
+  export default eventBus
 }
 
 interface Friend {
@@ -95,7 +95,6 @@ interface Friend {
   is_blocked_by_user: boolean
   is_blocked_by_friend: boolean
 }
-
 
 interface Message {
   type: string
@@ -119,7 +118,7 @@ const friends = ref<Friend[]>([])
 const activeChats = ref<ChatInstance[]>([])
 const isDropdownVisible = ref(false)
 const lastOpenedChat = ref<Friend | null>(null)
-const socket: Socket | null = new Socket();
+const socket: Socket | null = new Socket()
 
 const size = ref(1)
 const user = ref('')
@@ -189,7 +188,7 @@ const openChat = async (friend: Friend) => {
       existingChat.socket.open(room_id.value)
       connectWebSocket(existingChat.socket)
     }
-    existingChat.messages = [];
+    existingChat.messages = []
   } else {
     const chat = {
       id: room_id.value,
@@ -207,14 +206,13 @@ const openChat = async (friend: Friend) => {
   lastOpenedChat.value = friend
 }
 
-
 // Función para cerrar el chat
 const handleChatClose = (chatId: number) => {
   const chat = activeChats.value.find((chat) => chat.id === chatId)
   chat.isOpen = false
   if (chat.socket) {
-  chat.socket.close()
-  chat.socket = null
+    chat.socket.close()
+    chat.socket = null
   }
   chat.messages = []
   //activeChats.value[chatId].isOpen = false
@@ -265,31 +263,31 @@ const sendMessage = (chatId: number, message: any) => {
 }
 */
 const onMessageWasSent = (chatId: number, message: Message) => {
-  const chat = activeChats.value.find((chat) => chat.id === chatId);
-  
-  if (!chat) return;
+  const chat = activeChats.value.find((chat) => chat.id === chatId)
 
-  const lastMessage = chat.messages[chat.messages.length - 1];
+  if (!chat) return
+
+  const lastMessage = chat.messages[chat.messages.length - 1]
 
   // Verificar si el último mensaje es igual al nuevo
-  const isDuplicate = lastMessage?.data.text === message.data.text && lastMessage?.author === message.author;
+  const isDuplicate =
+    lastMessage?.data.text === message.data.text && lastMessage?.author === message.author
 
   if (!isDuplicate) {
-    chat.messages = [...chat.messages, message];
+    chat.messages = [...chat.messages, message]
   }
-};
-
+}
 
 // Carga la lista de amigos al montar el componente
 onMounted(async () => {
   try {
     const response = await api.get<{ friends: Friend[] }>('friendship/friends')
     activeChats.value.forEach((chat) => {
-    if (chat.socket) {
-      chat.socket.close();
-      chat.socket = null;
-    }
-  });
+      if (chat.socket) {
+        chat.socket.close()
+        chat.socket = null
+      }
+    })
     const Iam = await api.get('auth/iam')
     user.value = Iam.username
     console.log('User:', user.value)
@@ -313,7 +311,7 @@ const echoOnMessage = (i: Websocket, ev: MessageEvent) => {
   const data = JSON.parse(ev.data)
   const chatId = data.index
   const chat = activeChats.value.find((chat) => chat.id === chatId)
-console.log('al entrar en echoOnMessage')
+  console.log('al entrar en echoOnMessage')
   if (chat) {
     onMessageWasSent(chatId, {
       type: 'text',
@@ -336,7 +334,7 @@ const blockUser = async (username: string) => {
     friends.value = friends.value.map((friend) =>
       friend.username === username ? { ...friend, is_blocked_by_user: true } : friend
     )
-  } catch (error:any) {
+  } catch (error: any) {
     console.error('Error blocking user', error)
   }
 }
@@ -349,7 +347,7 @@ const unblockUser = async (username: string) => {
     friends.value = friends.value.map((friend) =>
       friend.username === username ? { ...friend, is_blocked_by_user: false } : friend
     )
-  } catch (error:any) {
+  } catch (error: any) {
     console.error('Error unblocking user', error)
   }
 }

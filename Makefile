@@ -37,7 +37,7 @@ clean:
 	
 fclean: clean
 	rm -rf ${USER}
-	./scripts/clean.sh
+	bash scripts/clean.sh
 	docker system prune --all --volumes --force
 
 re: fclean all

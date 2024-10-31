@@ -1,21 +1,11 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    },
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.vitest.json"
-    }
-  ],
   "compilerOptions": {
-    "module": "NodeNext",
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"],
+      "pong/*": ["./src/services/pong/*"],
+      "pong-utils/*": ["./src/services/pong/Objects/Utils/*"],
+      "pong-objects/*": ["./src/services/pong/Objects/*"]
     }
   }
 }

@@ -1,7 +1,7 @@
-import type FriendRequest from './friendRequest';
+import type FriendRequest from './friendRequest'
 
-export interface sendFriendRequest{
-    fromUser: string,
-    toUser: string,
-    existingRequests?: FriendRequest[]
+export interface sendFriendRequest {
+  fromUser: string
+  toUser: string
+  existingRequests?: FriendRequest[]
 }

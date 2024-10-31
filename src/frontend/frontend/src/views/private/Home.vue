@@ -8,7 +8,9 @@
       <div class="overlay"></div>
       <div class="welcome-content">
         <h1 class="h1-welcome">Welcome to Magic Super Mega Pong, {{ username }}</h1>
-        <h2 class="h2-welcome">Challenge yourself and compete with players from around the world.</h2>
+        <h2 class="h2-welcome">
+          Challenge yourself and compete with players from around the world.
+        </h2>
         <button @click="goToPong" class="btn btn-lg btn-primary">Start Playing</button>
       </div>
     </section>
@@ -20,12 +22,12 @@
         <p class="m-3 pt-4">Jump into a match and test your skills.</p>
         <button @click="goToPong" class="btn txoinas-button mt-3 mx-2">Play Now</button>
       </div>
-      <div class="info-card  d-flex flex-column justify-content-center col-md-4">
+      <div class="info-card d-flex flex-column justify-content-center col-md-4">
         <h2 class="pt-2">Challenge Friends</h2>
         <p class="m-3 pt-4">Invite your friends and see who comes out on top.</p>
         <button @click="goToFriends" class="btn txoinas-button mt-3 mx-2">Challenge Friends</button>
       </div>
-      <div class="info-card  d-flex flex-column justify-content-center col-md-4">
+      <div class="info-card d-flex flex-column justify-content-center col-md-4">
         <h2 class="pt-2">Profile Settings</h2>
         <p class="m-3 pt-4">Customize your avatar and update your profile information.</p>
         <button @click="goToSettings" class="btn txoinas-button mt-3 mx-2">Edit Profile</button>
@@ -46,7 +48,6 @@ const username = ref('PongPlayer') // Valor inicial personalizado
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 const router = useRouter()
-
 
 // Función para obtener el nombre de usuario
 const fetchUsername = async () => {
@@ -77,7 +78,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-
 /* Sección de bienvenida */
 .welcome-section {
   position: relative;
@@ -128,7 +128,7 @@ onMounted(async () => {
   border-top: solid 2px;
   border-color: #ff3974;
   flex-wrap: wrap; /* Permite que las tarjetas se vayan hacia abajo en pantallas más pequeñas */
-  box-shadow: 0px -10px 5px rgba(249,36,100,1);
+  box-shadow: 0px -10px 5px rgba(249, 36, 100, 1);
 }
 
 .info-card {
@@ -139,7 +139,7 @@ onMounted(async () => {
   width: 22%;
   margin: 0.8em;
   font-family: Titulo, sans-serif;
-  box-shadow: -4px 4px 10px rgba(249,36,100,255);
+  box-shadow: -4px 4px 10px rgba(249, 36, 100, 255);
   color: #ebd2ff;
   min-width: 250px; /* Ajusta este valor según el ancho mínimo que quieras para las tarjetas */
 }
@@ -165,7 +165,7 @@ p {
   background-color: rgba(19, 14, 43, 1);
   border-color: #ff6f1f;
   color: #ff6f1f;
-  box-shadow: -1px 2px 4px rgba(249,36,100,255);
+  box-shadow: -1px 2px 4px rgba(249, 36, 100, 255);
 }
 
 .pruebas {

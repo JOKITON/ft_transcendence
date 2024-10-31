@@ -16,17 +16,31 @@
             class="list-group-item d-flex justify-content-between align-items-center"
           >
             <span>
-              <span :class="['status-indicator', friend.isOnline ? 'bg-success' : 'bg-danger']"></span>
+              <span
+                :class="['status-indicator', friend.isOnline ? 'bg-success' : 'bg-danger']"
+              ></span>
               {{ friend.username }}
               <span v-if="friend.is_blocked_by_user" class="text-danger">(Bloqueado)</span>
               <span v-if="friend.is_blocked_by_friend" class="text-warning">(Te ha bloqueado)</span>
             </span>
             <div class="btn-group">
-              <button class="btn btn-outline-primary btn-sm" @click="handleSendMessage(friend)">📩</button>
-              <button v-if="friend.is_blocked_by_user" class="btn btn-outline-warning btn-sm" @click="unblockUser(friend.username)">
+              <button class="btn btn-outline-primary btn-sm" @click="handleSendMessage(friend)">
+                📩
+              </button>
+              <button
+                v-if="friend.is_blocked_by_user"
+                class="btn btn-outline-warning btn-sm"
+                @click="unblockUser(friend.username)"
+              >
                 🔓
               </button>
-              <button v-else class="btn btn-outline-danger btn-sm" @click="blockUser(friend.username)">🔒</button>
+              <button
+                v-else
+                class="btn btn-outline-danger btn-sm"
+                @click="blockUser(friend.username)"
+              >
+                🔒
+              </button>
             </div>
           </li>
         </ul>
@@ -45,51 +59,57 @@
           >
             <span>{{ request.friend.username }}</span>
             <div class="btn-group">
-              <button class="btn btn-outline-success btn-sm" @click="acceptFriendRequest(request.id)">✔️</button>
-              <button class="btn btn-outline-danger btn-sm" @click="declineFriendRequest(request.id)">❌</button>
+              <button
+                class="btn btn-outline-success btn-sm"
+                @click="acceptFriendRequest(request.id)"
+              >
+                ✔️
+              </button>
+              <button
+                class="btn btn-outline-danger btn-sm"
+                @click="declineFriendRequest(request.id)"
+              >
+                ❌
+              </button>
             </div>
           </li>
         </ul>
       </div>
       <!-- Búsqueda de Amigos -->
       <div class="search-friend mt-4">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Find user..."
-          v-model="searchQuery"
-        />
-        <button class="btn btn-primary mt-2 w-100" @click="sendFriendRequest">Enviar Solicitud</button>
+        <input type="text" class="form-control" placeholder="Find user..." v-model="searchQuery" />
+        <button class="btn btn-primary mt-2 w-100" @click="sendFriendRequest">
+          Enviar Solicitud
+        </button>
       </div>
-      <div v-if="feedbackMessage" class="alert mt-2" :class="feedbackClass">{{ feedbackMessage }}</div>
+      <div v-if="feedbackMessage" class="alert mt-2" :class="feedbackClass">
+        {{ feedbackMessage }}
+      </div>
     </div>
   </section>
 </template>
 
-
 <script setup lang="ts">
-
 // Define las referencias para amigos y solicitudes de amistad
 
-
-import { ref,onMounted, inject } from 'vue';
-import { defineEmits } from 'vue';
-import NavHome from './NavHome.vue';
-import { eventBus } from './eventbus.js';
-import DesplegableChat from './DesplegableChat.vue';
+import { ref, onMounted, inject } from 'vue'
+import { defineEmits } from 'vue'
+import NavHome from './NavHome.vue'
+import { eventBus } from './eventbus.js'
+import DesplegableChat from './DesplegableChat.vue'
 
 // Inyecta el cliente API
-const api = inject('$api') as any;
+const api = inject('$api') as any
 
 const friends = ref<Friend[]>([])
 const friendRequests = ref<FriendRequest[]>([])
-const searchQuery = ref('');
-const feedbackMessage = ref('');
-const feedbackClass = ref('');
+const searchQuery = ref('')
+const feedbackMessage = ref('')
+const feedbackClass = ref('')
 
 const handleSendMessage = (friend: Friend) => {
-  console.log('Sending message to:', friend);
-  eventBus.emit('messageSent', { friend: friend });
+  console.log('Sending message to:', friend)
+  eventBus.emit('messageSent', { friend: friend })
 }
 interface Friend {
   id: number
@@ -128,11 +148,11 @@ onMounted(async () => {
     ])
 
     // Asigna el estado correctamente, incluyendo los nuevos campos de bloqueo
-    friends.value = (fetchFriendsResponse.friends || []).map(friend => ({
+    friends.value = (fetchFriendsResponse.friends || []).map((friend) => ({
       ...friend,
-      isOnline: friend.isOnline === 'True'  // Convertir a booleano
-    }));
-    form.value = { ...userResponse.data };
+      isOnline: friend.isOnline === 'True' // Convertir a booleano
+    }))
+    form.value = { ...userResponse.data }
 
     // Fetch friend requests as part of onMounted
     await fetchFriendRequests()
@@ -174,7 +194,6 @@ const unblockUser = async (username: string) => {
   }
 }
 
-
 const inviteUser = async (username: string) => {
   try {
     await api.post('/invite-user/', { friend: username })
@@ -186,19 +205,19 @@ const inviteUser = async (username: string) => {
 
 const sendFriendRequest = async () => {
   try {
-    const myresponse = await api.post('friendship/add', { friend: searchQuery.value });
-    console.log('response', myresponse);
+    const myresponse = await api.post('friendship/add', { friend: searchQuery.value })
+    console.log('response', myresponse)
     if (myresponse.status === 201) {
-      feedbackMessage.value = `Solicitud de amistad enviada a ${searchQuery.value}`;
-      feedbackClass.value = 'alert-success';
-      searchQuery.value = '';
+      feedbackMessage.value = `Solicitud de amistad enviada a ${searchQuery.value}`
+      feedbackClass.value = 'alert-success'
+      searchQuery.value = ''
     } else {
-      feedbackMessage.value = `Error al enviar solicitud de amistad`;
-      feedbackClass.value = 'alert-danger';
+      feedbackMessage.value = `Error al enviar solicitud de amistad`
+      feedbackClass.value = 'alert-danger'
     }
   } catch (error: any) {
-    feedbackMessage.value = `Error al enviar solicitud de amistad: ${error.message}`;
-    feedbackClass.value = 'alert-danger';
+    feedbackMessage.value = `Error al enviar solicitud de amistad: ${error.message}`
+    feedbackClass.value = 'alert-danger'
   }
 }
 
@@ -221,8 +240,7 @@ const declineFriendRequest = async (requestId: number) => {
   } catch (error) {
     console.error('Error declining friend request', error)
   }
-};
-
+}
 </script>
 
 <style scoped>
@@ -231,7 +249,7 @@ const declineFriendRequest = async (requestId: number) => {
   justify-content: space-between;
   padding: 40px 20px;
   border-top: solid 2px #ff3974;
-  box-shadow: 0px -10px 5px rgba(249,36,100,1);
+  box-shadow: 0px -10px 5px rgba(249, 36, 100, 1);
   overflow-x: auto;
   white-space: nowrap;
 }
@@ -243,7 +261,7 @@ const declineFriendRequest = async (requestId: number) => {
   padding: 1.3em;
   border-radius: 10px;
   margin: 0.8em;
-font-family: Titulo, sans-serif;
+  font-family: Titulo, sans-serif;
   box-shadow: -4px 4px 10px rgba(249, 36, 100, 0.8);
   min-width: 400px;
   flex: 0 0 45%;

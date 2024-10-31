@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { Vector3, Color, Mesh } from 'three'
-import { onMounted, onBeforeUnmount, ref } from 'vue'
-import ThreeService from '../../../services/pong/ThreeService'
-import Player from '../../../services/pong/Objects/Player'
-import Sphere from '../../../services/pong/Objects/Sphere'
-import DashedWall from '../../../services/pong/Objects/Text/DashedWall'
-import Score from '../../../services/pong/Objects/Text/Score'
-import HelpText from '../../../services/pong/Objects/Text/HelpText'
-import GameOver from '../../../services/pong/Objects/Text/GameOver'
-import Wall from '../../../services/pong/Objects/Wall'
-import { handleCollisions, blinkObject } from '../../../services/pong/Objects/Utils/Utils'
-import FontService from '../../../services/pong/Objects/Text/FontService'
-import LuckySphere from '../../../services/pong/Objects/LuckySphere'
+import { Vector3, Color, Mesh } from 'three';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+import ThreeService from 'pong/ThreeService';
+import Player from 'pong-objects/Player';
+import Sphere from 'pong-objects/Sphere';
+import DashedWall from 'pong-objects/Text/DashedWall';
+import Score from 'pong-objects/Text/Score';
+import HelpText from 'pong-objects/Text/HelpText';
+import GameOver from 'pong-objects/Text/GameOver';
+import Wall from 'pong-objects/Wall';
+import { handleCollisions, blinkObject } from 'pong-utils/Utils';
+import LuckySphere from 'pong-objects/LuckySphere';
 
 import {
   type intStatePongData,
@@ -21,16 +20,21 @@ import {
   ballVelocity,
   vecHorizWall,
   bounds,
-  ballVectorY
-} from '../../../services/pong/Objects/Utils/pongVariables'
-console.log('debug1')
-import { IS_STATE, IS_COMPLETED, SCORE_TO_WIN, BIT_FONT, MONTSERRAT_FONT } from '../../../services/pong/Objects/Utils/pongVariables'
-console.log('debug2')
+  ballVectorY,
+  font
+} from 'pong-utils/pongVariables'
+import {
+  IS_STATE,
+  IS_COMPLETED,
+  SCORE_TO_WIN,
+  BIT_FONT,
+  MONTSERRAT_FONT
+} from 'pong-utils/pongVariables'
 
 const props = defineProps<{
-  hasStateData: intStatePongData,
-  isAudioEnabled: boolean,
-  players: Array<{ player: string, id: number }>,
+  hasStateData: intStatePongData
+  isAudioEnabled: boolean
+  players: Array<{ player: string; id: number }>
   aiDifficulty: number
 }>()
 
@@ -38,17 +42,17 @@ console.log(props.hasStateData)
 
 const three = new ThreeService(window.innerWidth, window.innerHeight)
 
-const startTime = Date.now() / 1000;
-let stateTime: number = 0;
+const startTime = Date.now() / 1000
+let stateTime: number = 0
 
 const emit = defineEmits(['gameOver'])
-const player1Name = ref('');
+const player1Name = ref('')
 
 // Game variables to emit later
-let gamePlayers : Array<string>;
-let ids : Array<number>;
-let scores : Array<number>;
-let playersHits : Array<number>;
+let gamePlayers: Array<string>
+let ids: Array<number>
+let scores: Array<number>
+let playersHits: Array<number>
 
 // Player objects (to be initialized later)
 let player: Player
@@ -65,14 +69,12 @@ const stateData = props.hasStateData
 
 if (stateData.check == true) {
   console.log('State data:', stateData)
-  setStatePongDate(stateData);
-}
-else
-  setInitialValues();
+  setStatePongDate(stateData)
+} else setInitialValues()
 
 function setStatePongDate(data: intStatePongData) {
   player1Name.value = data.player_names[0]
-  numScorePlayerOne =   data.player_scores[0]
+  numScorePlayerOne = data.player_scores[0]
   numScorePlayerTwo = data.player_scores[1]
   stateTime = data.time_played
   gamePlayers = data.player_names
@@ -80,7 +82,7 @@ function setStatePongDate(data: intStatePongData) {
 }
 
 function setInitialValues() {
-  player1Name.value = (props.players[0].player)
+  player1Name.value = props.players[0].player
   console.log('Player:', player1Name.value)
   gamePlayers = [player1Name.value, 'AI']
   ids = [props.players[0].id, 0]
@@ -97,15 +99,15 @@ const ball = new Sphere(
 )
 const luckySphere = new LuckySphere(ballGeometry2, new Color('yellow'))
 
-const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'));
-const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'));
+const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'))
+const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'))
 
 // Objects to create later
 let wallMid: DashedWall
 let scorePlayer1: Score
 let scorePlayerAI: Score
 
-let helpText: HelpText
+let helpText: GameOver
 let helpTextSpace: HelpText
 let helpTextPlayerOne: HelpText
 let helpTextPlayerTwo: HelpText
@@ -114,9 +116,8 @@ let helpTextControlsOne: HelpText
 
 let finalScore: GameOver
 
-async function loadFont() {
-  await FontService.loadFont('../../../../assets/fonts/Bit5x3_Regular.json').then((loadedFont) => {
-    const font = loadedFont
+async function loadFontObjects() {
+    console.log(font)
 
     // Vertical dashed wall
     wallMid = new DashedWall('- - - - - - - -', new Color('green'), new Vector3(0, 0, -1), font)
@@ -157,7 +158,6 @@ async function loadFont() {
 
     // Set text for the final score
     finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font)
-  })
 }
 
 // Initialize players with the provided names
@@ -201,7 +201,7 @@ function setHelpText() {
 }
 
 function setupScene() {
-  setHelpText();
+  setHelpText()
 
   three.addScene(horizWallUp.get())
   three.addScene(horizWallDown.get())
@@ -217,36 +217,33 @@ function setupScene() {
   isAnimating.value = false
 }
 
-function scoreTracker(score : number) {
+function scoreTracker(score: number) {
   // Player two won the point
   if (score === 1) {
-      numScorePlayerTwo += 1
-      scorePlayerAI.updateScore(numScorePlayerTwo)
-      blinkObject(scorePlayerAI.get())
-      // Player two won the game
-      if (numScorePlayerTwo == SCORE_TO_WIN) {
-        console.log(`${player.getName()} lost!`)
-        endGame(playerAI.getName())
-      }
-      else
-        emitData(IS_STATE);
-    } else if (score === 2) { // Player one won the point
-      numScorePlayerOne += 1
-      scorePlayer1.updateScore(numScorePlayerOne)
-      blinkObject(scorePlayer1.get())
-      // Player one won the game
-      if (numScorePlayerOne == SCORE_TO_WIN) {
-        console.log(`${playerAI.getName()} lost!`)
-        endGame(player.getName())
-      }
-      else
-        emitData(IS_STATE);
-    } else {
-      console.error('Unexpected check value')
-    }
-    returnObjectsToPlace()
-    isAnimating.value = false
-    return
+    numScorePlayerTwo += 1
+    scorePlayerAI.updateScore(numScorePlayerTwo)
+    blinkObject(scorePlayerAI.get())
+    // Player two won the game
+    if (numScorePlayerTwo == SCORE_TO_WIN) {
+      console.log(`${player.getName()} lost!`)
+      endGame(playerAI.getName())
+    } else emitData(IS_STATE)
+  } else if (score === 2) {
+    // Player one won the point
+    numScorePlayerOne += 1
+    scorePlayer1.updateScore(numScorePlayerOne)
+    blinkObject(scorePlayer1.get())
+    // Player one won the game
+    if (numScorePlayerOne == SCORE_TO_WIN) {
+      console.log(`${playerAI.getName()} lost!`)
+      endGame(player.getName())
+    } else emitData(IS_STATE)
+  } else {
+    console.error('Unexpected check value')
+  }
+  returnObjectsToPlace()
+  isAnimating.value = false
+  return
 }
 
 let timeElapsed = 0
@@ -256,7 +253,8 @@ function update() {
   let isTaken: boolean = true // Variable that works as semaphore for luckySphere
   let now = Date.now()
 
-  if (now - timeElapsed > 5000) { // Every 5s, the luckySphere will be repositioned
+  if (now - timeElapsed > 5000) {
+    // Every 5s, the luckySphere will be repositioned
     timeElapsed = now
     luckySphere.randomizePosition()
     three.addScene(luckySphere.get())
@@ -269,7 +267,8 @@ function update() {
     } else {
       isTaken = luckySphere.update(ball, player)
     }
-    if (isTaken) { // Afert applying effects remove luckySphere
+    if (isTaken) {
+      // Afert applying effects remove luckySphere
       three.removeScene(luckySphere.get())
       timeElapsed = now
     }
@@ -277,12 +276,13 @@ function update() {
   }
 
   let score = ball.update()
-  if (score) { // Someone scored a point
-    scoreTracker(score);
+  if (score) {
+    // Someone scored a point
+    scoreTracker(score)
     window.removeEventListener('keydown', toggleAnimation)
     setTimeout(() => {
-    window.addEventListener('keydown', toggleAnimation)
-  }, 1000)
+      window.addEventListener('keydown', toggleAnimation)
+    }, 1000)
   }
 
   player.update()
@@ -326,8 +326,8 @@ function emitData(status: string) {
     // winner.value = 'none';
 
     // Emit the tournament data to the parent component
-    let time_played = ((Date.now() / 1000) - startTime + stateTime)
-    time_played = Math.floor(time_played);
+    let time_played = Date.now() / 1000 - startTime + stateTime
+    time_played = Math.floor(time_played)
     emit('gameOver', {
       status: status,
       winner: winner.value,
@@ -352,11 +352,11 @@ const endGame = (winningPlayer: string) => {
   }, 2000)
   winner.value = winningPlayer
   isGameOver.value = true
-  emitData(IS_COMPLETED);
+  emitData(IS_COMPLETED)
 }
 
 onMounted(async () => {
-  await loadFont()
+  await loadFontObjects()
   setupScene()
   window.addEventListener('resize', () => {
     three.resize(window.innerWidth, window.innerHeight)

@@ -5,54 +5,53 @@
   </div>
   <div class="container">
     <div class="row gutters-sm my-3">
-      
       <!-- CARD DEL USUARIO -->
       <div class="col-md-4 d-flex align-items-stretch user-card-container">
         <div class="user-card w-100 m-3 d-flex justify-content-center">
           <div class="d-flex flex-column justify-content-center align-items-center text-center">
             <h2 class="user-name pb-3 px-3">{{ user.username }}</h2>
-            <img :src="user.avatarUrl" alt="User Avatar" class="rounded-circle m-3" width="50%">
+            <img :src="user.avatarUrl" alt="User Avatar" class="rounded-circle m-3" width="50%" />
             <p class="user-data pt-3 pb-1">{{ user.nickname }}</p>
             <p class="user-data pb-3 pt-1">{{ user.email }}</p>
 
             <!-- BOTONES PARA EDITAR LA INFORMACION O EL AVATAR -->
             <div>
-              <button class="btn background-button mt-3 mx-2" @click="goToEditAvatar">Edit avatar</button>
-              <button class="btn border-button mt-3 mx-2" @click="goToEditProfile">Edit profile</button>
+              <button class="btn background-button mt-3 mx-2" @click="goToEditAvatar">
+                Edit avatar
+              </button>
+              <button class="btn border-button mt-3 mx-2" @click="goToEditProfile">
+                Edit profile
+              </button>
             </div>
           </div>
         </div>
-
       </div>
       <!-- ESTADISTICAS DEL USUARIO -->
       <div class="col-md-8 d-flex stats-container">
-          <Stats v-if="userLoaded" :userId="user.id"></Stats>
+        <Stats v-if="userLoaded" :userId="user.id"></Stats>
       </div>
     </div>
-    
+
     <!-- LISTA DE AMIGOS -->
     <FriendList v-if="userLoaded" :userId="user.id" class="friend-list"></FriendList>
   </div>
 </template>
 
-
 <script setup lang="ts">
-
 /* ----- IMPORTS ----- */
 
-import { ref, onMounted, inject } from 'vue';
+import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 
-import NavHome from './NavHome.vue';
-import Stats from './Stats.vue';
-import FriendList from './FriendList.vue';
+import NavHome from './NavHome.vue'
+import Stats from './Stats.vue'
+import FriendList from './FriendList.vue'
 import type Api from '@/utils/Api/Api'
 import auth from '../../services/user/services/auth/auth'
 
-
 /* ----- VARIABLES ----- */
 
-const api: Api = inject('$api') as Api;
+const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 const router = useRouter()
 
@@ -63,49 +62,52 @@ const user = ref({
   nickname: '',
   avatarUrl: '',
   wins: '0',
-  losses: '0',
-});
+  losses: '0'
+})
 
-const userLoaded = ref(false);
+const userLoaded = ref(false)
 
 async function fetchUserData() {
   try {
-    const response = await Auth.whoami();
-    console.log(response);
+    const response = await Auth.whoami()
+    console.log(response)
     user.value = {
       id: parseInt(response.id, 10),
       username: response.username,
       email: response.email,
       nickname: response.nickname,
       avatarUrl: ''
-    };
-      await fetchUserAvatar();
+    }
+    await fetchUserAvatar()
 
     // Indicar que los datos del usuario han sido cargados
-    userLoaded.value = true;
+    userLoaded.value = true
   } catch (error: any) {
-    console.error('Error fetching user data:', error.message);
+    console.error('Error fetching user data:', error.message)
   }
 }
 async function fetchUserAvatar() {
   try {
-    const response = await api.get('auth/get-avatar') as { status: number, avatar_base64: string , data: string};
+    const response = (await api.get('auth/get-avatar')) as {
+      status: number
+      avatar_base64: string
+      data: string
+    }
     if (response.status === 200) {
-      const avatarBase64 = response.avatar_base64;
-      user.value.avatarUrl = `data:image/jpeg;base64,${avatarBase64}`;
+      const avatarBase64 = response.avatar_base64
+      user.value.avatarUrl = `data:image/jpeg;base64,${avatarBase64}`
     } else {
-      console.error('Failed to fetch avatar:', response.data);
+      console.error('Failed to fetch avatar:', response.data)
     }
   } catch (error: any) {
-    console.error('Error fetching user avatar:', error.message);
+    console.error('Error fetching user avatar:', error.message)
   }
 }
 
 onMounted(async () => {
-  await fetchUserData();
+  await fetchUserData()
   // await fetchPongData();
-});
-
+})
 
 /* ----- REDIRECCIONES A VISTAS ----- */
 
@@ -116,23 +118,20 @@ const goToEditAvatar = () => {
 const goToEditProfile = () => {
   router.push('/edit-profile')
 }
-
 </script>
 
 <style scoped>
-
 .user-name {
   font-family: Titulo !important;
-  color:#ebd2ff;
+  color: #ebd2ff;
   margin-bottom: 0px;
 }
 
 .user-data {
   font-family: NunitoBlack !important;
-  color:#ebd2ff;
+  color: #ebd2ff;
   margin-bottom: 0px;
   font-size: 1.2em;
-
 }
 
 .stats-container {

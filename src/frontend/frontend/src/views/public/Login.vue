@@ -5,7 +5,6 @@
       <div class="data-card py-3 px-4">
         <h2 class="my-3 text-center data-card-title">Log in</h2>
         <form id="loginForm" @submit.prevent="handleSubmit">
-
           <!-- Enter Username -->
           <div class="mb-3">
             <label for="username" class="data-label">Username</label>
@@ -46,7 +45,6 @@
 </template>
 
 <script setup lang="ts">
-
 /* ----- IMPORTS ----- */
 
 import { useRouter } from 'vue-router'
@@ -60,7 +58,6 @@ import type Api from '@/utils/Api/Api'
 import type userRequest from '@/models/user/userRequest'
 import type userResponse from '@/models/user/userResponse'
 
-
 /* ----- VARIABLES ----- */
 
 const api: Api = inject('$api') as Api
@@ -71,7 +68,6 @@ const form: Ref<userRequest> = ref<userRequest>({
   username: '',
   password: ''
 })
-
 
 /* ----- HANDLE LOG IN ----- */
 
@@ -87,5 +83,4 @@ const handleSubmit: () => Promise<void> = async () => {
     console.error('An error occurred while submitting the form:', error)
   }
 }
-
 </script>
