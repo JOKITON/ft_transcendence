@@ -1,11 +1,7 @@
 <template>
   <div class="chat-dropdown">
     <!-- Botón para mostrar/ocultar el dropdown -->
-    <button
-      @click="toggleDropdown"
-      class="dropdown-toggle"
-      :aria-expanded="isDropdownVisible.toString()"
-    >
+    <button @click="toggleDropdown" class="dropdown-toggle" :aria-expanded="isDropdownVisible ? 'true' : 'false'">
       Open Chats
     </button>
 
@@ -14,16 +10,11 @@
       <div class="scrollable-list">
         <ul v-if="friends.length">
           <li v-for="friend in friends" :key="friend.id">
-            <button
-              class="friend-button"
-              @click="openChat(friend)"
-              :disabled="friend.is_blocked_by_user || friend.is_blocked_by_friend"
-            >
+            <button class="friend-button" @click="openChat(friend)"
+              :disabled="friend.is_blocked_by_user || friend.is_blocked_by_friend">
               {{ friend.username }}
               <!-- Indicador de estado -->
-              <span
-                :class="['status-indicator', friend.isOnline ? 'bg-success' : 'bg-danger']"
-              ></span>
+              <span :class="['status-indicator', friend.isOnline ? 'bg-success' : 'bg-danger']"></span>
               <span v-if="friend.is_blocked_by_user" class="blocked-info"> (User blocked) </span>
               <span v-if="friend.is_blocked_by_friend" class="blocked-info">
                 (You are blocked)
@@ -32,19 +23,12 @@
 
             <!-- Botones de bloqueo/desbloqueo -->
             <div class="btn-group">
-              <button
-                v-if="friend.is_blocked_by_user"
-                class="btn btn-warning btn-sm"
-                @click="unblockUser(friend.username)"
-              >
+              <button v-if="friend.is_blocked_by_user" class="btn btn-warning btn-sm"
+                @click="unblockUser(friend.username)">
                 Unblock
               </button>
-              <button
-                v-else
-                class="btn btn-danger btn-sm"
-                @click="blockUser(friend.username)"
-                :disabled="friend.is_blocked_by_friend"
-              >
+              <button v-else class="btn btn-danger btn-sm" @click="blockUser(friend.username)"
+                :disabled="friend.is_blocked_by_friend">
                 Block
               </button>
             </div>
@@ -57,21 +41,11 @@
     <!-- Mostrar chats abiertos -->
 
     <div v-for="chat in activeChats" :key="chat.id" class="chat-container">
-      <beautiful-chat
-        :participants="[{ id: chat.friend.id, name: chat.friend.username }]"
-        :messageList="chat.messages"
-        :is-open="chat.isOpen"
-        @open="handleChatOpen(chat.id)"
-        @close="handleChatClose(chat.id)"
-        @send-message="sendMessage(chat.id, $event)"
-        :placeholder="'Escribe un mensaje...'"
-        :colors="colors"
-        :alwaysScrollToBottom="true"
-        :messageStyling="true"
-        :open="() => openChat(lastOpenedChat)"
-        :close="() => closeChat(chat.id)"
-        :onMessageWasSent="(message) => sendMessage(chat.id, message)"
-      />
+      <beautiful-chat :participants="[{ id: chat.friend.id, name: chat.friend.username }]" :messageList="chat.messages"
+        :is-open="chat.isOpen" @open="handleChatOpen(chat.id)" @close="handleChatClose(chat.id)"
+        @send-message="sendMessage(chat.id, $event)" :placeholder="'Escribe un mensaje...'" :colors="colors"
+        :alwaysScrollToBottom="true" :messageStyling="true" :open="() => openChat(lastOpenedChat)"
+        :close="() => closeChat(chat.id)" :onMessageWasSent="(message: Message) => sendMessage(chat.id, message)" />
     </div>
   </div>
 </template>
@@ -79,21 +53,22 @@
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue'
 import Socket from '../../utils/socket/imp/socket'
-import { WebsocketEvent } from 'websocket-ts'
-
+import { WebsocketEvent} from 'websocket-ts'
+// @ts-ignore
 import { eventBus } from './eventbus.js'
-
-declare module './eventbus.js' {
-  const eventBus: any
-  export default eventBus
-}
+import { c } from 'vite/dist/node/types.d-aGj9QkWt';
 
 interface Friend {
   id: number
   username: string
-  isOnline: boolean
+  avatar: string
+  isOnline?: boolean
   is_blocked_by_user: boolean
   is_blocked_by_friend: boolean
+}
+
+interface MessageSentData {
+  friend: Friend;
 }
 
 interface Message {
@@ -105,12 +80,12 @@ interface Message {
 }
 
 interface ChatInstance {
-  id: number
+  id: string
   friend: Friend
   messages: Message[]
   isOpen: boolean
   newMessagesCount: number
-  socket?: Socket
+  socket?: Socket | null
 }
 
 const api = inject('$api') as any
@@ -178,12 +153,13 @@ const openChat = async (friend: Friend) => {
   })
 
   // Busca si ya existe un chat con este amigo
-  const existingChat = activeChats.value.find((chat) => chat.id === room_id.value)
+  const existingChat = activeChats.value.find((chat) => String(chat.id) === room_id.value);
 
   if (existingChat) {
     existingChat.isOpen = true
     if (!existingChat.socket) {
-      // Conecta solo si el socket no está abierto
+      // Conecta solo si el socket no está 
+      console.log('Opening socket for existing chat, room:', room_id.value)
       existingChat.socket = new Socket()
       existingChat.socket.open(room_id.value)
       connectWebSocket(existingChat.socket)
@@ -207,18 +183,18 @@ const openChat = async (friend: Friend) => {
 }
 
 // Función para cerrar el chat
-const handleChatClose = (chatId: number) => {
-  const chat = activeChats.value.find((chat) => chat.id === chatId)
-  chat.isOpen = false
-  if (chat.socket) {
-    chat.socket.close()
-    chat.socket = null
+const handleChatClose = (chatId: string) => {
+  const chat = activeChats.value.find((chat) => chat.id === chatId);
+  if (chat) {
+    chat.isOpen = false;
+    if (chat.socket) {
+      chat.socket.close();
+      chat.socket = null;
+    }
+    chat.messages = [];
   }
-  chat.messages = []
-  //activeChats.value[chatId].isOpen = false
-}
-
-const closeChat = (chatId: number) => {
+};
+const closeChat = (chatId: string) => {
   const chat = activeChats.value.find((chat) => chat.id === chatId)
 
   if (chat) {
@@ -231,13 +207,15 @@ const closeChat = (chatId: number) => {
   }
 }
 // Función para abrir el chat
-const handleChatOpen = (chatId: number) => {
-  const chat = activeChats.value.find((chat) => chat.id === chatId)
-  chat.isOpen = true
-  //activeChats.value[chatIndex].isOpen = true
-}
+const handleChatOpen = (chatId: string) => {
+  const chat = activeChats.value.find((chat) => chat.id === chatId);
+
+  if (chat) {
+    chat.isOpen = true;
+  }
+};
 // Método para enviar mensajes
-const sendMessage = (chatId: number, message: any) => {
+const sendMessage = (chatId: string, message: any) => {
   const chat = activeChats.value.find((chat) => chat.id === chatId)
   if (!chat || !chat.socket) {
     console.error('Socket no disponible para este chat.')
@@ -246,6 +224,7 @@ const sendMessage = (chatId: number, message: any) => {
   console.log('message para guardaaaaar:', message)
   const text = message.data.text
   if (text.length > 0) {
+    console.log('Chat en string:', chatId)
     chat.newMessagesCount = chat.isOpen ? chat.newMessagesCount : chat.newMessagesCount + 1
     chat.socket.send(user.value, text, chatId) // Envía el mensaje a través del socket
   }
@@ -262,8 +241,10 @@ const sendMessage = (chatId: number, message: any) => {
   console.log('Message added: ', message)
 }
 */
-const onMessageWasSent = (chatId: number, message: Message) => {
-  const chat = activeChats.value.find((chat) => chat.id === chatId)
+const onMessageWasSent = (chatId: String, message: Message) => {
+  const chat = activeChats.value.find((chat) => chat.id === chatId);
+
+  if (!chat) return;
 
   if (!chat) return
 
@@ -281,22 +262,22 @@ const onMessageWasSent = (chatId: number, message: Message) => {
 // Carga la lista de amigos al montar el componente
 onMounted(async () => {
   try {
-    const response = await api.get<{ friends: Friend[] }>('friendship/friends')
+    const response = await api.get('friendship/friends')
     activeChats.value.forEach((chat) => {
       if (chat.socket) {
-        chat.socket.close()
-        chat.socket = null
+        chat.socket.close();
+        chat.socket = null;
       }
-    })
+    });
     const Iam = await api.get('auth/iam')
     user.value = Iam.username
     console.log('User:', user.value)
-    eventBus.on('messageSent', (data) => {
-      console.log('Message sent:', data)
-      openChat(data.friend)
+    eventBus.on('messageSent', (data: MessageSentData) => {
+      console.log('Message sent:', data);
+      openChat(data.friend); // Llama a openChat con el amigo enviado
     })
     // Convertir isOnline a booleano
-    friends.value = (response.friends || []).map((friend) => ({
+    friends.value = (response.friends || []).map((friend: any) => ({
       ...friend,
       isOnline: friend.isOnline === 'True' // Convertir a booleano
     }))
@@ -307,7 +288,7 @@ onMounted(async () => {
   }
 })
 
-const echoOnMessage = (i: Websocket, ev: MessageEvent) => {
+const echoOnMessage = (i: any, ev: MessageEvent) => {
   const data = JSON.parse(ev.data)
   const chatId = data.index
   const chat = activeChats.value.find((chat) => chat.id === chatId)
@@ -321,7 +302,7 @@ const echoOnMessage = (i: Websocket, ev: MessageEvent) => {
   }
 }
 
-const connectWebSocket = (socketInstance: Socket) => {
+const connectWebSocket = (socketInstance: any) => {
   console.log('Connecting to websocket')
   socketInstance.AddEventListener(WebsocketEvent.message, echoOnMessage)
 }
@@ -406,6 +387,7 @@ const unblockUser = async (username: string) => {
 .dropdown-list li:last-child {
   border-bottom: none;
 }
+
 .friend-button {
   background: none;
   border: none;
@@ -415,6 +397,7 @@ const unblockUser = async (username: string) => {
   text-align: left;
   padding: 8px;
 }
+
 .status-indicator {
   width: 10px;
   height: 10px;
@@ -439,6 +422,7 @@ const unblockUser = async (username: string) => {
   font-size: 0.8em;
   color: red;
 }
+
 .scrollable-list {
   max-height: none;
   overflow-y: visible;
@@ -446,14 +430,17 @@ const unblockUser = async (username: string) => {
   display: flex;
   justify-content: center;
 }
+
 .chat-container {
   position: absolute;
-  z-index: 1119; /* Valor por defecto para los chats */
+  z-index: 1119;
+  /* Valor por defecto para los chats */
 }
 
 .chat-container.active {
   position: absolute;
-  z-index: 1111111; /* Valor más alto para el chat activo */
+  z-index: 1111111;
+  /* Valor más alto para el chat activo */
 }
 
 .no-friends-msg {

@@ -36,8 +36,8 @@ clean:
 	#docker volume rm $(docker volume ls -qf dangling=true)
 	
 fclean: clean
-	rm -rf ${USER}
-	bash scripts/clean.sh
+	sudo rm -rf ${USER}
+	sudo bash ./scripts/clean.sh
 	docker system prune --all --volumes --force
 
 re: fclean all

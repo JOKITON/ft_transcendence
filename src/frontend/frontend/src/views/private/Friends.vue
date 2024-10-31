@@ -92,11 +92,11 @@
 <script setup lang="ts">
 // Define las referencias para amigos y solicitudes de amistad
 
-import { ref, onMounted, inject } from 'vue'
-import { defineEmits } from 'vue'
-import NavHome from './NavHome.vue'
-import { eventBus } from './eventbus.js'
-import DesplegableChat from './DesplegableChat.vue'
+
+import { ref,onMounted, inject } from 'vue';
+import NavHome from './NavHome.vue';
+// @ts-ignore
+import { eventBus } from './eventbus.js';
 
 // Inyecta el cliente API
 const api = inject('$api') as any
