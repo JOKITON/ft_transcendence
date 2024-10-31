@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "type-check": "vue-tsc --build --force",
-    "build": "vite build",
+    "build": "npm run type-check && npm run build-only",
+    "build-only": "vite build",
     "preview": "vite preview",
     "test:unit": "vitest",
     "test:e2e": "start-server-and-test preview http://localhost:4173 'cypress run --e2e'",
