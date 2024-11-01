@@ -24,4 +24,6 @@ curl -o $PONG_PUBLIC_KEY_PATH http://auth/api/v1/auth/public
 if ! openssl rsa -pubin -in $PONG_PUBLIC_KEY_PATH -text -noout >/dev/null 2>&1; then
   echo "Error: Fetched public key is not valid."
   exit 1
+else
+  echo "Public key fetched successfully"
 fi

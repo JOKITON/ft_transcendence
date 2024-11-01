@@ -87,6 +87,7 @@ class Tournament4P(models.Model):
 
     status = models.CharField(max_length=1, choices=status_choices, default='P')
     tournament_type = models.CharField(max_length=3, choices=tournament_type_choices, default='4P')
+    final_players = ArrayField(models.CharField(blank=True), default=list, blank=True, null=True)
     player_ids = ArrayField(models.IntegerField(), default=list)
     player_names = ArrayField(models.CharField(), default=list)
     player_scores = ArrayField(ArrayField(models.IntegerField(), null=True, blank=True), default=list, null=True, blank=True, size=4)

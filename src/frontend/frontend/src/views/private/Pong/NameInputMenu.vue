@@ -336,7 +336,7 @@ const startGame = () => {
     })
   }
 
-  console.log('Data :', data)
+  // console.log('Form Data :', data)
   emit('startGame', data)
 }
 </script>

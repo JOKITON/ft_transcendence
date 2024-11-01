@@ -78,28 +78,54 @@ let indexGame = 0
 const stateData = props.hasStateData
 startTime = Date.now() / 1000
 
+let player_hits: Array<number> = new Array(playerCount).fill(0)
+
+let posPlayers: Array<number> = new Array(8).fill(0) // Assuming an array of size 8
+
 if (stateData.check == true) {
   console.log('State data:', stateData)
   setStatePongDate(stateData)
 } else setInitialValues()
 
 function setStatePongDate(data: intStateTournamentPongData) {
-  // player1Name.value = data.player_names[0]
-  // numScorePlayerOne = data.player_scores[0][0]
-  // numScorePlayerTwo = data.player_scores[1][0]
+  player_names = data.player_names
+  ids = data.player_ids
+  indexGame = data.game_index
   stateTime = data.time_played
   indexGame = data.game_index
   player_scores = data.player_scores
-  player_names = data.player_names
-  ids = data.player_ids
+
+  switch (indexGame) {
+    case 0:
+      numScorePlayerOne = data.player_scores[0][0]
+      numScorePlayerTwo = data.player_scores[1][0]
+      player1Name.value = data.player_names[0]
+      player2Name.value = data.player_names[1]
+      break;
+    case 1:
+      finalOne = data.final_players[0]
+      numScorePlayerOne = data.player_scores[2][0]
+      numScorePlayerTwo = data.player_scores[3][0]
+      player1Name.value = data.player_names[2]
+      player2Name.value = data.player_names[3]
+      break;
+    case 2:
+      finalOne = data.final_players[0]
+      finalTwo = data.final_players[1]
+      player1Name.value = finalOne
+      player2Name.value = finalTwo
+      break;
+  }
+
+  player_hits = data.player_hits
 }
 
 function setInitialValues() {
   player1Name.value = props.players[0].player
   player2Name.value = props.players[1].player
+  ids = players.map((player) => player.id)
   console.log('Player:', player1Name.value)
   player_names = players.map((player) => player.player)
-  ids = players.map((player) => player.id)
   player_scores = Array.from({ length: playerCount }, () => Array(2).fill(0))
 }
 
@@ -143,79 +169,71 @@ let helpTextControlsTwo: HelpText
 let finalScore: GameOver
 
 async function loadFont() {
- // Vertical dashed wall
-    wallMid = new DashedWall('- - - - - - - -', new Color('green'), new Vector3(0, 0, -1), font)
-    scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font)
-    scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font)
+  // Vertical dashed wall
+  wallMid = new DashedWall('- - - - - - - -', new Color('green'), new Vector3(0, 0, -1), font)
+  scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font)
+  scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font)
 
-    helpTextSpace = new HelpText(
-      'Press space to start',
-      new Color('white'),
-      new Vector3(0, 3.5, 0),
-      BIT_FONT,
-      1
-    )
+  helpTextSpace = new HelpText(
+    'Press space to start',
+    new Color('white'),
+    new Vector3(0, 3.5, 0),
+    BIT_FONT,
+    1
+  )
 
-    // Set text for the player names
-    helpTextPlayerOne = new HelpText(
-      player1Name.value,
-      new Color('blue'),
-      new Vector3(-16, 5.5, 0),
-      BIT_FONT,
-      1
-    )
-    helpTextPlayerTwo = new HelpText(
-      player2Name.value,
-      new Color('red'),
-      new Vector3(16, 5.5, 0),
-      BIT_FONT,
-      1
-    )
+  // Set text for the player names
+  helpTextPlayerOne = new HelpText(
+    player1Name.value,
+    new Color('blue'),
+    new Vector3(-16, 5.5, 0),
+    BIT_FONT,
+    1
+  )
+  helpTextPlayerTwo = new HelpText(
+    player2Name.value,
+    new Color('red'),
+    new Vector3(16, 5.5, 0),
+    BIT_FONT,
+    1
+  )
 
-    // Set the text for the controls
-    helpTextControlsOne = new HelpText(
-      'W\n\n\n\n\nS',
-      new Color('white'),
-      new Vector3(-16, 0, 0),
-      BIT_FONT,
-      1
-    )
-    helpTextControlsTwo = new HelpText(
-      '↑\n\n\n↓',
-      new Color('white'),
-      new Vector3(16, 0, 0),
-      MONTSERRAT_FONT,
-      1
-    )
+  // Set the text for the controls
+  helpTextControlsOne = new HelpText(
+    'W\n\n\n\n\nS',
+    new Color('white'),
+    new Vector3(-16, 0, 0),
+    BIT_FONT,
+    1
+  )
+  helpTextControlsTwo = new HelpText(
+    '↑\n\n\n↓',
+    new Color('white'),
+    new Vector3(16, 0, 0),
+    MONTSERRAT_FONT,
+    1
+  )
 
-    finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font)
+  finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font)
 }
-
-let player_hits: Array<number> = new Array(playerCount).fill(0)
-
-let posPlayers: Array<number> = new Array(8).fill(0) // Assuming an array of size 8
 
 // Initialize players with the provided names
 const playerOne = new Player(
-  new Vector3(0.4, 3, 0.5),
-  new Color('red'),
-  new Vector3(16, 0, 0),
-  'ArrowUp',
-  'ArrowDown',
-  player1Name.value
-)
-const playerTwo = new Player(
   new Vector3(0.4, 3, 0.5),
   new Color('blue'),
   new Vector3(-16, 0, 0),
   'KeyW',
   'KeyS',
+  player1Name.value
+)
+const playerTwo = new Player(
+  new Vector3(0.4, 3, 0.5),
+  new Color('red'),
+  new Vector3(16, 0, 0),
+  'ArrowUp',
+  'ArrowDown',
   player2Name.value
 )
-if (stateData.check == true && stateData.player_hits.length > 0) {
-  playerOne.setHits(stateData.player_hits[0])
-  playerTwo.setHits(stateData.player_hits[1])
-}
 
 function setHelpText() {
   helpTextPlayerOne.updateScore(player1Name.value)
@@ -263,7 +281,7 @@ function scoreTracker(score: number) {
       console.log(`${playerOne.getName()} lost!`)
       endGame(playerTwo.getName(), playerOne.getName())
     }
-    console.log(`Results: {${numScorePlayerOne}} {${numScorePlayerTwo}}`)
+    // console.log(`Results: {${numScorePlayerOne}} {${numScorePlayerTwo}}`)
     emitData(IS_STATE)
   } else if (score === 2) {
     // Player one won the point
@@ -354,7 +372,7 @@ function toggleAnimation(event: KeyboardEvent) {
     // Set a delay before executing the function to avoid multiple triggers
     debounceTimeout = setTimeout(() => {
       isAnimating.value = !isAnimating.value
-      console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`)
+      // console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`)
     }, 100)
   }
 }
@@ -461,7 +479,7 @@ const updatePlayerData = (storeType: string) => {
 
 // Main function to manage the tournament flow
 function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: number): void {
-  console.log(`Results: {${numScorePlayerOne}} {${numScorePlayerTwo}}`)
+  // console.log(`Results: {${numScorePlayerOne}} {${numScorePlayerTwo}}`)
 
   switch (matchIndex) {
     case 1:
@@ -510,22 +528,29 @@ function emitData(status: string) {
         status === IS_STATE
           ? []
           : players.map((player, index) => ({
-              id: player.id,
-              name: player.player,
-              scores: player_scores[index],
-              time_played: time_played,
-              hits: player_hits[index],
-              position: posPlayers[index]
-            })),
+            id: player.id,
+            name: player.player,
+            scores: player_scores[index],
+            time_played: time_played,
+            hits: player_hits[index],
+            position: posPlayers[index]
+          })),
       final_round:
         status === IS_STATE
           ? []
           : {
-              player_one: finalOne,
-              player_two: finalTwo,
-              winner: winner,
-              loser: loser
-            }
+            player_one: finalOne,
+            player_two: finalTwo,
+            winner: winner,
+            loser: loser
+          },
+      final_players:
+        status !== IS_STATE
+          ? []
+          : [
+            finalOne,
+            finalTwo
+          ]
     })
   }, 1000)
 }

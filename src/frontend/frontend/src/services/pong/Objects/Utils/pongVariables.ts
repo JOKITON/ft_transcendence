@@ -22,7 +22,7 @@ export interface intStateTournamentPongData {
   player_ids: Array<number>
   player_names: Array<string>
   player_scores: Array<Array<number>>
-  player_hits: Array<Array<number>>
+  player_hits: Array<number>
   time_played: number
   game_index: number
   // aiDifficulty: number,
@@ -68,7 +68,7 @@ export const ballGeometry2 = [0.66, 10, 10]
 
 export const vecHorizWall = new Vector3(33, 0.3, 1)
 
-export const SCORE_TO_WIN = 1
+export const SCORE_TO_WIN = 3
 export const IS_STATE = 'P'
 export const IS_COMPLETED = 'C'
 export const BIT_FONT = 'fonts/Bit5x3_Regular.json'
