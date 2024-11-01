@@ -95,14 +95,16 @@ const userId = ref<number | null>(null)
 const errorMessage = ref<string | null>(null)
 const friends = ref<Friend[]>([])
 const userData = ref({
-  id: '',
+  id: 0,
   username: '',
   nickname: '',
   email: '',
   avatar: '',
   isFriend: false,
   friendRequestSent: false,
-  is_blocked: false
+  is_blocked: false,
+  is_blocked_by_user: false,
+  is_blocked_by_friend: false 
 })
 const userLoaded = ref(false)
 
@@ -143,14 +145,17 @@ const fetchUserData = async (id: number) => {
     console.log(response)
     if (response.status === 200) {
       userData.value = {
-        id: response.user_data.id,
+        id: parseInt(response.user_data.id, 10),
         username: response.user_data.username,
         nickname: response.user_data.nickname,
         email: response.user_data.email,
         avatar: '',
         isFriend: checkIfFriend(friends.value, response.user_data.id),
         is_blocked: checkIfBloked(friends.value, response.user_data.id),
-        friendRequestSent: false
+        friendRequestSent: false,
+        is_blocked_by_user: response.user_data.is_blocked_by_user,
+        is_blocked_by_friend: response.user_data.is_blocked_by_friend
+
       }
       userLoaded.value = true
     } else {

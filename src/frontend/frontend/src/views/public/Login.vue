@@ -49,7 +49,7 @@
 
 import { useRouter } from 'vue-router'
 import { ref, inject } from 'vue'
-
+// @ts-ignore
 import auth from '../../services/user/services/auth/auth.ts'
 
 import NavIndex from './NavIndex.vue'

@@ -62,8 +62,9 @@ const user = ref({
   nickname: '',
   avatarUrl: '',
   wins: '0',
-  losses: '0'
-})
+  losses: '0' 
+});
+
 
 const userLoaded = ref(false)
 
@@ -76,7 +77,10 @@ async function fetchUserData() {
       username: response.username,
       email: response.email,
       nickname: response.nickname,
-      avatarUrl: ''
+      avatarUrl: '',
+      wins: response.wins || '0',
+      losses: response.losses || '0'
+
     }
     await fetchUserAvatar()
 

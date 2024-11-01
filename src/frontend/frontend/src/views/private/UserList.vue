@@ -15,7 +15,7 @@
                 >
                   <span>
                     <span class="status-indicator bg-success">{{ user.username }}</span>
-                    <span class="badge bg-success">{{ user.status }}</span>
+                    <span class="badge bg-success"></span>
                   </span>
                 </li>
               </ul>
@@ -31,6 +31,7 @@
 import NavHome from './NavHome.vue'
 import { ref, onMounted, inject } from 'vue'
 import type Api from '@/utils/Api/Api'
+// @ts-ignore
 import auth from '../../services/user/services/auth/auth.ts'
 import { useRouter } from 'vue-router'
 

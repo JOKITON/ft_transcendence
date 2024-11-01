@@ -11,17 +11,6 @@
           </li>
           <li><a @click="goToHome" class="nav-link px-4 nav-item">Home</a></li>
           <li><a @click="goToPong" class="nav-link px-4 nav-item">Pong</a></li>
-
-          <!-- DROPDOWN MENU ADMIN -->
-          <!--           <li class="nav-link px-4">
-            <div class="dropdown text-end">
-              <a @click="toggleDropdownAdmin" class="d-block text-decoration-none dropdown-toggle nav-item">Admin</a>
-              <ul class="dropdown-menu text-small nav-drop" :class="{ show: isDropdownAdminVisible }">
-                <li><a @click="openUserList" class="dropdown-item nav-drop-item">User List</a></li>
-                <li><a @click="openUserList" class="dropdown-item nav-drop-item">Otra cosa mas</a></li>
-              </ul>
-            </div>
-          </li> -->
         </ul>
 
         <!-- BUSCADOR -->

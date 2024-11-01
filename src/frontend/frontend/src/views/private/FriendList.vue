@@ -62,6 +62,7 @@
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
+import type Api from '@/utils/Api/Api'
 import avatar from '../../assets/avatars/pepe.png'
 
 const api = inject('$api') as Api
@@ -87,7 +88,12 @@ interface Friend {
 
 const fetchUserAvatar = async (friend: Friend) => {
   try {
-    const response = await api.get(`auth/get-avatar-id/${friend.id}/`)
+    const response = (await api.get(`auth/get-avatar-id/${friend.id}/`)) as {
+      status: number
+      avatar_base64: string
+      data: string
+    }
+    console.log('respuesta',response)
     if (response.status === 200) {
       const avatarBase64 = response.avatar_base64
       friend.avatar = `data:image/jpeg;base64,${avatarBase64}`
@@ -98,6 +104,20 @@ const fetchUserAvatar = async (friend: Friend) => {
     console.error('Error fetching user avatar:', error.message)
   }
 }
+/*
+const fetchUserAvatar = async (friend: Friend) => {
+  try {
+    const response = await api.get(`auth/get-avatar-id/${friend.id}/`)
+    if (response.status === 200) {
+      const avatarBase64 = response.avatar_base64
+      friend.avatar = `data:image/jpeg;base64,${avatarBase64}`
+    } else {
+      console.error('Failed to fetch avatar:', response.data)
+    }
+  } catch (error: any) {
+    console.error('Error fetching user avatar:', error.message)
+  }
+}*/
 
 const goToUserProfile = (userId: number) => {
   router.push(`/user-profile/${userId}`)
