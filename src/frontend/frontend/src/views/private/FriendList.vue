@@ -62,10 +62,9 @@
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import type Api from '@/utils/Api/Api'
 import avatar from '../../assets/avatars/pepe.png'
 
-const api = inject('$api') as Api
+const api = inject('$api') as any
 const router = useRouter()
 
 const friends = ref<Friend[]>([])
@@ -126,7 +125,7 @@ const goToUserProfile = (userId: number) => {
 onMounted(async () => {
   try {
     // Fetch friends and user data
-    const fetchFriendsResponse = await api.get<Friend[]>(`friendship/friends-id/${props.userId}/`)
+    const fetchFriendsResponse = await api.get(`friendship/friends-id/${props.userId}/`)
     friends.value = fetchFriendsResponse.friends || []
     friends.value.forEach((friend) => {
       fetchUserAvatar(friend)
