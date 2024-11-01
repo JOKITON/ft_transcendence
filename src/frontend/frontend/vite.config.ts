@@ -12,6 +12,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "assets": path.resolve(__dirname, "./src/assets"),
+      "models": path.resolve(__dirname, "./src/models"),
       "pong": path.resolve(__dirname, './src/services/pong'),
       "pong-utils": path.resolve(__dirname, './src/services/pong/Objects/Utils'),
       "pong-objects": path.resolve(__dirname, './src/services/pong/Objects')

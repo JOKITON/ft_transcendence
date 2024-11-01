@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Vector3, Color, Mesh } from 'three';
+import { Vector3, Color } from 'three';
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import ThreeService from 'pong/ThreeService';
 import Player from 'pong-objects/Player';
@@ -37,7 +37,7 @@ const props = defineProps<{
   players: Array<{ player: string; id: number }>
 }>()
 
-console.log(props.hasStateData)
+// console.log(props.hasStateData)
 
 const startTime = Date.now() / 1000
 let stateTime: number = 0
@@ -89,7 +89,7 @@ function setHits() {
 function setInitialValues() {
   player1Name.value = props.players[0].player
   player2Name.value = props.players[1].player
-  console.log('Player:', player1Name.value)
+  // console.log('Player:', player1Name.value)
   gamePlayers = [player1Name.value, player2Name.value]
   ids = [props.players[0].id, props.players[1].id]
 }
@@ -114,7 +114,6 @@ const luckySphere = new LuckySphere(ballGeometry2, new Color('yellow'))
 let wallMid: DashedWall // Vertical dashed wall
 let scorePlayer1: Score
 let scorePlayer2: Score
-let helpText: GameOver
 
 let helpTextSpace: HelpText
 let helpTextPlayerOne: HelpText
@@ -131,7 +130,6 @@ async function loadFont() {
   wallMid = new DashedWall('- - - - - - - -', new Color('green'), new Vector3(0, 0, -1), font)
   scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font)
   scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font)
-  helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font)
 
   // Set the text for the controls
   helpTextControlsOne = new HelpText(
@@ -265,7 +263,7 @@ let timeElapsed = 0
 
 function update() {
   if (!isAnimating.value) return
-  let isTaken: boolean = true
+  let isTaken: number = 1
   let now = Date.now()
 
   if (now - timeElapsed > 5000) {
@@ -273,11 +271,11 @@ function update() {
     timeElapsed = now
     luckySphere.randomizePosition()
     three.addScene(luckySphere.get())
-    isTaken = true
+    isTaken = 1
   }
 
   if (isTaken) {
-    if (ball.getVelocity().x < 0) {
+    if (ball.getVelocity()) {
       isTaken = luckySphere.update(ball, player2)
     } else {
       isTaken = luckySphere.update(ball, player)
@@ -287,7 +285,7 @@ function update() {
       three.removeScene(luckySphere.get())
       timeElapsed = now
     }
-    isTaken = false
+    isTaken = 0
   }
 
   let score = ball.update()
@@ -329,7 +327,7 @@ function toggleAnimation(event: KeyboardEvent) {
     // Set a delay before executing the function to avoid multiple triggers
     debounceTimeout = window.setTimeout(() => {
       isAnimating.value = !isAnimating.value
-      console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`)
+      // console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`)
     }, 100) // Adjust the timeout as needed (100ms here)
   }
 }

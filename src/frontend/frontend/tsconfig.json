@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
+    "esModuleInterop": true,
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "pong/*": ["./src/services/pong/*"],
-      "pong-utils/*": ["./src/services/pong/Objects/Utils/*"],
-      "pong-objects/*": ["./src/services/pong/Objects/*"]
+      "@/*": ["src/*"],
+      "assets/*": ["src/assets/*"],
+      "models/*": ["src/models/*"],
+      "pong/*": ["src/services/pong/*"],
+      "pong-utils/*": ["src/services/pong/Objects/Utils/*"],
+      "pong-objects/*": ["src/services/pong/Objects/*"]
     }
   }
 }

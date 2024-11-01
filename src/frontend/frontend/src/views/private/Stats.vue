@@ -20,7 +20,7 @@
 /* ----- IMPORTS ----- */
 
 import type Api from '@/utils/Api/Api';
-import auth from '../../services/user/services/auth/auth';
+import auth from '@/services/auth/auth'
 import { useRouter } from 'vue-router';
 import { onMounted, ref, inject } from 'vue';
 import { Carousel, Slide, Pagination } from 'vue3-carousel';

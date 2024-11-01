@@ -77,14 +77,14 @@
 import { ref, inject } from 'vue'
 import { useRouter } from 'vue-router'
 
-import type Api from '../../utils/Api/Api'
+import type Api from '@/utils/Api/Api'
 
-import auth from '../../services/user/services/auth/auth'
+import auth from '@/services/auth/auth'
 
 import NavIndex from './NavIndex.vue'
 
 import type { userRequest } from '../../models/user/userRequest'
-import type { userResponse } from '../../models/user/userResponse'
+// import type { userResponse } from '../../models/user/userResponse'
 
 /* ----- VARIABLES ----- */
 

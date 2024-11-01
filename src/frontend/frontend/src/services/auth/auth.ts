@@ -1,6 +1,6 @@
-import type { token, tokenRequest } from '../../../../models/auth/token'
-import type { userResponse } from '../../../../models/user/userResponse'
-import Api from '../../../../utils/Api/Api'
+import type { token, tokenRequest } from 'models/auth/token'
+import type { userResponse } from 'models/user/userResponse'
+import Api from '@/utils/Api/Api'
 import { jwtDecode } from 'jwt-decode'
 
 export default class auth {

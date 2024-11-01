@@ -31,8 +31,7 @@
 import NavHome from './NavHome.vue'
 import { ref, onMounted, inject } from 'vue'
 import type Api from '@/utils/Api/Api'
-// @ts-ignore
-import auth from '../../services/user/services/auth/auth.ts'
+import auth from '@/services/auth/auth'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()

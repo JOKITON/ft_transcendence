@@ -117,8 +117,8 @@
 
 import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import type Api from '../../services/Api/api'
-import auth from '../../services/user/services/auth/auth'
+import type Api from '@/utils/Api/Api'
+import auth from '@/services/auth/auth'
 import ChatDropdown from './DesplegableChat.vue'
 
 /* ----- VARIABLES ----- */

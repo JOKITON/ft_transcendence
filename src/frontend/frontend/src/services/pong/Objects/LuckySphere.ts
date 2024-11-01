@@ -48,23 +48,24 @@ export default class LuckySphere {
         break
       case 1:
         console.log('Speed down')
-        ball.speedUp(-0.3)
+        /* Slow downs the ball to half of its speed */
+        ball.speedUp((Math.abs(ball.getSpeed() / 2)) * -1)
         break
       case 2:
-        console.log('Size up')
-        ball.resize(3)
+        console.log('Size up ball')
+        ball.resize((Math.random() * 5) + 1.5)
         break
       case 3:
-        console.log('Size down')
-        ball.resize(0.5)
+        console.log('Size down ball')
+        ball.resize((Math.random() * 0.20) + 0.25)
         break
       case 4:
         console.log('Size down player')
-        player.resize(0.25)
+        player.resize((Math.random() * 0.20) + 0.25)
         break
       case 5:
         console.log('Size up player')
-        player.resize(5)
+        player.resize((Math.random() * 5) + 1.5)
         break
       default:
         break

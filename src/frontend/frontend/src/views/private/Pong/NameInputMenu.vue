@@ -147,7 +147,7 @@
         <h6 class="leaderboard-title">Leaderboard</h6>
         <ul class="list-group">
           <li
-            v-for="(user, index) in leaderboard"
+            v-for="(user) in leaderboard"
             :key="user.id"
             class="list-group-item d-flex justify-content-between align-items-center"
           >
@@ -171,17 +171,16 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, inject } from 'vue'
 import type Api from '@/utils/Api/Api'
-import auth from '../../../services/user/services/auth/auth.ts'
-import img1 from '../../../assets/avatars/trophy.png';
+import auth from '@/services/auth/auth'
+import img1 from 'assets/avatars/trophy.png';
 
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 
 const isOnline = ref('') // Keep track of whether Online or Offline is selected
 const gameMode = ref('')
-const isAudioEnabled: boolean = ref(false)
+const isAudioEnabled = ref(false)
 const aiDifficulty = ref(1)
-const selectedOpponent = ref('')
 
 // Sample leaderboard data
 const leaderboard = ref<LeaderboardEntry[]>([]) // Initialize the leaderboard as a single array of LeaderboardEntry objects
@@ -223,7 +222,7 @@ const setDefaultLeaderboard = async () => {
 const fetchLeaderboard = async () => {
   try {
     const response = await api.get('pong/leaderboard')
-    if (response.data.length == 0) {
+    if (response.data == 0) {
       console.log('No data found')
       setDefaultLeaderboard()
     } else {
@@ -300,7 +299,8 @@ const startGame = () => {
   const data = {
     gameMode: gameMode.value,
     players: [],
-    isAudioEnabled: isAudioEnabled.value
+    isAudioEnabled: isAudioEnabled.value,
+    aiDifficulty: aiDifficulty.value,
   }
 
   if (gameMode.value === 'AI') {
@@ -310,7 +310,7 @@ const startGame = () => {
     })
     data.aiDifficulty = aiDifficulty.value
   } else if (gameMode.value === '2P') {
-    const selectedOpponent = document.querySelector('.player-group select').value
+    const selectedOpponent = (document.querySelector('.player-group select') as HTMLSelectElement).value
     const opponent = users.value.find((user) => user.nickname === selectedOpponent)
     if (opponent) {
       data.players.push({
@@ -325,7 +325,7 @@ const startGame = () => {
   } else if (gameMode.value === '4P') {
     const selects = document.querySelectorAll('.player-select-wrapper select')
     selects.forEach((select) => {
-      const selectedNickname = select.value
+      const selectedNickname = (select as HTMLSelectElement).value
       const selectedUser = users.value.find((user) => user.nickname === selectedNickname)
       if (selectedUser) {
         data.players.push({

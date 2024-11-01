@@ -124,7 +124,7 @@ function setInitialValues() {
   player1Name.value = props.players[0].player
   player2Name.value = props.players[1].player
   ids = players.map((player) => player.id)
-  console.log('Player:', player1Name.value)
+  // console.log('Player:', player1Name.value)
   player_names = players.map((player) => player.player)
   player_scores = Array.from({ length: playerCount }, () => Array(2).fill(0))
 }
@@ -294,7 +294,7 @@ function scoreTracker(score: number) {
       console.log(`${playerTwo.getName()} lost!`)
       endGame(playerOne.getName(), playerTwo.getName())
     }
-    console.log(`Results: {${numScorePlayerOne}} {${numScorePlayerTwo}}`)
+    // console.log(`Results: {${numScorePlayerOne}} {${numScorePlayerTwo}}`)
     emitData(IS_STATE)
   } else {
     console.error('Unexpected check value')
@@ -308,7 +308,7 @@ let timeElapsed = 0
 
 function update() {
   if (!isAnimating.value) return
-  let isTaken: boolean = true // Variable that works as semaphore for luckySphere
+  let isTaken: number = 1 // Variable that works as semaphore for luckySphere
   let now = Date.now()
 
   if (now - timeElapsed > 5000) {
@@ -316,11 +316,11 @@ function update() {
     timeElapsed = now
     luckySphere.randomizePosition()
     three.addScene(luckySphere.get())
-    isTaken = true
+    isTaken = 1
   }
 
   if (isTaken) {
-    if (ball.getVelocity().x < 0) {
+    if (ball.getVelocity()) {
       isTaken = luckySphere.update(ball, playerTwo)
     } else {
       isTaken = luckySphere.update(ball, playerOne)
@@ -330,7 +330,7 @@ function update() {
       three.removeScene(luckySphere.get())
       timeElapsed = now
     }
-    isTaken = false
+    isTaken = 0
   }
 
   let score = ball.update()
@@ -356,7 +356,7 @@ function returnObjectsToPlace() {
   playerTwo.returnToPlace()
 }
 
-let debounceTimeout: number | undefined
+let debounceTimeout: ReturnType<typeof setTimeout> | undefined
 
 function toggleAnimation(event: KeyboardEvent) {
   if (isGameOver.value) {
@@ -418,7 +418,7 @@ function setFinalPositions(losingPlayer: string): void {
 
   let pos = 5 - indexGame
 
-  console.log(`Player Indexes Found: ${playerOneIndex} ${playerTwoIndex}`)
+  // console.log(`Player Indexes Found: ${playerOneIndex} ${playerTwoIndex}`)
   if (playerOneIndex !== -1 && playerTwoIndex !== -1) {
     if (player1Name.value === losingPlayer) {
       // Player two won
@@ -429,12 +429,12 @@ function setFinalPositions(losingPlayer: string): void {
       posPlayers[playerOneIndex] = pos - 1
       posPlayers[playerTwoIndex] = pos
     }
-    console.log(
+/*     console.log(
       `Player: ${player1Name.value}, IndexPos: ${playerOneIndex}, Position: ${posPlayers[playerOneIndex]}`
     )
     console.log(
       `Player: ${player2Name.value}, IndexPos: ${playerTwoIndex}, Position: ${posPlayers[playerTwoIndex]}`
-    )
+    ) */
   } else {
     console.error(`Player ${player1Name.value} not found in the tournament`)
     console.error(`Player ${player2Name.value} not found in the tournament`)

@@ -49,14 +49,14 @@
 
 import { useRouter } from 'vue-router'
 import { ref, inject } from 'vue'
-// @ts-ignore
-import auth from '../../services/user/services/auth/auth.ts'
+
+import auth from '@/services/auth/auth'
 
 import NavIndex from './NavIndex.vue'
 
 import type Api from '@/utils/Api/Api'
-import type userRequest from '@/models/user/userRequest'
-import type userResponse from '@/models/user/userResponse'
+import type { userRequest } from '@/models/user/userRequest'
+// import type { userResponse } from '@/models/user/userResponse'
 
 /* ----- VARIABLES ----- */
 
@@ -64,16 +64,20 @@ const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 const router = useRouter()
 
-const form: Ref<userRequest> = ref<userRequest>({
+const form = ref<userRequest>({
   username: '',
-  password: ''
+  password: '',
+  email: '',
+  avatar: '',
+  nickname: '',
+  p_image: '',
 })
 
 /* ----- HANDLE LOG IN ----- */
 
 const handleSubmit: () => Promise<void> = async () => {
   try {
-    const response: boolean = await Auth.login<userResponse>(form.value)
+    const response: boolean = await Auth.login(form.value)
     if (response === true) {
       router.push('/home')
     }

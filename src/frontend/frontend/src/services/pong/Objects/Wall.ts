@@ -3,7 +3,7 @@ import { Color, Vector3 } from 'three'
 
 export default class Wall extends Box {
   constructor(geometry: Vector3, position: Vector3, color: Color) {
-    super(geometry, color, position)
+    super(geometry, color, position, null, null)
   }
 
   dispose(): void {

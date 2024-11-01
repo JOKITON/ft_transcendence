@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Vector3, Color, Mesh } from 'three';
+import { Vector3, Color } from 'three';
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import ThreeService from 'pong/ThreeService';
 import Player from 'pong-objects/Player';
@@ -38,7 +38,7 @@ const props = defineProps<{
   aiDifficulty: number
 }>()
 
-console.log(props.hasStateData)
+// console.log(props.hasStateData)
 
 const three = new ThreeService(window.innerWidth, window.innerHeight)
 
@@ -74,8 +74,6 @@ if (stateData.check == true) {
 
 function setStatePongDate(data: intStatePongData) {
   player1Name.value = data.player_names[0]
-  player.setHits(data.player_hits[0])
-  playerAI.setHits(data.player_hits[1])
   numScorePlayerOne = data.player_scores[0]
   numScorePlayerTwo = data.player_scores[1]
   stateTime = data.time_played
@@ -83,9 +81,14 @@ function setStatePongDate(data: intStatePongData) {
   ids = data.player_ids
 }
 
+function setHits() {
+  player.setHits(props.hasStateData.player_hits[0])
+  playerAI.setHits(props.hasStateData.player_hits[1])
+}
+
 function setInitialValues() {
   player1Name.value = props.players[0].player
-  console.log('Player:', player1Name.value)
+  // console.log('Player:', player1Name.value)
   gamePlayers = [player1Name.value, 'AI']
   ids = [props.players[0].id, 0]
   setBallVelocity(props.aiDifficulty)
@@ -109,7 +112,6 @@ let wallMid: DashedWall
 let scorePlayer1: Score
 let scorePlayerAI: Score
 
-let helpText: GameOver
 let helpTextSpace: HelpText
 let helpTextPlayerOne: HelpText
 let helpTextPlayerTwo: HelpText
@@ -119,7 +121,7 @@ let helpTextControlsOne: HelpText
 let finalScore: GameOver
 
 async function loadFontObjects() {
-    console.log(font)
+    // console.log(font)
 
     // Vertical dashed wall
     wallMid = new DashedWall('- - - - - - - -', new Color('green'), new Vector3(0, 0, -1), font)
@@ -127,9 +129,6 @@ async function loadFontObjects() {
     // Set the text for the score of each player
     scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font)
     scorePlayerAI = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font)
-
-    // Set the text for the game over message
-    helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font)
 
     // Set the text for the controls
     helpTextControlsOne = new HelpText(
@@ -180,10 +179,6 @@ playerAI = new Player(
   'AI'
 )
 playerAI.setAiDifficulty(Number(props.aiDifficulty))
-if (stateData.check == true && stateData.player_hits.length > 0) {
-  player.setHits(stateData.player_hits[0])
-  playerAI.setHits(stateData.player_hits[1])
-}
 
 function setHelpText() {
   helpTextPlayerOne.updateScore(player1Name.value)
@@ -203,6 +198,9 @@ function setHelpText() {
 }
 
 function setupScene() {
+  if (props.hasStateData.check == true) {
+    setHits();
+  }
   setHelpText()
 
   three.addScene(horizWallUp.get())
@@ -252,7 +250,7 @@ let timeElapsed = 0
 
 function update() {
   if (!isAnimating.value) return
-  let isTaken: boolean = true // Variable that works as semaphore for luckySphere
+  let isTaken: number = 1 // Variable that works as semaphore for luckySphere
   let now = Date.now()
 
   if (now - timeElapsed > 5000) {
@@ -260,11 +258,11 @@ function update() {
     timeElapsed = now
     luckySphere.randomizePosition()
     three.addScene(luckySphere.get())
-    isTaken = true
+    isTaken = 1
   }
 
   if (isTaken) {
-    if (ball.getVelocity().x < 0) {
+    if (ball.getVelocity()) {
       isTaken = luckySphere.update(ball, playerAI)
     } else {
       isTaken = luckySphere.update(ball, player)
@@ -274,7 +272,7 @@ function update() {
       three.removeScene(luckySphere.get())
       timeElapsed = now
     }
-    isTaken = false
+    isTaken = 0
   }
 
   let score = ball.update()
@@ -316,7 +314,7 @@ function toggleAnimation(event: KeyboardEvent) {
     // Set a delay before executing the function to avoid multiple triggers
     debounceTimeout = window.setTimeout(() => {
       isAnimating.value = !isAnimating.value
-      console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`)
+      // console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`)
     }, 100) // Adjust the timeout as needed (100ms here)
   }
 }

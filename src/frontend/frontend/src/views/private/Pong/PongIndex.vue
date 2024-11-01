@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref, markRaw, inject } from 'vue'
+import { ref, markRaw, inject } from 'vue'
 import NavHome from '../NavHome.vue'
 import PongAI from './PongAI.vue'
 import Pong2P from './Pong2P.vue'
 import PongTournament from './PongTournament4P.vue'
 import NameInputMenu from './NameInputMenu.vue'
-import auth from '../../../services/user/services/auth/auth.ts'
+import auth from '../../../services/auth/auth'
 import type Api from '@/utils/Api/Api'
 
 // Reactive state variables
@@ -131,15 +131,8 @@ const fetchStateData = async (gameMode: string, players) => {
 
     if (error.response) {
       const message = error.response.data.message || 'An error occurred.'
-      const errors = error.response.data.errors || {}
 
       let errorMessage = `Request failed. ${message}`
-      if (Object.keys(errors).length > 0) {
-        errorMessage += '\nErrors:\n'
-        for (const [field, msgs] of Object.entries(errors)) {
-          errorMessage += `${field}: ${msgs.join(', ')}\n`
-        }
-      }
       alert(errorMessage)
     } else if (error.message) {
       alert(`Request failed. ${error.message}`)
@@ -171,15 +164,8 @@ const sendPongData = async (tournamentResults) => {
 
     if (error.response) {
       const message = error.response.data.message || 'An error occurred.'
-      const errors = error.response.data.errors || {}
 
       let errorMessage = `Request failed. ${message}`
-      if (Object.keys(errors).length > 0) {
-        errorMessage += '\nErrors:\n'
-        for (const [field, msgs] of Object.entries(errors)) {
-          errorMessage += `${field}: ${msgs.join(', ')}\n`
-        }
-      }
       alert(errorMessage)
     } else {
       alert('Request to the backend failed. Please try again later.')
@@ -202,15 +188,8 @@ const sendTournamentData4P = async (tournamentResults) => {
 
     if (error.response) {
       const message = error.response.data.message || 'An error occurred.'
-      const errors = error.response.data.errors || {}
 
       let errorMessage = `Request failed. ${message}`
-      if (Object.keys(errors).length > 0) {
-        errorMessage += '\nErrors:\n'
-        for (const [field, msgs] of Object.entries(errors)) {
-          errorMessage += `${field}: ${msgs.join(', ')}\n`
-        }
-      }
       alert(errorMessage)
     } else {
       alert('Request to the backend failed. Please try again later.')
@@ -228,15 +207,8 @@ const sendTournamentData8P = async (tournamentResults) => {
 
     if (error.response) {
       const message = error.response.data.message || 'An error occurred.'
-      const errors = error.response.data.errors || {}
 
       let errorMessage = `Request failed. ${message}`
-      if (Object.keys(errors).length > 0) {
-        errorMessage += '\nErrors:\n'
-        for (const [field, msgs] of Object.entries(errors)) {
-          errorMessage += `${field}: ${msgs.join(', ')}\n`
-        }
-      }
       alert(errorMessage)
     } else {
       alert('Request to the backend failed. Please try again later.')

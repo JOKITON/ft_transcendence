@@ -110,7 +110,7 @@ const userLoaded = ref(false)
 
 // Función para enviar mensaje
 const handleSendMessage = (friend: Friend) => {
-  console.log('Sending message to:', friend)
+  console.log('Sending message to:', friend.username)
   eventBus.emit('messageSent', { friend })
 }
 

@@ -118,7 +118,7 @@ import { useRouter } from 'vue-router'
 import type { passwdRequest, passwdResponse } from '@/models/user/passwdRequest'
 import type { userDataRequest, userDataResponse } from '@/models/user/userDataRequest'
 
-import auth from '../../services/user/services/auth/auth.js'
+import auth from '@/services/auth/auth'
 
 import NavHome from './NavHome.vue'
 

@@ -1,3 +1,4 @@
+import { Mesh } from 'three'
 import Player from '../Player'
 import Sphere from '../Sphere'
 

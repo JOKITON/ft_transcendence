@@ -54,6 +54,10 @@ export default class Sphere {
     return this.velocity.x > 0
   }
 
+  public getSpeed(): number {
+    return this.velocity.x
+  }
+
   public resize(size: number): void {
     this.mesh.scale.set(size, size, size)
   }

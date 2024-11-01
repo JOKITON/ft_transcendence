@@ -12,8 +12,10 @@ export default class Box {
     this.material = new MeshBasicMaterial({ color })
     this.mesh = new Mesh(this.geometry, this.material)
     this.mesh.position.set(position.x, position.y, position.z)
-    this.up = up
-    this.down = down
+    if (up && down) {
+      this.up = up
+      this.down = down
+    }
   }
 
   get(): Mesh {
