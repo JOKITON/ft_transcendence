@@ -46,7 +46,14 @@
                 Already Friends
               </button>
 
-              <button class="btn border-button mt-3 mx-2" @click="handleSendMessage(userData)">
+              <button 
+                v-if="userData.isFriend && !userData.is_blocked" 
+                class="btn border-button mt-3 mx-2" @click="handleSendMessage(userData)">
+                Message
+              </button>
+              <button 
+                v-else-if="userData.isFriend && userData.is_blocked" 
+                class="btn border-button mt-3 mx-2" @click="handleSendMessage(userData)" disabled>
                 Message
               </button>
             </div>

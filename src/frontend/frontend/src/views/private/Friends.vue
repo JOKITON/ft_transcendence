@@ -98,7 +98,6 @@ import NavHome from './NavHome.vue';
 // @ts-ignore
 import { eventBus } from './eventbus.js';
 
-// Inyecta el cliente API
 const api = inject('$api') as any
 
 const friends = ref<Friend[]>([])
@@ -141,25 +140,38 @@ const form = ref({
 
 onMounted(async () => {
   try {
-    // Fetch friends and user data
     const [fetchFriendsResponse, userResponse] = await Promise.all([
       api.get('friendship/friends'),
       api.get('auth/whoami')
-    ])
+    ]);
 
-    // Asigna el estado correctamente, incluyendo los nuevos campos de bloqueo
     friends.value = (fetchFriendsResponse.friends || []).map((friend) => ({
       ...friend,
-      isOnline: friend.isOnline === 'True' // Convertir a booleano
-    }))
-    form.value = { ...userResponse.data }
+      isOnline: friend.isOnline === 'True'
+    }));
+    form.value = { ...userResponse.data };
 
-    // Fetch friend requests as part of onMounted
-    await fetchFriendRequests()
+    await fetchFriendRequests();
+    // Cuando se acepta una solicitud de amistad, se actualiza la lista de amigos
+    eventBus.on('friendAccepted', async () => {
+      await fetchFriends();
+    });
   } catch (error) {
-    console.error('Error fetching data:', error)
+    console.error('Error fetching data:', error);
   }
-})
+});
+
+const fetchFriends = async () => {
+  try {
+    const response = await api.get('friendship/friends');
+    friends.value = (response.friends || []).map((friend) => ({
+      ...friend,
+      isOnline: friend.isOnline === 'True'
+    }));
+  } catch (error) {
+    console.error('Error fetching friends:', error);
+  }
+};
 
 const fetchFriendRequests = async () => {
   try {
@@ -223,13 +235,14 @@ const sendFriendRequest = async () => {
 
 const acceptFriendRequest = async (requestId: number) => {
   try {
-    await api.post('friendship/acceptFriendReq', { request_id: requestId })
-    console.log(`Friend request ${requestId} accepted`)
-    await fetchFriendRequests()
+    await api.post('friendship/acceptFriendReq', { request_id: requestId });
+    console.log(`Friend request ${requestId} accepted`);
+    eventBus.emit('friendAccepted');
+    await fetchFriendRequests();
   } catch (error) {
-    console.error('Error accepting friend request', error)
+    console.error('Error accepting friend request', error);
   }
-}
+};
 
 const declineFriendRequest = async (requestId: number) => {
   try {
