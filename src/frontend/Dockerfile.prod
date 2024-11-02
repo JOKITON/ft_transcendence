@@ -6,8 +6,8 @@ WORKDIR /frontend
 
 COPY frontend .
 
-RUN npm install
+RUN npm i && npm i -g http-server-spa
 
-RUN npm run build
+RUN npm run build-only
 
 CMD http-server-spa ./dist index.html 80
