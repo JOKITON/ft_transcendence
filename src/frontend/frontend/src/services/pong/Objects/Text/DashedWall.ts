@@ -59,9 +59,10 @@ export default class DashedWall implements ITextObject {
     this.mesh.rotation.z = Math.PI / 2 // Rotate 90 degrees around X-axis
   }
 
-  public updateScore(numScore: number) {
-    if (numScore > 99 || numScore < -99) this.updateText('0')
-    else this.updateText(numScore.toString())
+  public updateScore(numScore: string) : void {
+    const num = parseInt(numScore)
+    if (num > 99 || num < -99) this.updateText('0')
+    else this.updateText(numScore)
   }
 
   public get(): Mesh {

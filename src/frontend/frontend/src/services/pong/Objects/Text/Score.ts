@@ -19,7 +19,7 @@ export default class Score implements ITextObject {
 
     // Load font asynchronously
     this.font = font
-    this.updateScore(score) // Update text after font is loaded
+    this.updateScore(score.toString()) // Update text after font is loaded
   }
 
   private updateText(score: string) {
@@ -57,9 +57,10 @@ export default class Score implements ITextObject {
     this.mesh.material = this.material
   }
 
-  public updateScore(numScore: Promise<number> | number) {
-    if (numScore > 99 || numScore < -99) this.updateText('0')
-    else this.updateText(numScore.toString())
+  public updateScore(numScore: string) : void {
+    const num = parseInt(numScore)
+    if (num > 99 || num < -99) this.updateText('0')
+    else this.updateText(numScore)
   }
 
   public get(): Mesh {

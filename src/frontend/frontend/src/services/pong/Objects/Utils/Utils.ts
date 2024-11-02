@@ -1,4 +1,4 @@
-import { Mesh } from 'three'
+import { Mesh, Audio } from 'three'
 import Player from '../Player'
 import Sphere from '../Sphere'
 
@@ -13,7 +13,7 @@ function checkCollisions(ball: Sphere, player: Player, player2: Player): boolean
   return false
 }
 
-export function handleCollisions(ball: Sphere, player: Player, player2: Player): void {
+export function handleCollisions(ball: Sphere, player: Player, player2: Player, audio: HTMLAudioElement): void {
   // Check for collisions every 10ms
   const collisionDetected = checkCollisions(ball, player, player2)
 
@@ -21,7 +21,6 @@ export function handleCollisions(ball: Sphere, player: Player, player2: Player):
     ball.speedUp(0.025)
 
     // Play collision sound
-    const audio = new Audio('/src/assets/songs/ball-hit.mp3')
     audio.play()
   }
 }

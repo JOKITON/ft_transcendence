@@ -1,4 +1,5 @@
 import { Color, Mesh, MeshPhongMaterial, Vector3 } from 'three'
+import { Font } from 'three/examples/jsm/loaders/FontLoader.js'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 import type ITextObject from '../../interfaces/ITextObject'

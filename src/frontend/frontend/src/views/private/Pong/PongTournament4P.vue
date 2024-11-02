@@ -273,7 +273,7 @@ function scoreTracker(score: number) {
   // Player two won the point
   if (score === 1) {
     numScorePlayerTwo += 1
-    scorePlayer2.updateScore(numScorePlayerTwo)
+    scorePlayer2.updateScore(numScorePlayerTwo.toString())
     blinkObject(scorePlayer2.get())
     updatePlayerData(IS_STATE)
     // Player two won the game
@@ -286,7 +286,7 @@ function scoreTracker(score: number) {
   } else if (score === 2) {
     // Player one won the point
     numScorePlayerOne += 1
-    scorePlayer1.updateScore(numScorePlayerOne)
+    scorePlayer1.updateScore(numScorePlayerOne.toString())
     blinkObject(scorePlayer1.get())
     updatePlayerData(IS_STATE)
     // Player one won the game
@@ -305,6 +305,7 @@ function scoreTracker(score: number) {
 }
 
 let timeElapsed = 0
+const audio = new Audio('/songs/ball-hit.mp3')
 
 function update() {
   if (!isAnimating.value) return
@@ -345,7 +346,7 @@ function update() {
 
   playerOne.update()
   playerTwo.update()
-  handleCollisions(ball, playerOne, playerTwo)
+  handleCollisions(ball, playerOne, playerTwo, audio)
 }
 
 function returnObjectsToPlace() {
@@ -378,8 +379,8 @@ function toggleAnimation(event: KeyboardEvent) {
 }
 
 function resetScores(): void {
-  scorePlayer1.updateScore(0)
-  scorePlayer2.updateScore(0)
+  scorePlayer1.updateScore('0')
+  scorePlayer2.updateScore('0')
   numScorePlayerOne = 0
   numScorePlayerTwo = 0
 }

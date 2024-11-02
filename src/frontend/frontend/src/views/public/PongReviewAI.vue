@@ -131,6 +131,7 @@ function setupScene() {
 
   isAnimating.value = true
 }
+const audio = new Audio('/songs/ball-hit.mp3')
 
 function update() {
   setTimeout(() => {
@@ -148,7 +149,7 @@ function update() {
   if (check) {
     if (check === 1) {
       numScorePlayerTwo += 1
-      scorePlayerAI.updateScore(numScorePlayerTwo)
+      scorePlayerAI.updateScore(numScorePlayerTwo.toString())
       blinkObject(playerAITwo.get())
       if (numScorePlayerTwo == 5) {
         console.log(`${playerAIOne.getName()} lost!`)
@@ -157,7 +158,7 @@ function update() {
       ball.invertVelocity()
     } else if (check === 2) {
       numScorePlayerOne += 1
-      scorePlayer1.updateScore(numScorePlayerOne)
+      scorePlayer1.updateScore(numScorePlayerOne.toString())
       blinkObject(scorePlayer1.get())
       if (numScorePlayerOne == 5) {
         console.log(`${playerAITwo.getName()} lost!`)
@@ -178,7 +179,7 @@ function update() {
 
   playerAIOne.updateAI(ball)
   playerAITwo.updateAI(ball)
-  handleCollisions(ball, playerAIOne, playerAITwo)
+  handleCollisions(ball, playerAIOne, playerAITwo, audio)
 }
 
 // Blinking effect for the score when a player loses

@@ -1,6 +1,6 @@
 import { Color, Mesh, MeshPhongMaterial, Vector3 } from 'three'
 import { Font } from 'three/examples/jsm/loaders/FontLoader.js'
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 
 export default interface ITextObject {
   name: string
@@ -19,7 +19,7 @@ export default interface ITextObject {
   ): void
   loadFont(fontType: string): Promise<void>
   updateText(score: string): void
-  updateScore(numScore: number): void
+  updateScore(numScore: string): void
   get(): Mesh
   dispose(): void
 }
