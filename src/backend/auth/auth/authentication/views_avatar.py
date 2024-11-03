@@ -46,7 +46,6 @@ class UpdateAvatar(APIView):
         serializer = UpdateAvatarSerializer(data=request.FILES)
 
         try:
-            print("entraaaaa aca")
             serializer.is_valid(raise_exception=True)
             serializer.save(user=user)
             return Response({"message": "Avatar updated successfully"}, status=status.HTTP_200_OK)

@@ -8,7 +8,9 @@
       <div class="overlay"></div>
       <div class="welcome-content">
         <h1 class="h1-welcome">Welcome to Magic Super Mega Pong, {{ username }}</h1>
-        <h2 class="h2-welcome">Challenge yourself and compete with players from around the world.</h2>
+        <h2 class="h2-welcome">
+          Challenge yourself and compete with players from around the world.
+        </h2>
         <button @click="goToPong" class="btn btn-lg btn-primary">Start Playing</button>
       </div>
     </section>
@@ -20,12 +22,12 @@
         <p class="m-3 pt-4">Jump into a match and test your skills.</p>
         <button @click="goToPong" class="btn txoinas-button mt-3 mx-2">Play Now</button>
       </div>
-      <div class="info-card  d-flex flex-column justify-content-center col-md-4">
+      <div class="info-card d-flex flex-column justify-content-center col-md-4">
         <h2 class="pt-2">Challenge Friends</h2>
         <p class="m-3 pt-4">Invite your friends and see who comes out on top.</p>
         <button @click="goToFriends" class="btn txoinas-button mt-3 mx-2">Challenge Friends</button>
       </div>
-      <div class="info-card  d-flex flex-column justify-content-center col-md-4">
+      <div class="info-card d-flex flex-column justify-content-center col-md-4">
         <h2 class="pt-2">Profile Settings</h2>
         <p class="m-3 pt-4">Customize your avatar and update your profile information.</p>
         <button @click="goToSettings" class="btn txoinas-button mt-3 mx-2">Edit Profile</button>
@@ -38,49 +40,23 @@
 import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import NavHome from './NavHome.vue'
-import auth from '../../services/user/services/auth/auth.ts'
+import auth from '@/services/auth/auth'
 import type Api from '@/utils/Api/Api'
 
 // Variables reactivas
-const isProfileVisible = ref(false)
-const isDropdownVisible = ref(false)
 const username = ref('PongPlayer') // Valor inicial personalizado
 const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 const router = useRouter()
-
-// Función para cerrar sesión
-const logoutUser = async () => {
-  try {
-    const response = await Auth.logout()
-    if (response.status === 200) {
-      console.log('Logout successful:', response.data)
-      Auth.removeAccessToken()
-      router.push('/login')
-    } else {
-      console.error('Logout failed:', response.data)
-      alert('Logout failed. ' + response.data.message)
-      Auth.removeAccessToken()
-    }
-  } catch (error) {
-    console.error('Logout error:', error.response ? error.response.data : error.message)
-    alert('Logout failed. ' + (error.response ? error.response.data.message : error.message))
-  }
-}
 
 // Función para obtener el nombre de usuario
 const fetchUsername = async () => {
   try {
     const response = await Auth.whoami()
     username.value = response.username
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching username:', error.response ? error.response.data : error.message)
   }
-}
-
-// Funciones de navegación
-const goToHome = () => { 
-  router.push('/home')
 }
 
 const goToPong = () => {
@@ -89,10 +65,6 @@ const goToPong = () => {
 
 const goToSettings = () => {
   router.push('/edit-profile')
-}
-
-const goToProfile = () => {
-  router.push('/profile')
 }
 
 const goToFriends = () => {
@@ -106,7 +78,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-
 /* Sección de bienvenida */
 .welcome-section {
   position: relative;
@@ -157,7 +128,7 @@ onMounted(async () => {
   border-top: solid 2px;
   border-color: #ff3974;
   flex-wrap: wrap; /* Permite que las tarjetas se vayan hacia abajo en pantallas más pequeñas */
-  box-shadow: 0px -10px 5px rgba(249,36,100,1);
+  box-shadow: 0px -10px 5px rgba(249, 36, 100, 1);
 }
 
 .info-card {
@@ -168,7 +139,7 @@ onMounted(async () => {
   width: 22%;
   margin: 0.8em;
   font-family: Titulo, sans-serif;
-  box-shadow: -4px 4px 10px rgba(249,36,100,255);
+  box-shadow: -4px 4px 10px rgba(249, 36, 100, 255);
   color: #ebd2ff;
   min-width: 250px; /* Ajusta este valor según el ancho mínimo que quieras para las tarjetas */
 }
@@ -194,7 +165,7 @@ p {
   background-color: rgba(19, 14, 43, 1);
   border-color: #ff6f1f;
   color: #ff6f1f;
-  box-shadow: -1px 2px 4px rgba(249,36,100,255);
+  box-shadow: -1px 2px 4px rgba(249, 36, 100, 255);
 }
 
 .pruebas {

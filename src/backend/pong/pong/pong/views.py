@@ -74,7 +74,6 @@ class PostGameStateView(APIView):
     permission_classes = [IsAuthenticated]  # Ensure user is authenticated
 
     def post(self, request: Request) -> Response:
-        print(request.data)
         serializer = PongGameStateSerializer(data=request.data)
 
         if serializer.is_valid():

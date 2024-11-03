@@ -27,7 +27,6 @@ class FriendshipTestCase(TestCase):
             format="json",
         )
         response = self.view(request)
-        print("response is", response)
         self.assertEqual(Friendship.objects.count(), 1)
         self.assertEqual(Friendship.objects.get().user1, "test1")
         self.assertEqual(response.status_code, 201)

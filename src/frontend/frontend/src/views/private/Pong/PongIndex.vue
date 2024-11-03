@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref, markRaw, inject } from 'vue'
+import { ref, markRaw, inject } from 'vue'
 import NavHome from '../NavHome.vue'
 import PongAI from './PongAI.vue'
 import Pong2P from './Pong2P.vue'
 import PongTournament from './PongTournament4P.vue'
 import NameInputMenu from './NameInputMenu.vue'
-import auth from '../../../services/user/services/auth/auth.ts'
+import auth from '../../../services/auth/auth'
 import type Api from '@/utils/Api/Api'
 
 // Reactive state variables
@@ -76,9 +76,8 @@ const handleStartGame = async (data) => {
     player_hits: [],
     time_played: 0
   }
-  await fetchStateData(gameMode)
-  if (statePongData.value.tournament_type === gameMode)
-    statePongData.value.check = true;
+  await fetchStateData(gameMode, players)
+  if (statePongData.value.tournament_type === gameMode) statePongData.value.check = true
   // gameMode == statePongData?.tournament_type
 
   // Store player names and optionally AI difficulty
@@ -103,33 +102,34 @@ const handleStartGame = async (data) => {
 const IS_STATE = 'P'
 const IS_COMPLETED = 'C'
 
-const fetchStateData = async (gameMode : string) => {
+const fetchStateData = async (gameMode: string, players) => {
   try {
     const responseWhoAmI = await Auth.whoami()
     user.value.id = responseWhoAmI.id
-    const responseState = await api.get<intStatePongData>('/pong/get-state/' + gameMode + '/' + user.value.id + '/')
+    let responseState;
+    if (gameMode == 'AI' || gameMode == '4P') {
+      responseState = await api.get<intStatePongData>(
+        '/pong/get-state/' + gameMode + '/' + user.value.id + '/'
+      )
+    }
+    else if (gameMode == '2P') {
+      responseState = await api.get<intStatePongData>(
+        '/pong/get-state/' + gameMode + '/' + user.value.id + '/' + players[1].id + '/'
+      )
+    }
     if (responseState.data) {
       statePongData.value = responseState.data
     } else if (responseState.data === undefined) {
-      console.log('There is no state data, all good.')
       return
     }
-    console.log('State data : ' + statePongData.value)
     return true
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending data:', error)
 
     if (error.response) {
       const message = error.response.data.message || 'An error occurred.'
-      const errors = error.response.data.errors || {}
 
       let errorMessage = `Request failed. ${message}`
-      if (Object.keys(errors).length > 0) {
-        errorMessage += '\nErrors:\n'
-        for (const [field, msgs] of Object.entries(errors)) {
-          errorMessage += `${field}: ${msgs.join(', ')}\n`
-        }
-      }
       alert(errorMessage)
     } else if (error.message) {
       alert(`Request failed. ${error.message}`)
@@ -155,21 +155,13 @@ const sendPongData = async (tournamentResults) => {
       url = 'pong/post-state'
     }
     const response = await api.post(url, tournamentResults)
-    console.log('Data sent successfully:', response.data)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending data:', error)
 
     if (error.response) {
       const message = error.response.data.message || 'An error occurred.'
-      const errors = error.response.data.errors || {}
 
       let errorMessage = `Request failed. ${message}`
-      if (Object.keys(errors).length > 0) {
-        errorMessage += '\nErrors:\n'
-        for (const [field, msgs] of Object.entries(errors)) {
-          errorMessage += `${field}: ${msgs.join(', ')}\n`
-        }
-      }
       alert(errorMessage)
     } else {
       alert('Request to the backend failed. Please try again later.')
@@ -184,23 +176,14 @@ const sendTournamentData4P = async (tournamentResults) => {
     if (tournamentResults.status === IS_STATE) {
       url = 'pong/4p/post-state'
     }
-    console.log('Data to send:', tournamentResults)
-    const response = await api.post(url, tournamentResults)
-    console.log('Data sent successfully:', response.data)
-  } catch (error) {
+    await api.post(url, tournamentResults)
+  } catch (error: any) {
     console.error('Error sending data:', error)
 
     if (error.response) {
       const message = error.response.data.message || 'An error occurred.'
-      const errors = error.response.data.errors || {}
 
       let errorMessage = `Request failed. ${message}`
-      if (Object.keys(errors).length > 0) {
-        errorMessage += '\nErrors:\n'
-        for (const [field, msgs] of Object.entries(errors)) {
-          errorMessage += `${field}: ${msgs.join(', ')}\n`
-        }
-      }
       alert(errorMessage)
     } else {
       alert('Request to the backend failed. Please try again later.')
@@ -212,21 +195,13 @@ const sendTournamentData4P = async (tournamentResults) => {
 const sendTournamentData8P = async (tournamentResults) => {
   try {
     const response = await api.post('pong/8p', tournamentResults)
-    console.log('Data sent successfully:', response.data)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending data:', error)
 
     if (error.response) {
       const message = error.response.data.message || 'An error occurred.'
-      const errors = error.response.data.errors || {}
 
       let errorMessage = `Request failed. ${message}`
-      if (Object.keys(errors).length > 0) {
-        errorMessage += '\nErrors:\n'
-        for (const [field, msgs] of Object.entries(errors)) {
-          errorMessage += `${field}: ${msgs.join(', ')}\n`
-        }
-      }
       alert(errorMessage)
     } else {
       alert('Request to the backend failed. Please try again later.')
@@ -250,7 +225,6 @@ const handleGameOver = async (tournamentResults) => {
   }
 
   if (tournamentResults.status === IS_COMPLETED) {
-    console.log('Tournament Results:', tournamentResults)
     showMenu.value = true
     selectedGame.value = null
     resumeAudio()

@@ -117,7 +117,6 @@ class FriendRequestSerializer(serializers.ModelSerializer):
 
 class FriendSerializer(serializers.ModelSerializer):
     is_blocked = serializers.SerializerMethodField()
-    print("entraaaa")
 
     class Meta:
         model = User
@@ -130,7 +129,6 @@ class FriendSerializer(serializers.ModelSerializer):
             | models.Q(user=obj, friend=request_user),
             status=Friendship.BLOCKED,
         ).exists()
-        print("friendship:", friendship)
 
         return friendship
 

@@ -5,32 +5,34 @@
       <Slide v-for="item in items" class="shield-shadow">
         <div class="d-flex flex-column stat shield my-3 py-3">
           <h5 class="py-4 stat-data">{{ item.category }}</h5>
-          <img :src="item.image" alt="User Avatar" class="py-2" width="50%">
+          <img :src="item.image" alt="User Avatar" class="py-2" width="50%" />
           <p class="py-4 stat-data">{{ item.value }}</p>
         </div>
       </Slide>
       <template #addons>
-        <Pagination class=""/>
+        <Pagination class="" />
       </template>
     </Carousel>
   </div>
 </template>
 
 <script setup lang="ts">
-
 /* ----- IMPORTS ----- */
 
-import type Api from '@/utils/Api/Api'
-import auth from '../../services/user/services/auth/auth.ts'
-import { useRouter } from 'vue-router'
+import type Api from '@/utils/Api/Api';
+import auth from '@/services/auth/auth'
+import { useRouter } from 'vue-router';
 import { onMounted, ref, inject } from 'vue';
 import { Carousel, Slide, Pagination } from 'vue3-carousel';
 import avatar from '../../assets/avatars/pepe.png';
-import img1 from '../../assets/avatars/trofeo.png';
-import img2 from '../../assets/avatars/perder.png';
-import img3 from '../../assets/avatars/maquina-de-arcade.png';
+import trophy from '../../assets/avatars/trophy.png';
+import loose from '../../assets/avatars/loose.png';
+import arcade from '../../assets/avatars/arcade.png';
+import score from '../../assets/avatars/score.png';
+import time from '../../assets/avatars/time.png';
+import spike from '../../assets/avatars/spike.png';
 
-const api: Api = inject('$api') as Api;
+const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 
 const props = defineProps({
@@ -38,81 +40,86 @@ const props = defineProps({
     type: Number,
     required: true
   }
-});
+})
 
 const userPongData = ref({
-  name: '',
   wins: 0,
   losses: 0,
   total_games: 0,
   avg_score: 0,
+  time_played: 0,
+  hits: 0
 });
 
-const items = ref([]);
+
+interface Item {
+  category: string;
+  value: number;
+  image: string;
+};
+
+const items = ref<Item[]>([]);
 
 onMounted(async () => {
-  await fetchPongData();
-  await updateItems();
-});
+  await fetchPongData()
+  await updateItems()
+})
 
 async function updateItems() {
   items.value = [
-    { category: 'Victorias', value: userPongData.value.wins, image: ref(img1) },
-    { category: 'Derrotas', value: userPongData.value.losses, image: ref(img2) },
-    { category: 'Partidas Jugadas', value: userPongData.value.total_games, image: ref(img3) },
-    { category: 'Media de puntuacion', value: userPongData.value.avg_score, image: ref(avatar) },
-    { category: 'Duracion de Partida', value: userPongData.value.time_played, image: ref(avatar) },
-    { category: 'Remates', value: userPongData.value.hits, image: ref(avatar) },
+    { category: 'Victorias', value: userPongData.value.wins, image: trophy },
+    { category: 'Derrotas', value: userPongData.value.losses, image: loose },
+    { category: 'Partidas Jugadas', value: userPongData.value.total_games, image: arcade },
+    { category: 'Media de puntuacion', value: userPongData.value.avg_score, image: score },
+    { category: 'Duracion de Partida', value: userPongData.value.time_played, image: time },
+    { category: 'Remates', value: userPongData.value.hits, image: spike },
   ];
 }
 
 async function fetchPongData() {
   try {
-    const response = await Auth.pongData(props.userId);
-    // console.log('Data sent successfully:', response.data);
-    userPongData.value = response;
-  } catch (error) {
-    console.error('Error sending data:', error);
+    const response = await Auth.pongData(props.userId)
+    userPongData.value = response
+  } catch (error: any) {
+    console.error('Error sending data:', error)
 
     if (error.response) {
-      const message = error.response.data.message || 'An error occurred.';
-      const errors = error.response.data.errors || {};
+      const message = error.response.data.message || 'An error occurred.'
+      const errors = error.response.data.errors || {}
 
-      let errorMessage = `Request failed. ${message}`;
+      let errorMessage = `Request failed. ${message}`
       if (Object.keys(errors).length > 0) {
-        errorMessage += '\nErrors:\n';
+        errorMessage += '\nErrors:\n'
         for (const [field, msgs] of Object.entries(errors)) {
-          errorMessage += `${field}: ${msgs.join(', ')}\n`;
+          errorMessage += `${field}: ${(msgs as string[]).join(', ')}\n`;
         }
       }
-      alert(errorMessage);
+      alert(errorMessage)
     } else {
-      alert('Request to the backend failed. Please try again later.');
+      alert('Request to the backend failed. Please try again later.')
     }
   }
-};
-
+}
 </script>
 
 <style scoped>
-
 .carousel * {
   box-sizing: border-box;
   position: relative;
   z-index: 1;
 }
 
-.stat-title{
+.stat-title {
   color: #ebd2ff !important; /*  #ae28f8 #ae28f8 */
   font-family: 'Titulo' !important;
   padding: 0.5em;
   background-color: rgba(19, 14, 43, 0.97);
-  box-shadow: -4px 4px 10px rgba(249,36,100,255);
+  box-shadow: -4px 4px 10px rgba(249, 36, 100, 255);
   border-radius: 5px;
 }
 
-.shield-shadow{
-  filter: drop-shadow(-6px 6px 6px  rgb(255, 57, 116, 1));
+.shield-shadow {
+  filter: drop-shadow(-6px 6px 6px rgb(255, 57, 116, 1));
 }
 
 .stat {
@@ -123,12 +130,12 @@ async function fetchPongData() {
   justify-content: center;
   align-items: center;
   position: relative;
-  z-index: 1; 
+  z-index: 1;
 }
 
 .shield {
   color: #fff;
-  background: linear-gradient(45deg,rgba(19, 14, 43), rgb(44, 33, 99), #ff3974);
+  background: linear-gradient(45deg, rgba(19, 14, 43), rgb(44, 33, 99), #ff3974);
   clip-path: polygon(50% 100%, 0 70%, 0 0, 100% 0, 100% 70%);
   z-index: 2;
   border-top-left-radius: 5px;
@@ -136,7 +143,7 @@ async function fetchPongData() {
   border: solid 2px ff3974;
 }
 
-.stat-data{
+.stat-data {
   font-size: 1.3em;
   font-family: 'NunitoBlack' !important;
   color: #ebd2ff;
@@ -162,7 +169,7 @@ async function fetchPongData() {
 .carousel__slide--active {
   opacity: 1;
   transform: scale(1);
-  z-index: 1; 
+  z-index: 1;
 }
 
 .carousel__slide--sliding {
@@ -170,11 +177,10 @@ async function fetchPongData() {
 }
 
 :deep(.carousel__pagination-button::after) {
-  background-color:rgba(19, 14, 43, 0.9);
+  background-color: rgba(19, 14, 43, 0.9);
 }
 
 :deep(.carousel__pagination-button--active::after) {
   background-color: #e74c3c;
 }
-
 </style>

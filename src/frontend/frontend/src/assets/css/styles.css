@@ -1,49 +1,46 @@
-
 /* FUENTES PERSONALIZADAS */
 
 @font-face {
   font-family: 'NunitoBlack';
-  src: url('../../assets/fonts/NunitoBlack.otf');
+  src: url('../fonts/NunitoBlack.otf');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Titulo';
-  src: url('../../assets/fonts/Titulo.ttf');
+  src: url('../fonts/Titulo.ttf');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'NunitoItalic';
-  src: url('../../assets/fonts/NunitoItalic.otf');
+  src: url('../fonts/NunitoItalic.otf');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Nunito';
-  src: url('../../assets/fonts/Nunito.otf');
+  src: url('../fonts/Nunito.otf');
   font-weight: normal;
   font-style: normal;
 }
-
 
 /* ESTILOS PARA LAS CARDS */
 
 .data-card {
   background-color: rgba(19, 14, 43, 0.97);
-  box-shadow: -4px 4px 10px rgba(249,36,100,255);
+  box-shadow: -4px 4px 10px rgba(249, 36, 100, 255);
   border-radius: 10px;
 }
 
 .user-card {
   background-color: rgba(19, 14, 43, 0.97);
-  box-shadow: -4px 4px 10px rgba(249,36,100,255);
+  box-shadow: -4px 4px 10px rgba(249, 36, 100, 255);
   border-radius: 5px;
 }
-
 
 /* ESTILOS PARA LOS FORMULARIOS */
 
@@ -55,16 +52,16 @@
 }
 
 .data-control {
-    display: block;
-    border: none;
-    width: 100%;
-    padding: .375rem .75rem;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #4e2a61;
-    background-color: #f1dfff;
-    border-radius: 5px;
+  display: block;
+  border: none;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #4e2a61;
+  background-color: #f1dfff;
+  border-radius: 5px;
 }
 
 .data-placeholder::placeholder {
@@ -81,15 +78,13 @@
   color: #4e2a61 !important;
 }
 
-
 /* ESTILOS PARA LOS BOTONES */
 
 .data-button {
   border: 2px solid rgb(206, 29, 82) !important;
-  color:#ebd2ff !important;
+  color: #ebd2ff !important;
   font-family: NunitoBlack !important;
   font-size: 1.2em !important;
-
 }
 
 .data-button:hover {
@@ -99,7 +94,7 @@
 
 .background-button {
   background-color: rgb(206, 29, 82) !important;
-  color:#ebd2ff !important;
+  color: #ebd2ff !important;
   font-family: NunitoBlack !important;
   margin: 10px;
   font-size: 1.2em !important;
@@ -110,9 +105,9 @@
   color: rgba(19, 14, 43, 0.9) !important;
 }
 
-.border-button{
+.border-button {
   border: 2px solid rgb(206, 29, 82) !important;
-  color:#ebd2ff !important;
+  color: #ebd2ff !important;
   font-family: NunitoBlack !important;
   margin: 10px !important;
   font-size: 1.2em !important;
@@ -124,9 +119,9 @@
   color: rgba(19, 14, 43, 0.9) !important;
 }
 
-.txoinas-button{
+.txoinas-button {
   border: 2px solid rgb(206, 29, 82) !important;
-  color:#ebd2ff !important;
+  color: #ebd2ff !important;
   font-family: Titulo !important;
   margin: 10px !important;
   font-size: 1.2em !important;
@@ -145,7 +140,6 @@
   font-family: 'Titulo';
 }
 
-
 /* ESTILOS DE LOS NAVEGADORES */
 
 .nav-flex {
@@ -156,11 +150,11 @@
   background-color: rgba(19, 14, 43, 0.9);
   border-bottom: solid 2px;
   border-color: #ff3974;
-  box-shadow: 0px 4px 10px rgba(249,36,100,255);
+  box-shadow: 0px 4px 10px rgba(249, 36, 100, 255);
 }
 
 .nav-item {
-  color: #ebd2ff!important;
+  color: #ebd2ff !important;
   font-family: 'Titulo' !important;
   font-size: 1.2em !important;
 }
@@ -168,7 +162,6 @@
 .nav-item:hover {
   color: #f92464 !important;
 }
-
 
 /* OTROS ESTILOS */
 
@@ -178,7 +171,7 @@
 }
 
 .gutters-sm .col,
-.gutters-sm [class*=col-] {
+.gutters-sm [class*='col-'] {
   padding-right: 8px;
   padding-left: 8px;
 }
@@ -186,7 +179,7 @@
 html,
 body {
   height: 100%;
-  background-image: url('../../assets/images/fondo.png');
+  background-image: url('../images/fondo.png');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;

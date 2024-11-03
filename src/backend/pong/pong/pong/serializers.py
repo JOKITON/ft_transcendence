@@ -68,7 +68,6 @@ class PongGameSerializer(serializers.ModelSerializer):
                 'player_hits': player_hits[i],
                 'winner': winner
             }
-            # print(player_data)  # Example operation
 
             # Create or update player instances
             player = self.create_player(player_data)
@@ -84,7 +83,6 @@ class PongGameSerializer(serializers.ModelSerializer):
         )
         deleted_game_ids = list(to_deleted_games.values_list('id', flat=True))
         to_deleted_games.delete()
-        print(f"Deleted PongGame IDs: {deleted_game_ids}")
 
         # Create the PongGame instance with the Player ForeignKey relations
         tournament = PongGame.objects.create(
@@ -142,7 +140,6 @@ class PongGameStateSerializer(serializers.ModelSerializer):
                 'id': player_ids[i],
                 'name_player': player_names[i],
             }
-            # print(player_data)  # Example operation
 
             # Create or update player instances
             player = self.create_player(player_data)
@@ -213,7 +210,6 @@ class Tournament4PSerializer(serializers.ModelSerializer):
             }
         )
 
-        # print('Inside second function: ' + player_data)
         if not created:
             # Append the new scores to the existing scores array
             player.scores = player.scores + player_data['scores']
@@ -264,7 +260,6 @@ class Tournament4PSerializer(serializers.ModelSerializer):
         # Create Players
         players = []
         for player_data in players_data:
-            # print(player_data)
             player = self.create_player(player_data)
             players.append(player)
 
@@ -284,7 +279,6 @@ class Tournament4PSerializer(serializers.ModelSerializer):
         )
         deleted_game_ids = list(to_deleted_games.values_list('id', flat=True))
         to_deleted_games.delete()
-        print(f"Deleted PongGame IDs: {deleted_game_ids}")
 
         # Create Tournament
         tournament = Tournament4P.objects.create(
@@ -305,8 +299,11 @@ class Tournament4PStateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tournament4P
-        fields = ['status', 'tournament_type', 'game_index', 'time_played', 'player_scores', 'player_ids', 'player_names', 'player_hits']
-        
+        fields = ['status', 'tournament_type', 'game_index', 'final_players', 'time_played', 'player_scores', 'player_ids', 'player_names', 'player_hits']
+        extra_kwargs = {
+            'final_players': {'required': False, 'allow_null': True}
+        }
+ 
     def create_player(self, player_data):
         player, created = Player.objects.get_or_create(
             id=player_data['id'],  # Match by ID
@@ -322,13 +319,13 @@ class Tournament4PStateSerializer(serializers.ModelSerializer):
         return player
 
     def create(self, validated_data):
+        final_players = validated_data['final_players']
         player_ids = validated_data['player_ids']
         status = validated_data['status']
         player_names = validated_data['player_names']
         player_scores = validated_data['player_scores']
-        # print(player_scores)
-        game_index = validated_data['game_index']
         player_hits = validated_data['player_hits']
+        game_index = validated_data['game_index']
         time_played = validated_data['time_played']
         tournament_type = validated_data['tournament_type']
         
@@ -341,7 +338,6 @@ class Tournament4PStateSerializer(serializers.ModelSerializer):
                 'id': player_ids[i],
                 'name': player_names[i],
             }
-            # print(player_data)
             player = self.create_player(player_data)
             players.append(player)
         
@@ -358,6 +354,7 @@ class Tournament4PStateSerializer(serializers.ModelSerializer):
                 'player_hits': player_hits,
                 'time_played': time_played,
                 'tournament_type': tournament_type,
+                'final_players': final_players,
             }
         )
         
@@ -365,6 +362,8 @@ class Tournament4PStateSerializer(serializers.ModelSerializer):
             tournament.player_hits = player_hits
             tournament.player_scores = player_scores
             tournament.time_played = time_played
+            tournament.game_index = game_index
+            tournament.final_players = final_players
         tournament.player_scores = player_scores
         tournament.players.set(players)  # Assign players to the tournament
         tournament.save()

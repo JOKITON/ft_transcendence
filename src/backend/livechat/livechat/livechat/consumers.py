@@ -51,7 +51,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def send_historical_messages(self):
         messages = await get_messages(self.room_name)
         for message in messages:
-            print(message)
             text_data = json.dumps(
                 {
                     "event": "message",
@@ -63,16 +62,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.send(text_data=text_data)
 
     async def chat_message(self, event):
-        print('holaaaaaaaaaaaa seeeelf', event)
-        user = self.scope["user"]
-        print('usuario que crea', user)
-        #f not user.is_authenticated:
-        #    printreturn("El usuario es anónimo, mensaje no creado.")
-        #    
+        user = self.scope["user"]   
         await create_message(
             self.room_name, event["message"], event["username"], event["index"]
         )
-        print('usuariosssssssssss')
         text_data = json.dumps(
             {
                 "event": "message",

@@ -16,17 +16,31 @@
             class="list-group-item d-flex justify-content-between align-items-center"
           >
             <span>
-              <span :class="['status-indicator', friend.isOnline ? 'bg-success' : 'bg-danger']"></span>
+              <span
+                :class="['status-indicator', friend.isOnline ? 'bg-success' : 'bg-danger']"
+              ></span>
               {{ friend.username }}
               <span v-if="friend.is_blocked_by_user" class="text-danger">(Bloqueado)</span>
               <span v-if="friend.is_blocked_by_friend" class="text-warning">(Te ha bloqueado)</span>
             </span>
             <div class="btn-group">
-              <button class="btn btn-outline-primary btn-sm" @click="handleSendMessage(friend)">📩</button>
-              <button v-if="friend.is_blocked_by_user" class="btn btn-outline-warning btn-sm" @click="unblockUser(friend.username)">
+              <button class="btn btn-outline-primary btn-sm" @click="handleSendMessage(friend)">
+                📩
+              </button>
+              <button
+                v-if="friend.is_blocked_by_user"
+                class="btn btn-outline-warning btn-sm"
+                @click="unblockUser(friend.username)"
+              >
                 🔓
               </button>
-              <button v-else class="btn btn-outline-danger btn-sm" @click="blockUser(friend.username)">🔒</button>
+              <button
+                v-else
+                class="btn btn-outline-danger btn-sm"
+                @click="blockUser(friend.username)"
+              >
+                🔒
+              </button>
             </div>
           </li>
         </ul>
@@ -45,51 +59,55 @@
           >
             <span>{{ request.friend.username }}</span>
             <div class="btn-group">
-              <button class="btn btn-outline-success btn-sm" @click="acceptFriendRequest(request.id)">✔️</button>
-              <button class="btn btn-outline-danger btn-sm" @click="declineFriendRequest(request.id)">❌</button>
+              <button
+                class="btn btn-outline-success btn-sm"
+                @click="acceptFriendRequest(request.id)"
+              >
+                ✔️
+              </button>
+              <button
+                class="btn btn-outline-danger btn-sm"
+                @click="declineFriendRequest(request.id)"
+              >
+                ❌
+              </button>
             </div>
           </li>
         </ul>
       </div>
       <!-- Búsqueda de Amigos -->
       <div class="search-friend mt-4">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Find user..."
-          v-model="searchQuery"
-        />
-        <button class="btn btn-primary mt-2 w-100" @click="sendFriendRequest">Enviar Solicitud</button>
+        <input type="text" class="form-control" placeholder="Find user..." v-model="searchQuery" />
+        <button class="btn btn-primary mt-2 w-100" @click="sendFriendRequest">
+          Enviar Solicitud
+        </button>
       </div>
-      <div v-if="feedbackMessage" class="alert mt-2" :class="feedbackClass">{{ feedbackMessage }}</div>
+      <div v-if="feedbackMessage" class="alert mt-2" :class="feedbackClass">
+        {{ feedbackMessage }}
+      </div>
     </div>
   </section>
 </template>
 
-
 <script setup lang="ts">
-
 // Define las referencias para amigos y solicitudes de amistad
 
 
 import { ref,onMounted, inject } from 'vue';
-import { defineEmits } from 'vue';
 import NavHome from './NavHome.vue';
+// @ts-ignore
 import { eventBus } from './eventbus.js';
-import DesplegableChat from './DesplegableChat.vue';
 
-// Inyecta el cliente API
-const api = inject('$api') as any;
+const api = inject('$api') as any
 
 const friends = ref<Friend[]>([])
 const friendRequests = ref<FriendRequest[]>([])
-const searchQuery = ref('');
-const feedbackMessage = ref('');
-const feedbackClass = ref('');
+const searchQuery = ref('')
+const feedbackMessage = ref('')
+const feedbackClass = ref('')
 
-const handleSendMessage = (friend) => {
-  console.log('Sending message to:', friend);
-  eventBus.emit('messageSent', { friend: friend });
+const handleSendMessage = (friend: Friend) => {
+  eventBus.emit('messageSent', { friend: friend })
 }
 interface Friend {
   id: number
@@ -121,29 +139,42 @@ const form = ref({
 
 onMounted(async () => {
   try {
-    // Fetch friends and user data
     const [fetchFriendsResponse, userResponse] = await Promise.all([
-      api.get<Friend[]>('friendship/friends'),
-      api.get<{ username: string; email: string; nickname: string }>('auth/whoami')
-    ])
+      api.get('friendship/friends'),
+      api.get('auth/whoami')
+    ]);
 
-    // Asigna el estado correctamente, incluyendo los nuevos campos de bloqueo
-    friends.value = (fetchFriendsResponse.friends || []).map(friend => ({
+    friends.value = (fetchFriendsResponse.friends || []).map((friend) => ({
       ...friend,
-      isOnline: friend.isOnline === 'True'  // Convertir a booleano
+      isOnline: friend.isOnline === 'True'
     }));
     form.value = { ...userResponse.data };
 
-    // Fetch friend requests as part of onMounted
-    await fetchFriendRequests()
+    await fetchFriendRequests();
+    // Cuando se acepta una solicitud de amistad, se actualiza la lista de amigos
+    eventBus.on('friendAccepted', async () => {
+      await fetchFriends();
+    });
   } catch (error) {
-    console.error('Error fetching data:', error)
+    console.error('Error fetching data:', error);
   }
-})
+});
+
+const fetchFriends = async () => {
+  try {
+    const response = await api.get('friendship/friends');
+    friends.value = (response.friends || []).map((friend) => ({
+      ...friend,
+      isOnline: friend.isOnline === 'True'
+    }));
+  } catch (error) {
+    console.error('Error fetching friends:', error);
+  }
+};
 
 const fetchFriendRequests = async () => {
   try {
-    const response = await api.get<FriendRequestsResponse>('friendship/pendingReq')
+    const response = await api.get('friendship/pendingReq')
     friendRequests.value = response.pending_requests || []
   } catch (error: any) {
     console.error('Error fetching friend requests:', error.message)
@@ -153,7 +184,6 @@ const fetchFriendRequests = async () => {
 const blockUser = async (username: string) => {
   try {
     await api.post('friendship/blockFriend', { friend_username: username })
-    console.log(`User ${username} blocked successfully`)
     friends.value = friends.value.map((friend) =>
       friend.username === username ? { ...friend, is_blocked_by_user: true } : friend
     )
@@ -165,7 +195,6 @@ const blockUser = async (username: string) => {
 const unblockUser = async (username: string) => {
   try {
     await api.post('friendship/unblockFriend', { friend_username: username })
-    console.log(`User ${username} unblocked successfully`)
     friends.value = friends.value.map((friend) =>
       friend.username === username ? { ...friend, is_blocked_by_user: false } : friend
     )
@@ -174,11 +203,9 @@ const unblockUser = async (username: string) => {
   }
 }
 
-
 const inviteUser = async (username: string) => {
   try {
     await api.post('/invite-user/', { friend: username })
-    console.log(`Invitation sent to ${username}`)
   } catch (error) {
     console.error('Error sending invitation', error)
   }
@@ -186,43 +213,39 @@ const inviteUser = async (username: string) => {
 
 const sendFriendRequest = async () => {
   try {
-    const myresponse = await api.post('friendship/add', { friend: searchQuery.value });
-    console.log('response', myresponse);
+    const myresponse = await api.post('friendship/add', { friend: searchQuery.value })
     if (myresponse.status === 201) {
-      feedbackMessage.value = `Solicitud de amistad enviada a ${searchQuery.value}`;
-      feedbackClass.value = 'alert-success';
-      searchQuery.value = '';
+      feedbackMessage.value = `Solicitud de amistad enviada a ${searchQuery.value}`
+      feedbackClass.value = 'alert-success'
+      searchQuery.value = ''
     } else {
-      feedbackMessage.value = `Error al enviar solicitud de amistad`;
-      feedbackClass.value = 'alert-danger';
+      feedbackMessage.value = `Error al enviar solicitud de amistad`
+      feedbackClass.value = 'alert-danger'
     }
-  } catch (error) {
-    feedbackMessage.value = `Error al enviar solicitud de amistad: ${error.message}`;
-    feedbackClass.value = 'alert-danger';
+  } catch (error: any) {
+    feedbackMessage.value = `Error al enviar solicitud de amistad: ${error.message}`
+    feedbackClass.value = 'alert-danger'
   }
 }
 
 const acceptFriendRequest = async (requestId: number) => {
   try {
-    await api.post('friendship/acceptFriendReq', { request_id: requestId })
-    console.log(`Friend request ${requestId} accepted`)
-    await fetchFriendRequests()
+    await api.post('friendship/acceptFriendReq', { request_id: requestId });
+    eventBus.emit('friendAccepted');
+    await fetchFriendRequests();
   } catch (error) {
-    console.error('Error accepting friend request', error)
+    console.error('Error accepting friend request', error);
   }
-}
+};
 
 const declineFriendRequest = async (requestId: number) => {
   try {
     await api.post('friendship/rejectFriendReq', { request_id: requestId })
-    console.log(`Friend request ${requestId} declined`)
-    console.log('nombre de la sala')
     await fetchFriendRequests()
   } catch (error) {
     console.error('Error declining friend request', error)
   }
-};
-
+}
 </script>
 
 <style scoped>
@@ -231,7 +254,7 @@ const declineFriendRequest = async (requestId: number) => {
   justify-content: space-between;
   padding: 40px 20px;
   border-top: solid 2px #ff3974;
-  box-shadow: 0px -10px 5px rgba(249,36,100,1);
+  box-shadow: 0px -10px 5px rgba(249, 36, 100, 1);
   overflow-x: auto;
   white-space: nowrap;
 }
@@ -243,7 +266,7 @@ const declineFriendRequest = async (requestId: number) => {
   padding: 1.3em;
   border-radius: 10px;
   margin: 0.8em;
-font-family: Titulo, sans-serif;
+  font-family: Titulo, sans-serif;
   box-shadow: -4px 4px 10px rgba(249, 36, 100, 0.8);
   min-width: 400px;
   flex: 0 0 45%;

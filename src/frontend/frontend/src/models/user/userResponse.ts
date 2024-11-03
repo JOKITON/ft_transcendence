@@ -4,4 +4,6 @@ export interface userResponse {
   message: string
   status: number
   token?: token
+  id?: number
+  code?: string
 }

@@ -5,7 +5,6 @@
       <div class="data-card py-3 px-4">
         <h2 class="my-3 text-center data-card-title">Log in</h2>
         <form id="loginForm" @submit.prevent="handleSubmit">
-
           <!-- Enter Username -->
           <div class="mb-3">
             <label for="username" class="data-label">Username</label>
@@ -46,20 +45,18 @@
 </template>
 
 <script setup lang="ts">
-
 /* ----- IMPORTS ----- */
 
 import { useRouter } from 'vue-router'
 import { ref, inject } from 'vue'
 
-import auth from '../../services/user/services/auth/auth.ts'
+import auth from '@/services/auth/auth'
 
 import NavIndex from './NavIndex.vue'
 
 import type Api from '@/utils/Api/Api'
-import type userRequest from '@/models/user/userRequest'
-import type userResponse from '@/models/user/userResponse'
-
+import type { userRequest } from '@/models/user/userRequest'
+// import type { userResponse } from '@/models/user/userResponse'
 
 /* ----- VARIABLES ----- */
 
@@ -67,25 +64,26 @@ const api: Api = inject('$api') as Api
 const Auth: auth = new auth(api)
 const router = useRouter()
 
-const form: Ref<userRequest> = ref<userRequest>({
+const form = ref<userRequest>({
   username: '',
-  password: ''
+  password: '',
+  email: '',
+  avatar: '',
+  nickname: '',
+  p_image: '',
 })
-
 
 /* ----- HANDLE LOG IN ----- */
 
 const handleSubmit: () => Promise<void> = async () => {
   try {
-    const response: boolean = await Auth.login<userResponse>(form.value)
+    const response: boolean = await Auth.login(form.value)
     if (response === true) {
       router.push('/home')
     }
-    console.log('Login successful ', response)
   } catch (error: any) {
     window.alert('An error occurred while submitting the form')
     console.error('An error occurred while submitting the form:', error)
   }
 }
-
 </script>

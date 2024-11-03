@@ -9,30 +9,22 @@ else
     DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_MAC)
 endif
 
-VOLUMES = ${USER}/volumes/db ${USER}/volumes/dependencies ${USER}/volumes/redis \
-	${USER}/volumes/proxy ${USER}/volumes/frontend ${USER}/volumes/db  ${USER}/volumes/pong \
-	${USER}/volumes/friendship ${USER}/volumes/auth ${USER}/volumes/livechat
-
+VOLUMES = ${USER}/volumes/db ${USER}/volumes/dependencies ${USER}/volumes/redis
 
 all:
-	@mkdir -p $(VOLUMES)
-	$(DOCKER_COMPOSE_CMD) up --build -d --remove-orphans
-
-logs:
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE) logs
-
-logs-backend:
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_BACKEND) logs
-
-logs-metrics:
-	$(DOCKER_COMPOSE_CMD) -f $(COMPOSE_METRICS) logs
-
+	bash ./scripts/init.sh
+	$(DOCKER_COMPOSE_CMD) -f docker-compose.yml up --build -d --remove-orphans
 clean:
-	sudo rm -rf $(USER)
 	@$(DOCKER_COMPOSE_CMD)  down --remove-orphans --volumes
 	#docker volume rm $(docker volume ls -qf dangling=true)
 	
 fclean: clean
+	bash ./scripts/clean.sh
+	docker system prune --all --volumes --force
+
+fclean-sudo: clean
+	sudo rm -rf ${USER}
+	sudo bash ./scripts/clean.sh
 	docker system prune --all --volumes --force
 
 re: fclean all

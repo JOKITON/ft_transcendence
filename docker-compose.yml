@@ -1,9 +1,7 @@
 services:
   frontend:
     container_name: frontend
-    build:
-      context: src/frontend/
-      dockerfile: Dockerfile #.prod
+    build: src/frontend/
     networks:
       - proxy
     volumes:
@@ -41,8 +39,6 @@ services:
       - 7104:7104
       - 7102:7102
     restart: always
-    volumes:
-      - proxy:/proxy
     networks:
       - proxy
   # backend
@@ -123,30 +119,24 @@ networks:
     driver: bridge
 
 volumes:
-  proxy:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: src/proxy/
   frontend:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/frontend/frontend
+      device: ${USER}/volumes/frontend/
   redis:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/backend/redis/
+      device: ${USER}/volumes/redis/
   db:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/database/db
+      device: ${USER}/volumes/db
   node_modules:
   # backend
   dependencies:
@@ -154,28 +144,28 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: src/backend/dependencies/
+      device: ${USER}/volumes/dependencies
   pong:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/backend/pong/pong
+      device: ${USER}/volumes/pong/
   auth:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/backend/auth/auth
+      device: ${USER}/volumes/auth/
   friendship:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/backend/friendship/friendship
+      device: ${USER}/volumes/friendship/
   livechat:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: src/backend/livechat/livechat
+      device: ${USER}/volumes/livechat

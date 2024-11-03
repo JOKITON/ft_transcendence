@@ -23,7 +23,6 @@ class UserCreateViewTests(TestCase):
         )
 
         response = self.view(request)
-        print("response is", response)
         self.assertEqual(User.objects.count(), 1)
         self.assertEqual(User.objects.get().username, "testuser")
         self.assertEqual(response.status_code, 201)

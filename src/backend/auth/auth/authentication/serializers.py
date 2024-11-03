@@ -235,7 +235,6 @@ class UpdateAvatarSerializer(serializers.Serializer):
     image: serializers.ImageField = serializers.ImageField(required=True)
 
     def validate_image(self, image):
-        print("entraaaaa aca")
         valid_mime_types = ["image/jpeg", "image/png", "image/jpg"]
         if image.content_type not in valid_mime_types:
             raise serializers.ValidationError("Unsupported file type.")

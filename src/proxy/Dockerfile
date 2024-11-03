@@ -1,6 +1,6 @@
-FROM alpine:3.20
+FROM nginx:alpine
 
-RUN apk add openssl nginx --no-cache
+RUN apk add openssl --no-cache
 
 COPY nginx.conf /etc/nginx/nginx.conf
 

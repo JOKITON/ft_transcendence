@@ -1,41 +1,41 @@
 <script setup lang="ts">
-import { Vector3, Color, Mesh } from 'three'
-import { onMounted, onBeforeUnmount, ref } from 'vue'
-import ThreeService from '../../../services/pong/ThreeService'
-import Player from '../../../services/pong/Objects/Player'
-import Sphere from '../../../services/pong/Objects/Sphere'
-import DashedWall from '../../../services/pong/Objects/Text/DashedWall'
-import Score from '../../../services/pong/Objects/Text/Score'
-import HelpText from '../../../services/pong/Objects/Text/HelpText'
-import GameOver from '../../../services/pong/Objects/Text/GameOver'
-import Wall from '../../../services/pong/Objects/Wall'
-import { blinkObject, handleCollisions } from '../../../services/pong/Objects/Utils/Utils'
-import FontService from '../../../services/pong/Objects/Text/FontService'
-import LuckySphere from '../../../services/pong/Objects/LuckySphere'
+import { Vector3, Color, Mesh } from 'three';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+import ThreeService from 'pong/ThreeService';
+import Player from 'pong-objects/Player';
+import Sphere from 'pong-objects/Sphere';
+import DashedWall from 'pong-objects/Text/DashedWall';
+import Score from 'pong-objects/Text/Score';
+import HelpText from 'pong-objects/Text/HelpText';
+import GameOver from 'pong-objects/Text/GameOver';
+import Wall from 'pong-objects/Wall';
+import { handleCollisions, blinkObject } from 'pong-utils/Utils';
+import LuckySphere from 'pong-objects/LuckySphere';
 
 import {
-  type intStatePongData,
+  type intStateTournamentPongData,
   ballGeometry,
   ballGeometry2,
   ballVelocity,
   vecHorizWall,
   bounds,
-  ballVectorY
-} from '../../../services/pong/Objects/Utils/pongVariables'
+  ballVectorY,
+  font
+} from 'pong-utils/pongVariables'
 import {
   IS_STATE,
   IS_COMPLETED,
   SCORE_TO_WIN,
   BIT_FONT,
   MONTSERRAT_FONT
-} from '../../../services/pong/Objects/Utils/pongVariables'
+} from 'pong-utils/pongVariables'
 
 const emit = defineEmits(['gameOver'])
 
 const props = defineProps<{
-  hasStateData: intStatePongData,
-  isAudioEnabled: boolean,
-  players: Array<{ player: string, id: number }>,
+  hasStateData: intStateTournamentPongData
+  isAudioEnabled: boolean
+  players: Array<{ player: string; id: number }>
 }>()
 const players = props.players
 const playerCount: number = players.length
@@ -47,12 +47,6 @@ let player_scores: Array<Array<number>> = [[]]
 let startTime: number
 let stateTime: number = 0
 
-/* 
-console.log('Ids: ', ids);
-console.log('Player names: ', player_names);
- */
-
-/* console.log('Player count:', playerCount) */
 
 // To store scores of each player
 let numScorePlayerOne = 0
@@ -78,29 +72,52 @@ let indexGame = 0
 const stateData = props.hasStateData
 startTime = Date.now() / 1000
 
+let player_hits: Array<number> = new Array(playerCount).fill(0)
+
+let posPlayers: Array<number> = new Array(8).fill(0) // Assuming an array of size 8
+
 if (stateData.check == true) {
-  console.log('State data:', stateData)
   setStatePongDate(stateData)
 } else setInitialValues()
 
-
-function setStatePongDate(data: intStatePongData) {
-  // player1Name.value = data.player_names[0]
-  // numScorePlayerOne = data.player_scores[0][0]
-  // numScorePlayerTwo = data.player_scores[1][0]
+function setStatePongDate(data: intStateTournamentPongData) {
+  player_names = data.player_names
+  ids = data.player_ids
+  indexGame = data.game_index
   stateTime = data.time_played
   indexGame = data.game_index
   player_scores = data.player_scores
-  player_names = data.player_names
-  ids = data.player_ids
+
+  switch (indexGame) {
+    case 0:
+      numScorePlayerOne = data.player_scores[0][0]
+      numScorePlayerTwo = data.player_scores[1][0]
+      player1Name.value = data.player_names[0]
+      player2Name.value = data.player_names[1]
+      break;
+    case 1:
+      finalOne = data.final_players[0]
+      numScorePlayerOne = data.player_scores[2][0]
+      numScorePlayerTwo = data.player_scores[3][0]
+      player1Name.value = data.player_names[2]
+      player2Name.value = data.player_names[3]
+      break;
+    case 2:
+      finalOne = data.final_players[0]
+      finalTwo = data.final_players[1]
+      player1Name.value = finalOne
+      player2Name.value = finalTwo
+      break;
+  }
+
+  player_hits = data.player_hits
 }
 
 function setInitialValues() {
   player1Name.value = props.players[0].player
   player2Name.value = props.players[1].player
-  console.log('Player:', player1Name.value)
-  player_names = players.map((player) => player.player)
   ids = players.map((player) => player.id)
+  player_names = players.map((player) => player.player)
   player_scores = Array.from({ length: playerCount }, () => Array(2).fill(0))
 }
 
@@ -110,7 +127,6 @@ players.forEach((player, index) => {
   if (index % 2 === 0 && index + 1 < playerCount) {
     const player1 = player
     const player2 = players[index + 1]
-    console.log('{', player1.player, '} vs {', player2.player, '}')
   }
 })
 */
@@ -144,83 +160,71 @@ let helpTextControlsTwo: HelpText
 let finalScore: GameOver
 
 async function loadFont() {
-  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((loadedFont) => {
-    const font = loadedFont
+  // Vertical dashed wall
+  wallMid = new DashedWall('- - - - - - - -', new Color('green'), new Vector3(0, 0, -1), font)
+  scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font)
+  scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font)
 
-    // Vertical dashed wall
-    wallMid = new DashedWall('- - - - - - - -', new Color('green'), new Vector3(0, 0, -1), font)
-    scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font)
-    scorePlayer2 = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font)
+  helpTextSpace = new HelpText(
+    'Press space to start',
+    new Color('white'),
+    new Vector3(0, 3.5, 0),
+    BIT_FONT,
+    1
+  )
 
-    helpTextSpace = new HelpText(
-      'Press space to start',
-      new Color('white'),
-      new Vector3(0, 3.5, 0),
-      BIT_FONT,
-      1
-    )
+  // Set text for the player names
+  helpTextPlayerOne = new HelpText(
+    player1Name.value,
+    new Color('blue'),
+    new Vector3(-16, 5.5, 0),
+    BIT_FONT,
+    1
+  )
+  helpTextPlayerTwo = new HelpText(
+    player2Name.value,
+    new Color('red'),
+    new Vector3(16, 5.5, 0),
+    BIT_FONT,
+    1
+  )
 
-    // Set text for the player names
-    helpTextPlayerOne = new HelpText(
-      player1Name.value,
-      new Color('blue'),
-      new Vector3(-16, 5.5, 0),
-      BIT_FONT,
-      1
-    )
-    helpTextPlayerTwo = new HelpText(
-      player2Name.value,
-      new Color('red'),
-      new Vector3(16, 5.5, 0),
-      BIT_FONT,
-      1
-    )
+  // Set the text for the controls
+  helpTextControlsOne = new HelpText(
+    'W\n\n\n\n\nS',
+    new Color('white'),
+    new Vector3(-16, 0, 0),
+    BIT_FONT,
+    1
+  )
+  helpTextControlsTwo = new HelpText(
+    '↑\n\n\n↓',
+    new Color('white'),
+    new Vector3(16, 0, 0),
+    MONTSERRAT_FONT,
+    1
+  )
 
-    // Set the text for the controls
-    helpTextControlsOne = new HelpText(
-      'W\n\n\n\n\nS',
-      new Color('white'),
-      new Vector3(-16, 0, 0),
-      BIT_FONT,
-      1
-    )
-    helpTextControlsTwo = new HelpText(
-      '↑\n\n\n↓',
-      new Color('white'),
-      new Vector3(16, 0, 0),
-      MONTSERRAT_FONT,
-      1
-    )
-
-    finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font)
-  })
+  finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font)
 }
-
-let player_hits: Array<number> = new Array(playerCount).fill(0)
-
-let posPlayers: Array<number> = new Array(8).fill(0) // Assuming an array of size 8
 
 // Initialize players with the provided names
 const playerOne = new Player(
-  new Vector3(0.4, 3, 0.5),
-  new Color('red'),
-  new Vector3(16, 0, 0),
-  'ArrowUp',
-  'ArrowDown',
-  player1Name.value
-)
-const playerTwo = new Player(
   new Vector3(0.4, 3, 0.5),
   new Color('blue'),
   new Vector3(-16, 0, 0),
   'KeyW',
   'KeyS',
+  player1Name.value
+)
+const playerTwo = new Player(
+  new Vector3(0.4, 3, 0.5),
+  new Color('red'),
+  new Vector3(16, 0, 0),
+  'ArrowUp',
+  'ArrowDown',
   player2Name.value
 )
-if (stateData.check == true && stateData.player_hits.length > 0) {
-  playerOne.setHits(stateData.player_hits[0])
-  playerTwo.setHits(stateData.player_hits[1])
-}
 
 function setHelpText() {
   helpTextPlayerOne.updateScore(player1Name.value)
@@ -260,28 +264,24 @@ function scoreTracker(score: number) {
   // Player two won the point
   if (score === 1) {
     numScorePlayerTwo += 1
-    scorePlayer2.updateScore(numScorePlayerTwo)
+    scorePlayer2.updateScore(numScorePlayerTwo.toString())
     blinkObject(scorePlayer2.get())
     updatePlayerData(IS_STATE)
     // Player two won the game
     if (numScorePlayerTwo === SCORE_TO_WIN) {
-      console.log(`${playerOne.getName()} lost!`)
       endGame(playerTwo.getName(), playerOne.getName())
     }
-    console.log(`Results: {${numScorePlayerOne}} {${numScorePlayerTwo}}`)
     emitData(IS_STATE)
   } else if (score === 2) {
     // Player one won the point
     numScorePlayerOne += 1
-    scorePlayer1.updateScore(numScorePlayerOne)
+    scorePlayer1.updateScore(numScorePlayerOne.toString())
     blinkObject(scorePlayer1.get())
     updatePlayerData(IS_STATE)
     // Player one won the game
     if (numScorePlayerOne === SCORE_TO_WIN) {
-      console.log(`${playerTwo.getName()} lost!`)
       endGame(playerOne.getName(), playerTwo.getName())
     }
-    console.log(`Results: {${numScorePlayerOne}} {${numScorePlayerTwo}}`)
     emitData(IS_STATE)
   } else {
     console.error('Unexpected check value')
@@ -292,10 +292,11 @@ function scoreTracker(score: number) {
 }
 
 let timeElapsed = 0
+const audio = new Audio('/songs/ball-hit.mp3')
 
 function update() {
   if (!isAnimating.value) return
-  let isTaken: boolean = true // Variable that works as semaphore for luckySphere
+  let isTaken: number = 1 // Variable that works as semaphore for luckySphere
   let now = Date.now()
 
   if (now - timeElapsed > 5000) {
@@ -303,11 +304,11 @@ function update() {
     timeElapsed = now
     luckySphere.randomizePosition()
     three.addScene(luckySphere.get())
-    isTaken = true
+    isTaken = 1
   }
 
   if (isTaken) {
-    if (ball.getVelocity().x < 0) {
+    if (ball.getVelocity()) {
       isTaken = luckySphere.update(ball, playerTwo)
     } else {
       isTaken = luckySphere.update(ball, playerOne)
@@ -317,7 +318,7 @@ function update() {
       three.removeScene(luckySphere.get())
       timeElapsed = now
     }
-    isTaken = false
+    isTaken = 0
   }
 
   let score = ball.update()
@@ -332,7 +333,7 @@ function update() {
 
   playerOne.update()
   playerTwo.update()
-  handleCollisions(ball, playerOne, playerTwo)
+  handleCollisions(ball, playerOne, playerTwo, audio)
 }
 
 function returnObjectsToPlace() {
@@ -343,7 +344,7 @@ function returnObjectsToPlace() {
   playerTwo.returnToPlace()
 }
 
-let debounceTimeout: number | undefined
+let debounceTimeout: ReturnType<typeof setTimeout> | undefined
 
 function toggleAnimation(event: KeyboardEvent) {
   if (isGameOver.value) {
@@ -359,14 +360,13 @@ function toggleAnimation(event: KeyboardEvent) {
     // Set a delay before executing the function to avoid multiple triggers
     debounceTimeout = setTimeout(() => {
       isAnimating.value = !isAnimating.value
-      console.log(`Animation ${isAnimating.value ? 'resumed' : 'paused'}`)
     }, 100)
   }
 }
 
 function resetScores(): void {
-  scorePlayer1.updateScore(0)
-  scorePlayer2.updateScore(0)
+  scorePlayer1.updateScore('0')
+  scorePlayer2.updateScore('0')
   numScorePlayerOne = 0
   numScorePlayerTwo = 0
 }
@@ -380,18 +380,14 @@ function setSemiPositions(losingPlayer: string): void {
 
   if (losingPlayer === player1) {
     posPlayers[userIndex] = posPlayer
-    console.log(`Player: ${player1}, IndexPos: ${userIndex}, Position: ${posPlayer}`)
   } else if (losingPlayer === player2) {
     posPlayers[userIndex + 1] = posPlayer
-    console.log(`Player: ${player2}, IndexPos: ${userIndex + 1}, Position: ${posPlayer}`)
   }
   userIndex += 2
 }
 
 // Function to handle final match position updates
 function setFinalPositions(losingPlayer: string): void {
-  console.log(`Setting final position for: ${player1Name.value}, Match Index: ${indexGame}`)
-  console.log(`Setting final position for: ${player2Name.value}, Match Index: ${indexGame}`)
   const playerOneIndex = props.players.findIndex(
     (
       data // Find the player index
@@ -405,7 +401,6 @@ function setFinalPositions(losingPlayer: string): void {
 
   let pos = 5 - indexGame
 
-  console.log(`Player Indexes Found: ${playerOneIndex} ${playerTwoIndex}`)
   if (playerOneIndex !== -1 && playerTwoIndex !== -1) {
     if (player1Name.value === losingPlayer) {
       // Player two won
@@ -416,12 +411,6 @@ function setFinalPositions(losingPlayer: string): void {
       posPlayers[playerOneIndex] = pos - 1
       posPlayers[playerTwoIndex] = pos
     }
-    console.log(
-      `Player: ${player1Name.value}, IndexPos: ${playerOneIndex}, Position: ${posPlayers[playerOneIndex]}`
-    )
-    console.log(
-      `Player: ${player2Name.value}, IndexPos: ${playerTwoIndex}, Position: ${posPlayers[playerTwoIndex]}`
-    )
   } else {
     console.error(`Player ${player1Name.value} not found in the tournament`)
     console.error(`Player ${player2Name.value} not found in the tournament`)
@@ -466,7 +455,6 @@ const updatePlayerData = (storeType: string) => {
 
 // Main function to manage the tournament flow
 function manageTournament(winPlayer: string, losingPlayer: string, matchIndex: number): void {
-  console.log(`Results: {${numScorePlayerOne}} {${numScorePlayerTwo}}`)
 
   switch (matchIndex) {
     case 1:
@@ -515,22 +503,29 @@ function emitData(status: string) {
         status === IS_STATE
           ? []
           : players.map((player, index) => ({
-              id: player.id,
-              name: player.player,
-              scores: player_scores[index],
-              time_played: time_played,
-              hits: player_hits[index],
-              position: posPlayers[index]
-            })),
+            id: player.id,
+            name: player.player,
+            scores: player_scores[index],
+            time_played: time_played,
+            hits: player_hits[index],
+            position: posPlayers[index]
+          })),
       final_round:
         status === IS_STATE
           ? []
           : {
-              player_one: finalOne,
-              player_two: finalTwo,
-              winner: winner,
-              loser: loser
-            }
+            player_one: finalOne,
+            player_two: finalTwo,
+            winner: winner,
+            loser: loser
+          },
+      final_players:
+        status !== IS_STATE
+          ? []
+          : [
+            finalOne,
+            finalTwo
+          ]
     })
   }, 1000)
 }

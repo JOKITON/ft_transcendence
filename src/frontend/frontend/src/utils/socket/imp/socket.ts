@@ -40,11 +40,9 @@ export default class Socket implements ISocket {
     }
   }
 
-  public send(username: string, message: string, index: number): void {
+  public send(username: string, message: string, index: string): void {
     if (this.ws) {
-      console.log('index en metodo de enviar:', index)
       const response = JSON.stringify({ username: username, message: message, index: index })
-      console.log('Sending message:', response)
       this.ws.send(response)
     } else {
       console.error('WebSocket is not open. Cannot send message.')
