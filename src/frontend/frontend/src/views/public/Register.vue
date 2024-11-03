@@ -5,7 +5,6 @@
       <div class="data-card py-3 px-4">
         <h2 class="my-3 text-center data-card-title">Register</h2>
         <form id="registerForm" @submit.prevent="handleSubmit">
-
           <!-- Enter Username -->
           <div class="mb-3">
             <label for="username" class="data-label">Username</label>
@@ -19,7 +18,7 @@
               required
             />
           </div>
-          
+
           <!-- Enter Nickname -->
           <div class="mb-3">
             <label for="nickname" class="data-label">Nickname</label>
@@ -73,7 +72,6 @@
 </template>
 
 <script setup lang="ts">
-
 /* ----- IMPORTS ----- */
 
 import { ref, inject } from 'vue'
@@ -81,21 +79,20 @@ import { useRouter } from 'vue-router'
 
 import type Api from '@/utils/Api/Api'
 
-import auth from '../../services/user/services/auth/auth.ts'
+import auth from '@/services/auth/auth'
 
 import NavIndex from './NavIndex.vue'
 
-import type UserRequest from '@/Models/User/UserRequst'
-import type UserResponse from '@/Models/User/UserResponse'
-
+import type { userRequest } from '../../models/user/userRequest'
+// import type { userResponse } from '../../models/user/userResponse'
 
 /* ----- VARIABLES ----- */
 
 const api: Api = inject('$api') as Api
-const Auth: auth = new auth(api)
+const Auth = new auth(api)
 const router = useRouter()
 
-const form = ref<UserRequest>({
+const form = ref<userRequest>({
   username: '',
   password: '',
   email: '',
@@ -103,14 +100,12 @@ const form = ref<UserRequest>({
   p_image: ''
 })
 
-
 /* ----- HANDLE REGISTER ----- */
 
 const handleSubmit = async (): Promise<void> => {
   try {
-    const response: boolean = await Auth.register<UserResponse>(form.value)
+    const response: boolean = await Auth.register(form.value)
     if (response === true) {
-      console.log('Form submitted successfully:', response)
       router.push('/login')
     }
   } catch (error: any) {
@@ -118,5 +113,4 @@ const handleSubmit = async (): Promise<void> => {
     error.value = 'An error occurred while submitting the form'
   }
 }
-
 </script>

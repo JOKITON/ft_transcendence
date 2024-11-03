@@ -2,13 +2,16 @@
 .vscode/
 volumes/
 networks/
-
+secrets/
+.env.dev
 # BackEnd
 venv/
+migrations/
 __pycache__/
 *.pem
 dist/
 src/backend/auth/auth/media/avatars/*
+*.rdb
 
 # FrontEnd
 staticfiles/

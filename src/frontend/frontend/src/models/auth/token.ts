@@ -2,6 +2,7 @@ export interface token {
   access: string
   refresh: string
   status?: number
+  code?: string
 }
 
 export interface tokenRequest {

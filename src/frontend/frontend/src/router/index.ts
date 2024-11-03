@@ -3,7 +3,7 @@ import Index from '../views/public/Index.vue'
 import Register from '../views/public/Register.vue'
 import Login from '../views/public/Login.vue'
 import PongIndex from '../views/private/Pong/PongIndex.vue'
-import auth from '../services/user/services/auth/auth'
+import auth from '@/services/auth/auth'
 import UserList from '../views/private/UserList.vue'
 import Home from '../views/private/Home.vue'
 import Profile from '../views/private/Profile.vue'
@@ -11,7 +11,6 @@ import Friends from '../views/private/Friends.vue'
 import EditProfile from '../views/private/EditProfile.vue'
 import EditAvatar from '../views/private/EditAvatar.vue'
 import UserProfile from '../views/private/UserProfile.vue'
-
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,13 +21,27 @@ const router = createRouter({
     { path: '/login', name: 'login', component: Login },
     { path: '/home', name: 'home', component: Home, meta: { requiresAuth: true } },
     { path: '/pong', name: 'pong', component: PongIndex, meta: { requiresAuth: true } },
-    { path: '/user-list', name: 'UserList', component: UserList, meta: { requiresAuth: true } },
-    // { path: '/friend-list', name: 'FriendList', component: FriendList, meta: { requiresAuth: true } },
     { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
     { path: '/friends', name: 'Friends', component: Friends, meta: { requiresAuth: true } },
-    { path: '/edit-profile', name: 'EditProfile', component: EditProfile, meta: { requiresAuth: true } },
-    { path: '/edit-avatar', name: 'EditAvatar', component: EditAvatar, meta: { requiresAuth: true } },
-    { path: '/user-profile/:id', name: 'UserProfile', component: UserProfile, props: true, meta: { requiresAuth: true } },
+    {
+      path: '/edit-profile',
+      name: 'EditProfile',
+      component: EditProfile,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/edit-avatar',
+      name: 'EditAvatar',
+      component: EditAvatar,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/user-profile/:id',
+      name: 'UserProfile',
+      component: UserProfile,
+      props: true,
+      meta: { requiresAuth: true }
+    }
   ]
 })
 

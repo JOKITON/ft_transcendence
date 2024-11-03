@@ -1,36 +1,56 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.fields import ArrayField
 
 User = get_user_model()
 
 class Player(models.Model):
-    name = models.CharField(max_length=255)
-    score = models.JSONField()
-    position = models.IntegerField()
-
-    def __str__(self):
-        return f"{self.name} (Position: {self.position}, Score: {self.score})"
-
-class PlayerStats(models.Model):
-    player = models.OneToOneField(Player, on_delete=models.CASCADE, related_name='stats')
+    id = models.AutoField(primary_key=True, editable=False)
+    name = models.CharField(max_length=100)
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)
     total_games = models.IntegerField(default=0)
+    total_score = models.FloatField(default=0)
+    time_played = models.IntegerField(default=0)
+    hits = models.IntegerField(default=0)
+    # Tournament related fields
+    scores = models.JSONField(default=list)  # Assuming scores are stored as a list of integers
+    last_position = models.IntegerField(default=0)
+    avg_position = models.IntegerField(default=0)
 
+    class Meta:
+        db_table = 'pong_player'
+    
     def __str__(self):
-        return f"{self.player.name} Stats"
+        return f"{self.name} (Position: {self.avg_position}, Avg Score: {self.avg_score})"
+    
+    @property
+    def avg_score(self):
+        if self.total_games > 0:
+            return round(float(self.total_score) / self.total_games, 2)
+        return 0
 
-class Tournament(models.Model):
+class PongGame(models.Model):
     tournament_type_choices = [
-        ('AI', 'AI Tournament'), ('2P', '2P Tournament')
+        ('AI', 'AI Game'),
+        ('2P', '2 Player'),
+    ]
+    
+    status_choices = [
+        ('P', 'Pending'),
+        ('C', 'Completed'),
     ]
 
-    winner = models.CharField(Player, on_delete=models.CASCADE, related_name='won_tournaments')
-    player1 = models.CharField(Player, on_delete=models.CASCADE, related_name='player1_tournaments')
-    player2 = models.CharField(Player, on_delete=models.CASCADE, related_name='player2_tournaments')
-    score_player1 = models.IntegerField()
-    score_player2 = models.IntegerField()
+    status = models.CharField(max_length=1, choices=status_choices, default='P')
     tournament_type = models.CharField(max_length=2, choices=tournament_type_choices, default='2P')
+    winner = models.CharField(max_length=255)
+    player1 = models.ForeignKey(Player, on_delete=models.DO_NOTHING, related_name='player1_data', null=True, blank=True)
+    player2 = models.ForeignKey(Player, on_delete=models.DO_NOTHING,  related_name='player2_data', null=True, blank=True)
+    player_ids = models.JSONField(null=True, blank=True)
+    player_names = models.JSONField(null=True, blank=True)
+    player_scores = models.JSONField(null=True, blank=True)
+    time_played = models.IntegerField(default=0)
+    player_hits = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.tournament_type} - {self.winner}"
@@ -54,7 +74,41 @@ class SemiFinal(models.Model):
     def __str__(self):
         return "Semi Final Round"
 
+class Tournament4P(models.Model):
+    status_choices = [
+        ('P', 'Pending'),
+        ('C', 'Completed'),
+    ]
+    
+    tournament_type_choices = [
+        ('4P', '4 Player'),
+        ('8P', '8 Player'),
+    ]
+
+    status = models.CharField(max_length=1, choices=status_choices, default='P')
+    tournament_type = models.CharField(max_length=3, choices=tournament_type_choices, default='4P')
+    final_players = ArrayField(models.CharField(blank=True), default=list, blank=True, null=True)
+    player_ids = ArrayField(models.IntegerField(), default=list)
+    player_names = ArrayField(models.CharField(), default=list)
+    player_scores = ArrayField(ArrayField(models.IntegerField(), null=True, blank=True), default=list, null=True, blank=True, size=4)
+    player_hits = ArrayField(models.IntegerField(), default=list)
+    game_index = models.IntegerField(default=0)
+    time_played = models.IntegerField(default=0)
+
+    players = models.ManyToManyField(Player)
+    final_round = models.OneToOneField(FinalRound, null=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Tournament {self.tournament_type} with {self.players.count()} players"
+
+
 class Tournament8P(models.Model):
+    status_choices = [
+        ('P', 'Pending'),
+        ('C', 'Completed'),
+    ]
+
+    status = models.CharField(max_length=1, choices=status_choices, default='P')
     players = models.ManyToManyField(Player)
     final_round = models.OneToOneField(FinalRound, on_delete=models.CASCADE)
     semi_finals = models.OneToOneField(SemiFinal, on_delete=models.CASCADE)

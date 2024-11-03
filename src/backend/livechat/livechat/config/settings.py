@@ -1,5 +1,3 @@
-from .consumers import ChatConsumer
-from django.urls import re_path
 from datetime import timedelta
 from pathlib import Path
 import dj_database_url
@@ -27,6 +25,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "UserModel",
+    "channels",
     "livechat",
 ]
 
@@ -39,10 +38,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:80",
-    "https://localhost:443",
+    "http://localhost:3000",
+    "https://localhost:3443",
     "http://localhost",
     "https://localhost",
 ]
@@ -63,6 +61,7 @@ SIMPLE_JWT = {
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
 
+ASGI_APPLICATION = "livechat.asgi.application"
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_HTTPONLY = True
@@ -76,12 +75,11 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [
-                ("127.0.0.1", 6379)
-            ],  # Asegúrate de que Redis esté ejecutándose en esta dirección
+            "hosts": [("redis", 6379)],
         },
     },
 }
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -100,9 +98,17 @@ TEMPLATES = [
 
 ASGI_APPLICATION = "config.asgi.application"
 
-
-DATABASES = {"default": dj_database_url.config(
-    default=os.environ.get("DATABASE_URL"))}
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("POSTGRES_DB"),
+        "USER": os.environ.get("POSTGRES_USER"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+        "HOST": os.environ.get("POSTGRES_HOST"),
+        "PORT": os.environ.get("POSTGRES_PORT"),
+    }
+}
+# DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
@@ -113,11 +119,6 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
     ],
 }
-
-
-websocket_urlpatterns = [
-    re_path(r"ws/chat/(?P<room_name>\w+)/$", ChatConsumer.as_asgi()),
-]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -134,7 +135,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
@@ -142,7 +142,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
 
 STATIC_URL = "static/"
 

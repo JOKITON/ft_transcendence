@@ -6,16 +6,11 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/08 13:24:14 by Dugonzal          #+#    #+#              #
-#    Updated: 2024/09/20 13:36:08 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/10/27 08:43:08 by Dugonzal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.20 as builder
-
-LABEL traefik.enable=true
-LABEL traefik.http.routers.friendship.rule="Host(`localhost`) && PathPrefix(`/api/v1/friendship`)"
-LABEL traefik.http.services.friendship.loadbalancer.server.port=80
-
+FROM alpine:3.20
 
 RUN apk add --no-cache curl tzdata shadow openssl netcat-openbsd zsh python3 jq
 RUN cp /usr/share/zoneinfo/Europe/Madrid /etc/localtime

@@ -1,36 +1,36 @@
 import { defineConfig } from 'vite'
+import path from "path"
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), vueJsx(), vueDevTools()],
+  plugins: [vue(), vueJsx(), vueDevTools(), tsconfigPaths()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      "assets": path.resolve(__dirname, "./src/assets"),
+      "models": path.resolve(__dirname, "./src/models"),
+      "pong": path.resolve(__dirname, './src/services/pong'),
+      "pong-utils": path.resolve(__dirname, './src/services/pong/Objects/Utils'),
+      "pong-objects": path.resolve(__dirname, './src/services/pong/Objects')
+    },
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        // Add other entry points if needed
+      }
+    }
+  },
   server: {
     host: '0.0.0.0',
     port: 80,
-    proxy: {
-      '/api/v1': {
-        target: 'http://auth:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/auth/, '/api/auth'),
-      },
-      '/api/pong/': {
-        target: 'http://pong:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/pong/, '/api/pong'),
-      },
-      '/api/user/': {
-        target: 'http://api:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/user/, '/api/user'),
-      },
-      '/api/v1/friendship': {
-        target: 'http://friendship:80',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/admin/, '/api/admin'),
-      },
-    },
     open: true,
     cors: true
   }

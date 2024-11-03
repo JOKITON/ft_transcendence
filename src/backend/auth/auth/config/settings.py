@@ -2,7 +2,6 @@ from datetime import timedelta
 from pathlib import Path
 import os
 from .utils import load_key
-import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -40,8 +39,8 @@ SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(minutes=30),
-    'SIGNING_KEY': load_key(Path('/auth/secrets/private.pem')),
-    'VERIFYING_KEY': load_key(Path('/auth/secrets/public.pem')),
+    "SIGNING_KEY": load_key(Path("/auth/secrets/private.pem")),
+    "VERIFYING_KEY": load_key(Path("/auth/secrets/public.pem")),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
@@ -108,14 +107,14 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "user": "15/minute",  # Limit authenticated users to 5 requests per minute
-        "anon": "10/minute",  # Limit anonymous users to 2 requests per minute
+        "user": "150/minute",  # Limit authenticated users to 5 requests per minute
+        "anon": "100/minute",  # Limit anonymous users to 2 requests per minute
     },
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost",
-    "https://localhost",
+    "http://localhost:3000",
+    "https://localhost:3443",
 ]
 
 # CORS_ALLOW_CREDENTIALS = True
