@@ -120,6 +120,8 @@ import { useRouter } from 'vue-router'
 import type Api from '@/utils/Api/Api'
 import auth from '@/services/auth/auth'
 import ChatDropdown from './DesplegableChat.vue'
+// @ts-ignore
+import { eventBus } from './eventbus.js'
 
 /* ----- VARIABLES ----- */
 
@@ -280,6 +282,9 @@ const goToUserProfile = (userId: number) => {
 onMounted(async () => {
   await fetchUsername()
   await fetchFriendRequests()
+  eventBus.on('friendAccepted', async () => {
+      await fetchFriendRequests()
+  })
   userLoaded.value = true
 })
 

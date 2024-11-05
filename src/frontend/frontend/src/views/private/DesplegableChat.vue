@@ -217,6 +217,15 @@ const sendMessage = (chatId: string, message: any) => {
     console.error('Socket no disponible para este chat.')
     return
   }
+  if (chat.friend.is_blocked_by_user) {
+    alert('You have blocked this user.');
+    return;
+  }
+  if (chat.friend.is_blocked_by_friend) {
+    console.error('You are blocked.');
+    return;
+  }
+
   const text = message.data.text
   if (text.length > 0) {
     chat.newMessagesCount = chat.isOpen ? chat.newMessagesCount : chat.newMessagesCount + 1
@@ -262,11 +271,26 @@ onMounted(async () => {
       ...friend,
       isOnline: friend.isOnline === 'True' // Convertir a booleano
     }))
-
+    eventBus.on('friendAccepted', async () => {
+      await fetchFriends()
+    })
   } catch (error: any) {
     console.error('Error fetching friends:', error)
   }
 })
+
+const fetchFriends = async () => {
+  try {
+    const response = await api.get('friendship/friends');
+    friends.value = (response.friends || []).map((friend) => ({
+      ...friend,
+      isOnline: friend.isOnline === 'True'
+    }));
+  } catch (error) {
+    console.error('Error fetching friends:', error);
+  }
+};
+
 
 const echoOnMessage = (i: any, ev: MessageEvent) => {
   const data = JSON.parse(ev.data)
@@ -290,8 +314,11 @@ const blockUser = async (username: string) => {
   try {
     await api.post('friendship/blockFriend', { friend_username: username })
     friends.value = friends.value.map((friend) =>
-      friend.username === username ? { ...friend, is_blocked_by_user: true } : friend
-    )
+      friend.username === username ? { ...friend, is_blocked_by_user: true } : friend)
+      const chat = activeChats.value.find((chat) => chat.friend.username === username);
+      if (chat) {
+        chat.friend.is_blocked_by_user = true;
+      }
   } catch (error: any) {
     console.error('Error blocking user', error)
   }
@@ -302,8 +329,11 @@ const unblockUser = async (username: string) => {
   try {
     await api.post('friendship/unblockFriend', { friend_username: username })
     friends.value = friends.value.map((friend) =>
-      friend.username === username ? { ...friend, is_blocked_by_user: false } : friend
-    )
+      friend.username === username ? { ...friend, is_blocked_by_user: false } : friend)
+    const chat = activeChats.value.find((chat) => chat.friend.username === username);
+    if (chat) {
+    chat.friend.is_blocked_by_user = false;
+    }
   } catch (error: any) {
     console.error('Error unblocking user', error)
   }
