@@ -9,7 +9,6 @@ else
     DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_MAC)
 endif
 
-
 all:
 	$(DOCKER_COMPOSE_CMD) -f docker-compose.yml up --build -d --remove-orphans
 
