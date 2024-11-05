@@ -71,8 +71,8 @@ export const vecHorizWall = new Vector3(33, 0.3, 1)
 export const SCORE_TO_WIN = 5
 export const IS_STATE = 'P'
 export const IS_COMPLETED = 'C'
-export const BIT_FONT = 'fonts/Bit5x3_Regular.json'
-export const MONTSERRAT_FONT = 'fonts/Montserrat.json'
+export const BIT_FONT = '/fonts/Bit5x3_Regular.json'
+export const MONTSERRAT_FONT = '/fonts/Montserrat.json'
 
 import FontService from 'pong-objects/Text/FontService';
 import { Font } from 'three/examples/jsm/loaders/FontLoader'

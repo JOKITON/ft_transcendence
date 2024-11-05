@@ -38,7 +38,6 @@ const props = defineProps<{
   aiDifficulty: number
 }>()
 
-
 const three = new ThreeService(window.innerWidth, window.innerHeight)
 
 const startTime = Date.now() / 1000

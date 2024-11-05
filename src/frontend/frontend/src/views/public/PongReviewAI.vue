@@ -1,29 +1,38 @@
 <script setup lang="ts">
-import { Vector2, Vector3, Color, Mesh } from 'three'
-import { onMounted, onBeforeUnmount, ref } from 'vue'
-import ThreeService from '../../services/pong/ThreeService'
-import Player from '../../services/pong/Objects/Player'
-import Sphere from '../../services/pong/Objects/Sphere'
-import DashedWall from '../../services/pong/Objects/Text/DashedWall'
-import Score from '../../services/pong/Objects/Text/Score'
-import HelpText from '../../services/pong/Objects/Text/HelpText'
-import GameOver from '../../services/pong/Objects/Text/GameOver'
-import Wall from '../../services/pong/Objects/Wall'
-import { handleCollisions } from '../../services/pong/Objects/Utils/Utils'
-import FontService from '../../services/pong/Objects/Text/FontService'
+import { Vector3, Color } from 'three';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+import ThreeService from 'pong/ThreeService';
+import Player from 'pong-objects/Player';
+import Sphere from 'pong-objects/Sphere';
+import DashedWall from 'pong-objects/Text/DashedWall';
+import Score from 'pong-objects/Text/Score';
+import HelpText from 'pong-objects/Text/HelpText';
+import GameOver from 'pong-objects/Text/GameOver';
+import Wall from 'pong-objects/Wall';
+import { handleCollisions, blinkObject } from 'pong-utils/Utils';
+import LuckySphere from 'pong-objects/LuckySphere';
 
 import {
+  type intStatePongData,
   setBallVelocity,
-  dateStart,
   ballGeometry,
   ballGeometry2,
   ballVelocity,
   vecHorizWall,
-  bounds
-} from '../../services/pong/Objects/Utils/pongVariables'
-import { BIT_FONT, MONTSERRAT_FONT } from '../../services/pong/Objects/Utils/pongVariables'
+  bounds,
+  ballVectorY,
+  font
+} from 'pong-utils/pongVariables'
+import {
+  IS_STATE,
+  IS_COMPLETED,
+  SCORE_TO_WIN,
+  BIT_FONT,
+  MONTSERRAT_FONT
+} from 'pong-utils/pongVariables'
 
 const three = new ThreeService(800, 500)
+
 // Ball object
 const ball = new Sphere(
   ballGeometry,
@@ -37,8 +46,6 @@ const ball = new Sphere(
 const horizWallUp = new Wall(vecHorizWall, new Vector3(0, 10, 0), new Color('white'))
 const horizWallDown = new Wall(vecHorizWall, new Vector3(0, -10, 0), new Color('white'))
 
-const font = ref(undefined)
-
 let wallMid: DashedWall // Vertical dashed wall
 let scorePlayer1: Score
 let scorePlayerAI: Score
@@ -48,46 +55,57 @@ let helpTextSpace: HelpText
 let helpTextPlayerOne: HelpText
 let helpTextPlayerTwo: HelpText
 
+let helpTextControlsOne: HelpText
+
 let finalScore: GameOver
 
-async function loadFont() {
-  await FontService.loadFont('./src/assets/fonts/Bit5x3_Regular.json').then((loadedFont) => {
-    const font = loadedFont
+// Scores
+let numScorePlayerOne = 0
+let numScorePlayerTwo = 0
 
-    // Vertical dashed wall
-    wallMid = new DashedWall('- - - - - - - -', new Color('green'), new Vector3(0, 0, -1), font)
-    scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font)
-    scorePlayerAI = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font)
-    helpText = new GameOver('You', new Color('white'), new Vector3(-15.5, 3.5, 0), font)
+async function loadFontObjects() {
 
-    helpTextSpace = new HelpText(
-      'Press space to start',
-      new Color('white'),
-      new Vector3(0, 3.5, 0),
-      BIT_FONT,
-      1
-    )
+  // Vertical dashed wall
+  wallMid = new DashedWall('- - - - - - - -', new Color('green'), new Vector3(0, 0, -1), font)
 
-    helpTextPlayerOne = new HelpText(
-      'AI',
-      new Color('white'),
-      new Vector3(-16, 3.5, 0),
-      BIT_FONT,
-      1
-    )
-    helpTextPlayerTwo = new HelpText('AI', new Color('white'), new Vector3(16, 3.5, 0), BIT_FONT, 1)
+  // Set the text for the score of each player
+  scorePlayer1 = new Score(numScorePlayerOne, new Color('white'), new Vector3(-2, 7.5, 0), font)
+  scorePlayerAI = new Score(numScorePlayerTwo, new Color('white'), new Vector3(2, 7.5, 0), font)
 
-    finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font)
-  })
+  // Set the text for the controls
+  helpTextControlsOne = new HelpText(
+    '↑\n\n\n↓',
+    new Color('white'),
+    new Vector3(-16, 0, 0),
+    MONTSERRAT_FONT,
+    1
+  )
+  // Set text for the start of the game
+  helpTextSpace = new HelpText(
+    'Press space to start',
+    new Color('white'),
+    new Vector3(0, 3.5, 0),
+    BIT_FONT,
+    2
+  )
+
+  // Set text for the player names
+  helpTextPlayerOne = new HelpText(
+    'AI',
+    new Color('red'),
+    new Vector3(-16, 5.5, 0),
+    BIT_FONT,
+    1
+  )
+  helpTextPlayerTwo = new HelpText('AI', new Color('blue'), new Vector3(16, 5.5, 0), BIT_FONT, 1)
+
+  // Set text for the final score
+  finalScore = new GameOver('', new Color('white'), new Vector3(0, 0.5, 0), font)
 }
 
 // Player objects (to be initialized later)
 let playerAIOne: Player
 let playerAITwo: Player
-
-// Scores
-let numScorePlayerOne = 0
-let numScorePlayerTwo = 0
 
 const isAnimating = ref(true)
 const isGameOver = ref(false)
@@ -151,7 +169,7 @@ function update() {
       numScorePlayerTwo += 1
       scorePlayerAI.updateScore(numScorePlayerTwo.toString())
       blinkObject(playerAITwo.get())
-      if (numScorePlayerTwo == 5) {
+      if (numScorePlayerTwo == 999) {
         endGame(playerAITwo.getName())
       }
       ball.invertVelocity()
@@ -159,7 +177,7 @@ function update() {
       numScorePlayerOne += 1
       scorePlayer1.updateScore(numScorePlayerOne.toString())
       blinkObject(scorePlayer1.get())
-      if (numScorePlayerOne == 5) {
+      if (numScorePlayerOne == 999) {
         endGame(playerAIOne.getName())
       }
     } else {
@@ -178,23 +196,6 @@ function update() {
   playerAIOne.updateAI(ball)
   playerAITwo.updateAI(ball)
   handleCollisions(ball, playerAIOne, playerAITwo, audio)
-}
-
-// Blinking effect for the score when a player loses
-function blinkObject(mesh: Mesh) {
-  let visible = true
-  const blinkDuration = 800
-  const blinkInterval = 200
-
-  const intervalId = setInterval(() => {
-    visible = !visible
-    mesh.visible = visible
-
-    setTimeout(() => {
-      clearInterval(intervalId)
-      mesh.visible = true
-    }, blinkDuration)
-  }, blinkInterval)
 }
 
 function returnObjectsToPlace() {
@@ -222,7 +223,7 @@ const endGame = (winningPlayer: string) => {
 }
 
 onMounted(async () => {
-  await loadFont()
+  await loadFontObjects()
   setupScene()
   three.startAnimation(update)
   window.addEventListener('resize', () => {

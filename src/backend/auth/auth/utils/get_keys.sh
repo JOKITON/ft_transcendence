@@ -1,8 +1,6 @@
-## Check if the directory for auth exists, if not, create it
-if [ ! -d /auth/secrets ]; then
-  echo "Creating /auth/secrets directory..."
-  mkdir -p /auth/secrets
-fi
+rm -rf /auth/secrets
+
+mkdir -p /auth/secrets
 
 ## Check if the private key exists, if not, generate it
 echo "Generating private key..."

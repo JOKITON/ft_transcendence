@@ -126,9 +126,19 @@ export default class Player extends Box {
         // Predict Y position when the ball reaches the AI
         const predictedBallPosY = (ballPosY + velocityY * timeToImpact) * 1
         if (this.mesh.position.y < predictedBallPosY && this.mesh.position.y < 8) {
-          this.moveUp(this.moveSpeed - randomFactor)
+          console.log('Diff: ', predictedBallPosY - this.mesh.position.y)
+          if (predictedBallPosY - this.mesh.position.y < this.moveSpeed) {
+            this.moveUp(predictedBallPosY - this.mesh.position.y)
+          }
+          else
+            this.moveUp(this.moveSpeed - randomFactor)
         } else if (this.mesh.position.y > predictedBallPosY && this.mesh.position.y > -8) {
-          this.moveDown(this.moveSpeed - randomFactor)
+          console.log('Diff: ', this.mesh.position.y - this.mesh.position.y)
+          if (this.mesh.position.y - predictedBallPosY < this.moveSpeed) {
+            this.moveUp(this.mesh.position.y - predictedBallPosY)
+          }
+          else
+            this.moveDown(this.moveSpeed - randomFactor)
         }
       }
 
