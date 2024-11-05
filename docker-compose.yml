@@ -2,14 +2,12 @@ services:
   frontend:
     container_name: frontend
     build: src/frontend/
-    networks:
-      - proxy
     volumes:
       - node_modules:/frontend/node_modules
       - frontend:/frontend
     restart: always
-    depends_on:
-      - proxy
+    networks:
+      - frontend
   redis:
     container_name: redis
     build: src/backend/redis/
@@ -17,9 +15,10 @@ services:
     volumes:
       - redis:/data
     networks:
-      - proxy
+      - backend
     ports:
       - 6379
+  # Backend
   db:
     container_name: db
     build: src/database/
@@ -31,44 +30,25 @@ services:
     restart: always
     shm_size: 128mb
     networks:
-      - proxy
-  proxy:
-    container_name: proxy
-    build: src/proxy/
-    ports:
-      - 7104:7104
-      - 7102:7102
-    restart: always
-    networks:
-      - proxy
-  # backend
+      - backend
+
   auth:
     container_name: auth
     build: src/backend/auth/
     env_file: src/backend/.env.dev
     restart: always
     volumes:
-      - auth:/auth
       - dependencies:/opt/venv/
+      - migration_semaphore:/migration
     networks:
-      - proxy
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/api/v1/auth/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     depends_on:
       - db
-  migration:
-    container_name: migration
-    build: src/backend/migration/
-    env_file: src/backend/.env.dev
-    restart: always
-    volumes:
-      - auth:/usr/src/app/auth
-      - pong:/usr/src/app/pong
-      - friendship:/usr/src/app/friendship
-      - dependencies:/opt/venv/
-    networks:
-      - proxy
-    depends_on:
-      - db
-      - auth
 
   pong:
     container_name: pong
@@ -76,14 +56,18 @@ services:
     env_file: src/backend/.env.dev
     restart: always
     volumes:
-      - pong:/pong
       - dependencies:/opt/venv/
+      - migration_semaphore:/migration
     networks:
-      - proxy
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/api/v1/pong/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     depends_on:
       - db
       - auth
-      - migration
 
   friendship:
     container_name: friendship
@@ -91,15 +75,19 @@ services:
     env_file: src/backend/.env.dev
     restart: always
     volumes:
-      - friendship:/friendship
       - dependencies:/opt/venv/
+      - migration_semaphore:/migration
     networks:
-      - proxy
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/api/v1/friendship/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     depends_on:
       - db
       - auth
       - pong
-      - migration
 
   livechat:
     container_name: livechat
@@ -107,65 +95,40 @@ services:
     env_file: src/backend/.env.dev
     restart: always
     volumes:
-      - livechat:/livechat
+      - migration_semaphore:/migration
     networks:
-      - proxy
+      - backend
     depends_on:
       - auth
+  proxy:
+    container_name: proxy
+    build: src/proxy/
+    ports:
+      - 7102:7102
+    restart: always
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - auth
+      - pong
+      - friendship
+      - livechat
 
 networks:
-  proxy:
-    name: proxy
+  frontend:
+    name: frontend
+    driver: bridge
+  backend:
+    name: backend
     driver: bridge
 
 volumes:
+  # FrontEnd
   frontend:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${USER}/volumes/frontend/
-  redis:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${USER}/volumes/redis/
-  db:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${USER}/volumes/db
   node_modules:
-  # backend
+  # Backend
+  redis:
+  db:
   dependencies:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${USER}/volumes/dependencies
-  pong:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${USER}/volumes/pong/
-  auth:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${USER}/volumes/auth/
-  friendship:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${USER}/volumes/friendship/
-  livechat:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${USER}/volumes/livechat
+  migration_semaphore:

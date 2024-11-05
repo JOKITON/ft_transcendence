@@ -17,9 +17,12 @@ from requests.sessions import Request
 from rest_framework import status
 from .models import Friendship
 from typing import Type
+from django.http import HttpResponse
 
 User: Type[ModelBase] = get_user_model()
 
+def health_check(request):
+    return HttpResponse("OK", status=200)
 
 class AllUsers(APIView):
     authentication_classes = [JWTAuthentication]

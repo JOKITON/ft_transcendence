@@ -6,7 +6,7 @@
 #    By: jaizpuru <jaizpuru@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/17 18:36:34 by jaizpuru          #+#    #+#              #
-#    Updated: 2024/10/24 11:34:42 by jaizpuru         ###   ########.fr        #
+#    Updated: 2024/11/05 15:04:13 by jaizpuru         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,9 +18,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from .serializers import PongGameStateSerializer, PongGameSerializer, Tournament4PSerializer, Tournament4PStateSerializer, Tournament8PSerializer
+from django.http import HttpResponse
 from .models import Player
 
 User = get_user_model()
+
+def health_check(request):
+    return HttpResponse("OK", status=200)
 
 class CreateDefaultPlayerView(APIView):
     

@@ -6,6 +6,7 @@ from .views import (
     Tournament4PStateView,
     Tournament4PView,
     Tournament8P,
+    health_check,
 )
 from .views_get import (
     TournamentListView,
@@ -17,6 +18,8 @@ from .views_get import (
 )
 
 urlpatterns = [
+    path("health", health_check, name="health"),
+    
     # Get/Post game state
     path("get-state/<int:pk>/", PongGameDataView.as_view(), name="get-state"),
     path("get-state/<str:tournament_type>/<int:id1>/", AnyPongGameDataView.as_view(), name="get-state"),

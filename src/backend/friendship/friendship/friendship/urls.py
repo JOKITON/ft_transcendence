@@ -1,4 +1,5 @@
 from .views import (
+    health_check,
     AllUsers,
     InviteFriendView,
     InviteStatusView,
@@ -17,6 +18,7 @@ from .views import (
 from django.urls import path
 
 urlpatterns = [
+    path('health', health_check),
     path("users", AllUsers.as_view(), name="users"),
     path("add", InviteFriendView.as_view(), name="invite"),
     path("pendingReq", PendingFriendRequestsView.as_view(), name="pendingReq"),

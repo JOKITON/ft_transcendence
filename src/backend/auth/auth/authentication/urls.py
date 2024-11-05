@@ -7,6 +7,7 @@ from .views import (
     WhoAmIView,
     PublicKeyView,
     IAm,
+    health_check,
 )
 from .views_user import (
     GetUsers,
@@ -22,6 +23,8 @@ from .views_avatar import (
 )
 
 urlpatterns = [
+    path('health', health_check),    
+
     # General User Related
     path("register", RegisterUserView.as_view(), name="register"),
     path("login", LoginUserView.as_view(), name="login"),

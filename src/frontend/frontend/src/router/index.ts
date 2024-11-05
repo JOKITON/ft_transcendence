@@ -4,7 +4,7 @@ import Register from '../views/public/Register.vue'
 import Login from '../views/public/Login.vue'
 import PongIndex from '../views/private/Pong/PongIndex.vue'
 import auth from '@/services/auth/auth'
-import UserList from '../views/private/UserList.vue'
+// import UserList from '../views/private/UserList.vue'
 import Home from '../views/private/Home.vue'
 import Profile from '../views/private/Profile.vue'
 import Friends from '../views/private/Friends.vue'
@@ -41,6 +41,13 @@ const router = createRouter({
       component: UserProfile,
       props: true,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/health-check',
+      name: 'health-check',
+      component: {
+        template: '<div>OK</div>'
+      }
     }
   ]
 })

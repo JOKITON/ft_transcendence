@@ -10,7 +10,10 @@ from UserModel.models import User
 from rest_framework import status
 from django.conf import settings
 from typing import Any, Dict
+from django.http import HttpResponse
 
+def health_check(request):
+    return HttpResponse("OK", status=200)
 
 class RegisterUserView(APIView):
     def post(self, request: Request) -> Response:

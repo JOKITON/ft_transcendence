@@ -1,5 +1,5 @@
 DOCKER_COMPOSE_LINUX = docker compose
-DOCKER_COMPOSE_MAC =  docker-compose
+DOCKER_COMPOSE_MAC = sudo docker-compose
 
 # Check if docker-compose exists
 DOCKER_COMPOSE_EXISTS := $(shell command -v docker-compose 2>/dev/null)
@@ -9,11 +9,10 @@ else
     DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE_MAC)
 endif
 
-VOLUMES = ${USER}/volumes/db ${USER}/volumes/dependencies ${USER}/volumes/redis
 
 all:
-	bash ./scripts/init.sh
 	$(DOCKER_COMPOSE_CMD) -f docker-compose.yml up --build -d --remove-orphans
+
 clean:
 	@$(DOCKER_COMPOSE_CMD)  down --remove-orphans --volumes
 	#docker volume rm $(docker volume ls -qf dangling=true)

@@ -10,4 +10,8 @@ RUN openssl req -x509 -out /etc/nginx/certs/localhost.crt -keyout /etc/nginx/cer
   -newkey rsa:2048 -nodes -sha256 \
   -subj '/CN=localhost'
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY health-check.sh health-check.sh
+
+RUN chmod +x health-check.sh
+
+CMD ["sh", "health-check.sh"]
