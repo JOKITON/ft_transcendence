@@ -120,11 +120,21 @@ export default class Player extends Box {
 
         let randomFactor = 0
         if (this.aiDifficulty < 10) randomFactor = Math.random() * 0.05 * (0.01 / this.aiDifficulty) // Adjust the randomness factor
-        // Assuming 'this.mesh.position.x' is the AI's paddle position on the X-axis
+        // Negative ball positions on the X axis will revert the predictedBallPosY
         const timeToImpact = (this.mesh.position.x - ballPosX) / velocityX // Time it takes for the ball to reach the AI paddle's X position
+        console.log('Time to impact: ', timeToImpact)
 
         // Predict Y position when the ball reaches the AI
-        const predictedBallPosY = (ballPosY + velocityY * timeToImpact) * 1
+        let predictedBallPosY = (ballPosY + (velocityY * timeToImpact))
+        
+        // Handle multiple reflections
+        while (predictedBallPosY > 9.2 || predictedBallPosY < -9.2) {
+          if (predictedBallPosY > 9.2) {
+            predictedBallPosY = 9.2 - (predictedBallPosY - 9.2);
+          } else if (predictedBallPosY < -9.2) {
+            predictedBallPosY = -9.2 - (predictedBallPosY + 9.2);
+          }
+        }
         if (this.mesh.position.y < predictedBallPosY && this.mesh.position.y < 8) {
           console.log('Diff: ', predictedBallPosY - this.mesh.position.y)
           if (predictedBallPosY - this.mesh.position.y < this.moveSpeed) {
