@@ -2,8 +2,29 @@ import { Mesh, Audio } from 'three'
 import Player from '../Player'
 import Sphere from '../Sphere'
 
+let lastCollisionCheck = 0;
+let lastCollisionCheck2 = 0;
+
 function checkCollisions(ball: Sphere, player: Player, player2: Player): boolean {
-  const playerIntersects = ball.intersects(player) || ball.intersects(player2)
+  let playerIntersects = false;
+  
+  if (ball.intersects(player)) {
+    const now = Date.now()
+    if (now - lastCollisionCheck < 200) {
+      return false
+    }
+    lastCollisionCheck = now
+    playerIntersects = true;
+  }
+  else if (ball.intersects(player2))
+  {
+    const now = Date.now()
+    if (now - lastCollisionCheck2 < 200) {
+      return false
+    }
+    lastCollisionCheck2 = now
+    playerIntersects = true;
+  }
 
   if (playerIntersects) {
     ball.invertVelocity() // Reverse ball direction upon collision
