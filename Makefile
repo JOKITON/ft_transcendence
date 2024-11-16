@@ -1,5 +1,5 @@
 DOCKER_COMPOSE_LINUX = docker compose
-DOCKER_COMPOSE_MAC = sudo docker-compose
+DOCKER_COMPOSE_MAC = docker-compose
 
 # Check if docker-compose exists
 DOCKER_COMPOSE_EXISTS := $(shell command -v docker-compose 2>/dev/null)
@@ -21,8 +21,8 @@ fclean: clean
 	docker system prune --all --volumes --force
 
 fclean-sudo: clean
-	sudo rm -rf ${USER}
-	sudo bash ./scripts/clean.sh
+	rm -rf ${USER}
+	bash ./scripts/clean.sh
 	docker system prune --all --volumes --force
 
 re: fclean all
